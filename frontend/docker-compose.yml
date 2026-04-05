@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nextjs-backend
+    restart: always
+    ports:
+      - "5992:3000"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env

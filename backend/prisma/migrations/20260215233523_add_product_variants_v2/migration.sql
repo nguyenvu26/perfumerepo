@@ -1,0 +1,2 @@
+-- Empty migration to fix corrupted migration directory structure
+-- This migration was missing its SQL file, preventing new migrations from being applied.

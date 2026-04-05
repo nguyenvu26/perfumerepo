@@ -1,0 +1,4226 @@
+﻿----------------------- Page 1-----------------------
+
+   
+
+                                                                                                                                                     
+
+       
+
+                                                           Course Project Report  
+
+                                                                                                                    Subj ect: SEP490  
+
+                                                                                                   – Quy Nhon, January 2026 –  
+
+                                                                                                                                                           
+
+Record of Changes  
+
+     Date                                A*                            In charge                                   Change Description  
+
+                                          M, D  
+
+                                                                                                                     
+
+                                                                                                                     
+
+                                                                                                                     
+
+                                                                                                                     
+
+----------------------- Page 2-----------------------
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+                                                                                                             
+
+*A - Added M - Modified D - Deleted  
+
+                                                                                            Table of Contents  
+
+I. Overview.                                                                                                                                                                                                                                                                       4  
+           I.1 Project  Information.                                                                                                                                                                                                                                               4  
+           I.2 Project Team.                                                                                                                                                                                                                                                       4  
+           II. Requirement Specification                                                                                                                                                                                                                                           5  
+                      II.1 Problem description                                                                                                                                                                                                                                     5  
+                      II.2 Major Features                                                                                                                                                                                                                                          5  
+                      II.3 Context Diagram                                                                                                                                                                                                                                         6  
+                      II.4 Nonfunction Requirements.                                                                                                                                                                                                                               8  
+                      II.5 Functional requirements.                                                                                                                                                                                                                               10  
+                                 II.5.1 Actor                                                                                                                                                                                                                                     10  
+                                 II.5.2 Use Cases                                                                                                                                                                                                                                 11  
+                                                       UC-G01: View Public Product List                                                                                                                                                                                           17  
+                                                       UC-G02: Search and Filter Products                                                                                                                                                                                         18  
+                                                       UC-G03: View Limited Product Details                                                                                                                                                                                       20  
+                                                       UC-G04: View Public Promotions                                                                                                                                                                                             21  
+                                                       UC-G05: Register Account                                                                                                                                                                                                   23  
+                                                       UC-G06: Login to System                                                                                                                                                                                                    24  
+                                                       UC-C01: Register/Login via Email                                                                                                                                                                                           25  
+                                                       UC-C02: Login User                                                                                                                                                                                                         27  
+                                                       UC-C03: Logout                                                                                                                                                                                                             28  
+                                                       UC-C04: Manage Profile                                                                                                                                                                                                     30  
+                                                       UC-C05: Manage Scent Preferences                                                                                                                                                                                           31  
+
+----------------------- Page 3-----------------------
+
+UC-C06: View Purchase History                                            33  
+UC-C07: View Loyalty Points                                              34  
+UC-C08: Browse Product Catalog                                           36  
+UC-C09: Search Products                                                  37  
+UC-C10: Filter Products                                                  38  
+UC-C11: View Product Details                                             40  
+UC-C12: View Product Reviews                                            4 1  
+UC-C13: Add/Remove Favorite                                              42  
+UC-C14: Chat with A I Perfume Consultant                                 44  
+UC-C15: Receive A I-based Recommendations                                45  
+UC-C16: Take A I Perfume Quiz                                            47  
+UC-C17: View Recommendation Explanation                                  48  
+UC-C18: View Personalized Suggestions                                    49  
+UC-C19: Add Product to Cart                                              50  
+UC-C20: Update Cart Quantity                                             52  
+UC-C21: Remove Product from Cart                                         53  
+UC-C22: Apply Promotion Code                                             54  
+UC-C23: Place Order                                                      55  
+UC-C24: Choose Payment Method                                            57  
+UC-C25: Make Online Payment                                              58  
+UC-C26: Confirm COD Order                                                60  
+UC-C27: View Order Details                                               61  
+UC-C28: Track Order Status                                               62  
+UC-S01: Login to Staff System                                            64  
+UC-S02: Perform  In-store Sale                                           65  
+UC-S03: Scan Product Barcode                                             67  
+UC-S04: Apply Discount at POS                                            68  
+UC-S05: Print Receipt                                                    70  
+UC-S06: Check  Inventory Levels                                          71  
+UC-S07: Update Stock Quantity                                            72  
+UC-S08: Assist Customer with A I                                         74  
+UC-S09: View Daily Sales Summary                                         75  
+UC-A01: Manage User Accounts                                             76  
+UC-A02: Assign Roles                                                     78  
+UC-A03: Activate/Deactivate Accounts                                     79  
+UC-A04: Create Product                                                   81  
+UC-A05: Update Product  Information                                      83  
+UC-A06: Delete Product                                                   84  
+UC-A07: Manage Scent Attributes                                          85  
+UC-A08:  Import  Inventory                                               86  
+UC-A09: Configure Stock Alerts                                           87  
+UC-A 10: View All Orders                                                 88  
+UC-A 11: Manage Order Status                                             90  
+UC-A 12: Configure Loyalty Program                                       92  
+
+----------------------- Page 4-----------------------
+
+                      UC-A 13: Create Promotion Campaign                                                 93  
+                      UC-A 14: Configure A I Settings                                                    94  
+                      UC-A 15: View Analytics Dashboard                                                  95  
+                      UC-A 16: Backup & Restore Data                                                     97  
+                      UC-X01: Authenticate via OAuth                                                     98  
+                      UC-X02: Process Payment Transaction                                               100  
+                      UC-X03: Receive Payment Webhook                                                   101  
+                      UC-X04: Request A I Recommendation                                                102  
+                      UC-X05: Send Notification                                                         103  
+
+  
+
+I. Overview.  
+
+I.1 Project Information.   
+
+    ●    Project name: PerfumeGPT  
+
+    ●    Group: SP26SE04209  
+
+    ●    Software type: Full Stack Web/Flutter App  
+
+  
+
+I.2 Project Team.   
+
+  
+
+                                                                                        Mobile  
+      Full Name                  Role             Email  
+
+ VangH                           Mentor                                                       
+
+ Hoàng Lê Quý An                  Leader                                                      
+
+ Nguyễn Tuấn Kiệt                Member                                                       
+
+ Lương Gia Khánh                 Member                                                       
+
+ Lê Anh Khôi                     Member                                                       
+
+----------------------- Page 5-----------------------
+
+ Nguyễn Trần Quang            Member                                                 
+ Nhật  
+
+II. Requirement Specification  
+
+II.1 Problem description  
+
+Customers often struggle to choose perfumes that truly match their preferences, occasions,  
+
+and budgets due to the subjective and complex nature of fragrance selection. In both physical  
+
+stores and online platforms, consultation is often limited or inconsistent, leading to decision  
+
+fatigue, low confidence, and abandoned or unsatisfactory purchases.  
+
+Meanwhile, perfume retailers face operational challenges such as inefficient inventory  
+
+management, poor synchronization between in-store and online sales channels, and difficulty  
+
+managing customer data across multiple platforms. Although large volumes of purchase and  
+
+review data are available, most retailers lack effective tools to transform this data into  
+
+actionable insights for personalization, trend analysis, and targeted promotions.  
+
+PerfumeGPT addresses these issues by providing a unified web and mobile platform that  
+
+combines AI-powered personalized perfume consultation with centralized retail management.  
+
+The system enables intelligent fragrance recommendations while supporting inventory  
+
+control, omnichannel sales, customer relationship management, and data-driven  
+
+decision-making, improving both customer experience and business efficiency.  
+
+II.2 Major Features  
+
+    ●   FE-01: Register/Login (Email, Google/Facebook)  
+         User authentication using email/password and SSO (Google/Facebook) with  
+        role-based access control.  
+    ●   FE-02: User Profile & Preference Management  
+         Manage user profiles including personal information, scent preferences, budget  
+        range, purchase history, and AI quiz results.  
+    ●   FE-03: Product Discovery (Browse/Search/Filter)  
+         Browse and search perfumes by brand, price, scent family, gender, longevity, and  
+        availability, including semantic search support.  
+    ●   FE-04: Product Details  
+         View detailed perfume information such as description, scent notes  
+        (top/middle/base), price, stock status, reviews, and AI-generated insights.  
+    ●   FE-05: AI Perfume Consultation – Chatbot  
+
+----------------------- Page 6-----------------------
+
+         Natural-language chatbot that recommends 3–5 suitable perfumes with explanations  
+        based on user preferences and context.  
+    ●   FE-06: AI Perfume Consultation – Interactive Quiz  
+         5-question guided quiz (gender, occasion, budget, scent family, longevity) providing  
+        top 3 ranked recommendations with reasoning.  
+    ●   FE-07: Shopping Cart & Order Management  
+         Add/remove products, adjust quantities, apply promotions, and manage orders across  
+        online and in-store purchases.  
+    ●   FE-08: In-store POS System  
+         Barcode scanning, discount application, receipt printing, and quick checkout for  
+        physical store sales.  
+    ●   FE-09: Payment Integration  
+         Online and offline payments via Momo, VNPay, and Cash-on-Delivery, including  
+        order confirmation and transaction records.  
+    ●   FE-10: Shipping Integration & Order Tracking  
+         Integration with GHN and GHTK for shipping fee calculation, delivery status  
+        updates, and order tracking.  
+    ●   FE-11: Omnichannel Sales Synchronization  
+         Real-time synchronization of products, inventory, and orders between in-store POS,  
+        website, and Shopee marketplace.  
+    ●   FE-12: Inventory Management & Alerts  
+         Manage stock levels, import records, and automated alerts for low stock and  
+        upcoming product expiration.  
+    ●   FE-13: CRM & Loyalty Program  
+         Customer relationship management with loyalty points, purchase history,  
+        personalized promotions, and repurchase reminders.  
+    ●   FE-14: Promotions & Marketing Campaigns  
+         Create and manage combo deals, discounts, free samples, and automated email/SMS  
+        marketing campaigns.  
+    ●   FE-15: Review Management & AI Summarization  
+         Collect customer reviews and use AI to generate concise summaries highlighting  
+        common feedback and sentiment.  
+    ●   FE-16: Analytics & Dashboards  
+         Dashboards for admins and staff showing revenue, best-selling products, inventory  
+        status, customer behavior, and AI recommendation acceptance rate.  
+    ●   FE-17: Staff Dashboard & Quick Consultation Tool  
+         Daily order overview, mobile POS access, stock checking, and quick AI-assisted  
+        consultation for in-store customers.  
+    ●   FE-18: Notifications System  
+         Email, SMS, and in-app notifications for order status, shipping updates, promotions,  
+        restocks, and new AI recommendations.  
+    ●   FE-19: Mobile Applications (Customer & Staff)  
+         Flutter-based mobile apps supporting browsing, AI consultation, ordering, order  
+        tracking, POS operations, and inventory checking.  
+    ●   FE-20: Admin Management & Moderation  
+         Admin tools for managing users, roles, products, promotions, AI configurations, and  
+        system monitoring.  
+
+II.3 Context Diagram  
+
+----------------------- Page 7-----------------------
+
+System Context Diagram – PerfumeGPT: The PerfumeGPT platform interacts with  
+multiple external services and internal system components to deliver an AI-powered perfume  
+retail and personalized consultation experience. The system supports omnichannel sales,  
+inventory management, AI recommendation, and customer relationship management.  
+
+External Entities:  
+
+    ●    Customer / Staff / Admin  
+          Use the web and mobile applications to register/sign in, browse perfumes, receive AI  
+         consultation, place orders, manage inventory (staff), and administer the system  
+         (admin).  
+    ●    OAuth Providers (Google/Facebook)  
+          Provide secure social login using OAuth 2.0 for customer and staff authentication.  
+    ●    AI Service Provider (xAI API)  
+          Processes natural-language perfume consultation, semantic search queries, review  
+         summarization, and trend forecasting.  
+    ●    Payment Gateways (VNPay, Momo, COD)  
+          Handle online and offline payment processing, transaction confirmation, and  
+         payment status updates.  
+    ●    Shipping & Logistics Services (GHN, GHTK)  
+          Provide shipping fee calculation, order delivery, and real-time shipment status  
+         updates.  
+    ●    E-commerce Marketplace (Shopee API)  
+          Synchronizes product listings, inventory levels, and orders between the system and  
+         Shopee.  
+    ●    Email/SMS/Notification Services (SendGrid, SES, Twilio, etc.)  
+          Send account verification emails, order confirmations, shipping updates, promotions,  
+         and AI recommendation notifications.  
+    ●    Media Storage / CDN (Cloudinary or AWS S3 + CDN)  
+          Store and deliver product images, brand assets, and promotional media efficiently.  
+    ●    (Optional) Analytics & Monitoring Services (Sentry, Datadog)  
+          Monitor system performance, error tracking, and usage analytics.  
+
+           
+
+Internal Components:  
+
+    ●    Web Application (Next.js + Tailwind CSS)  
+          Provides responsive user interfaces for Admin, Staff, and Customer portals, supports  
+         SEO for online store pages, and communicates with backend APIs.  
+    ●    Mobile Applications (Flutter)  
+          Customer app: AI consultation, product browsing, ordering, and order tracking.  
+          Staff app: Mobile POS, inventory checking, and quick customer consultation.  
+    ●    API Server (NestJS, REST, JWT + OAuth2)  
+          Implements core business logic including authentication, role-based access control,  
+
+----------------------- Page 8-----------------------
+
+           product management, orders, inventory, POS, CRM, and AI orchestration.  
+       ●   Database (PostgreSQL + Prisma ORM)  
+            Stores users, roles, profiles, products, scent attributes, inventory, orders, payments,  
+            shipping data, reviews, loyalty points, promotions, AI logs, and audit records.  
+       ●    Cache & Queue (Redis)  
+            Handles session/token caching, rate limiting, AI response caching, background jobs  
+            (notifications, AI analysis, synchronization tasks).  
+       ●   Vector Search Engine (PostgreSQL pgvector)  
+            Supports semantic product search and AI-based perfume matching using vector  
+            embeddings.  
+       ●   Analytics & Reporting Module  
+            Generates dashboards for revenue, inventory status, best-selling products, customer  
+           behavior, and AI recommendation acceptance rates.  
+
+                                                                                                                          
+
+    
+
+  II.4 Nonfunction Requirements.   
+
+    
+
+#        Feature             System Function         Description  
+
+1                                                    The system must ensure fast response times, with AI consultation  
+                             System  
+         Performance                                 responses under 3 seconds and web page load times under 2 seconds for  
+                             Performance  
+                                                     normal user interactions.  
+
+2                                                    The application must be scalable to support multiple stores, increasing  
+                             Data Handling  
+         Scalability                                 numbers of users, and peak traffic conditions by leveraging cloud-based  
+                             and System Load  
+                                                     infrastructure.  
+
+----------------------- Page 9-----------------------
+
+ 3                                 User                         The system must provide secure user authentication using JWT and  
+
+          Security                 Authentication &             OAuth (Google/Facebook), enforce role-based access control, and  
+
+                                   Data Protection              protect sensitive data through encryption.  
+
+ 4        Platform                 Multi-Platform               The system must support responsive web access and native-like mobile  
+
+          Support                  Compatibility                applications on both iOS and Android platforms using Flutter.  
+
+ 5                                 Data Consistency             The system must ensure data consistency across all sales channels (POS,  
+
+          Data Integrity           &                            website, marketplace) and synchronize inventory and order data in near  
+
+                                   Synchronization              real time.  
+
+                                                                  
+ 6        Reliability              System                       The system must maintain at least 99.9% uptime and handle failures  
+
+                                   Availability                 gracefully, including temporary downtime of external services such as the  
+                                                                xAI API.  
+
+                                                                  
+
+                                                                  
+ 7        Maintainabilit           Code Structure               The system codebase must be modular, well-documented, and  
+
+          y                        and Updates                  easy to maintain, allowing updates and feature extensions without  
+                                                                disrupting existing functionality.  
+
+                                                                  
+
+                                                                  
+ 8        Accessibility            Accessibility                The system must comply with WCAG accessibility guidelines,  
+
+                                   Features                     ensuring usability for users with disabilities, such as screen reader  
+                                                                support and keyboard navigation.  
+
+                                                                  
+
+                                                                  
+ 9        Localization             Language                     The system should support multiple languages, at minimum English and  
+
+                                   Support                      Vietnamese, to serve a wider and more diverse user base.  
+
+                                                                  
+
+                                                                  
+10        Backup and               Data Backup and              Regular automated backups must be performed, and the system  
+
+          Recovery                 Recovery                     must support data recovery in case of data loss, corruption, or  
+                                                                system failure.  
+
+----------------------- Page 10-----------------------
+
+                                                         
+
+  
+
+II.5 Functional requirements.   
+
+II.5.1 Actor  
+
+  
+
+ Actor                                   Description  
+
+  Guest                                       ●    Browse public product listings  
+                                              ●    View limited product details  
+                                              ●    View public promotions  
+                                              ●    Register / Sign in to the system  
+
+  Customer                                           
+                                              ●    Register / Login via Email or Google/Facebook  
+                                              ●    Manage personal profile and scent preferences  
+                                              ●    Browse, search, and filter perfume products  
+                                              ●    View detailed product information and reviews  
+                                              ●    Use AI chatbot for perfume consultation  
+                                              ●    Complete AI-guided perfume quiz  
+                                              ●    Add/remove products to/from cart  
+                                              ●    Place orders and track order status  
+                                              ●    Make online payments (VNPay/Momo/Cash-on-Delivery)  
+                                              ●    Save/remove favorite products  
+                                              ●    View purchase history and loyalty points  
+                                              ●    Receive notifications (order status, promotions, AI recommendations)  
+
+                                            
+
+                                           
+
+  Staff                                       ●    Login to staff portal or mobile POS application  
+                                              ●    Perform in-store sales using POS system  
+                                              ●    Scan barcodes and manage checkout process  
+                                              ●    Apply discounts and promotions  
+                                              ●    Check and update inventory levels  
+                                              ●    Assist customers with quick AI-assisted consultation  
+                                              ●    View daily sales and order summaries  
+
+ Admin                                        ●    Manage users and roles (Customer, Staff, Admin)  
+                                              ●    Manage product catalog and scent attributes  
+                                              ●    Manage inventory imports and stock thresholds  
+                                              ●    Configure promotions, loyalty programs, and marketing campaigns  
+                                              ●    Monitor sales performance and analytics dashboards  
+
+----------------------- Page 11-----------------------
+
+                
+
+                         II.5.2 Use Cases  
+
+                
+
+Use Case                                  Actors  
+                Use Case Name                                    Description  
+ID                                        Involved  
+
+                View Public  
+UC-G01                                    Guest                  View public perfume product listings with basic information.  
+                Product List  
+
+                Search and Filter  
+UC-G02                                    Guest                  Search perfumes by keyword and filter by brand, price, scent family.  
+                Products  
+
+                View Limited  
+UC-G03                                    Guest                  View limited perfume details without full AI recommendations.  
+                Product Details  
+
+----------------------- Page 12-----------------------
+
+             View Public  
+UC-G04                             Guest             View public promotions and featured products.  
+             Promotions  
+
+UC-G05       Register Account      Guest             Create a new account using email/password.  
+
+UC-G06       Login to System       Guest             Log in to the system to access customer features.  
+
+             Register/Login via  
+UC-C01                             Customer          Register or log in using email and password.  
+             Email  
+
+             Login via  
+UC-C02                             Customer          Log in using social login (Google/Facebook).  
+             Google/Facebook  
+
+UC-C03       Logout                Customer          End session and clear authentication tokens.  
+
+UC-C04       Manage Profile        Customer          Update personal profile information.  
+
+             Manage Scent  
+UC-C05                             Customer          Set and update preferred scent types for recommendations.  
+             Preferences  
+
+             View Purchase  
+UC-C06                             Customer          View list of previous orders and purchases.  
+             History  
+
+             View Loyalty  
+UC-C07                             Customer          View accumulated loyalty points.  
+             Points  
+
+             Browse Product  
+UC-C08                             Customer          Browse full perfume product catalog.  
+             Catalog  
+
+UC-C09       Search Products       Customer          Search perfumes using keyword or semantic search.  
+
+----------------------- Page 13-----------------------
+
+UC-C010      Filter Products        Customer           Filter products by price, brand, scent family, longevity.  
+
+             View Product  
+UC-C011                             Customer           View detailed perfume information and notes..  
+             Details  
+
+             View Product  
+UC-C012                             Customer           View customer reviews and ratings.  
+             Reviews  
+
+             Add/Remove  
+UC-C013                             Customer           Add or remove perfumes from favorites list.  
+             Favorite  
+
+             Chat with AI  
+
+UC-C014      Perfume                Customer           Chat with AI to receive perfume advice.  
+
+             Consultant  
+
+             Receive AI-based  
+UC-C015                             Customer           Receive personalized perfume recommendations from AI.  
+             Recommendations  
+
+             Take AI Perfume  
+UC-C016                             Customer           Answer quiz questions to improve recommendation accuracy.  
+             Quiz  
+
+             View  
+
+UC-C017      Recommendation         Customer           View explanation of why a perfume is recommended.  
+
+             Explanation  
+
+             View Personalized  
+UC-C018                             Customer           View AI-generated personalized suggestions.  
+             Suggestions  
+
+             Add Product to  
+UC-C019                             Customer           Add perfume products to shopping cart.  
+             Cart  
+
+UC-C020                             Customer           Update quantity of products in cart.  
+             Update Cart  
+
+----------------------- Page 14-----------------------
+
+             Quantity  
+
+             Remove Product  
+UC-C02 1                            Customer           Remove products from shopping cart.  
+             from Cart  
+
+             Apply Promotion  
+UC-C022                             Customer           Apply discount or promotion codes.  
+             Code  
+
+UC-C23       Place Order            Customer           Submit an order for selected products.  
+
+             Choose Payment  
+UC-C24                              Customer           Select preferred payment method.  
+             Method  
+
+             Make Online  
+UC-C25                              Customer           Complete online payment via VNPay or Momo.  
+             Payment  
+
+             Confirm COD  
+UC-C26                              Customer           Confirm cash-on-delivery order.  
+             Order  
+
+             View Order  
+UC-C27                              Customer           View detailed order information.  
+             Details  
+
+             Track Order  
+UC-C28                              Customer           Track delivery status of orders.  
+             Status  
+
+             Login to Staff  
+UC-S01                              Staff              Log in to staff system.  
+             System  
+
+             Perform In-store  
+UC-S02                              Staff              Process in-store sales using POS system.  
+             Sale  
+
+UC-S03       Scan Product           Staff              Scan barcode to retrieve product information.  
+
+----------------------- Page 15-----------------------
+
+             Barcode  
+
+             Apply Discount at  
+UC-S04                              Staff              Apply discount during in-store checkout.  
+             POS  
+
+UC-S05       Print Receipt          Staff              Print sales receipt for customer.  
+
+             Check Inventory  
+UC-S06                              Staff              Check current inventory status.  
+             Levels  
+
+             Update Stock  
+UC-S07                              Staff              Update stock quantity after sales or restock.  
+             Quantity  
+
+             Assist Customer  
+UC-S08                              Staff              Assist customers using AI consultation tool  
+             with AI  
+
+             View Daily Sales  
+UC-S09                              Staff              View daily sales performance summary.  
+             Summary  
+
+             Manage User  
+UC-A01                              Admin              View, update, or ban user accounts.  
+             Accounts  
+
+UC-A02       Assign Roles           Admin              Assign roles (Customer, Staff, Admin).  
+
+             Activate/Deactivat 
+UC-A03                              Admin              Enable or disable user accounts.  
+             e Accounts  
+
+UC-A04       Create Product         Admin              Add new perfume products.  
+
+             Update Product  
+UC-A05                              Admin              Update perfume details.  
+             Information  
+
+----------------------- Page 16-----------------------
+
+UC-A06       Delete Product         Admin              Remove perfume products from system.  
+
+             Manage Scent  
+UC-A07                              Admin              Manage scent categories and attributes.  
+             Attributes  
+
+UC-A08       Import Inventory       Admin              Import inventory data in bulk.  
+
+             Configure Stock  
+UC-A09                              Admin              Set low-stock and expiry alerts.  
+             Alerts  
+
+UC-A010      View All Orders        Admin              View all system orders.  
+
+             Manage Order  
+UC-A011                             Admin              Update and manage order statuses.  
+             Status  
+
+             Configure Loyalty  
+UC-A012                             Admin              Manage loyalty points and rewards.  
+             Program  
+
+             Create Promotion  
+UC-A013                             Admin              Create and manage promotions.  
+             Campaign  
+
+             Configure AI  
+UC-A014                             Admin              Configure AI recommendation parameters.  
+             Settings  
+
+             View Analytics  
+UC-A015                             Admin              View system analytics and reports.  
+             Dashboard  
+
+             Backup & Restore  
+UC-A016                             Admin              Perform system backup and data recovery.  
+             Data  
+
+             Authenticate via  
+UC-X01                              OAuth Provider     Authenticate users via Google/Facebook.  
+             OAuth  
+
+----------------------- Page 17-----------------------
+
+              Process Payment          Payment  
+UC-X02                                                      Process online payment transactions.  
+              Transaction              Gateway  
+
+              Receive Payment          Payment  
+UC-X03                                                      Receive payment confirmation callbacks.  
+              Webhook                  Gateway  
+
+              Request AI  
+UC-X04                                 AI Service           Send request for AI-based recommendations.  
+              Recommendation  
+
+                                       Email/SMS  
+UC-X05        Send Notification                             Send email or SMS notifications to users.  
+                                       Service  
+
+               
+
+             UC-G01:  View Public Product List   
+
+              UC  ID and Name:          UC-G01 - View Public Product List  
+
+              Created By:                                          Date              
+
+                                                                   Created:  
+
+              Primary Actor:           Guest/Customer              Secondar        None  
+
+                                                                   y Actors:  
+
+              Trigger:                  Guest accesses homepage or product listing page  
+
+              Description:             This use case allows guest users (not logged in) to view the list of  
+
+                                       publicly available perfume products in the system.  
+
+              Preconditions:               ●    The system is running and accessible  
+
+                                           ●    Product data exists in the database  
+
+              Postconditions:              ●     A list of public perfume products is displayed to the guest  
+
+----------------------- Page 18-----------------------
+
+ Normal Flow:           1) Guest opens the PerfumeGPT website  
+
+                        2) Guest navigates to the product listing page  
+
+                        3) System retrieves public and active products from database  
+
+                        4) System displays product list with basic information (name, price,  
+                        brand, image)  
+
+ Alternative Flows:         ●   A1: No products available  
+
+                        → System displays an empty-state message (“No products available  
+                        at the moment”).  
+
+ Exceptions:                ●   E1: Database connection failure → System displays an error  
+                                message and logs the issue.  
+                            ●   E2: Server timeout → System asks user to retry.  
+
+ Priority:              High  
+
+ Frequency of           Very High  
+
+ Use:  
+
+  Business Rules:           ●   Only products marked as public and active are shown  
+
+                            ●   Product price must be displayed in VND  
+
+                            ●   Products are sorted by default relevance or newest  
+
+ Other                  Pagination is applied to limit the number of products per page.  
+
+ Information:  
+
+ Assumptions:               ●   Product catalog is already populated  
+
+                            ●   Guest users do not require authentication  
+
+UC-G02: Search and Filter Products  
+
+ UC  ID and Name:        UC-G02 - Search and Filter Products  
+
+----------------------- Page 19-----------------------
+
+Created By:                                         Date              
+
+                                                    Created:  
+
+Primary Actor:          Guest/Customer              Secondar       Search Engine  
+
+                                                    y Actors:  
+
+Trigger:                 Guest enters a keyword or selects filter options on the product listing  
+
+                        page  
+
+Description:            This use case allows guest users to search for perfume products  
+
+                        using keywords or apply filters such as price range, brand, scent  
+
+                        family, and longevity to narrow down the product list.  
+
+Preconditions:               ●   The system is running  
+
+                             ●   Public product list is available  
+
+Postconditions:         A filtered list of products matching the search criteria is displayed  
+
+Normal Flow:            1) Guest enters a keyword or selects filter criteria (price, brand, scent  
+                        family, longevity)  
+
+                        2) Guest submits the search/filter request  
+
+                        3) System validates search parameters  
+
+                        4) System queries the database and/or search engine  
+
+                        5) System displays the matching product list  
+
+Alternative Flows:      A1: Guest uses semantic search (e.g., “sweet perfume under  1.5  
+                        million”)  
+
+                        → The system sends a query to A I semantic search engine and  
+                        returns interpreted results.  
+
+                        A2: No matching results  
+
+                        → System displays “No products found” message.  
+
+----------------------- Page 20-----------------------
+
+ Exceptions:             E1: Search service unavailable → System falls back to basic keyword  
+                         search.  
+
+                         E2:  Invalid filter values → System displays validation error.  
+
+ Priority:               High  
+
+ Frequency of             High  
+
+ Use:  
+
+  Business Rules:             ●   Price range must be valid (min ≤ max)  
+
+                              ●   Only public and active products are searchable  
+
+                              ●   Search results must not include out-of-stock hidden  
+
+                                  products  
+
+ Other                   Search results support pagination and sorting (price, popularity).  
+
+ Information:  
+
+ Assumptions:                 ●   Search index is synchronized with product database  
+
+                              ●   Guest users have read-only access  
+
+UC-G03:  View Limited Product Details  
+
+                            
+ UC  ID and Name:        UC-G03: View Limited Product Details  
+
+ Created By:                                         Date              
+
+                                                     Created:  
+
+ Primary Actor:                                      Secondar         
+
+                                                     y Actors:  
+
+ Trigger:                  
+
+----------------------- Page 21-----------------------
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-G04:  View Public Promotions  
+
+                             
+ UC  ID and Name:         UC-G04: View Public Promotions  
+
+ Created By:                                            Date Created:              
+
+----------------------- Page 22-----------------------
+
+Primary Actor:                                        Secondary                 
+
+                                                      Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 23-----------------------
+
+UC-G05: Register Account  
+
+                             
+ UC  ID and Name:         UC-G05: Register Account  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+  Alternative Flows:        
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+----------------------- Page 24-----------------------
+
+ Information:  
+
+ Assumptions:               
+
+UC-G06: Login to System  
+
+                             
+ UC  ID and Name:         UC-G06: Login to System  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+----------------------- Page 25-----------------------
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C01: Register/Login via Email  
+
+                            
+ UC  ID and Name:        UC-C01: Register/Login via Email  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:          Customer                      Secondary               OAuth Provider  
+
+                                                       Actors:                 (Google/Facebook),  
+
+                                                                               Email Service  
+
+ Trigger:                User clicks the “Sign Up” button  
+
+ Description:            This use case allows a new customer to create an account in the  
+
+                         PerfumeGPT system using email/password or social login  
+
+                         (Google/Facebook).  
+
+ Preconditions:               ●   User is not authenticated  
+
+                              ●   Registration page is accessible  
+
+ Postconditions:              ●   New customer account is created  
+
+                              ●   User profile is initialized  
+
+                              ●   Verification email is sent (for email signup)  
+
+ Normal Flow:             1) Customer opens the registration page  
+
+----------------------- Page 26-----------------------
+
+                       2) Customer chooses registration method (Email or  
+                       Google/Facebook)  
+
+                       3) Customer enters required information (email, password, name) or  
+                       approves OAuth consent  
+
+                       4) System validates input data  
+
+                       5) System creates user account and assigns Customer role  
+
+                       6) System sends verification email (if applicable)  
+
+                       7) System redirects user to login or home page  
+
+Alternative Flows:     A1: Social login selected  
+
+                       → System retrieves basic profile from OAuth provider and skips email  
+                       verification.  
+
+                       A2: User chooses to verify email later  
+
+                       → Account created with unverified status.  
+
+Exceptions:            E1: Email already exists → System displays error message.  
+
+                       E2: OAuth authentication failure → System displays login error.  
+
+                       E3:  Invalid password format → System requests correction.  
+
+Priority:              High  
+
+Frequency of           High  
+
+Use:  
+
+Business Rules:             ●   Email must be unique  
+                            ●   Password must meet security policy (minimum length,  
+                                complexity)  
+                            ●   User must accept terms and privacy policy  
+
+Other                       ●   CAPTCHA may be applied to prevent spam registrations.  
+
+Information:  
+
+----------------------- Page 27-----------------------
+
+ Assumptions:                  ●   OAuth providers are available  
+
+                               ●   Email delivery service is functioning  
+
+  
+
+UC-C02: Login  User  
+
+                             
+ UC  ID and Name:         UC-C02: Login User  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:           Customer                      Secondary               OAuth Provider  
+
+                                                        Actors:                 (Google/Facebook)  
+
+ Trigger:                 User submits login credentials or selects social login  
+
+ Description:             This use case allows a registered customer to authenticate and  
+
+                          access the PerfumeGPT system using email/password or  
+
+                          Google/Facebook login.  
+
+ Preconditions:               ●    User account already exists  
+
+                              ●    User is not currently logged in  
+
+ Postconditions:              ●    User is successfully authenticated  
+
+                              ●    User session/token is created  
+
+                              ●    User is redirected to the home page  
+
+ Normal Flow:             1) Customer opens the login page  
+
+                          2) Customer enters email and password  
+
+                          3) Customer clicks “Login”  
+
+                          4) System validates credentials  
+
+----------------------- Page 28-----------------------
+
+                         5) System creates authentication session and grants access  
+
+ Alternative Flows:      A1: Social login selected (Google/Facebook)  
+
+                         → System redirects to OAuth provider → receives authentication  
+                         token → logs user in.  
+
+                         A2: Remember-me option selected  
+
+                         → System extends session duration.  
+
+ Exceptions:             E1:  Invalid email or password → System displays error message.  
+
+                         E2: Account not verified → System prompts email verification.  
+
+                         E3: OAuth provider unavailable → System displays temporary error.  
+
+ Priority:               High  
+
+ Frequency of            Very High  
+
+ Use:  
+
+  Business Rules:            ●    Maximum login attempts allowed before temporary lock  
+
+                             ●    Only active accounts can log in  
+
+ Other                   Login attempts are logged for security auditing.  
+
+ Information:  
+
+ Assumptions:                ●   Authentication service is available  
+
+                             ●    OAuth providers are functioning  
+
+UC-C03: Logout  
+
+                            
+ UC  ID and Name:        UC-C03: Logout  
+
+ Created By:                                          Date Created:             
+
+----------------------- Page 29-----------------------
+
+Primary Actor:                                        Secondary                 
+
+                                                      Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 30-----------------------
+
+UC-C04: Manage Profile  
+
+                            
+ UC  ID and Name:        UC-C04: Manage Profile  
+
+ Created By:                                          Date Created:              
+
+ Primary Actor:          Customer                     Secondary               N/A  
+
+                                                      Actors:  
+
+ Trigger:                Customer accesses the profile management page  
+
+ Description:            This use case allows a logged-in customer to view and update their  
+
+                         personal profile information in the PerfumeGPT system.  
+
+ Preconditions:               ●   Customer is authenticated  
+
+                              ●   Customer profile already exists  
+
+ Postconditions:         Updated profile information is saved successfully  
+
+ Normal Flow:            1) Customer logs into the system  
+
+                         2) Customer navigates to the profile page  
+
+                         3) System displays current profile information  
+
+                         4) Customer edits profile fields (name, phone, address, avatar)  
+
+                         5) Customer saves changes  
+
+                         6) System validates and updates the profile  
+
+ Alternative Flows:      A1: Customer cancels editing  
+
+                         → System discards changes and keeps old information.  
+
+                         A2: Customer updates avatar only  
+
+                         → System uploads and saves new avatar image.  
+
+----------------------- Page 31-----------------------
+
+ Exceptions:             E1:  Invalid input data (e.g., phone format) → System displays  
+                         validation error.  
+
+                         E2:  Image upload failure → System displays upload error.  
+
+ Priority:               Medium  
+
+ Frequency of            Medium  
+
+ Use:  
+
+  Business Rules:             ●   Required fields cannot be empty  
+
+                              ●   Phone number must follow valid format  
+
+                              ●   Avatar size and format restrictions apply  
+
+ Other                   Profile changes are logged for auditing purposes.  
+
+ Information:  
+
+ Assumptions:                 ●   File storage service is available  
+
+                              ●   Customer has permission to modify own profile  
+
+UC-C05: Manage Scent Preferences  
+
+                            
+ UC  ID and Name:        UC-C05: Manage Scent Preferences  
+
+ Created By:                                          Date Created:              
+
+ Primary Actor:          Customer                     Secondary               A I Recommendation  
+
+                                                      Actors:                 Engine  
+
+ Trigger:                Customer accesses scent preference settings or completes A I quiz  
+
+----------------------- Page 32-----------------------
+
+Description:         This use case allows a customer to define and update personal scent  
+
+                     preferences, which are used by the A I engine to generate  
+
+                     personalized perfume recommendations.  
+
+Preconditions:           ●   Customer is logged in  
+
+                         ●   Customer profile exists  
+
+Postconditions:          ●   Scent preferences are saved and associated with the  
+
+                             customer profile  
+
+                         ●   A I recommendation model is updated with new preference  
+
+                             data  
+
+Normal Flow:         1) Customer navigates to scent preference section  
+
+                     2) System displays preference options (scent family, intensity,  
+                     longevity, budget range, gender, occasions)  
+
+                     3) Customer selects or updates preferences  
+
+                     4) Customer saves preferences  
+
+                     5) System validates input and stores preferences  
+
+Alternative Flows:   A1: Customer updates preferences via A I-guided quiz  
+
+                     → System extracts preferences automatically from quiz answers.  
+
+                     A2: Customer skips preference setup  
+
+                     → System continues with default recommendation logic.  
+
+Exceptions:          E1:  Invalid preference values → System displays validation error.  
+
+                     E2: A I engine unavailable → Preferences saved but A I update  
+                     deferred.  
+
+Priority:            Medium  
+
+Frequency of         Medium  
+
+----------------------- Page 33-----------------------
+
+ Use:  
+
+  Business Rules:             ●   Preference values must belong to predefined scent  
+
+                                  categories  
+
+                              ●   Budget range must be within allowed limits  
+
+ Other                   Preference changes may trigger re-generation of  
+
+ Information:            recommendations.  
+
+ Assumptions:                 ●   AI recommendation service is available  
+
+                              ●   Preference taxonomy is predefined  
+
+UC-C06:  View Purchase History  
+
+                            
+ UC  ID and Name:        UC-C06: View Purchase History  
+
+ Created By:                                          Date Created:              
+
+ Primary Actor:                                       Secondary                 
+
+                                                      Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+----------------------- Page 34-----------------------
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C07:  View Loyalty Points  
+
+                            
+ UC  ID and Name:         UC-C07: View Loyalty Points  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:           Customer                     Secondary               Loyalty Management  
+
+                                                       Actors:                 System  
+
+ Trigger:                 Customer opens the loyalty points or account summary page  
+
+ Description:             This use case allows a logged-in customer to view their current loyalty  
+
+                          points balance, earning history, and redemption rules within the  
+
+                          PerfumeGPT system.  
+
+----------------------- Page 35-----------------------
+
+Preconditions:             ●   Customer is authenticated  
+
+                           ●   Customer has an existing account in the system  
+
+Postconditions:        Loyalty points information is displayed to the customer  
+
+Normal Flow:           1) Customer logs into the system  
+
+                      2) Customer navigates to the “Loyalty Points” or “My Rewards”  
+                       section  
+
+                       3) System retrieves loyalty points balance and transaction history  
+
+                      4) System displays total points, earned points, used points, and  
+                       conversion rules  
+
+Alternative Flows:    A1: Customer has no loyalty points yet  
+
+                       → System displays zero balance with explanation on how to earn  
+                       points.  
+
+Exceptions:            E1: Loyalty data unavailable → System displays temporary error  
+                       message.  
+
+                       E2: Database connection failure → System logs error and informs  
+                       user.  
+
+Priority:              Medium  
+
+Frequency of           Medium  
+
+Use:  
+
+Business Rules:            ●   Loyalty points are calculated as:  1 point =  1,000 VND  
+
+                               spent  
+
+                           ●   Points are only added after order is completed  
+
+                           ●   Expired points must not be displayed as usable  
+
+Other                  Loyalty points history is read-only for customers.  
+
+----------------------- Page 36-----------------------
+
+ Information:  
+
+ Assumptions:                 ●    Loyalty program is enabled by admin  
+
+                              ●    Loyalty data is synchronized with order data  
+
+UC-C08: Browse Product Catalog  
+
+                            
+ UC  ID and Name:         UC-C08: Browse Product Catalog  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:           Customer                     Secondary               None  
+
+                                                       Actors:  
+
+ Trigger:                 Customer navigates to the product catalog page  
+
+ Description:            This use case allows a logged-in customer to browse the full perfume  
+
+                          product catalog, including all available products and collections.  
+
+ Preconditions:               ●   Customer is authenticated  
+
+                              ●    Product catalog exists in the system  
+
+ Postconditions:          Product catalog is displayed to the customer  
+
+ Normal Flow:             1) Customer logs into the system  
+
+                         2) Customer selects the “Products” or “Catalog” menu  
+
+                          3) System retrieves available products from the database  
+
+                         4) System displays products with basic information (name, brand,  
+                          price, thumbnail)  
+
+ Alternative Flows:      A1: Customer applies sorting options (price, popularity, newest)  
+
+----------------------- Page 37-----------------------
+
+                         → System reorders the displayed product list accordingly.  
+
+ Exceptions:             E1: Database retrieval failure → System displays error message.  
+
+                         E2: Timeout while loading products → System prompts user to retry.  
+
+ Priority:               High  
+
+ Frequency of            High  
+
+ Use:  
+
+  Business Rules:             ●   Only products marked as active and available for sale are  
+
+                                  shown  
+
+                              ●   Out-of-stock products may be shown but marked  
+
+                                  accordingly  
+
+ Other                   Pagination and lazy loading are used to improve performance.  
+
+ Information:  
+
+ Assumptions:                 ●   Customer has read-only access to the catalog  
+
+                              ●   Product data is synchronized and up to date  
+
+UC-C09: Search Products  
+
+                            
+ UC  ID and Name:        UC-C09: Search Products  
+
+ Created By:                                          Date Created:              
+
+ Primary Actor:                                       Secondary                 
+
+                                                      Actors:  
+
+ Trigger:                  
+
+----------------------- Page 38-----------------------
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-C10: Filter Products  
+
+                             
+ UC  ID and Name:         UC-C10: Filter Products  
+
+ Created By:                                             Date Created:              
+
+----------------------- Page 39-----------------------
+
+Primary Actor:                                        Secondary                 
+
+                                                      Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 40-----------------------
+
+UC-C11:  View Product Details  
+
+                             
+ UC  ID and Name:         UC-C11: View Product Details  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:           Customer                      Secondary               None  
+
+                                                        Actors:  
+
+ Trigger:                 Customer selects a perfume product from the product catalog or  
+
+                          search results  
+
+ Description:             This use case allows a customer to view detailed information about a  
+
+                          selected perfume product, including scent notes, brand, price,  
+
+                          availability, reviews, and A I-generated insights.  
+
+ Preconditions:                ●   Customer is authenticated  
+
+                               ●   Selected product exists in the system  
+
+ Postconditions:          Product detail information is displayed to the customer  
+
+ Normal Flow:             1) Customer browses or searches for products  
+
+                          2) Customer clicks on a specific product  
+
+                          3) System retrieves detailed product information from the database  
+
+                          4) System displays product details including images, description,  
+                          scent notes (top/middle/base), price, stock status, and customer  
+                          reviews  
+
+ Alternative Flows:       A1: Product is out of stock  
+
+                          → System displays “Out of stock” status and disables purchase  
+                          actions.  
+
+                          A2: Product has no reviews  
+
+----------------------- Page 41-----------------------
+
+                         → System displays a message indicating no reviews are available.  
+
+ Exceptions:             E1: Product not found → System displays error message and  
+                         redirects to product list.  
+
+                         E2: Database retrieval failure → System displays temporary error  
+                         message.  
+
+ Priority:               High  
+
+ Frequency of            High  
+
+ Use:  
+
+  Business Rules:             ●   Product price and availability must reflect real-time  
+
+                                  inventory  
+
+                              ●   Only approved customer reviews are displayed  
+
+ Other                   Product detail page may include AI-generated summary or  
+
+ Information:            recommendation tags.  
+
+ Assumptions:                 ●   Product data and inventory data are synchronized  
+
+                              ●   Customer has read-only access to product information  
+
+UC-C12:  View Product Reviews  
+
+                            
+ UC  ID and Name:        UC-C12: View Product Reviews  
+
+ Created By:                                          Date Created:              
+
+ Primary Actor:                                       Secondary                 
+
+                                                      Actors:  
+
+ Trigger:                  
+
+----------------------- Page 42-----------------------
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C13: Add/ Remove Favorite  
+
+                             
+ UC  ID and Name:         C-C13:Add/Remove Favorite  
+
+ Created By:                                            Date Created:              
+
+----------------------- Page 43-----------------------
+
+Primary Actor:                                        Secondary                 
+
+                                                      Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 44-----------------------
+
+UC-C14: Chat with AI Perfume Consultant  
+
+                            
+ UC  ID and Name:         UC-C14: Chat with A I Perfume Consultant  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:           Customer                     Secondary               A I Recommendation  
+
+                                                       Actors:                 Engine (xA I API)  
+
+ Trigger:                 Customer opens the A I consultation chat interface  
+
+ Description:            This use case allows a logged-in customer to interact with an  
+
+                         A I-powered perfume consultant via natural-language chat to receive  
+
+                          personalized fragrance recommendations and advice.  
+
+ Preconditions:               ●   Customer is authenticated  
+
+                              ●   A I consultation service is enabled  
+
+ Postconditions:              ●    Personalized perfume recommendations are displayed to the  
+
+                                  customer  
+
+                              ●   Chat interaction is saved to consultation history  
+
+ Normal Flow:             1) Customer navigates to the A I Consultant feature  
+
+                         2) System displays the chat interface  
+
+                          3) Customer enters a natural-language query (e.g., preferences,  
+                          occasion, budget)  
+
+                         4) System sends the query and user profile data to the A I engine  
+
+                          5) A I engine processes the request and returns recommendations  
+                         with explanations  
+
+                          6) System displays 3–5 recommended perfumes and reasoning  
+
+----------------------- Page 45-----------------------
+
+ Alternative Flows:      A1: A I suggests a guided quiz  
+
+                         → System redirects customer to the A I perfume quiz.  
+
+                         A2: Customer refines the request (follow-up question)  
+
+                         → System sends updated context to A I engine and refreshes  
+                         recommendations.  
+
+ Exceptions:             E1: A I service timeout or unavailable → System displays fallback  
+                         message and suggests retry later.  
+
+                         E2:  Invalid or unclear input → System asks clarifying questions.  
+
+ Priority:               High  
+
+ Frequency of            High  
+
+ Use:  
+
+  Business Rules:            ●   Each AI response must return a maximum of 5 products  
+
+                             ●   AI queries are rate-limited per user  
+
+                             ●   Recommendations must be based on available products  
+
+                                 only  
+
+ Other                   Chat responses may be logged for improving AI model  
+
+ Information:            accuracy.  
+
+ Assumptions:                ●   AI API is reachable  
+
+                             ●   Product catalog data is synchronized with AI engine  
+
+UC-C15: Receive AI-based Recommendations  
+
+                            
+ UC  ID and Name:        UC-C15: Receive A I-based Recommendations  
+
+----------------------- Page 46-----------------------
+
+Created By:                                          Date Created:              
+
+Primary Actor:                                       Secondary                 
+
+                                                     Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 47-----------------------
+
+UC-C16:  Take AI Perfume  Quiz  
+
+                             
+ UC  ID and Name:          UC-C16: Take A I Perfume Quiz  
+
+ Created By:                                             Date Created:               
+
+ Primary Actor:                                          Secondary                  
+
+                                                         Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+----------------------- Page 48-----------------------
+
+ Information:  
+
+ Assumptions:               
+
+UC-C17:  View Recommendation Explanation  
+
+                             
+ UC  ID and Name:         UC-C17: View Recommendation Explanation  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                          Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+----------------------- Page 49-----------------------
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-C18:  View Personalized Suggestions  
+
+                            
+ UC  ID and              UC-C18: View Personalized Suggestions  
+
+ Name:  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary               Handler  
+
+                                                        Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+         Alternative       
+
+               Flows:  
+
+----------------------- Page 50-----------------------
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+          Business         
+
+              Rules:  
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C19: Add Product to Cart  
+
+                             
+ UC  ID and Name:         UC-C19: Add Product to Cart  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:           Customer                      Secondary               Shopping Cart System  
+
+                                                        Actors:  
+
+ Trigger:                 Customer clicks the “Add to Cart” button on a product  
+
+ Description:             This use case allows a customer to add a selected perfume product  
+
+                          with a chosen quantity to their shopping cart for later purchase.  
+
+ Preconditions:               ●    Customer is logged in  
+                              ●    Product exists and is available in stock  
+
+----------------------- Page 51-----------------------
+
+Postconditions:              ●   Selected product is added to the shopping cart  
+
+                             ●   Cart total and item count are updated  
+
+Normal Flow:            1) Customer views product details  
+
+                        2) Customer selects quantity (if applicable)  
+
+                        3) Customer clicks “Add to Cart”  
+
+                        4) System validates product availability  
+
+                        5) System adds the product to the customer’s cart  
+
+                        6) System updates cart summary and displays confirmation  
+
+Alternative Flows:      A1: Product already exists in cart  
+
+                        → System increases the quantity instead of adding a new item.  
+
+                        A2: Customer is not logged in  
+
+                        → System prompts customer to log in or register before adding to  
+                        cart.  
+
+Exceptions:             E1: Product is out of stock → System displays out-of-stock message.  
+
+                        E2:  Invalid quantity selected → System requests customer to reselect  
+                        quantity.  
+
+Priority:               High  
+
+Frequency of            High  
+
+Use:  
+
+Business Rules:              ●   Maximum quantity per product is limited by stock  
+
+                                 availability  
+
+                             ●   Cart data must persist across sessions for logged-in  
+
+                                 users  
+
+Other                   Cart contents may be synchronized across web and mobile  
+
+----------------------- Page 52-----------------------
+
+ Information:              platforms.  
+
+ Assumptions:                  ●    Inventory data is up-to-date  
+
+                               ●    Cart service is available  
+
+UC-C20:  Update Cart  Quantity  
+
+                             
+ UC  ID and Name:          UC-C20: Update Cart Quantity  
+
+ Created By:                                             Date Created:               
+
+ Primary Actor:                                          Secondary                  
+
+                                                         Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+----------------------- Page 53-----------------------
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C21: Remove Product from Cart  
+
+                             
+ UC  ID and Name:         UC-C21: Remove Product from Cart  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+----------------------- Page 54-----------------------
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C22: Apply Promotion Code  
+
+                             
+ UC  ID and Name:         UC-C22: Apply Promotion Code  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+----------------------- Page 55-----------------------
+
+ Normal Flow:             
+
+ Alternative Flows:       
+
+ Exceptions:              
+
+ Priority:                
+
+ Frequency of             
+
+ Use:  
+
+  Business Rules:         
+
+ Other                    
+
+ Information:  
+
+ Assumptions:             
+
+UC-C23: Place Order  
+
+ UC  ID and Name:        UC-C23 - Place Order  
+
+ Created By:                                        Date              
+
+                                                    Created:  
+
+ Primary Actor:          Customer                   Secondar       Order Management System,  
+
+                                                    y Actors:      Inventory System  
+
+ Trigger:                 Customer clicks the “Place Order” button from the shopping cart or  
+
+                         checkout page  
+
+----------------------- Page 56-----------------------
+
+Description:           This use case allows a customer to place an order by confirming cart  
+
+                       items, shipping information, and payment method before final  
+
+                       submission.  
+
+Preconditions:             ●   Customer is logged in  
+
+                           ●   Shopping cart contains at least one product  
+
+                           ●   Products are available in stock  
+
+Postconditions:            ●   A new order is created in the system  
+
+                           ●   Inventory quantities are updated  
+
+                           ●   Order status is set to “Pending Payment” or “Confirmed”  
+
+Normal Flow:               1.  Customer navigates to checkout page  
+                           2.  System displays cart items and total cost  
+                           3.  Customer enters or selects shipping address  
+                           4.  Customer selects shipping method  
+                           5.  System calculates shipping fee and final total  
+                           6.  Customer reviews order summary  
+                           7.  Customer clicks “Place Order”  
+                           8.  System validates order information  
+                           9.  System creates a new order record  
+
+Alternative Flows:         ●   A1: Customer edits cart during checkout  
+
+                       → System updates order summary and recalculates total.  
+
+                           ●   A2: Customer cancels checkout  
+
+                       → System returns customer to cart page without creating an order.  
+
+Exceptions:                ●   E1: One or more products are out of stock → System notifies  
+                               customer and prevents order placement.  
+                           ●   E2:  Invalid shipping information → System requests correction  
+                               before proceeding.  
+
+Priority:              High  
+
+Frequency of           High  
+
+----------------------- Page 57-----------------------
+
+ Use:  
+
+  Business Rules:           ●   Order must contain at least one product  
+                            ●   Inventory must be reserved once order is placed  
+                            ●   Order total includes product price, shipping fee, and  
+                                applied promotions  
+
+ Other                  Orders can be completed using online payment or  
+
+ Information:           cash-on-delivery in subsequent use cases.  
+
+ Assumptions:               ●   Shipping service is available  
+
+                            ●   Pricing and promotions are up to date  
+
+UC-C24: Choose Payment Method  
+
+ UC  ID and Name:        UC-C24 - Choose Payment Method  
+
+ Created By:                                      Date             
+
+                                                  Created:  
+
+ Primary Actor:                                   Secondar        
+
+                                                  y Actors:  
+
+ Trigger:                
+
+ Description:            
+
+ Preconditions:          
+
+ Postconditions:         
+
+ Normal Flow:            
+
+----------------------- Page 58-----------------------
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C25: Make Online Payment  
+
+                            
+ UC  ID and Name:        UC-C25: Make Online Payment  
+
+ Created By:                                         Date              
+
+                                                     Created:  
+
+ Primary Actor:          Customer                    Secondar       Payment Gateway (VNPay /  
+
+                                                    y Actors:       MoMo), Order Management  
+
+                                                                    System  
+
+ Trigger:                Customer selects an online payment method and confirms payment  
+
+ Description:            This use case allows a customer to complete payment for an order  
+
+                         using supported online payment gateways such as VNPay or MoMo.  
+
+----------------------- Page 59-----------------------
+
+Preconditions:             ●   Customer is logged in  
+
+                           ●   An order has been successfully created (UC-C23)  
+
+                           ●   Order status is “Pending Payment”  
+
+Postconditions:            ●   Payment transaction is processed  
+
+                           ●   Order status is updated to “Paid” or “Payment Failed”  
+
+                           ●   Payment receipt is stored in the system  
+
+Normal Flow:           1) Customer selects online payment method (VNPay/MoMo)  
+
+                       2) System redirects customer to payment gateway  
+
+                       3) Customer confirms payment on gateway page  
+
+                       4) Payment gateway processes transaction  
+
+                       5) Gateway sends payment result callback to system  
+
+                       6) System verifies payment result  
+
+                       7) System updates order status to “Paid”  
+
+                       8) System displays payment success confirmation to customer  
+
+Alternative Flows:     A1: Customer cancels payment on gateway page  
+
+                       → System marks order as “Payment Cancelled”.  
+
+                       A2: Payment gateway processing delay  
+
+                       → System sets order status to “Payment Pending” and waits for  
+                       callback.  
+
+Exceptions:            E1: Payment failed due to insufficient balance → System notifies  
+                       customer and allows retry.  
+
+                       E2: Gateway timeout or no callback → System logs error and sets  
+                       order to “Payment Pending”.  
+
+Priority:              High  
+
+Frequency of           High  
+
+----------------------- Page 60-----------------------
+
+ Use:  
+
+  Business Rules:            ●    Payment amount must match order total  
+
+                             ●    Each order can only have one successful payment  
+
+                             ●    Payment gateway callback must be verified for security  
+
+ Other                   Supports multiple gateways to improve reliability and user  
+
+ Information:            convenience.  
+
+ Assumptions:                ●    Payment gateway services are available  
+
+                             ●    Secure communication between system and gateway  
+
+UC-C26: Confirm COD Order  
+
+                            
+ UC  ID and Name:        UC-C26: Confirm COD Order  
+
+ Created By:                                          Date Created:             
+
+ Primary Actor:                                       Secondary                
+
+                                                      Actors:  
+
+ Trigger:                 
+
+ Description:             
+
+ Preconditions:           
+
+ Postconditions:          
+
+ Normal Flow:             
+
+----------------------- Page 61-----------------------
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-C27:  View Order Details  
+
+                             
+ UC  ID and Name:         UC-C27: View Order Details  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+----------------------- Page 62-----------------------
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-C28:  Track Order Status  
+
+                            
+ UC  ID and Name:         UC-C28: Track Order Status  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:           Customer                     Secondary               Order Management  
+
+                                                       Actors:                 System, Shipping  
+
+                                                                               Provider  
+
+----------------------- Page 63-----------------------
+
+Trigger:               Customer selects an order to view its current status  
+
+Description:           This use case allows a customer to track the real-time status of their  
+
+                       order, including payment confirmation, packaging, shipping, and  
+
+                       delivery progress.  
+
+Preconditions:             ●   Customer is logged in  
+
+                           ●   Customer has at least one order placed  
+
+Postconditions:        Order status and shipping information are displayed to the customer  
+
+Normal Flow:           1) Customer navigates to “My Orders”  
+
+                       2) System displays list of customer orders  
+
+                       3) Customer selects an order  
+
+                       4) System retrieves order status and shipping details  
+
+                       5) System displays current order state (Pending, Paid, Shipping,  
+                       Delivered)  
+
+                       6) System shows estimated delivery time (if available)  
+
+Alternative Flows:     A1: Order has not been shipped yet  
+
+                       → System displays “Preparing Order”.  
+
+                       A2: Order delivered  
+
+                       → System displays “Delivered” and delivery date.  
+
+Exceptions:            E1: Order not found → System displays error message.  
+
+                       E2: Shipping provider unavailable → System shows last known order  
+                       status.  
+
+Priority:              High  
+
+----------------------- Page 64-----------------------
+
+ Frequency of             High  
+
+ Use:  
+
+  Business Rules:             ●   Customers can only view their own orders  
+
+                              ●   Order status updates must be synchronized with shipping  
+
+                                   provider  
+
+ Other                    Helps increase transparency and customer trust.  
+
+ Information:  
+
+ Assumptions:             Shipping provider APIs return accurate tracking data  
+
+UC-S01: Login to Staff System  
+
+                            
+ UC  ID and Name:         UC-S01: Login to Staff System  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:                                        Secondary                 
+
+                                                       Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+----------------------- Page 65-----------------------
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+  
+
+UC-S02: Perform In-store Sale  
+
+                             
+ UC  ID and Name:         UC-S02: Perform  In-store Sale  
+
+ Created By:                                             Date Created:               
+
+ Primary Actor:           Staff                          Secondary                POS System,  Inventory  
+
+                                                         Actors:                  Management System,  
+
+                                                                                  Payment Gateway  
+
+ Trigger:                 Staff initiates a new in-store sale at the POS  
+
+ Description:             This use case allows staff to perform an in-store perfume sale using  
+
+----------------------- Page 66-----------------------
+
+                     the POS system, including scanning products, applying discounts,  
+
+                     processing payments, and generating receipts.  
+
+Preconditions:           ●  Staff is logged in to the POS system  
+
+                         ●   POS system is online and operational  
+
+Postconditions:          ●  Sale transaction is completed  
+
+                         ●   Inventory quantities are updated  
+
+                         ●  Sales record is stored  
+
+Normal Flow:         1) Staff starts a new POS transaction  
+
+                     2) Staff scans product barcode or searches product manually  
+
+                     3) System retrieves product details and price  
+
+                     4) System adds product to POS cart  
+
+                     5) Staff optionally applies discounts or promotions (UC-S04)  
+
+                     6) Staff selects payment method  
+
+                     7) System processes payment  
+
+                     8) System confirms payment success  
+
+                     9) System generates and prints receipt  
+
+Alternative Flows:   A1: Customer provides loyalty account  
+
+                     → System retrieves loyalty info and applies eligible benefits.  
+
+                     A2: Multiple payment methods used  
+
+                     → System supports split payment if allowed.  
+
+Exceptions:          E1: Product barcode not recognized → Staff searches product  
+                     manually.  
+
+                     E2: Payment failed → System prompts staff to retry or select another  
+                     payment method.  
+
+                     E3:  Insufficient stock → System prevents checkout and notifies staff.  
+
+----------------------- Page 67-----------------------
+
+ Priority:                High  
+
+ Frequency of             High  
+
+ Use:  
+
+  Business Rules:             ●    Inventory must be deducted immediately after sale  
+
+                              ●    Only authorized staff can process refunds or overrides  
+
+                              ●    Discounts follow promotion rules  
+
+ Other                    Supports omnichannel sales and synchronizes with online order  
+
+ Information:             system.  
+
+ Assumptions:             Inventory and pricing data are synchronized in real-time  
+
+UC-S03: Scan Product Barcode  
+
+                             
+ UC  ID and Name:         UC-S03 Scan Product Barcode  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:                                        Secondary                 
+
+                                                       Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+----------------------- Page 68-----------------------
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-S04: Apply Discount at POS  
+
+                            
+ UC  ID and Name:         UC-S04: Apply Discount at POS  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:           Staff                        Secondary               POS System, Promotion  
+
+                                                       Actors:                 Management System  
+
+ Trigger:                 Staff selects the option to apply a discount during an in-store sale  
+
+ Description:            This use case allows staff to apply a valid discount, promotion code,  
+
+                          or loyalty benefit to a customer’s in-store purchase at the POS  
+
+----------------------- Page 69-----------------------
+
+                      system.  
+
+Preconditions:            ●   Staff is logged in to the POS system  
+
+                          ●   An in-store sale is in progress  
+
+                          ●   Products have been added to the POS cart  
+
+Postconditions:           ●   Discount is applied to the order total  
+
+                          ●   Updated price and discount details are shown  
+
+Normal Flow:          1) Staff scans or adds products to the POS cart  
+
+                      2) Staff selects “Apply Discount”  
+
+                      3) Staff enters a promotion code or selects an available discount  
+
+                      4) System validates the discount eligibility  
+
+                      5) System applies the discount to the order total  
+
+                      6) System displays updated subtotal, discount amount, and final total  
+
+Alternative Flows:    A 1: Loyalty discount applied  
+
+                      → System retrieves customer loyalty points and applies eligible  
+                      discount.  
+
+                      A2: Multiple promotions available  
+
+                      → System allows staff to select the best applicable promotion based  
+                      on rules.  
+
+Exceptions:           E1:  Invalid or expired promotion code → System displays error  
+                      message.  
+
+                      E2: Discount not applicable to selected products → System rejects  
+                      discount and explains reason.  
+
+                      E3: Staff not authorized → System denies discount application.  
+
+Priority:             Medium  
+
+----------------------- Page 70-----------------------
+
+ Frequency of            Medium to High  
+
+ Use:  
+
+  Business Rules:            ●    Discounts cannot exceed the maximum allowed  
+                                  percentage  
+                             ●    Some promotions cannot be combined  
+                             ●    Staff role determines discount permission level  
+
+ Other                   Applied discounts are stored in order history for audit and  
+
+ Information:            reporting.  
+
+ Assumptions:                ●    Promotion data is up-to-date  
+
+                             ●    POS system is synchronized with central promotion  
+
+                                  service  
+
+UC-S05: Print Receipt  
+
+                            
+ UC  ID and Name:        UC-S05: Print Receipt  
+
+ Created By:                                          Date Created:             
+
+ Primary Actor:                                       Secondary                
+
+                                                      Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+----------------------- Page 71-----------------------
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-S06: Check Inventory Levels  
+
+                             
+ UC  ID and Name:         UC-S06: Check  Inventory Levels  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+----------------------- Page 72-----------------------
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-S07:  Update Stock  Quantity  
+
+                             
+ UC  ID and Name:         UC-S07: Update Stock Quantity  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:           Staff                         Secondary               Inventory Management  
+
+                                                       Actors:                  System, Database  
+
+----------------------- Page 73-----------------------
+
+Trigger:             Staff needs to update product stock quantity after receiving new items,  
+
+                     correcting errors, or handling damaged/expired products  
+
+Description:         This use case allows staff to manually update the stock quantity of  
+
+                     perfume products to ensure inventory accuracy and real-time  
+
+                     availability across POS and online channels.  
+
+Preconditions:           ●   Staff is logged in with inventory permissions  
+
+                         ●   Product already exists in the system  
+
+Postconditions:          ●   Stock quantity is updated successfully  
+
+                         ●   Inventory history is recorded  
+
+                         ●   Low-stock or expiry alerts are recalculated  
+
+Normal Flow:         1) Staff accesses inventory management screen  
+
+                     2) Staff searches or selects a product  
+
+                     3) System displays current stock quantity and expiry information  
+
+                     4) Staff enters the updated quantity and reason (restock, adj ustment,  
+                     damage, expiry)  
+
+                     5) Staff confirms the update  
+
+                     6) System validates the input  
+
+                     7) System updates inventory data in the database  
+
+                     8) System logs the inventory change  
+
+Alternative Flows:   A1: Bulk stock update  
+
+                     → Staff uploads a CSV file to update multiple products at once.  
+
+                     A2: Update with expiry batch  
+
+                     → Staff assigns quantity to specific expiry dates.  
+
+Exceptions:          E1:  Invalid quantity entered → System displays validation error.  
+
+----------------------- Page 74-----------------------
+
+                         E2: Product not found → System prompts staff to reselect product.  
+
+                         E3: Concurrent update conflict → System reloads latest data and  
+                         asks for confirmation.  
+
+ Priority:               High  
+
+ Frequency of            Medium  
+
+ Use:  
+
+  Business Rules:             ●   Stock quantity cannot be negative  
+
+                              ●   All manual adjustments must include a reason  
+
+                              ●   Inventory changes are auditable  
+
+ Other                   Stock updates are synchronized across POS, website, and  
+
+ Information:            Shopee integration.  
+
+ Assumptions:            Inventory data is centrally managed and consistent across  
+
+                         channels  
+
+UC-S08: Assist Customer with AI  
+
+                            
+ UC  ID and Name:        UC-S08: Assist Customer with A I  
+
+ Created By:                                          Date Created:              
+
+ Primary Actor:                                       Secondary                 
+
+                                                      Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+----------------------- Page 75-----------------------
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-S09:  View Daily Sales Summary  
+
+                             
+ UC  ID and Name:         UC-S09: View Daily Sales Summary  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                        Actors:  
+
+----------------------- Page 76-----------------------
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-A01: Manage  User Accounts  
+
+                             
+ UC  ID and Name:         UC-A01: Manage User Accounts  
+
+----------------------- Page 77-----------------------
+
+Created By:                                     Date Created:           
+
+Primary Actor:       Admin                      Secondary            Database, Notification  
+
+                                                Actors:              Service  
+
+Trigger:             Admin wants to view, manage, or control user accounts in the system  
+
+Description:          This use case allows the admin to manage all user accounts in the  
+
+                      PerfumeGPT system, including viewing user information, activating or  
+
+                      deactivating accounts, and handling violations or suspicious activities.  
+
+Preconditions:       Admin is logged in with administrator privileges  
+
+Postconditions:           ●   User account status is updated correctly  
+
+                          ●  Changes are saved to the database  
+
+                          ●  Affected users are notified if required  
+
+Normal Flow:          1) Admin accesses the user management module  
+
+                      2) System displays a list of all users (Customer, Staff, Admin)  
+
+                      3) Admin selects a user account  
+
+                      4) System shows detailed user information and account status  
+
+                      5) Admin performs an action (view, activate, deactivate, lock account)  
+
+                      6) Admin confirms the action  
+
+                      7) System updates the user account status  
+
+                      8) System records the action in audit logs  
+
+Alternative Flows:   A1: Search or filter users  
+
+                      → Admin filters users by role, status, or email.  
+
+                     A2: Bulk account action  
+
+----------------------- Page 78-----------------------
+
+                         → Admin performs activate/deactivate on multiple users at once.  
+
+ Exceptions:             E1: User account not found → System displays an error message.  
+
+                         E2: Admin attempts to deactivate own account → System prevents  
+                         the action.  
+
+                         E3: System error during update → Action is rolled back and logged.  
+
+ Priority:               High  
+
+ Frequency of            Medium  
+
+ Use:  
+
+  Business Rules:            ●    Only Admin can manage user accounts  
+
+                             ●   All changes must be logged for auditing  
+
+                             ●    Deactivated users cannot log in  
+
+ Other                   User management integrates with role assignment (UC-A02)  
+
+ Information:            and system security policies.  
+
+ Assumptions:            User data is consistent and synchronized across authentication  
+
+                         services  
+
+UC-A02: Assign Roles  
+
+                            
+ UC  ID and Name:        UC-A02: Assign Roles  
+
+ Created By:                                          Date Created:             
+
+ Primary Actor:                                       Secondary                
+
+                                                      Actors:  
+
+----------------------- Page 79-----------------------
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-A03: Activate/ Deactivate Accounts  
+
+                             
+ UC  ID and Name:         UC-A03: Activate/Deactivate Accounts  
+
+----------------------- Page 80-----------------------
+
+Created By:                                          Date Created:              
+
+Primary Actor:                                       Secondary                 
+
+                                                     Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 81-----------------------
+
+UC-A04: Create Product  
+
+                            
+ UC  ID and Name:         UC-A04: Create Product  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:          Admin                         Secondary               Database,  Inventory  
+
+                                                       Actors:                 Management System,  
+
+                                                                               Media Storage Service  
+
+ Trigger:                Admin wants to add a new perfume product to the system  
+
+ Description:            This use case allows the admin to create a new perfume product by  
+
+                         entering detailed product information, including scent attributes,  
+
+                          pricing, images, and inventory data, making the product available for  
+
+                         sale across all channels.  
+
+ Preconditions:          Admin is logged in with product management permissions  
+
+ Postconditions:              ●   New product is created successfully  
+                              ●    Product data is stored in the database  
+                              ●    Initial inventory is recorded  
+
+ Normal Flow:             1) Admin accesses the product management module  
+
+                         2) Admin selects “Create New Product”  
+
+                         3) System displays the product creation form  
+
+                         4) Admin enters product information (name, brand, price, description)  
+
+                         5) Admin defines scent attributes (top/middle/base notes, scent family,  
+                          longevity)  
+
+                         6) Admin uploads product images  
+
+                          7) Admin sets initial stock quantity and expiry information  
+
+----------------------- Page 82-----------------------
+
+                       8) Admin confirms product creation  
+
+                       9) System validates the input data  
+
+                       10) System saves the product to the database and inventory system  
+
+Alternative Flows:     A1: Save as draft  
+
+                       → Admin saves the product without publishing it.  
+
+                       A2: Bulk product creation  
+
+                       → Admin uploads a CSV file to create multiple products at once.  
+
+Exceptions:            E1: Missing required information → System highlights validation  
+                       errors.  
+
+                       E2: Duplicate product detected → System warns admin and prevents  
+                       duplication.  
+
+                       E3:  Image upload failure → Admin retries upload or skips images  
+                       temporarily.  
+
+Priority:              High  
+
+Frequency of           Medium  
+
+Use:  
+
+ Business Rules:           ●   Product name and SKU must be unique  
+
+                           ●   Pricing must follow predefined rules  
+
+                           ●   At least one image is required before publishing  
+
+Other                  Created products are synchronized with POS, online store, and  
+
+Information:           Shopee integration.  
+
+Assumptions:           Admin has accurate product and inventory information  
+
+----------------------- Page 83-----------------------
+
+UC-A05:  Update Product Information  
+
+                             
+ UC  ID and Name:         UC-A05: Update Product  Information  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+ Business Rules:            
+
+ Other                      
+
+----------------------- Page 84-----------------------
+
+ Information:  
+
+ Assumptions:               
+
+UC-A06: Delete Product  
+
+                             
+ UC  ID and Name:         UC-A06: Delete Product  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+----------------------- Page 85-----------------------
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-A07: Manage Scent Attributes  
+
+                             
+ UC  ID and Name:         UC-A07: Manage Scent Attributes  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+----------------------- Page 86-----------------------
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-A08: Import Inventory  
+
+                             
+ UC  ID and Name:         UC-A08:  Import  Inventory  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+----------------------- Page 87-----------------------
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-A09: Configure Stock Alerts  
+
+                           
+ UC  ID and              UC-A09: Configure Stock Alerts  
+
+ Name:  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+----------------------- Page 88-----------------------
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative               
+
+ Flows:  
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+ Business                  
+
+ Rules:  
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-A 10:  View All Orders  
+
+                             
+ UC  ID and Name:         UC-A 10: View All Orders  
+
+ Created By:                                            Date Created:              
+
+----------------------- Page 89-----------------------
+
+Primary Actor:        Admin                     Secondary            Database, Order  
+
+                                                Actors:              Management System  
+
+Trigger:              Admin wants to view and monitor all orders across online and in-store  
+
+                      channels  
+
+Description:          This use case allows the admin to view a complete list of all orders,  
+
+                      including online orders, in-store POS transactions, and synchronized  
+
+                      orders from Shopee, enabling centralized order monitoring and  
+
+                      management.  
+
+Preconditions:        Admin is logged in with order management permissions  
+
+Postconditions:           ●   Order data is displayed accurately  
+
+                          ●   No order data is modified  
+
+Normal Flow:          1) Admin accesses the order management module  
+
+                      2) System retrieves all orders from the database  
+
+                      3) System displays the order list with key details (order  ID, customer,  
+                      status, total amount, channel)  
+
+                      4) Admin selects an order to view details  
+
+                      5) System displays detailed order information (items, payment,  
+                      shipping, status history)  
+
+Alternative Flows:    A1: Filter orders  
+
+                      → Admin filters orders by date range, status, sales channel, or  
+                      payment method.  
+
+                      A2: Search orders  
+
+                      → Admin searches orders by order  ID or customer information.  
+
+Exceptions:           E1: No orders found → System displays an empty state message.  
+
+                      E2: System error during data retrieval → System displays an error  
+
+----------------------- Page 90-----------------------
+
+                         message and logs the issue.  
+
+ Priority:               High  
+
+ Frequency of            High  
+
+ Use:  
+
+ Business Rules:             ●   Admin has read-only access in this use case  
+
+                             ●   Order data must reflect real-time status  
+
+ Other                   Order management integrates with payment gateways, shipping  
+
+ Information:            providers, POS system, and Shopee synchronization.  
+
+ Assumptions:            Order data from all channels is synchronized correctly  
+
+UC-A 11: Manage Order Status  
+
+                            
+ UC  ID and Name:        UC-A 11: Manage Order Status  
+
+ Created By:                                         Date Created:             
+
+ Primary Actor:          Admin                       Secondary               Order Management  
+
+                                                     Actors:                 System, Database,  
+
+                                                                             Shipping Provider  
+
+                                                                             System  
+
+ Trigger:                Admin needs to update or monitor the status of an order  
+
+ Description:            This use case allows the admin to manage and update the lifecycle  
+
+                         status of customer orders, including confirming, packing, shipping,  
+
+                         delivering, or canceling orders.  
+
+----------------------- Page 91-----------------------
+
+Preconditions:               ●   Admin is logged in with order management permissions  
+
+                             ●   Order exists in the system  
+
+Postconditions:              ●   Order status is updated correctly  
+
+                             ●   Status change is recorded in order history  
+
+                             ●   Related parties are notified if applicable  
+
+Normal Flow:            1) Admin accesses order management module  
+
+                        2) System displays the list of orders  
+
+                        3) Admin selects an order  
+
+                        4) System displays current order status and history  
+
+                        5) Admin selects a new status (Confirmed, Packed, Shipped,  
+                        Delivered, Cancelled)  
+
+                        6) Admin confirms the status change  
+
+                        7) System validates the status transition  
+
+                        8) System updates order status in the database  
+
+                        9) System notifies customer and updates shipping provider if needed  
+
+Alternative Flows:      A1: Automatic status update from shipping provider  
+
+                        → System receives webhook and updates order status automatically.  
+
+                        A2: Bulk status update  
+
+                        → Admin updates multiple orders at once (e.g., mark as shipped).  
+
+Exceptions:             E1:  Invalid status transition → System rejects the update and displays  
+                        a warning.  
+
+                        E2: Shipping system unavailable → Status update is queued and  
+                        retried later.  
+
+                        E3: Order already completed → System prevents further changes.  
+
+Priority:               High  
+
+----------------------- Page 92-----------------------
+
+ Frequency of             High  
+
+ Use:  
+
+  Business Rules:             ●   Status transitions must follow predefined order workflow  
+
+                              ●   Completed or cancelled orders cannot be modified  
+
+                              ●   All changes must be logged  
+
+ Other                    Order status synchronization applies to online store, POS, and  
+
+ Information:             Shopee orders.  
+
+ Assumptions:             Shipping providers send timely and accurate status updates  
+
+UC-A 12: Configure Loyalty Program  
+
+                            
+ UC  ID and Name:         UC-A 12: Configure Loyalty Program  
+
+ Created By:                                           Date Created:              
+
+ Primary Actor:                                        Secondary                 
+
+                                                       Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+----------------------- Page 93-----------------------
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-A 13: Create Promotion Campaign  
+
+                             
+ UC  ID and Name:         UC-A 13: Create Promotion Campaign  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+----------------------- Page 94-----------------------
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-A 14: Configure AI Settings  
+
+ UC  ID and Name:         UC-A 14 - Configure A I Settings  
+
+ Created By:                                         Date              
+
+                                                     Created:  
+
+ Primary Actor:                                      Secondar         
+
+                                                    y Actors:  
+
+ Trigger:                  
+
+----------------------- Page 95-----------------------
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+ Priority:                 
+
+ Frequency of              
+
+ Use:  
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-A 15:  View Analytics Dashboard  
+
+                             
+ UC  ID and Name:         UC-A 15: View Analytics Dashboard  
+
+ Created By:                                            Date Created:              
+
+----------------------- Page 96-----------------------
+
+Primary Actor:       Admin                     Secondary            Analytics System,  
+
+                                               Actors:              Database, A I Analytics  
+
+                                                                    Engine  
+
+Trigger:             Admin wants to analyze business performance and A I effectiveness  
+
+Description:         This use case allows the admin to view a comprehensive analytics  
+
+                     dashboard showing sales performance, inventory insights, customer  
+
+                     behavior, and A I recommendation effectiveness to support data-driven  
+
+                     decision-making.  
+
+Preconditions:       Admin is logged in with analytics access rights  
+
+Postconditions:          ●   Analytics data is displayed accurately  
+
+                         ●   No system data is modified  
+
+Normal Flow:         1) Admin accesses the analytics dashboard module  
+
+                     2) System retrieves aggregated data from orders, inventory,  
+                     customers, and A I logs  
+
+                     3) System displays key metrics (revenue, best-selling products,  
+                     inventory status)  
+
+                     4) System displays A I metrics (recommendation acceptance rate,  
+                     popular scent profiles)  
+
+                     5) Admin applies filters (date range, store, channel)  
+
+                     6) System refreshes dashboard visuals in real time  
+
+Alternative Flows:   A 1: Export analytics report  
+
+                     → Admin exports data as PDF or CSV.  
+
+                     A2: View forecast insights  
+
+                     → System displays A I-predicted sales and scent trends.  
+
+----------------------- Page 97-----------------------
+
+ Exceptions:              E1: No data available → System displays an empty analytics state.  
+
+                          E2: Analytics service unavailable → System shows partial data with  
+                          warning.  
+
+                          E3: Data retrieval error → System logs error and notifies admin.  
+
+ Priority:                High  
+
+ Frequency of             Medium  
+
+ Use:  
+
+  Business Rules:             ●    Only Admin can access analytics dashboard  
+
+                              ●    Data must be aggregated and anonymized where  
+
+                                   required  
+
+ Other                    Dashboard integrates sales, inventory, CRM, and AI modules.  
+
+ Information:  
+
+ Assumptions:             Analytics data is updated periodically and accurately  
+
+  
+
+UC-A 16: Backup & Restore Data  
+
+                             
+ UC  ID and Name:         UC-A 16: Backup & Restore Data  
+
+ Created By:                                          Date               
+
+                                                      Created:  
+
+ Primary Actor:                                       Secondar          
+
+                                                      y Actors:  
+
+----------------------- Page 98-----------------------
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+ Information:  
+
+ Assumptions:               
+
+UC-X 01: Authenticate via OAuth  
+
+                             
+ UC  ID and Name:         UC-X01: Authenticate via OAuth  
+
+----------------------- Page 99-----------------------
+
+Created By:                                          Date Created:              
+
+Primary Actor:                                       Secondary                 
+
+                                                     Actors:  
+
+Trigger:                  
+
+Description:              
+
+Preconditions:            
+
+Postconditions:           
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+----------------------- Page 100-----------------------
+
+UC-X 02: Process Payment  Transaction  
+
+                             
+ UC  ID and Name:         UC-X02: Process Payment Transaction  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                          Secondary                 
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+  Business Rules:           
+
+ Other                      
+
+----------------------- Page 101-----------------------
+
+ Information:  
+
+ Assumptions:               
+
+UC-X 03: Receive Payment  Webhook  
+
+                             
+ UC  ID and Name:         UC-X03: Receive Payment Webhook  
+
+ Created By:                                             Date Created:              
+
+ Primary Actor:                                         Secondary                  
+
+                                                        Actors:  
+
+ Trigger:                   
+
+ Description:               
+
+ Preconditions:             
+
+ Postconditions:            
+
+ Normal Flow:               
+
+ Alternative Flows:         
+
+ Exceptions:                
+
+ Priority:                  
+
+ Frequency of               
+
+ Use:  
+
+----------------------- Page 102-----------------------
+
+  Business Rules:          
+
+ Other                     
+
+ Information:  
+
+ Assumptions:              
+
+UC-X 04: Request AI Recommendation  
+
+                             
+ UC  ID and Name:         UC-X04: Request A I Recommendation  
+
+ Created By:                                            Date Created:              
+
+ Primary Actor:                                         Secondary                 
+
+                                                       Actors:  
+
+ Trigger:                  
+
+ Description:              
+
+ Preconditions:            
+
+ Postconditions:           
+
+ Normal Flow:              
+
+ Alternative Flows:        
+
+ Exceptions:               
+
+----------------------- Page 103-----------------------
+
+ Priority:                   
+
+ Frequency of                
+
+ Use:  
+
+  Business Rules:            
+
+ Other                       
+
+ Information:  
+
+ Assumptions:                
+
+  
+
+UC-X 05: Send Notification  
+
+                              
+ UC  ID and Name:          UC-X05: Send Notification  
+
+ Created By:                                              Date Created:               
+
+ Primary Actor:                                           Secondary                  
+
+                                                          Actors:  
+
+ Trigger:                    
+
+ Description:                
+
+ Preconditions:              
+
+ Postconditions:             
+
+----------------------- Page 104-----------------------
+
+Normal Flow:              
+
+Alternative Flows:        
+
+Exceptions:               
+
+Priority:                 
+
+Frequency of              
+
+Use:  
+
+ Business Rules:          
+
+Other                     
+
+Information:  
+
+Assumptions:              
+
+  

@@ -1,0 +1,129 @@
+# ===================================
+# Root Level Gitignore
+# ===================================
+# This file covers the entire monorepo
+
+# ===================================
+# Environment & Sensitive Files
+# ===================================
+# NEVER commit these files!
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+error.txt
+assets/
+# API Keys & Secrets
+**/secrets/
+**/credentials/
+**/*secret*
+**/*key*.json
+!**/example-key.json
+
+# ===================================
+# IDE & Editor
+# ===================================
+.vscode/
+.idea/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+.fleet/
+
+# ===================================
+# OS Files
+# ===================================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# ===================================
+# Logs
+# ===================================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===================================
+# Temporary & Cache
+# ===================================
+*.tmp
+*.temp
+.cache/
+tmp/
+.temp/
+
+# ===================================
+# Backup Files
+# ===================================
+*.bak
+*.backup
+*.old
+
+# ===================================
+# Database Files (local only)
+# ===================================
+*.db
+*.sqlite
+*.sqlite3
+local-data/
+
+# ===================================
+# Build Artifacts
+# ===================================
+dist/
+build/
+out/
+
+# ===================================
+# Node Modules (if any at root)
+# ===================================
+node_modules/
+
+# ===================================
+# Platform Specific (handled in subdirs)
+# ===================================
+# Mobile - see mobile/.gitignore
+# Web - see web/.gitignore
+# Database - see database/.gitignore
+
+# ===================================
+# UI/UX Pro Max Workflow
+# ===================================
+**/.shared/ui-ux-pro-max/
+.shared/ui-ux-pro-max/
+**/ui-ux-pro-max/
+mobile/CART_DESIGN_COMPARISON.md
+mobile/CART_QUICK_REFERENCE.md
+mobile/CART_SCREEN_IMPLEMENTATION.md
+mobile/CODEBASE_AUDIT_REPORT.md
+mobile/DEVELOPMENT_MODE.md
+mobile/flutter_01.png
+mobile/flutter_02.png
+mobile/FULL_REFACTOR_FINAL_REPORT.md
+mobile/IMPLEMENTATION_SUMMARY.md
+mobile/NAVIGATION_MIGRATION_GUIDE.md
+mobile/NAVIGATION_REFACTOR_STATUS.md
+mobile/PRODUCT_DETAIL_REFACTOR.md
+mobile/PROFILE_REFACTOR_CHECKLIST.md
+mobile/PROFILE_REFACTOR_COMPLETE.md
+mobile/PROFILE_REFACTOR_FILES.md
+mobile/PROFILE_SCREEN_REFACTOR.md
+mobile/REFACTOR_COMPLETION_REPORT.md
+mobile/REFACTOR_STRATEGIC_PIVOT.md
+mobile/SCREEN_REFACTORING_SUMMARY.md
+mobile/STEP1_NAVIGATION_DECISION_POINT.md
+mobile/.agent/workflows/perfumeGPT-ui-rules.md
+mobile/.agent/workflows/perfumeGPT-ux-rules.md
+mobile/lib/features/orders/MOCK_DATA_IMPLEMENTATION.md
+mobile/lib/features/orders/ORDERS_REFACTOR_SUMMARY.md
+mobile/lib/features/profile/INDEX.md
+mobile/lib/features/profile/PROFILE_REFACTOR_SUMMARY.md
+RUN_GUIDE.md

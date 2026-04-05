@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: perfume-sales-frontend
+    env: node
+    plan: free
+    buildCommand: |-
+      cd frontend
+      npm install
+      npm run build
+    startCommand: |-
+      cd frontend
+      npm run start
+    publish: frontend/.next
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        # Must include /api/v1 because frontend axios baseURL uses it directly
+        value: https://perfume-sales-backend.onrender.com/api/v1
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://perfume-sales.onrender.com
