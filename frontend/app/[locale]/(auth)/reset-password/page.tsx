@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Header } from '@/components/common/header';
 import { useTranslations } from 'next-intl';
 import { authService } from '@/services/auth.service';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function ResetPasswordPage() {
     const t = useTranslations('auth.reset_password');
