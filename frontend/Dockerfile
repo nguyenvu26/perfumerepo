@@ -16,6 +16,10 @@ COPY . .
 # Next.js thu thập dữ liệu ẩn danh, tắt đi để bảo mật
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Quan trọng: truyền biến môi trường vào lúc BUILD
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm run build
 
 # Stage 3: Runner - Môi trường chạy Production nhẹ nhất

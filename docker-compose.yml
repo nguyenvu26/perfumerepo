@@ -18,6 +18,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://103.200.20.149:5993/api/v1
     container_name: perfume-frontend
     restart: always
     ports:
