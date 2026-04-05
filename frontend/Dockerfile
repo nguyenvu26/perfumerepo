@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy các file cấu hình package máy local vào container
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm install
 
 # Stage 2: Build ứng dụng
 FROM node:20-alpine AS builder
