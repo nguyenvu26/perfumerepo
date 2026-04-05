@@ -34,4 +34,5 @@ COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
 
 # Chạy ứng dụng
-CMD ["npm", "run", "start:prod"]
+# NestJS đôi khi build ra dist/src/main.js thay vì dist/main.js
+CMD ["sh", "-c", "if [ -f dist/src/main.js ]; then node dist/src/main.js; else node dist/main.js; fi"]
