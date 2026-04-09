@@ -1,0 +1,32 @@
+services:
+  # BE NestJS
+  backend-app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: perfume-backend
+    restart: always
+    ports:
+      - "5993:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - NODE_ENV=production
+
+  # FE Next.js
+  frontend-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://103.200.20.149:5993/api/v1
+    container_name: perfume-frontend
+    restart: always
+    ports:
+      - "5992:3000"
+    env_file:
+      - ./frontend/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend-app
