@@ -1,0 +1,114 @@
+##################################################
+# OS & TEMP FILES
+##################################################
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+*.swp
+*.swo
+*.bak
+*.backup
+*.tmp
+*.temp
+*.cache
+*.log
+
+##################################################
+# IDE / EDITOR
+##################################################
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.code-workspace
+
+##################################################
+# DART / FLUTTER TOOLING
+##################################################
+.dart_tool/
+.flutter-devtools/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+doc/api/
+.metadata
+.flutter-devtools/
+
+##################################################
+# ANDROID
+##################################################
+android/**/build/
+android/.gradle/
+
+##################################################
+# IOS / MACOS / WINDOWS / LINUX (GENERATED)
+##################################################
+ios/Flutter/ephemeral/
+ios/Flutter/GeneratedPluginRegistrant.*
+ios/Flutter/.last_build_id
+
+macos/Flutter/ephemeral/
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+linux/flutter/generated_plugin_registrant.*
+linux/flutter/generated_plugins.cmake
+
+windows/flutter/generated_plugin_registrant.*
+windows/flutter/generated_plugins.cmake
+
+##################################################
+# GENERATED (ANYWHERE)
+##################################################
+**/generated_plugin_registrant.*
+**/GeneratedPluginRegistrant.*
+**/generated_plugins.cmake
+
+##################################################
+# GENERATED SOURCE FILES
+##################################################
+*.g.dart
+*.freezed.dart
+*.gr.dart
+*.mocks.dart
+*.config.dart
+
+##################################################
+# ENVIRONMENT & SECRETS (NEVER COMMIT)
+##################################################
+.env
+.env.*
+.env.local
+.env.*.local
+assets/.env
+assets/.env.*
+
+!.env.example
+!assets/.env.example
+
+##################################################
+# API KEYS / CREDENTIALS
+##################################################
+**/secrets/
+**/credentials/
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+##################################################
+# MARKDOWN (INTERNAL DOCS)
+##################################################
+*.md
+!README.md
+
+##################################################
+# SCREENSHOTS / LOCAL ASSETS
+##################################################
+flutter_*.png
+screenshots/
+.tmp/

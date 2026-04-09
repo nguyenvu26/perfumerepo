@@ -1,0 +1,93 @@
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.4 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.5s
+  Running TypeScript ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/5) ...
+  Generating static pages using 7 workers (1/5) 
+  Generating static pages using 7 workers (2/5) 
+  Generating static pages using 7 workers (3/5) 
+✓ Generating static pages using 7 workers (5/5) in 245.5ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /[locale]
+├ ƒ /[locale]/boutiques
+├ ƒ /[locale]/callback
+├ ƒ /[locale]/cart
+├ ƒ /[locale]/checkout
+├ ƒ /[locale]/checkout/success
+├ ƒ /[locale]/collection
+├ ƒ /[locale]/collection/[id]
+├ ƒ /[locale]/consultation
+├ ƒ /[locale]/dashboard
+├ ƒ /[locale]/dashboard/admin
+├ ƒ /[locale]/dashboard/admin/analytics
+├ ƒ /[locale]/dashboard/admin/catalog
+├ ƒ /[locale]/dashboard/admin/marketing
+├ ƒ /[locale]/dashboard/admin/marketing/promotions
+├ ƒ /[locale]/dashboard/admin/orders
+├ ƒ /[locale]/dashboard/admin/orders/[id]
+├ ƒ /[locale]/dashboard/admin/products
+├ ƒ /[locale]/dashboard/admin/rbac
+├ ƒ /[locale]/dashboard/admin/reviews
+├ ƒ /[locale]/dashboard/admin/settings
+├ ƒ /[locale]/dashboard/admin/stores
+├ ƒ /[locale]/dashboard/admin/stores/stock
+├ ƒ /[locale]/dashboard/admin/users
+├ ƒ /[locale]/dashboard/chat
+├ ƒ /[locale]/dashboard/customer
+├ ƒ /[locale]/dashboard/customer/addresses
+├ ƒ /[locale]/dashboard/customer/consultation
+├ ƒ /[locale]/dashboard/customer/loyalty
+├ ƒ /[locale]/dashboard/customer/notifications
+├ ƒ /[locale]/dashboard/customer/orders
+├ ƒ /[locale]/dashboard/customer/orders/[id]
+├ ƒ /[locale]/dashboard/customer/profile
+├ ƒ /[locale]/dashboard/customer/promotions
+├ ƒ /[locale]/dashboard/customer/quiz
+├ ƒ /[locale]/dashboard/customer/rewards
+├ ƒ /[locale]/dashboard/customer/subscription
+├ ƒ /[locale]/dashboard/profile
+├ ƒ /[locale]/dashboard/staff
+├ ƒ /[locale]/dashboard/staff/inventory
+├ ƒ /[locale]/dashboard/staff/kpi
+├ ƒ /[locale]/dashboard/staff/orders
+├ ƒ /[locale]/dashboard/staff/pos
+├ ƒ /[locale]/favorite
+├ ƒ /[locale]/forgot-password
+├ ƒ /[locale]/gifting
+├ ƒ /[locale]/ingredients
+├ ƒ /[locale]/journal
+├ ƒ /[locale]/login
+├ ƒ /[locale]/logout
+├ ƒ /[locale]/payment/payos/cancel
+├ ƒ /[locale]/payment/payos/return
+├ ƒ /[locale]/privacy
+├ ƒ /[locale]/products
+├ ƒ /[locale]/products/[id]
+├ ƒ /[locale]/register
+├ ƒ /[locale]/reset-password
+├ ƒ /[locale]/search
+├ ƒ /[locale]/story
+├ ƒ /[locale]/subscription
+├ ƒ /[locale]/support
+├ ƒ /[locale]/terms
+├ ƒ /[locale]/verify-email
+└ ƒ /api/auth/refresh
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

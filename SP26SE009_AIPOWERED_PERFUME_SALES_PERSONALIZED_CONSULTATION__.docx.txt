@@ -1,0 +1,193 @@
+﻿CAPSTONE PROJECT REGISTER 
+ 
+Class:            Duration time:  from 01/01/2026 To 30/04/2026
+(*) Profession: <Software Engineer>                   Specialty: <ES>  Hộp Văn bản    <IS>   Hộp Văn bản    <JS>    Hộp Văn bản                            
+(*) Kinds of person make registers:                      Lecturer      Hộp Văn bản                    Students  
+ 
+1. Register information for supervisor (if have) 
+No.
+	Fullname
+	Phone
+	E-Mail 
+	Title 
+	  Supervisor 
+	
+
+	
+
+	
+
+	
+
+	  Supervisor 
+	
+
+	
+
+	
+
+	
+
+	2. Register information for students (if have) 
+ 
+	Full name 
+	Student code 
+	Phone 
+	E-mail 
+	Role in Group 
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	 
+3. Register content of Capstone Project 
+(*) 3.1. Capstone Project name: 
+* English: AI-Powered Perfume Sales & Personalized Consultation System
+* Vietnamese: Hệ thống quản lý bán nước hoa và tư vấn cá nhân hóa bằng trí tuệ nhân tạo
+* Abbreviation: SP26SE04209
+The global fragrance industry is rapidly evolving, with consumers increasingly expecting personalized shopping experiences both online and in physical stores. Traditional perfume retail faces several challenges:
+•        Limited personalization: Customers often struggle to select fragrances that match their preferences, occasions, or budgets, leading to decision fatigue and abandoned purchases.
+•        Inventory inefficiencies: Manual stock management frequently causes overstock, expired products, or stockouts, impacting revenue and customer satisfaction.
+•        Fragmented sales channels: Synchronizing in-store and online sales, integrating multiple payment options, and tracking customer loyalty is often cumbersome.
+•        Data underutilization: Retailers often have access to large amounts of customer reviews, purchasing patterns, and market trends but lack AI-driven insights to leverage this data effectively.
+PerfumeGPT addresses these challenges by combining full retail management with AI-powered perfume consultation. By simulating a fragrance expert using AI APIs, PerfumeGPT provides:
+•        Highly personalized fragrance recommendations, increasing customer satisfaction and conversion rates.
+•        Automated inventory alerts and import management, reducing stock errors and losses due to expired products.
+•        Integrated sales channels, combining in-store POS, e-commerce platforms, and diverse payment methods.
+•        Actionable insights from customer reviews, trends, and purchase data, enabling smarter merchandising, marketing, and promotional strategies.
+Through these capabilities, PerfumeGPT not only streamlines operational efficiency but also enhances the customer journey, bridging the gap between human-like expertise and digital retail management, ultimately driving sales growth, brand loyalty, and data-driven decision-making.
+
+2. Proposed Solutions 
+PerfumeGPT is a comprehensive web and mobile system that integrates an AI-powered perfume consultation engine with complete perfume retail management. It directly addresses current industry challenges by providing:
+•        Highly personalized fragrance recommendations through natural-language chatbot and guided quiz
+•        Real-time inventory management with low-stock and expiry alerts
+•        Unified omnichannel sales (in-store POS + own website + Shopee synchronization)
+•        Multiple local payment methods (Momo, VNPay, COD) and shipping partners (GHN, GHTK)
+•        AI-driven insights: review summarization, trend forecasting, repurchase suggestions
+•        Full CRM with loyalty points, automated promotions, and personalized marketing
+•        Analytics dashboard showing revenue, best-sellers, and AI recommendation acceptance rate
+ 
+* Functional requirement 
+•  User Account Management
+•        SSO login (Google/Facebook)
+•        Four roles with strict permissions: Admin, Staff, Customer, AI Consultant
+•        Customer profile storing scent preferences, budget range, purchase & quiz history
+•  AI Perfume Consultation
+•        Natural-language chatbot → returns 3–5 matching products with reasoning
+•        5-question interactive quiz (gender, occasion, budget, scent family, longevity) → top 3 ranked recommendations + explanation
+•        Advanced matching: scent layer analysis, weather-, age-, style-based suggestions
+•  Sales Management
+•        In-store POS: barcode scanning, discount/promo application, receipt printing
+•        Online store + real-time Shopee order & inventory synchronization
+•        Payment gateways: Momo, VNPay, Cash-on-Delivery
+•        Shipping integration: GHN, GHTK with automatic status updates
+•  AI Integration (xAI API)
+•        Natural-language recommendation engine
+•        Automatic review summarization across 100+ reviews
+•        Sales & scent trend forecasting
+•        Semantic product search (e.g., “sweet women’s perfume under 1.5 million VND”)
+•  CRM & Promotions
+•        Loyalty points (1 point = 1,000 VND spent)
+•        Combo deals, free samples, personalized repurchase reminders
+•        Automated email/SMS marketing campaigns
+•  Notifications
+•        Push, email, SMS for order status, promotions, restocks, and new AI recommendations
+•  Dashboards & Reporting
+•        Admin dashboard: revenue, inventory levels, top products, AI acceptance rate
+•        Staff dashboard: today’s orders, quick counter consultation tool
+•  Mobile Applications
+•        Customer app: AI chat, quiz, browsing, ordering, order tracking
+•        Staff app: mobile POS, stock checking, quick customer consultation
+
+*    Non-functional requirement: 
+•  Response time: AI consultation < 3 seconds, page load < 2 seconds 
+•  Scalability: support multiple stores and peak traffic (cloud-ready) 
+•  Reliability: 99.9% uptime, automatic database backup, graceful handling of xAI API downtime 
+•  Compatibility: responsive web + iOS/Android apps
+
+(*) 3.2. Main proposal content (including result and product)   
+1. Theory and practice (document):
+●        The documents include User Requirements, Software Requirement Specification, Architecture Design, Detail Design, System Implementation, Testing Document, Installation Guide, source code, and deployable software packages
+2. Products:
+The final product is the complete PerfumeGPT System consisting of:
+•        Fully functional web system (admin portal, staff portal, customer portal)
+•        Two mobile applications (Customer & Staff versions built with Flutter)
+•        Role-based access control with AI Consultant role
+•        All core modules: product catalog, POS, e-commerce sync, payment & shipping, AI consultation (chatbot + quiz), semantic search, review summarization, loyalty & promotions, analytics dashboards, notification system
+•        Ready-to-deploy packages for Azure/AWS
+•        Complete source code and documentation
+
+3. Proposed Tasks:
+Task Package 1: Role-based authentication, SSO (Google/Facebook), user profiling module
+Task Package 2: Product management, inventory system, POS, payment gateways (VNPay, Momo), Shopee synchronization
+Task Package 3: AI Perfume Consultation module (chatbot + quiz), semantic search, review summarization, trend analysis using xAI API
+Task Package 4: Promotions engine, loyalty program, notification system, analytics dashboards
+Task Package 5: Flutter mobile apps (Customer & Staff), full testing, Azure deployment, complete documentation & presentation
+
+ 
+4. Other comments (propose all relative things if have). 
+ 
+            
+Supervisor (If have) 
+ (Sign and full name) 
+
+
+	HCM, date 20/11/2025
+On behalf of Registers  
+(Sign and full name)

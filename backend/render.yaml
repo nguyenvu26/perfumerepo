@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: perfume-sales-backend
+    env: node
+    plan: free
+    buildCommand: |-
+      cd backend
+      npm install
+      npm run build
+      npm run prisma:generate
+    startCommand: |-
+      cd backend
+      npm run start:prod
+    healthCheckPath: /api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: base_url
+        value: https://perfume-sales-backend.onrender.com/api/v1
+      - key: DATABASE_URL
+        fromDatabase:
+          name: perfume-sales-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: PAYOS_CLIENT_ID
+        sync: false
+      - key: PAYOS_API_KEY
+        sync: false
+      - key: PAYOS_CHECKSUM_KEY
+        sync: false
+      - key: PAYOS_RETURN_URL
+        value: https://perfume-sales-frontend.onrender.com/payment/payos/return
+      - key: PAYOS_CANCEL_URL
+        value: https://perfume-sales-frontend.onrender.com/payment/payos/cancel
+      - key: VIETQR_BANK_BIN
+        sync: false
+      - key: VIETQR_ACCOUNT_NUMBER
+        sync: false
+      - key: VIETQR_ACCOUNT_NAME
+        sync: false
+
+databases:
+  - name: perfume-sales-db
+    plan: free
+    databaseName: perfume_sales
+    user: perfume_user

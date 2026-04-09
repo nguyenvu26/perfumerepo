@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/**
+ * Tailwind v4 configuration in CSS
+ * Mapping next/font variables to Tailwind font-family utilities.
+ * Using Be Vietnam Pro (Variable) for ALL fonts to ensure perfect Vietnamese diacritics.
+ * This font is specifically designed by a Vietnamese typographer for Vietnamese text.
+ */
+@theme {
+  --font-sans: var(--font-be-vietnam), sans-serif;
+  --font-body: var(--font-be-vietnam), sans-serif;
+  --font-heading: var(--font-be-vietnam), sans-serif;
+  --font-serif: var(--font-be-vietnam), sans-serif;
+
+  /* Palette */
+  --color-primary: #1C1C1C;
+  --color-secondary: #8B735B;
+  --color-gold: #C5A059;
+  --color-gold-light: #E5C992;
+  --color-gold-dark: #9A7B3F;
+  --color-cream: #FDFBF7;
+  --color-ebony: #121212;
+
+  /* Layout and Spacing */
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2.5rem;
+  --radius-3xl: 4rem;
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow: glow 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.6; filter: blur(8px); }
+  50% { opacity: 1; filter: blur(14px); }
+}
+
+@layer base {
+  :root {
+    --background: #FDFBF7;
+    --foreground: #121212;
+    --card: #FFFFFF;
+    --card-foreground: #121212;
+    --popover: #FFFFFF;
+    --popover-foreground: #121212;
+    --primary: #121212;
+    --primary-foreground: #FDFBF7;
+    --secondary: #F4F1ED;
+    --secondary-foreground: #121212;
+    --muted: #F8F5F2;
+    --muted-foreground: #666666;
+    --accent: #F4F1ED;
+    --accent-foreground: #121212;
+    --destructive: #7F1D1D;
+    --destructive-foreground: #FFFFFF;
+    --border: #E8E2DD;
+    --input: #E8E2DD;
+    --ring: #C5A059;
+    --success: #15803D;
+    --success-foreground: #FFFFFF;
+    --warning: #B45309;
+    --warning-foreground: #FFFFFF;
+    --error: #B91C1C;
+    --error-foreground: #FFFFFF;
+  }
+
+  .dark {
+    --background: #0A0A0A;
+    --foreground: #FDFBF7;
+    --card: #121212;
+    --card-foreground: #FDFBF7;
+    --popover: #121212;
+    --popover-foreground: #FDFBF7;
+    --primary: #FDFBF7;
+    --primary-foreground: #121212;
+    --secondary: #1C1C1C;
+    --secondary-foreground: #FDFBF7;
+    --muted: #1C1C1C;
+    --muted-foreground: #888888;
+    --accent: #1C1C1C;
+    --accent-foreground: #FDFBF7;
+    --destructive: #991B1B;
+    --destructive-foreground: #FFFFFF;
+    --border: #262626;
+    --input: #262626;
+    --ring: #C5A059;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --error: #EF4444;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'liga' 1, 'calt' 1, 'kern' 1;
+    font-synthesis: none; /* Crucial: Preents browser from fake bolding breaking diacritics */
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-medium;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/**
+ * VIETNAMESE TYPOGRAPHY RESET (NUCLEAR OPTION)
+ * Specifically addresses "Thiế t Yế u" (detached diacritics) and broken spacing.
+ */
+html[lang="vi"],
+html[lang="vi"] body,
+html[lang="vi"] h1,
+html[lang="vi"] h2,
+html[lang="vi"] h3,
+html[lang="vi"] h4,
+html[lang="vi"] h5,
+html[lang="vi"] h6,
+html[lang="vi"] span,
+html[lang="vi"] div,
+html[lang="vi"] .uppercase,
+html[lang="vi"] .font-serif,
+html[lang="vi"] .font-heading,
+html[lang="vi"] .font-body,
+html[lang="vi"] [class*="tracking-"] {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  font-family: var(--font-be-vietnam), sans-serif !important;
+  font-synthesis: none !important;
+  font-variant-ligatures: common-ligatures !important;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/40 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_0_rgba(0,0,0,0.05)];
+  }
+
+  .dark .glass {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)];
+  }
+
+  .gold-gradient {
+    background: linear-gradient(135deg, #9A7B3F 0%, #C5A059 50%, #E5C992 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .gold-btn-gradient {
+    background: linear-gradient(to bottom, #E5C992, #C5A059, #9A7B3F);
+  }
+
+  .text-shadow-luxury {
+    text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  }
+
+  .mask-radial {
+    mask-image: radial-gradient(circle, black 0%, transparent 100%);
+  }
+}

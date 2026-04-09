@@ -1,0 +1,13 @@
+import { Module } from '@nestjs/common';
+import { LoyaltyService } from './loyalty.service';
+import { LoyaltyController } from './loyalty.controller';
+import { PrismaModule } from '../prisma/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+
+@Module({
+  imports: [PrismaModule, NotificationsModule],
+  providers: [LoyaltyService],
+  controllers: [LoyaltyController],
+  exports: [LoyaltyService],
+})
+export class LoyaltyModule {}
