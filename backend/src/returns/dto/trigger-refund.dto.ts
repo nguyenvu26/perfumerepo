@@ -12,4 +12,8 @@ export class TriggerRefundDto {
   @IsOptional()
   @IsString()
   note?: string;
+
+  @IsOptional()
+  @IsString()
+  receiptImage?: string;
 }

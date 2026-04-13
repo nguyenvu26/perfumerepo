@@ -129,4 +129,14 @@ export class CatalogService {
     });
     return { success: true };
   }
+
+  // Scent Note
+  async listScentNotes() {
+    const notes = await this.prisma.scentNote.findMany({
+      select: { name: true },
+      distinct: ['name'],
+      orderBy: { name: 'asc' },
+    });
+    return notes.map((n) => n.name);
+  }
 }

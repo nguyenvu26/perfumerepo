@@ -58,17 +58,25 @@ export class GHNController {
             codValue?: number;
         },
     ) {
-        const fee = await this.ghn.calculateFee({
-            toDistrictId: body.toDistrictId,
-            toWardCode: body.toWardCode,
-            serviceId: body.serviceId,
-            weight: body.weight ?? 500,
-            length: body.length,
-            width: body.width,
-            height: body.height,
-            codValue: body.codValue,
-        });
-        return fee;
+        try {
+            const fee = await this.ghn.calculateFee({
+                toDistrictId: body.toDistrictId,
+                toWardCode: body.toWardCode,
+                serviceId: body.serviceId,
+                weight: body.weight ?? 500,
+                length: body.length,
+                width: body.width,
+                height: body.height,
+                codValue: body.codValue,
+            });
+            return fee;
+        } catch (error) {
+            return {
+                statusCode: 400,
+                message: error.message || 'Không thể tính phí vận chuyển',
+                error: 'Bad Request',
+            };
+        }
     }
 
     @Get('config')

@@ -1,14 +1,16 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { QueryProductsDto } from './dto/query-products.dto';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  async list(@Query() query: QueryProductsDto) {
-    return this.productsService.listPublic(query);
+  @UseGuards(OptionalJwtAuthGuard)
+  async list(@Query() query: QueryProductsDto, @Req() req: any) {
+    return this.productsService.listPublic(query, req.user?.userId);
   }
 
   @Get(':id')

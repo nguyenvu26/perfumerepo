@@ -128,10 +128,10 @@ export const Header = () => {
                         {/* Right (menu + actions) */}
                         <div className="flex items-center justify-end gap-6">
                             <div className="hidden lg:flex items-center gap-10">
-                                {menuRight.map((item) => (
+                                {menuRight.filter(item => item.href).map((item) => (
                                     <Link
-                                        key={item.href}
-                                        href={item.href}
+                                        key={item.href!}
+                                        href={item.href!}
                                         className={cn(
                                             "text-[10px] font-bold tracking-[.3em] uppercase transition-all cursor-pointer relative group",
                                             pathname === item.href
@@ -227,10 +227,10 @@ export const Header = () => {
                             exit={{ opacity: 0, y: -20 }}
                             className="absolute top-full left-0 right-0 bg-background border-b border-border p-8 flex flex-col gap-6 lg:hidden shadow-2xl transition-colors"
                         >
-                            {[...menuLeft, ...menuRight].map((item) => (
+                            {[...menuLeft, ...menuRight].filter(item => item.href).map((item) => (
                                 <Link
-                                    key={item.href}
-                                    href={item.href}
+                                    key={item.href!}
+                                    href={item.href!}
                                     className="text-xs font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >

@@ -14,4 +14,19 @@ export class PublicCatalogController {
   getBrand(@Param('id') id: string) {
     return this.catalogService.getBrand(Number(id));
   }
+
+  @Get('scent-notes')
+  listScentNotes() {
+    return this.catalogService.listScentNotes();
+  }
+  
+  @Get('categories')
+  listCategories() {
+    return this.catalogService.listCategories();
+  }
+
+  @Get('scent-families')
+  listScentFamilies() {
+    return this.catalogService.listScentFamilies();
+  }
 }

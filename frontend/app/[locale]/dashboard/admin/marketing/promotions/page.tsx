@@ -65,7 +65,7 @@ export default function PromotionsAdmin() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('delete_confirm'))) return;
+    if (!confirm(t('delete_confirm', { type: t('promotion_singular') }))) return;
     try {
       await promotionService.remove(id);
       fetchPromos();
@@ -95,7 +95,7 @@ export default function PromotionsAdmin() {
             className="flex items-center gap-4 bg-foreground dark:bg-gold text-background dark:text-foreground px-10 py-5 rounded-full font-heading text-[10px] uppercase tracking-[.3em] font-bold hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-gold/20"
           >
             <Plus size={16} strokeWidth={3} />
-            {t('modals.create_title')}
+            {t('modals.create_title', { type: t('promotion_singular') })}
           </button>
         </header>
 
@@ -207,141 +207,152 @@ export default function PromotionsAdmin() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-6"
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-6"
             >
               <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
-                className="glass rounded-[4rem] border border-white/10 p-12 md:p-16 w-full max-w-3xl bg-background/50 relative overflow-hidden"
+                className="glass rounded-[2rem] md:rounded-[3rem] border border-white/10 w-full max-w-3xl bg-background/50 relative flex flex-col max-h-[90vh] overflow-hidden shadow-2xl"
               >
                  <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 blur-[120px] pointer-events-none" />
-                 <button onClick={() => setIsModalOpen(false)} className="absolute top-10 right-10 p-3 hover:glass rounded-full text-muted-foreground transition-all">
-                    <X size={24} />
-                 </button>
+                 
+                 {/* MODAL HEADER - FIXED */}
+                 <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/5 bg-background/20 backdrop-blur-md z-10 shrink-0">
+                    <div>
+                      <h2 className="text-2xl md:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+                        {t('modals.create_title', { type: t('promotion_singular') })}
+                      </h2>
+                      <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold mt-2">{t('modals.create_subtitle')}</p>
+                    </div>
+                    <button 
+                      onClick={() => setIsModalOpen(false)} 
+                      className="p-2 md:p-3 hover:bg-white/10 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-white/5"
+                    >
+                        <X size={20} className="md:w-6 md:h-6" />
+                    </button>
+                 </div>
 
-                <h2 className="text-4xl font-heading gold-gradient uppercase tracking-tighter mb-2 italic">
-                  {t('modals.create_title')}
-                </h2>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold mb-12">{t('modals.create_subtitle')}</p>
+                 {/* MODAL BODY - SCROLLABLE */}
+                 <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.code')}</label>
+                          <input
+                            required
+                            value={form.code}
+                            onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all font-mono"
+                            placeholder="e.g. AURA20"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.type')}</label>
+                          <select
+                            value={form.discountType}
+                            onChange={(e) => setForm({ ...form, discountType: e.target.value })}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all appearance-none"
+                          >
+                            <option value="PERCENTAGE">{t('types.percentage')}</option>
+                            <option value="FIXED_AMOUNT">{t('types.fixed')}</option>
+                          </select>
+                        </div>
 
-                <form onSubmit={handleSubmit} className="space-y-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.code')}</label>
-                      <input
-                        required
-                        value={form.code}
-                        onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                        className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
-                        placeholder="e.g. AURA20"
-                      />
-                    </div>
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.type')}</label>
-                      <select
-                        value={form.discountType}
-                        onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-                        className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all appearance-none"
-                      >
-                        <option value="PERCENTAGE">{t('types.percentage')}</option>
-                        <option value="FIXED_AMOUNT">{t('types.fixed')}</option>
-                      </select>
-                    </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.value')}</label>
+                          <input
+                            type="number"
+                            required
+                            value={form.discountValue}
+                            onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.limit')}</label>
+                          <input
+                            type="number"
+                            required
+                            value={form.usageLimit}
+                            onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
+                          />
+                        </div>
 
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.value')}</label>
-                      <input
-                        type="number"
-                        required
-                        value={form.discountValue}
-                        onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
-                        className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
-                      />
-                    </div>
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.limit')}</label>
-                      <input
-                        type="number"
-                        required
-                        value={form.usageLimit}
-                        onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
-                        className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
-                      />
-                    </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.start')}</label>
+                          <input
+                            type="date"
+                            required
+                            value={form.startDate}
+                            onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all invert dark:invert-0"
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.end')}</label>
+                          <input
+                            type="date"
+                            required
+                            value={form.endDate}
+                            onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all invert dark:invert-0"
+                          />
+                        </div>
 
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.start')}</label>
-                      <input
-                        type="date"
-                        required
-                        value={form.startDate}
-                        onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                        className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all invert dark:invert-0"
-                      />
-                    </div>
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.end')}</label>
-                      <input
-                        type="date"
-                        required
-                        value={form.endDate}
-                        onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                        className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all invert dark:invert-0"
-                      />
-                    </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.is_public')}</label>
+                          <div className="flex items-center gap-3 h-14">
+                            <button
+                              type="button"
+                              onClick={() => setForm({ ...form, isPublic: true })}
+                              className={`flex-1 h-full rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${form.isPublic ? 'bg-gold text-black border-gold' : 'border-white/5 text-muted-foreground hover:border-gold/30'}`}
+                            >
+                              {t('types.public')}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setForm({ ...form, isPublic: false })}
+                              className={`flex-1 h-full rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${!form.isPublic ? 'bg-gold text-black border-gold' : 'border-white/5 text-muted-foreground hover:border-gold/30'}`}
+                            >
+                              {t('types.private')}
+                            </button>
+                          </div>
+                        </div>
 
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.is_public')}</label>
-                      <div className="flex items-center gap-4 h-16">
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, isPublic: true })}
-                          className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${form.isPublic ? 'bg-gold text-black border-gold' : 'border-white/5 text-muted-foreground hover:border-gold/30'}`}
-                        >
-                          {t('types.public')}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setForm({ ...form, isPublic: false })}
-                          className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${!form.isPublic ? 'bg-gold text-black border-gold' : 'border-white/5 text-muted-foreground hover:border-gold/30'}`}
-                        >
-                          {t('types.private')}
-                        </button>
+                        {!form.isPublic && (
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.points_cost')}</label>
+                            <input
+                              type="number"
+                              required
+                              value={form.pointsCost}
+                              onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
+                              className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
+                            />
+                          </div>
+                        )}
                       </div>
-                    </div>
 
-                    {!form.isPublic && (
-                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.points_cost')}</label>
-                        <input
-                          type="number"
-                          required
-                          value={form.pointsCost}
-                          onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
-                          className="w-full h-16 bg-white/5 border border-white/5 rounded-[1.5rem] px-8 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.desc')}</label>
+                        <textarea
+                          value={form.description}
+                          onChange={(e) => setForm({ ...form, description: e.target.value })}
+                          className="w-full h-28 bg-white/5 border border-white/5 rounded-[1.2rem] p-6 text-xs font-medium outline-none focus:border-gold/50 transition-all resize-none"
                         />
                       </div>
-                    )}
-                  </div>
 
-                  <div className="space-y-4">
-                    <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.desc')}</label>
-                    <textarea
-                      value={form.description}
-                      onChange={(e) => setForm({ ...form, description: e.target.value })}
-                      className="w-full h-32 bg-white/5 border border-white/5 rounded-[1.5rem] p-8 text-xs font-medium outline-none focus:border-gold/50 transition-all resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full h-20 rounded-[2rem] bg-gold text-black font-heading text-[11px] uppercase tracking-[.4em] font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-gold/20 disabled:opacity-50"
-                  >
-                    {submitting ? t('modals.submitting') : t('modals.submit')}
-                  </button>
-                </form>
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full h-16 md:h-20 rounded-[1.5rem] md:rounded-[2rem] bg-gold text-black font-heading text-[11px] uppercase tracking-[.4em] font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-gold/20 disabled:opacity-50"
+                      >
+                        {submitting ? t('modals.submitting') : t('modals.submit')}
+                      </button>
+                    </form>
+                 </div>
               </motion.div>
             </motion.div>
           )}

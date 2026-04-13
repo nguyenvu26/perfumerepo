@@ -6,9 +6,14 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { ReturnsService } from './returns.service';
 import { CreateReturnDto } from './dto/create-return.dto';
 import { CreateReturnShipmentDto } from './dto/create-shipment.dto';
@@ -16,7 +21,10 @@ import { CreateReturnShipmentDto } from './dto/create-shipment.dto';
 @Controller('returns')
 @UseGuards(JwtAuthGuard)
 export class ReturnsController {
-  constructor(private readonly returnsService: ReturnsService) {}
+  constructor(
+    private readonly returnsService: ReturnsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   /** Customer: tạo yêu cầu trả hàng */
   @Post()
@@ -64,5 +72,48 @@ export class ReturnsController {
       id,
       body?.reason,
     );
+  }
+
+  /** Customer: xác nhận đã bàn giao hàng cho shipper */
+  @Patch(':id/handover')
+  async handover(@Req() req: any, @Param('id') id: string) {
+    return this.returnsService.handoverReturn(req.user.userId, id);
+  }
+
+  /** Customer: upload video minh chứng (resource_type: video) */
+  @Post('upload-video')
+  @UseInterceptors(FileInterceptor('video'))
+  async uploadVideo(
+    @Req() _req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      return { url: null };
+    }
+    const result = await this.cloudinaryService.uploadVideo(
+      file.buffer,
+      'perfume-gpt/returns/videos',
+    );
+    return { url: result.url };
+  }
+
+  /** Customer: upload hình ảnh minh chứng (lên đến 5 ảnh) */
+  @Post('upload-images')
+  @UseInterceptors(FilesInterceptor('images', 5))
+  async uploadImages(
+    @Req() _req: any,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    if (!files || files.length === 0) {
+      return { urls: [] };
+    }
+    const uploadPromises = files.map((file) =>
+      this.cloudinaryService.uploadImage(
+        file.buffer,
+        'perfume-gpt/returns/images',
+      ),
+    );
+    const results = await Promise.all(uploadPromises);
+    return { urls: results.map((r) => r.url) };
   }
 }

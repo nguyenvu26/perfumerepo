@@ -83,4 +83,39 @@ export class CloudinaryService {
   async deleteImages(publicIds: string[]): Promise<any> {
     return cloudinary.api.delete_resources(publicIds);
   }
+
+  /**
+   * Upload a video to Cloudinary
+   * @param file Buffer or Readable stream
+   * @param folder Folder path in Cloudinary (optional)
+   */
+  async uploadVideo(
+    file: Buffer | Readable,
+    folder: string = 'perfume-gpt/returns/videos',
+  ): Promise<{ url: string; publicId: string }> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder,
+          resource_type: 'video',
+          format: 'mp4',
+          transformation: [{ quality: 'auto' }],
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else if (!result) {
+            reject(new Error('Upload failed: No result returned'));
+          } else {
+            resolve({ url: result.secure_url, publicId: result.public_id });
+          }
+        },
+      );
+      if (Buffer.isBuffer(file)) {
+        uploadStream.end(file);
+      } else {
+        file.pipe(uploadStream);
+      }
+    });
+  }
 }

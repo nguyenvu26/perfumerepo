@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Tag, Zap, Timer, Sparkles, Copy, CheckCircle2, Wallet, Coins, Loader2, Plus } from 'lucide-react';
+import { Tag, Zap, Timer, Sparkles, Copy, CheckCircle2, Wallet, Coins, Loader2, Plus, ShieldCheck } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { promotionService } from '@/services/promotion.service';
 import { loyaltyService } from '@/services/loyalty.service';
@@ -9,15 +9,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useFormatter } from 'next-intl';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/auth.store';
+import { Link } from '@/lib/i18n';
 
 export default function CustomerPromotions() {
     const t = useTranslations('dashboard.customer.promotions');
     const tMarket = useTranslations('vouchers');
     const tFeatured = useTranslations('featured');
+    const tLoyalty = useTranslations('dashboard.customer.loyalty');
     const format = useFormatter();
     const { user } = useAuthStore();
 
-    const [myPromos, setMyPromos] = useState<any[]>([]);
     const [publicPromos, setPublicPromos] = useState<any[]>([]);
     const [redeemablePromos, setRedeemablePromos] = useState<any[]>([]);
     const [userPoints, setUserPoints] = useState(0);
@@ -26,13 +27,12 @@ export default function CustomerPromotions() {
     const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
     const fetchData = useCallback(async () => {
+        setLoading(true);
         try {
-            const [my, pub, red] = await Promise.all([
-                promotionService.getMyPromotions(),
+            const [pub, red] = await Promise.all([
                 promotionService.getPublic(),
-                promotionService.getRedeemable(),
+                promotionService.getRedeemable()
             ]);
-            setMyPromos(my);
             setPublicPromos(pub);
             setRedeemablePromos(red);
 
@@ -141,85 +141,62 @@ export default function CustomerPromotions() {
                         <p className="text-[10px] uppercase tracking-[.4em] font-bold text-muted-foreground">{tMarket('loading')}</p>
                     </div>
                 ) : (
-                    <div className="space-y-32">
-                        {/* Section 1: Available Offers (Marketplace) */}
-                        <section>
-                            <div className="flex items-center gap-4 mb-12">
-                                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-border" />
-                                <h2 className="text-2xl font-heading uppercase tracking-widest italic flex items-center gap-4">
-                                    <Tag className="text-emerald-500" />
-                                    {t('marketplace_title')}
-                                </h2>
-                                <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-border" />
-                            </div>
- 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                {publicPromos.map((promo) => (
-                                    <OfferCard 
-                                        key={promo.id} 
-                                        promo={promo} 
-                                        type="public" 
-                                        onAction={() => handleClaim(promo.id)}
-                                        loading={actionLoading === promo.id}
-                                        tMarket={tMarket}
-                                        t={t}
-                                        tFeatured={tFeatured}
-                                        format={format}
-                                        formatTimeRemaining={formatTimeRemaining}
-                                    />
-                                ))}
-                                {redeemablePromos.map((promo) => (
-                                    <OfferCard 
-                                        key={promo.id} 
-                                        promo={promo} 
-                                        type="redeemable" 
-                                        onAction={() => handleRedeem(promo.id, promo.pointsCost)}
-                                        loading={actionLoading === promo.id}
-                                        tMarket={tMarket}
-                                        t={t}
-                                        tFeatured={tFeatured}
-                                        format={format}
-                                        formatTimeRemaining={formatTimeRemaining}
-                                    />
-                                ))}
-                                {publicPromos.length === 0 && redeemablePromos.length === 0 && (
-                                    <div className="col-span-full">
-                                        <EmptyState message={tMarket('no_public')} icon={Tag} />
-                                    </div>
-                                )}
-                            </div>
-                        </section>
- 
-                        {/* Section 2: My Wallet (Owned) */}
-                        <section>
-                            <div className="flex items-center gap-4 mb-12">
-                                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-border" />
-                                <h2 className="text-2xl font-heading uppercase tracking-widest italic flex items-center gap-4">
-                                    <Wallet className="text-gold" />
-                                    {t('title')}
-                                </h2>
-                                <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-border" />
-                            </div>
-
-                            {myPromos.length > 0 ? (
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                    {myPromos.map((promo, i) => (
-                                        <OwnedVoucherCard 
-                                            key={promo.id}
-                                            promo={promo}
-                                            i={i}
-                                            copyToClipboard={copyToClipboard}
-                                            copiedCode={copiedCode}
-                                            formatTimeRemaining={formatTimeRemaining}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+                        <div className="lg:col-span-2 space-y-24">
+                            {/* Available Marketplace Section */}
+                            <section>
+                                <div className="flex items-center gap-6 mb-12">
+                                    <h2 className="text-2xl font-heading uppercase tracking-widest italic flex items-center gap-4">
+                                        <Tag className="text-emerald-500" />
+                                        {t('marketplace_title')}
+                                    </h2>
+                                    <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-border" />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {publicPromos.map((promo) => (
+                                        <OfferCard 
+                                            key={promo.id} 
+                                            promo={promo} 
+                                            type="public"
+                                            onAction={() => handleClaim(promo.id)}
+                                            loading={actionLoading === promo.id}
+                                            tMarket={tMarket}
                                             t={t}
                                             tFeatured={tFeatured}
+                                            format={format}
+                                            formatTimeRemaining={formatTimeRemaining}
+                                        />
+                                    ))}
+                                    {redeemablePromos.map((promo) => (
+                                        <OfferCard 
+                                            key={promo.id} 
+                                            promo={promo} 
+                                            type="redeemable"
+                                            onAction={() => handleRedeem(promo.id, promo.pointsCost)}
+                                            loading={actionLoading === promo.id}
+                                            tMarket={tMarket}
+                                            t={t}
+                                            tFeatured={tFeatured}
+                                            format={format}
+                                            formatTimeRemaining={formatTimeRemaining}
                                         />
                                     ))}
                                 </div>
-                            ) : (
-                                <EmptyState message={t('no_promos')} icon={Wallet} />
-                            )}
-                        </section>
+                                {publicPromos.length === 0 && redeemablePromos.length === 0 && (
+                                    <EmptyState message={tMarket('no_public')} icon={Tag} />
+                                )}
+                            </section>
+                        </div>
+
+                        <aside className="space-y-8">
+                            {/* Info Card */}
+                            <div className="p-10 rounded-[3.5rem] bg-gold/5 border border-gold/10">
+                                <p className="text-[10px] text-gold uppercase tracking-[.3em] font-bold mb-4 italic">Neural Insight</p>
+                                <p className="text-[11px] text-muted-foreground uppercase tracking-widest leading-loose">
+                                    Claims and redemptions are processed instantly. Once synthesized, vouchers appear in your <Link href="/dashboard/customer/loyalty" className="text-gold underline decoration-gold/30 underline-offset-4">Loyalty Vault</Link>.
+                                </p>
+                            </div>
+                        </aside>
                     </div>
                 )}
                 
@@ -250,59 +227,61 @@ function OfferCard({ promo, type, onAction, loading, tMarket, t, tFeatured, form
     return (
         <motion.div
             whileHover={{ y: -5 }}
-            className="glass rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-white/5 to-transparent overflow-hidden group"
+            className="group relative h-full"
         >
-            <div className="p-10 flex flex-col h-full relative">
-                <div className="flex justify-between items-start mb-10">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${type === 'public' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-gold/10 text-gold'}`}>
-                        {type === 'public' ? <Tag size={24} /> : <Coins size={24} />}
-                    </div>
-                    <div className="text-right">
-                        <div className="px-5 py-2 rounded-full glass border-white/10 text-[8px] uppercase tracking-widest font-bold text-muted-foreground flex items-center gap-2">
-                            <Timer size={14} />
-                            {formatTimeRemaining(promo.endDate)}
+            <div className="glass rounded-[2.5rem] bg-background/40 border border-white/5 overflow-hidden h-full relative z-10 transition-all duration-300 group-hover:border-gold/30">
+                <div className="p-8 flex flex-col h-full relative z-20">
+                    <div className="flex justify-between items-start mb-8">
+                        <div className="space-y-3">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${type === 'public' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-gold/10 text-gold'}`}>
+                                {type === 'public' ? <Tag size={20} /> : <Coins size={20} />}
+                            </div>
+                            {type === 'public' && (
+                                <p className="text-[7px] uppercase tracking-[.4em] font-bold text-emerald-500/80 pl-1">{t('verified_signature')}</p>
+                            )}
+                        </div>
+                        <div className="text-right">
+                            <div className="px-4 py-2 rounded-full bg-background/60 border border-white/5 text-[9px] uppercase tracking-[.3em] font-bold text-muted-foreground flex items-center gap-2 backdrop-blur-md">
+                                <Timer size={14} className={type === 'public' ? 'text-emerald-500' : 'text-gold'} />
+                                {formatTimeRemaining(promo.endDate)}
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="flex-1">
-                    <h3 className="text-3xl font-heading uppercase tracking-wider mb-2 group-hover:text-gold transition-colors">{promo.code}</h3>
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-widest font-body italic mb-8">{promo.description || t('fallback_desc')}</p>
-                </div>
-
-                <div className="flex items-center justify-between pt-8 border-t border-white/5 mt-auto">
-                    <div>
-                        <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold mb-1">{t('benefit_label')}</p>
-                        <p className="text-3xl font-serif text-gold">
-                            {promo.discountType === 'PERCENTAGE' 
-                                ? t('discount_off', { value: promo.discountValue }) 
-                                : `-${format.number(promo.discountValue)} ${tFeatured('currency_symbol') || 'đ'}`}
-                        </p>
+                    <div className="flex-1">
+                        <h3 className="text-2xl font-heading uppercase tracking-wider mb-2 group-hover:text-gold transition-colors duration-300">{promo.code}</h3>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-body italic mb-8 leading-relaxed max-w-[90%] line-clamp-2">{promo.description || t('fallback_desc')}</p>
                     </div>
 
-                    <button
-                        onClick={onAction}
-                        disabled={loading}
-                        className={`h-16 px-10 rounded-[1.8rem] font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 transition-all active:scale-95 shadow-2xl ${
-                            type === 'public' 
-                                ? 'bg-emerald-500 text-black hover:bg-emerald-400' 
-                                : 'bg-gold text-black hover:bg-gold/80'
-                        }`}
-                    >
-                        {loading ? (
-                            <Loader2 size={18} className="animate-spin text-black" />
-                        ) : type === 'public' ? (
-                            <>
-                                <Plus size={18} strokeWidth={3} />
-                                {tMarket('claim_btn')}
-                            </>
-                        ) : (
-                            <>
-                                <Zap size={18} strokeWidth={3} />
-                                {tMarket('redeem_btn', { points: promo.pointsCost })}
-                            </>
-                        )}
-                    </button>
+                    <div className="flex items-center justify-between pt-6 border-t border-white/5 mt-auto">
+                        <div className="space-y-1">
+                            <p className="text-[8px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">{t('benefit_label')}</p>
+                            <p className="text-2xl font-serif text-gold leading-none">
+                                {promo.discountType === 'PERCENTAGE' 
+                                    ? <>{promo.discountValue}% OFF</>
+                                    : <>-{format.number(promo.discountValue)} <span className="text-xs">đ</span></>}
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={onAction}
+                            disabled={loading}
+                            className={`h-14 min-w-[140px] px-6 rounded-2xl font-heading text-[10px] uppercase tracking-[.3em] font-bold flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl ${
+                                type === 'public' 
+                                    ? 'bg-emerald-500 text-black hover:bg-emerald-400' 
+                                    : 'bg-gold text-black hover:bg-gold/80'
+                            }`}
+                        >
+                            {loading ? (
+                                <Loader2 size={16} className="animate-spin block" />
+                            ) : (
+                                <>
+                                    {type === 'public' ? <Plus size={18} strokeWidth={3} /> : <Zap size={18} strokeWidth={3} />}
+                                    {type === 'public' ? tMarket('claim_btn') : tMarket('redeem_btn', { points: promo.pointsCost })}
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
         </motion.div>

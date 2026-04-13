@@ -139,4 +139,14 @@ export class PaymentsController {
     );
     return this.paymentsService.getPaymentByOrderId(order.id);
   }
+
+  @Get('verify-sync/:orderId')
+  @UseGuards(JwtAuthGuard)
+  async verifyAndSyncStatus(@Req() req: any, @Param('orderId') orderId: string) {
+    const order = await this.ordersService.getMyOrderById(
+      req.user.userId,
+      orderId,
+    );
+    return this.paymentsService.verifyAndSyncPaymentStatus(order.id);
+  }
 }

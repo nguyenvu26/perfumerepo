@@ -10,6 +10,7 @@ import { useTranslations, useFormatter } from 'next-intl';
 const MAX_IMAGES = 10;
 
 type ExistingImage = { id: number; url: string; order: number };
+type VariantForm = { id?: string; name: string; price: number; stock: number; sku: string };
 
 function slugify(s: string) {
   return s
@@ -49,7 +50,7 @@ export default function AdminProducts() {
     longevity: '',
     concentration: '',
     isActive: true,
-    variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
+    variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }] as VariantForm[],
   });
 
   const fetchProducts = useCallback(async () => {
@@ -106,7 +107,7 @@ export default function AdminProducts() {
             concentration: p.concentration ?? '',
             isActive: p.isActive,
             variants: p.variants?.length
-              ? p.variants.map(v => ({ name: v.name, price: v.price, stock: v.stock, sku: v.sku ?? '' }))
+              ? p.variants.map(v => ({ id: v.id, name: v.name, price: v.price, stock: v.stock, sku: v.sku ?? '' }))
               : [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
           });
           setExistingImages((p.images ?? []) as ExistingImage[]);
@@ -234,6 +235,7 @@ export default function AdminProducts() {
     concentration: form.concentration || undefined,
     isActive: form.isActive,
     variants: form.variants.map(v => ({
+      id: v.id,
       name: v.name.trim(),
       price: v.price,
       stock: v.stock,
@@ -451,7 +453,7 @@ export default function AdminProducts() {
                         <div>
                           <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.brand')}</label>
                           <select
-                            className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                            className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
                             value={form.brandId || ''}
                             onChange={(e) => setForm((f) => ({ ...f, brandId: Number(e.target.value) }))}
                             required
@@ -465,7 +467,7 @@ export default function AdminProducts() {
                         <div>
                           <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.category')}</label>
                           <select
-                            className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                            className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
                             value={form.categoryId === '' ? '' : form.categoryId}
                             onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value === '' ? '' : Number(e.target.value) }))}
                           >
@@ -482,7 +484,7 @@ export default function AdminProducts() {
                       <div>
                         <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.scent_family')}</label>
                         <select
-                          className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                          className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
                           value={form.scentFamilyId === '' ? '' : form.scentFamilyId}
                           onChange={(e) => setForm((f) => ({ ...f, scentFamilyId: e.target.value === '' ? '' : Number(e.target.value) }))}
                         >
@@ -494,11 +496,16 @@ export default function AdminProducts() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.gender')}</label>
-                        <input
-                          className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                        <select
+                          className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
                           value={form.gender}
                           onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
-                        />
+                        >
+                          <option value="">—</option>
+                          <option value="female">female</option>
+                          <option value="male">male</option>
+                          <option value="unisex">unisex</option>
+                        </select>
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.longevity')}</label>

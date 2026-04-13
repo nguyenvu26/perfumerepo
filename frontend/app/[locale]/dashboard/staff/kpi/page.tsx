@@ -65,7 +65,20 @@ export default function StaffKPI() {
                                     <Package className="w-5 h-5 text-gold" />
                                 </div>
                                 <p className="text-3xl font-heading text-foreground">{report.totalOrders}</p>
-                                <p className="text-[10px] text-muted-foreground mt-1">{report.completedOrders} {t('cards.completed_suffix')}</p>
+                                <div className="grid grid-cols-3 gap-2 mt-3">
+                                    <div className="flex flex-col">
+                                        <span className="text-[8px] text-muted-foreground uppercase font-bold">{t('cards.successful')}</span>
+                                        <span className="text-xs font-heading text-success">{report.successfulOrders}</span>
+                                    </div>
+                                    <div className="flex flex-col border-x border-border/30 px-2">
+                                        <span className="text-[8px] text-muted-foreground uppercase font-bold">{t('cards.cancelled')}</span>
+                                        <span className="text-xs font-heading text-red-400">{report.cancelledOrders}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[8px] text-muted-foreground uppercase font-bold">{t('cards.refunded')}</span>
+                                        <span className="text-xs font-heading text-amber-400">{report.refundedOrders}</span>
+                                    </div>
+                                </div>
                             </div>
                             <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
@@ -80,9 +93,7 @@ export default function StaffKPI() {
                                     <Award className="w-5 h-5 text-gold" />
                                 </div>
                                 <p className="text-3xl font-heading text-foreground">
-                                    {report.totalOrders > 0
-                                        ? Math.round((report.completedOrders / report.totalOrders) * 100)
-                                        : 0}%
+                                    {report.completionRate}%
                                 </p>
                             </div>
                         </div>

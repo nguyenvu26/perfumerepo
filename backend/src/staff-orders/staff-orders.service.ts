@@ -16,6 +16,8 @@ export class StaffOrdersService {
     skip = 0,
     take = 20,
     search?: string,
+    date?: string,
+    status?: string,
   ) {
     const where: any = {
       channel: OrderChannel.POS,
@@ -23,6 +25,18 @@ export class StaffOrdersService {
 
     if (role === 'STAFF') {
       where.staffId = userId;
+    }
+
+    if (date) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      where.createdAt = { gte: start, lte: end };
+    }
+
+    if (status) {
+      where.status = status;
     }
 
     // Search by order code or customer phone
@@ -45,7 +59,7 @@ export class StaffOrdersService {
           items: {
             include: {
               variant: {
-                include: { product: true },
+                include: { product: { include: { images: { take: 1 } } } },
               },
             },
           },

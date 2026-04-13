@@ -1,14 +1,15 @@
 import { IsString, IsIn, IsEmail, IsOptional } from 'class-validator';
 
 export class SocialLoginDto {
-  @IsIn(['google', 'facebook'])
-  provider: 'google' | 'facebook';
+  @IsIn(['google', 'facebook', 'zalo'])
+  provider: 'google' | 'facebook' | 'zalo';
 
   @IsString()
   token: string;
 
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @IsString()
   providerId: string;

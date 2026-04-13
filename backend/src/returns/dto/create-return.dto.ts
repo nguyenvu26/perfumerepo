@@ -6,6 +6,7 @@ import {
   Min,
   ValidateNested,
   ArrayMinSize,
+  IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -33,7 +34,7 @@ export class CreateReturnDto {
 
   @IsArray()
   @ArrayMinSize(1)
-  @ValidateNested({ each: true })
+  @ValidateNested({ each: true})
   @Type(() => ReturnItemDto)
   items: ReturnItemDto[];
 
@@ -41,8 +42,16 @@ export class CreateReturnDto {
   @IsString()
   reason?: string;
 
+  @IsOptional()
+  @IsObject()
+  paymentInfo?: Record<string, any>;
+
   // POS fields (staff only)
   @IsOptional()
   @IsString()
   origin?: 'ONLINE' | 'POS';
+
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
 }

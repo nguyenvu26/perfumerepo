@@ -1,17 +1,20 @@
 import api from '@/lib/axios';
 
 export type DailyReport = {
-    date: string;
+  date: string;
+  totalRevenue: number;
+  totalOrders: number;
+  successfulOrders: number;
+  cancelledOrders: number;
+  refundedOrders: number;
+  avgOrderValue: number;
+  completionRate: number;
+  topProducts: {
+    productName: string;
+    variantName: string;
+    totalQuantity: number;
     totalRevenue: number;
-    totalOrders: number;
-    completedOrders: number;
-    avgOrderValue: number;
-    topProducts: {
-        productName: string;
-        variantName: string;
-        totalQuantity: number;
-        totalRevenue: number;
-    }[];
+  }[];
 };
 
 export const staffReportsService = {

@@ -29,6 +29,14 @@ export type Order = {
   }[];
   createdAt?: string;
   updatedAt?: string;
+  returnRequests?: {
+    id: string;
+    status: string;
+    items: {
+      variantId: string;
+      quantity: number;
+    }[];
+  }[];
 };
 
 export type OrderListResponse = {

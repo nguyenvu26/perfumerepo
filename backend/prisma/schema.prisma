@@ -54,6 +54,7 @@ model User {
   returnRequests      ReturnRequest[]     @relation("CustomerReturns")
   staffReturnRequests ReturnRequest[]     @relation("StaffReturns")
   userPromotions            UserPromotion[]
+  aiPreference              UserAiPreference?
 }
 
 model UserAddress {
@@ -147,6 +148,18 @@ model QuizResult {
   createdAt       DateTime @default(now())
   recommendation  String?
   user            User     @relation(fields: [userId], references: [id])
+}
+
+model UserAiPreference {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  riskLevel       Float    @default(0.3)
+  preferredNotes  String[]
+  avoidedNotes    String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// Product & catalog models
@@ -317,6 +330,7 @@ model Order {
   totalAmount         Int
   discountAmount      Int                  @default(0)
   finalAmount         Int
+  refundAmount        Int                  @default(0)
   status              OrderStatus          @default(PENDING)
   paymentStatus       PaymentStatus        @default(PENDING)
   channel             OrderChannel         @default(ONLINE)
@@ -669,6 +683,7 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+  PARTIALLY_REFUNDED
 }
 
 enum PaymentProvider {
@@ -832,11 +847,13 @@ model ReturnRequest {
   createdBy        String?          // staff/admin id if created by staff
   status           ReturnStatus     @default(REQUESTED)
   reason           String?
+  paymentInfo      Json?
   note             String?
   totalAmount      Int?             // cached refundable amount
   refundAmount     Int?             // actual refunded amount
   receivedAt       DateTime?
   receivedLocation ReceivedLocation?
+  videoUrl         String?
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
@@ -879,6 +896,8 @@ model ReturnShipment {
   shippedAt        DateTime?
   receivedAt       DateTime?
   receivedLocation ReceivedLocation?
+  status           String?           // e.g. PENDING, SHIPPED, DELIVERED, FAILED
+  rawProviderData  String?           @db.Text
   createdAt        DateTime          @default(now())
 
   returnRequest    ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
@@ -909,6 +928,7 @@ model Refund {
   attempts        Int          @default(0)
   error           Json?
   note            String?
+  receiptImage    String?
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 

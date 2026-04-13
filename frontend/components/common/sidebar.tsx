@@ -40,6 +40,7 @@ export const Sidebar = () => {
 
             { icon: Heart, label: commonT('favorites'), href: '/dashboard/customer/favorite' },
             { icon: ClipboardList, label: commonT('orders'), href: '/dashboard/customer/orders' },
+            { icon: RotateCcw, label: navT('customer.returns'), href: '/dashboard/customer/returns' },
             { icon: Coins, label: navT('customer.loyalty'), href: '/dashboard/customer/loyalty' },
             { icon: Tag, label: navT('customer.promotions'), href: '/dashboard/customer/promotions' },
         ];
@@ -48,7 +49,7 @@ export const Sidebar = () => {
             { icon: Smartphone, label: navT('staff.pos'), href: '/dashboard/staff/pos' },
             { icon: Box, label: navT('staff.inventory'), href: '/dashboard/staff/inventory' },
             { icon: ClipboardList, label: navT('staff.orders'), href: '/dashboard/staff/orders' },
-            { icon: RotateCcw, label: 'Đổi trả', href: '/dashboard/staff/returns' },
+            { icon: RotateCcw, label: navT('staff.returns'), href: '/dashboard/staff/returns' },
             { icon: BarChart3, label: navT('staff.kpi'), href: '/dashboard/staff/kpi' },
         ];
 
@@ -63,7 +64,7 @@ export const Sidebar = () => {
             { icon: BookOpen, label: navT('admin.manage_journal'), href: '/dashboard/admin/manage-journal' },
             { icon: Tag, label: navT('admin.promotions'), href: '/dashboard/admin/marketing/promotions' },
             { icon: Receipt, label: commonT('orders'), href: '/dashboard/admin/orders' },
-            { icon: RotateCcw, label: 'Đổi trả', href: '/dashboard/admin/returns' },
+            { icon: RotateCcw, label: navT('admin.returns'), href: '/dashboard/admin/returns' },
             { icon: BarChart3, label: navT('admin.analytics'), href: '/dashboard/admin/analytics' },
             { icon: Mail, label: navT('admin.marketing'), href: '/dashboard/admin/marketing' },
             { icon: Sparkles, label: navT('admin.manage_banner'), href: '/dashboard/admin/manage-banner' },

@@ -16,6 +16,8 @@ export class StaffOrdersController {
     @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('search') search?: string,
+    @Query('date') date?: string,
+    @Query('status') status?: string,
   ) {
     const user = req.user as { userId: string; role: string };
     const s = Number.isFinite(Number(skip)) ? Number(skip) : 0;
@@ -27,6 +29,8 @@ export class StaffOrdersController {
       s,
       t,
       search,
+      date,
+      status,
     );
   }
 

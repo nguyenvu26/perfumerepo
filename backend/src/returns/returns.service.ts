@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { ShippingService } from '../shipping/shipping.service';
 import {
   ReturnStatus,
   ReturnOrigin,
@@ -27,14 +28,18 @@ const RETURN_WINDOW_DAYS = 7;
 const VALID_TRANSITIONS: Record<ReturnStatus, ReturnStatus[]> = {
   REQUESTED: [
     ReturnStatus.REVIEWING,
+    ReturnStatus.APPROVED,
+    ReturnStatus.REJECTED,
     ReturnStatus.AWAITING_CUSTOMER,
     ReturnStatus.CANCELLED,
+    ReturnStatus.RECEIVED, // For POS direct jump
   ],
   REVIEWING: [
     ReturnStatus.APPROVED,
     ReturnStatus.REJECTED,
     ReturnStatus.AWAITING_CUSTOMER,
     ReturnStatus.CANCELLED,
+    ReturnStatus.RECEIVED, // For POS direct jump
   ],
   AWAITING_CUSTOMER: [ReturnStatus.REVIEWING, ReturnStatus.CANCELLED],
   APPROVED: [ReturnStatus.RETURNING, ReturnStatus.CANCELLED],
@@ -53,11 +58,39 @@ export class ReturnsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly shippingService: ShippingService,
   ) {}
 
   // ─────────── HELPERS ───────────
 
-  private async findReturnOrThrow(id: string) {
+  async getSuggestedRefundAmount(id: string) {
+    const ret = await this.prisma.returnRequest.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+    if (!ret) throw new NotFoundException('Return not found');
+
+    const order = await this.prisma.order.findUnique({
+      where: { id: ret.orderId },
+      include: { items: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const refundAmount = this.calculateRefundAmount(
+      order.items,
+      ret.items.map((ri) => ({
+        variantId: ri.variantId,
+        quantity: ri.quantity,
+        qtyReceived: ri.qtyReceived,
+      })),
+      order.discountAmount,
+      0, // shipping
+    );
+
+    return { suggestedAmount: refundAmount };
+  }
+
+  async findReturnOrThrow(id: string) {
     const ret = await this.prisma.returnRequest.findUnique({
       where: { id },
       include: {
@@ -94,7 +127,7 @@ export class ReturnsService {
     action: 'create' | 'refund',
   ): Promise<{ existing: boolean; result?: any }> {
     if (!idempotencyKey) {
-      throw new BadRequestException('Idempotency-Key header required');
+      return { existing: false };
     }
     const scope = `${action}_${returnId}_${idempotencyKey}`;
     const existing = await this.prisma.returnAudit.findFirst({
@@ -282,6 +315,8 @@ export class ReturnsService {
           origin,
           createdBy: isStaff ? staffId : undefined,
           reason: dto.reason,
+          videoUrl: dto.videoUrl,
+          paymentInfo: dto.paymentInfo ? dto.paymentInfo : undefined,
           totalAmount,
           items: {
             create: dto.items.map((item) => ({
@@ -310,10 +345,12 @@ export class ReturnsService {
       );
 
       // Record idempotency
-      await this.recordIdempotency(tx, ret.id, idempotencyKey!, 'create', {
-        dto,
-        totalAmount,
-      });
+      if (idempotencyKey) {
+        await this.recordIdempotency(tx, ret.id, idempotencyKey, 'create', {
+          dto,
+          totalAmount,
+        });
+      }
 
       return ret;
     });
@@ -329,6 +366,28 @@ export class ReturnsService {
           data: { returnRequestId: result.id, orderId: order.id },
         })
         .catch(() => {});
+    }
+
+    // Notify all admins so they can review/approve the POS return
+    try {
+      const admins = await this.prisma.user.findMany({
+        where: { role: 'ADMIN' },
+      });
+      await Promise.all(
+        admins.map((a) =>
+          this.notificationsService
+            .create({
+              userId: a.id,
+              type: 'ORDER',
+              title: 'Yêu cầu trả hàng mới (POS)',
+              content: `Có yêu cầu trả hàng mới (${result.id}) từ POS cho đơn ${order.code}. Vui lòng kiểm tra và xét duyệt.`,
+              data: { returnRequestId: result.id, orderId: order.id },
+            })
+            .catch(() => {}),
+        ),
+      );
+    } catch (e) {
+      // don't block on notification failures
     }
 
     return result;
@@ -352,6 +411,7 @@ export class ReturnsService {
           },
         },
         order: { select: { id: true, code: true, finalAmount: true } },
+        shipments: true,
         refunds: {
           select: { id: true, amount: true, status: true, method: true },
         },
@@ -442,6 +502,36 @@ export class ReturnsService {
     });
   }
 
+  async handoverReturn(userId: string, id: string) {
+    const ret = await this.findReturnOrThrow(id);
+    if (ret.userId !== userId) throw new ForbiddenException();
+
+    // Handover is valid if in APPROVED (for automated) or RETURNING (for manual retry)
+    const VALID_HANDOVER: ReturnStatus[] = [
+      ReturnStatus.APPROVED,
+      ReturnStatus.RETURNING,
+    ];
+
+    if (!VALID_HANDOVER.includes(ret.status)) {
+      throw new BadRequestException(
+        'Không thể xác nhận bàn giao ở trạng thái hiện tại',
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.returnRequest.update({
+        where: { id },
+        data: { status: ReturnStatus.RETURNING },
+      });
+
+      await this.createAudit(tx, id, userId, 'HANDOVER_CONFIRMED', {
+        previousStatus: ret.status,
+      });
+
+      return updated;
+    });
+  }
+
   // ─────────── ADMIN: LIST ALL ───────────
 
   async listAllReturns(
@@ -478,6 +568,7 @@ export class ReturnsService {
             select: { id: true, fullName: true, email: true, phone: true },
           },
           staff: { select: { id: true, fullName: true } },
+          shipments: true,
           refunds: { select: { id: true, amount: true, status: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -487,6 +578,8 @@ export class ReturnsService {
 
     return { data, total, skip, take, pages: Math.ceil(total / take) };
   }
+
+
 
   async getReturnById(id: string) {
     return this.findReturnOrThrow(id);
@@ -505,20 +598,43 @@ export class ReturnsService {
       throw new BadRequestException('Yêu cầu không ở trạng thái có thể review');
     }
 
-    const newStatus =
-      dto.action === 'approve' ? ReturnStatus.APPROVED : ReturnStatus.REJECTED;
+    const isPosApprove = ret.origin === 'POS' && dto.action === 'approve';
+    const newStatus = isPosApprove
+      ? ReturnStatus.RECEIVED
+      : dto.action === 'approve'
+        ? ReturnStatus.APPROVED
+        : ReturnStatus.REJECTED;
+
     this.validateTransition(ret.status, newStatus);
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const result = await tx.returnRequest.update({
         where: { id },
-        data: { status: newStatus, note: dto.note },
+        data: {
+          status: newStatus,
+          note: dto.note,
+          ...(isPosApprove && {
+            receivedAt: new Date(),
+            receivedLocation: 'POS',
+          }),
+        },
       });
 
       await this.createAudit(tx, id, adminId, dto.action.toUpperCase(), {
         previousStatus: ret.status,
         note: dto.note,
+        isPosJump: isPosApprove,
       });
+
+      if (isPosApprove) {
+        // Update quantities as received if jumping
+        for (const item of ret.items) {
+          await tx.returnItem.update({
+            where: { id: item.id },
+            data: { qtyReceived: item.quantity },
+          });
+        }
+      }
 
       return result;
     });
@@ -527,8 +643,10 @@ export class ReturnsService {
     if (ret.userId) {
       const msg =
         dto.action === 'approve'
-          ? 'Yêu cầu trả hàng đã được duyệt. Vui lòng gửi hàng về.'
+          ? 'Yêu cầu trả hàng đã được duyệt. Vui lòng gửi hàng về và cung cấp mã vận đơn.'
           : `Yêu cầu trả hàng bị từ chối. ${dto.note || ''}`;
+
+
       this.notificationsService
         .create({
           userId: ret.userId,
@@ -541,6 +659,33 @@ export class ReturnsService {
           data: { returnRequestId: id },
         })
         .catch(() => {});
+    }
+
+    // ─────────── AUTOMATED GHN PICKUP ───────────
+    if (newStatus === ReturnStatus.APPROVED && ret.origin === 'ONLINE') {
+      try {
+        const pickupResult = await this.shippingService.createGhnReturnPickup(id);
+        await this.prisma.returnAudit.create({
+          data: {
+            returnId: id,
+            actorId: adminId,
+            action: 'AUTOMATED_PICKUP_CREATED',
+            payload: { ...pickupResult, provider: 'GHN' },
+          },
+        });
+      } catch (err) {
+        console.error('Failed to create automated GHN pickup:', err);
+        await this.prisma.returnAudit.create({
+          data: {
+            returnId: id,
+            actorId: adminId,
+            action: 'AUTOMATED_PICKUP_FAILED',
+            payload: { message: err.message },
+          },
+        });
+        // We don't throw here to avoid rolling back the approval, 
+        // but we might want to notify staff to retry manually.
+      }
     }
 
     return updated;
@@ -604,8 +749,9 @@ export class ReturnsService {
 
     // Check for seal integrity - reject if broken seal on perfume
     const hasUnsealedItem = dto.items.some((item) => item.sealIntact === false);
+    const allUnsealed = dto.items.every((item) => item.sealIntact === false);
 
-    const newStatus = hasUnsealedItem
+    const newStatus = allUnsealed
       ? ReturnStatus.REJECTED_AFTER_RETURN
       : ReturnStatus.RECEIVED;
 
@@ -754,13 +900,8 @@ export class ReturnsService {
       throw new BadRequestException('Số tiền hoàn trả phải lớn hơn 0');
     }
 
-    // Role limit: staff cannot refund more than defined threshold directly
-    const STAFF_REFUND_LIMIT = 1000000;
-    if (role === 'STAFF' && refundAmount > STAFF_REFUND_LIMIT) {
-      throw new ForbiddenException(
-        `Nhân viên không thể hoàn tiền vượt quá ${STAFF_REFUND_LIMIT.toLocaleString('vi-VN')}đ. Xin vui lòng liên hệ Admin.`,
-      );
-    }
+    // Role limit: Removing the STAFF_REFUND_LIMIT as Admin has already approved the return request at an earlier stage.
+    // If we wanted to keep some sanity check, we could, but the user explicitly requested removal.
 
     // Gateway or manual - stub gateway for now (PayOS refund if available)
     const isGateway = dto.method === 'gateway';
@@ -790,6 +931,7 @@ export class ReturnsService {
           transactionId: dto.transactionId || gatewayRefundId,
           status: refundStatus,
           note: dto.note,
+          receiptImage: dto.receiptImage,
           attempts:
             ret.status === ReturnStatus.REFUND_FAILED
               ? (ret.refunds[0]?.attempts || 0) + 1
@@ -811,9 +953,15 @@ export class ReturnsService {
         },
       });
 
+      const totalRefunded = order.refundAmount + refundAmount;
+      const newPaymentStatus = totalRefunded >= order.finalAmount ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
+
       await tx.order.update({
         where: { id: ret.orderId },
-        data: { paymentStatus: 'REFUNDED' },
+        data: { 
+          paymentStatus: newPaymentStatus,
+          refundAmount: totalRefunded
+        },
       });
 
       await this.createAudit(tx, id, adminId, 'REFUND_TRIGGERED', {
@@ -825,11 +973,32 @@ export class ReturnsService {
       });
 
       // Record idempotency
-      await this.recordIdempotency(tx, id, idempotencyKey!, 'refund', {
-        dto,
-        refundAmount,
-        refundStatus,
-      });
+      if (idempotencyKey) {
+        await this.recordIdempotency(tx, id, idempotencyKey, 'refund', {
+          dto,
+          refundAmount,
+          refundStatus,
+        });
+      }
+
+      // Loyalty points reversal
+      if (ret.userId && refundStatus === RefundStatus.SUCCESS) {
+        const pointsToDeduct = Math.floor(refundAmount / 10000);
+        if (pointsToDeduct > 0) {
+          await tx.loyaltyTransaction.create({
+            data: {
+              userId: ret.userId,
+              points: -pointsToDeduct,
+              reason: `Tru points do hoan tra don hang \${ret.order.code}`,
+            },
+          });
+
+          await tx.user.update({
+            where: { id: ret.userId },
+            data: { loyaltyPoints: { decrement: pointsToDeduct } },
+          });
+        }
+      }
 
       // Stub retry queue
       if (

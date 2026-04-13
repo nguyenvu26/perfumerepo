@@ -160,10 +160,34 @@ ${reviewTexts}`;
   async perfumeConsult(
     userMessage: string,
     history: Array<{ role: string; text: string }>,
+    dna?: {
+      preferredNotes: string[];
+      avoidedNotes: string[];
+      riskLevel: number;
+    },
   ): Promise<string> {
     const catalog = await this.getProductCatalog();
 
+    let dnaContext = '';
+    if (dna) {
+      dnaContext = `
+═══════════════════════════════════════
+USER SCENT DNA PROFILE:
+- Preferred Notes: ${dna.preferredNotes.join(', ') || 'Any'}
+- Avoided Notes (STRICT EXCLUSION): ${dna.avoidedNotes.join(', ') || 'None'}
+- Adventure/Risk Level: ${dna.riskLevel} (0.0 = Very Safe, 1.0 = Very Bold)
+
+ADVICE STRATEGY:
+1. STRICTLY EXCLUDE any product that contains any of the "Avoided Notes".
+2. PRIORITIZE products with "Preferred Notes".
+3. If Adventure Level is LOW (< 0.4), recommend very safe, mass-appealing classics matching their preferred notes.
+4. If Adventure Level is HIGH (> 0.7), suggest unique or challenging fragrance combinations that might push their boundaries but still avoid their excluded notes.
+═══════════════════════════════════════
+`;
+    }
+
     const systemPrompt = `You are "PerfumeGPT", an expert fragrance consultant for our perfume store.
+${dnaContext}
 
 IMPORTANT RULES:
 - You can ONLY recommend products that exist in our catalog below.

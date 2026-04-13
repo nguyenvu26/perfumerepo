@@ -132,7 +132,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                     {/* CTAs */}
                     <div className="flex flex-wrap gap-6 mt-8">
                         <Link
-                            href={currentBanner?.linkUrl || "/customer/consultation"}
+                            href={currentBanner?.linkUrl || "/quiz"}
                             className="group px-10 py-5 bg-gold hover:bg-gold-light text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] flex items-center gap-4 transition-all shadow-xl"
                         >
                             {currentBanner?.linkUrl ? 'Xem Ngay' : t('cta')}

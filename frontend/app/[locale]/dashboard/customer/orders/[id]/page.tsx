@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Link } from "@/lib/i18n";
 import { orderService, type Order } from "@/services/order.service";
 import { shippingService, type Shipment } from "@/services/shipping.service";
+import { returnsService, type ReturnRequest } from "@/services/returns.service";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import Image from "next/image";
 import {
@@ -18,8 +19,10 @@ import {
   Clock,
   PackageCheck,
   XCircle,
+  RotateCcw,
 } from "lucide-react";
 import ReviewForm from "@/components/review/review-form";
+import { CreateReturnModal } from "@/components/returns/CreateReturnModal";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
 
 export default function CustomerOrderDetailPage() {
@@ -35,6 +38,8 @@ export default function CustomerOrderDetailPage() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [reviewingItemId, setReviewingItemId] = useState<number | null>(null);
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [existingReturn, setExistingReturn] = useState<ReturnRequest | null>(null);
 
   const STATUS_CONFIG: Record<
     string,
@@ -83,6 +88,11 @@ export default function CustomerOrderDetailPage() {
         ]);
         setOrder(o);
         setShipments(s);
+        // Check if return already exists for this order
+        returnsService.listMyReturns().then((returns) => {
+          const found = returns.find((r) => r.orderId === orderId) || null;
+          setExistingReturn(found);
+        }).catch(() => { });
       } catch (err) {
         setOrder(null);
       } finally {
@@ -240,6 +250,44 @@ export default function CustomerOrderDetailPage() {
                                   × {item.quantity} —{" "}
                                   {formatCurrency(item.unitPrice)}
                                 </p>
+                                {(() => {
+                                  const refundedQty = (order.returnRequests || [])
+                                    .filter(r => r.status === 'COMPLETED')
+                                    .reduce((sum, r) => {
+                                      const ri = r.items.find(ri => ri.variantId === item.variantId);
+                                      return sum + (ri?.quantity || 0);
+                                    }, 0);
+                                  
+                                  if (refundedQty > 0) {
+                                    return (
+                                      <div className="mt-2 flex items-center gap-2">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                          {refundedQty >= item.quantity 
+                                            ? tDetail("status_refunded_full", { defaultValue: "Đã hoàn trả" })
+                                            : tDetail("status_refunded_partial", { defaultValue: `Đã hoàn trả ${refundedQty}` })}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+
+                                  const pendingRefundQty = (order.returnRequests || [])
+                                    .filter(r => !['COMPLETED', 'CANCELLED', 'REJECTED', 'REJECTED_AFTER_RETURN'].includes(r.status))
+                                    .reduce((sum, r) => {
+                                      const ri = r.items.find(ri => ri.variantId === item.variantId);
+                                      return sum + (ri?.quantity || 0);
+                                    }, 0);
+
+                                  if (pendingRefundQty > 0) {
+                                    return (
+                                      <div className="mt-2 flex items-center gap-2">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-blue-500/10 text-blue-600 border border-blue-500/20 animate-pulse">
+                                          {tDetail("status_refunding", { defaultValue: "Đang yêu cầu trả" })}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                               </div>
                               <div className="flex flex-col items-end gap-2 flex-shrink-0">
                                 <span className="font-bold text-luxury-black dark:text-white">
@@ -337,12 +385,39 @@ export default function CustomerOrderDetailPage() {
                   <span className="text-luxury-black dark:text-white uppercase">
                     {order.paymentStatus === "PAID"
                       ? tDetail("payment_status.paid")
-                      : order.paymentStatus === "PENDING"
-                      ? tDetail("payment_status.pending")
-                      : order.paymentStatus}
+                      : order.paymentStatus === "PARTIALLY_REFUNDED"
+                        ? tDetail("payment_status.partially_refunded", { defaultValue: "Hoàn tiền một phần" })
+                        : order.paymentStatus === "REFUNDED"
+                          ? tDetail("payment_status.refunded", { defaultValue: "Đã hoàn tiền" })
+                          : order.paymentStatus === "PENDING"
+                            ? tDetail("payment_status.pending")
+                            : order.paymentStatus}
                   </span>
                 </p>
               </div>
+
+              {/* Return Request Button — only for COMPLETED orders */}
+              {order.status === "COMPLETED" && order.paymentStatus === "PAID" && (
+                <div className="mt-6 pt-6 border-t border-stone-100 dark:border-white/5">
+                  {existingReturn ? (
+                    <Link
+                      href={`/dashboard/customer/returns/${existingReturn.id}`}
+                      className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-amber-600 text-[10px] font-bold uppercase tracking-widest hover:bg-amber-500/10 transition-all"
+                    >
+                      <RotateCcw size={12} />
+                      {tDetail("view_return")}
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => setShowReturnModal(true)}
+                      className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-400 text-[10px] font-bold uppercase tracking-widest hover:border-amber-500/30 hover:text-amber-600 hover:bg-amber-500/5 transition-all"
+                    >
+                      <RotateCcw size={12} />
+                      {tDetail("request_return")}
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div className="mt-8 pt-8 border-t border-border space-y-3">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
@@ -401,9 +476,8 @@ export default function CustomerOrderDetailPage() {
                         </div>
                         {(s.trackingCode || s.ghnOrderCode) && (
                           <a
-                            href={`${TRACKING_URL}${
-                              s.trackingCode || s.ghnOrderCode
-                            }`}
+                            href={`${TRACKING_URL}${s.trackingCode || s.ghnOrderCode
+                              }`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-gold hover:text-gold/80 text-[10px] font-bold uppercase tracking-widest border border-gold/20 w-fit px-4 py-2 rounded-full hover:bg-gold/5 transition-all"
@@ -420,6 +494,26 @@ export default function CustomerOrderDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Create Return Modal */}
+      {showReturnModal && order.items && order.items.length > 0 && (
+        <CreateReturnModal
+          orderId={orderId}
+          items={order.items.map((item) => ({
+            id: item.id,
+            variantId: item.variantId,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            totalPrice: item.totalPrice,
+            product: item.product,
+          }))}
+          onClose={() => setShowReturnModal(false)}
+          onSuccess={() => {
+            setShowReturnModal(false);
+            fetchOrder();
+          }}
+        />
+      )}
     </AuthGuard>
   );
 }

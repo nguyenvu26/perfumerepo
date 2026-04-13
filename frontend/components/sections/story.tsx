@@ -84,7 +84,7 @@ export const Story = () => {
 
                         {/* CTA */}
                         <Link
-                            href="/customer/consultation"
+                            href="/quiz"
                             className="group px-12 py-5 border-2 border-foreground dark:border-gold text-foreground hover:bg-foreground dark:hover:bg-gold hover:text-background dark:hover:text-background rounded-full font-bold uppercase text-[10px] transition-all inline-flex items-center gap-4"
                         >
                             {t('cta')}

@@ -248,4 +248,89 @@ export class PaymentsService {
 
     return payment;
   }
+
+  async verifyAndSyncPaymentStatus(orderId: string) {
+    // 1. Find the latest payment for this order
+    const payment = await this.prisma.payment.findFirst({
+      where: { orderId, provider: PaymentProvider.PAYOS },
+      orderBy: { createdAt: 'desc' },
+      include: { order: true },
+    });
+
+    if (!payment) {
+      throw new NotFoundException('No PayOS payment record found for this order');
+    }
+
+    // 2. If already PAID, no need to sync
+    if (payment.status === PaymentStatus.PAID) {
+      return payment;
+    }
+
+    try {
+      // 3. Query PayOS API for actual status using transactionId (orderCode)
+      if (!payment.transactionId) {
+        throw new BadRequestException('Payment transaction ID (orderCode) is missing');
+      }
+
+      const payosInfo = await this.payos.paymentRequests.get(
+        parseInt(payment.transactionId),
+      );
+
+      // Status 'PAID' from PayOS means successful
+      if (payosInfo.status === 'PAID') {
+        const updatedPayment = await this.prisma.$transaction(async (tx) => {
+          // Update payment
+          const p = await tx.payment.update({
+            where: { id: payment.id },
+            data: {
+              status: PaymentStatus.PAID,
+              providerRawData: JSON.stringify({
+                ...JSON.parse(payment.providerRawData || '{}'),
+                syncStatus: payosInfo,
+              }),
+            },
+          });
+
+          // Update order
+          await tx.order.update({
+            where: { id: orderId },
+            data: {
+              paymentStatus: PaymentStatus.PAID,
+              status: 'CONFIRMED',
+            },
+          });
+
+          return p;
+        });
+
+        // Trigger GHN Shipment as it was paid
+        try {
+          await this.shippingService.createGhnShipment(orderId);
+        } catch (e) {
+          console.warn('GHN auto-ship failed during sync:', e.message);
+        }
+
+        return updatedPayment;
+      }
+
+      // If cancelled or expired on PayOS, sync that too
+      if (payosInfo.status === 'CANCELLED' || payosInfo.status === 'EXPIRED') {
+        const failedPayment = await this.prisma.payment.update({
+          where: { id: payment.id },
+          data: { status: PaymentStatus.FAILED },
+        });
+        await this.prisma.order.update({
+          where: { id: orderId },
+          data: { paymentStatus: PaymentStatus.FAILED },
+        });
+        return failedPayment;
+      }
+
+      return payment;
+    } catch (error) {
+      console.error('PayOS Sync Error:', error);
+      // If PayOS returns 404/not found, it means the link was never fully generated/used
+      return payment;
+    }
+  }
 }

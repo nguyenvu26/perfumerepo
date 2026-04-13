@@ -58,8 +58,16 @@ export class ProductsService {
     };
   }
 
-  async listPublic(query: QueryProductsDto) {
-    const { search, skip = 0, take = 20, brandId, categoryId, isFeatured, isBestseller } = query;
+  async listPublic(query: QueryProductsDto, userId?: string) {
+    const {
+      search,
+      skip = 0,
+      take = 20,
+      brandId,
+      categoryId,
+      isFeatured,
+      isBestseller,
+    } = query;
 
     const where: any = {
       isActive: true,
@@ -84,11 +92,42 @@ export class ProductsService {
       where.isBestseller = true;
     }
 
+    // AI DNA Filtering
+    let avoidedNotes: string[] = [];
+    let preferredNotes: string[] = [];
+
+    if (userId) {
+      const prefs = await this.prisma.userAiPreference.findUnique({
+        where: { userId },
+      });
+      if (prefs) {
+        avoidedNotes = prefs.avoidedNotes;
+        preferredNotes = prefs.preferredNotes;
+      }
+    }
+
+    if (avoidedNotes.length > 0) {
+      // Exclude products that have notes in the avoided list
+      where.NOT = {
+        notes: {
+          some: {
+            note: {
+              name: {
+                in: avoidedNotes,
+                mode: 'insensitive',
+              },
+            },
+          },
+        },
+      };
+    }
+
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         where,
-        skip,
-        take,
+        // We might need to fetch all matching items to sort by "preferred" score in memory
+        // if the dataset is large, we should use raw SQL or a more complex query.
+        // For now, let's fetch with pagination and handle sorting.
         include: {
           brand: true,
           category: true,
@@ -106,8 +145,31 @@ export class ProductsService {
       this.prisma.product.count({ where }),
     ]);
 
+    let sortedItems = items;
+    if (preferredNotes.length > 0) {
+      // Simple scoring: count how many preferred notes are in the product
+      sortedItems = items.sort((a, b) => {
+        const scoreA = a.notes.filter((pn) =>
+          preferredNotes.some(
+            (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
+          ),
+        ).length;
+        const scoreB = b.notes.filter((pn) =>
+          preferredNotes.some(
+            (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
+          ),
+        ).length;
+        return scoreB - scoreA; // Descending score
+      });
+    }
+
+    // Apply manual pagination if we sorted in memory (currently we don't fetch all, so this is partial)
+    // To do it properly, we should fetch more or all, but let's stick to initial sorted set for now.
+
+    const finalItems = sortedItems.slice(skip, skip + take);
+
     return {
-      items,
+      items: finalItems,
       total,
       skip,
       take,
@@ -170,12 +232,59 @@ export class ProductsService {
 
       const product = await tx.product.update({
         where: { id },
-        data: {
-          ...productData,
-          // Note: Full variant sync can be complex, for now we just update basic fields.
-          // Management of variants (add/remove) can be handled by a separate logic if needed.
-        },
+        data: productData,
       });
+
+      if (variants) {
+        const existingVariants = await tx.productVariant.findMany({
+          where: { productId: id },
+          select: { id: true },
+        });
+        const existingIds = new Set(existingVariants.map((v) => v.id));
+        const incomingIds = new Set(
+          variants.map((v) => v.id).filter((variantId): variantId is string => Boolean(variantId)),
+        );
+
+        // Variants removed from the form are soft-disabled to preserve relations.
+        const removedIds = [...existingIds].filter(
+          (variantId) => !incomingIds.has(variantId),
+        );
+        if (removedIds.length > 0) {
+          await tx.productVariant.updateMany({
+            where: { id: { in: removedIds } },
+            data: { isActive: false },
+          });
+        }
+
+        for (const variant of variants) {
+          if (variant.id) {
+            if (!existingIds.has(variant.id)) {
+              throw new NotFoundException('Variant not found');
+            }
+            await tx.productVariant.update({
+              where: { id: variant.id },
+              data: {
+                name: variant.name,
+                sku: variant.sku ?? null,
+                price: variant.price,
+                stock: variant.stock,
+                isActive: true,
+              },
+            });
+          } else {
+            await tx.productVariant.create({
+              data: {
+                productId: id,
+                name: variant.name,
+                sku: variant.sku ?? null,
+                price: variant.price,
+                stock: variant.stock,
+                isActive: true,
+              },
+            });
+          }
+        }
+      }
 
       return product;
     });
