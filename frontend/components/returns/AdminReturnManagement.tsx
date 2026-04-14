@@ -29,7 +29,20 @@ import {
 import { Select } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Check, X, Box, CreditCard, RotateCcw, Search, Store, Globe, RefreshCcw, Loader2, Banknote, Truck } from "lucide-react";
+import {
+  Check,
+  X,
+  Box,
+  CreditCard,
+  RotateCcw,
+  Search,
+  Store,
+  Globe,
+  RefreshCcw,
+  Loader2,
+  Banknote,
+  Truck,
+} from "lucide-react";
 import api from "@/lib/axios";
 import { useTranslations, useFormatter } from "next-intl";
 import {
@@ -91,32 +104,39 @@ export const AdminReturnManagement = ({
   const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(
     null,
   );
-  
+
   // Dialog States
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isReceiveOpen, setIsReceiveOpen] = useState(false);
   const [isRefundOpen, setIsRefundOpen] = useState(false);
-  const [refundMethod, setRefundMethod] = useState<"cash" | "bank_transfer" | "gateway">("cash");
+  const [refundMethod, setRefundMethod] = useState<
+    "cash" | "bank_transfer" | "gateway"
+  >("cash");
   const [note, setNote] = useState("");
   const [receiptImageUrl, setReceiptImageUrl] = useState("");
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const [calculatingRefund, setCalculatingRefund] = useState(false);
-  const [receiveItemsState, setReceiveItemsState] = useState<Record<string, { qtyReceived: number, sealIntact: boolean }>>({});
+  const [receiveItemsState, setReceiveItemsState] = useState<
+    Record<string, { qtyReceived: number; sealIntact: boolean }>
+  >({});
   const [audits, setAudits] = useState<any[]>([]);
   const [auditsLoading, setAuditsLoading] = useState(false);
 
   useEffect(() => {
     if (isReceiveOpen && selectedReturn) {
-      const initial: Record<string, { qtyReceived: number, sealIntact: boolean }> = {};
-      selectedReturn.items.forEach(i => {
-         initial[i.variantId] = { qtyReceived: i.quantity, sealIntact: true };
+      const initial: Record<
+        string,
+        { qtyReceived: number; sealIntact: boolean }
+      > = {};
+      selectedReturn.items.forEach((i) => {
+        initial[i.variantId] = { qtyReceived: i.quantity, sealIntact: true };
       });
       setReceiveItemsState(initial);
     }
-    
+
     if (selectedReturn && (isReviewOpen || isReceiveOpen || isRefundOpen)) {
       fetchAudits(selectedReturn.id);
-      
+
       // Default refund method based on origin
       if (isRefundOpen) {
         if (selectedReturn.origin === "ONLINE") {
@@ -144,7 +164,9 @@ export const AdminReturnManagement = ({
     }
   };
 
-  const handleReceiptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReceiptUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     const file = files[0];
@@ -152,7 +174,7 @@ export const AdminReturnManagement = ({
       toast.error(`Ảnh "${file.name}" vượt quá 5MB`);
       return;
     }
-    
+
     setIsUploadingReceipt(true);
     try {
       const formData = new FormData();
@@ -169,7 +191,7 @@ export const AdminReturnManagement = ({
     } finally {
       setIsUploadingReceipt(false);
       // Reset input value to allow selecting the same file again if it was removed
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
@@ -269,10 +291,15 @@ export const AdminReturnManagement = ({
   const handleRefund = async () => {
     if (!selectedReturn) return;
     try {
-      const idempotencyKey = "admin-refund-" + Date.now();
+      const idempotencyKey = crypto.randomUUID();
       await returnsService.triggerRefund(
         selectedReturn.id,
-        { method: refundMethod, transactionId: undefined, note, receiptImage: receiptImageUrl },
+        {
+          method: refundMethod,
+          transactionId: undefined,
+          note,
+          receiptImage: receiptImageUrl,
+        },
         idempotencyKey,
       );
       toast.success(t('toasts.refund_success'));
@@ -294,7 +321,7 @@ export const AdminReturnManagement = ({
     setPosSelectedItems({});
     try {
       const order = await staffOrdersService.getByCode(key);
-      
+
       const orderDate = new Date(order.createdAt).setHours(0, 0, 0, 0);
       const today = new Date().setHours(0, 0, 0, 0);
 
@@ -328,7 +355,7 @@ export const AdminReturnManagement = ({
 
     setPosSubmitting(true);
     try {
-      const idempotencyKey = "pos-create-" + Date.now();
+      const idempotencyKey = crypto.randomUUID();
       await returnsService.posCreateReturn(
         {
           orderId: posOrder.id,
@@ -400,7 +427,11 @@ export const AdminReturnManagement = ({
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full space-y-6"
+      >
         {isAdmin && (
           <TabsList className="bg-background/40 glass border border-gold/10 p-1 w-full max-w-[450px] mx-auto sm:mx-0 grid grid-cols-3">
             <TabsTrigger value="all" className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold">
@@ -462,11 +493,17 @@ export const AdminReturnManagement = ({
                   >
                     <TableCell>
                       {req.origin === "POS" ? (
-                        <Badge variant="outline" className="border-rose-500/30 text-rose-400 bg-rose-500/10">
+                        <Badge
+                          variant="outline"
+                          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
+                        >
                           <Store className="w-3 h-3 mr-1" /> POS
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10">
+                        <Badge
+                          variant="outline"
+                          className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10"
+                        >
                           <Globe className="w-3 h-3 mr-1" /> Online
                         </Badge>
                       )}
@@ -478,7 +515,9 @@ export const AdminReturnManagement = ({
                       {req.orderId.substring(0, 8).toUpperCase()}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {new Date((req as any).createdAt).toLocaleDateString("vi-VN")}
+                      {new Date((req as any).createdAt).toLocaleDateString(
+                        "vi-VN",
+                      )}
                     </TableCell>
                     <TableCell className="max-w-[200px] truncate text-sm">
                       {req.reason || <span className="text-muted-foreground/50 italic">{t('table.no_reason')}</span>}
@@ -487,28 +526,36 @@ export const AdminReturnManagement = ({
                       {req.shipments && req.shipments.length > 0 ? (
                         <div className="flex flex-col gap-1">
                           {req.shipments.map((s, idx) => {
-                            const isAutomated = s.courier === 'GHN';
+                            const isAutomated = s.courier === "GHN";
                             return (
                               <div key={idx} className="flex flex-col gap-0.5">
                                 <a
-                                  href={isAutomated ? `https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}` : '#'}
+                                  href={
+                                    isAutomated
+                                      ? `https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`
+                                      : "#"
+                                  }
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className={cn(
                                     "text-[10px] font-mono font-bold flex items-center gap-1 px-2 py-0.5 rounded border w-fit transition-colors",
-                                    isAutomated 
-                                      ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20" 
-                                      : "text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20"
+                                    isAutomated
+                                      ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20"
+                                      : "text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20",
                                   )}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <Truck className="w-2.5 h-2.5" />
                                   {s.trackingNumber}
-                                  {isAutomated && <Badge className="h-3 px-1 text-[7px] bg-cyan-500 text-black border-none ml-1">GHN</Badge>}
+                                  {isAutomated && (
+                                    <Badge className="h-3 px-1 text-[7px] bg-cyan-500 text-black border-none ml-1">
+                                      GHN
+                                    </Badge>
+                                  )}
                                 </a>
-                                {s.status && (
-                                  <span className="text-[8px] text-muted-foreground ml-1 uppercase font-medium">
-                                    • {s.status}
+                                {s.receivedAt && (
+                                  <span className="text-[8px] text-green-500 ml-1 uppercase font-medium">
+                                    • Đã nhận
                                   </span>
                                 )}
                               </div>
@@ -525,11 +572,13 @@ export const AdminReturnManagement = ({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right space-x-2">
-                       {/* ADMIN ONLY ACTIONS */}
+                      {/* ADMIN ONLY ACTIONS */}
                       {isAdmin &&
-                        ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(
-                          req.status,
-                        ) && (
+                        [
+                          "REQUESTED",
+                          "REVIEWING",
+                          "AWAITING_CUSTOMER",
+                        ].includes(req.status) && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -641,7 +690,11 @@ export const AdminReturnManagement = ({
                             <div className="flex items-center gap-3">
                                 {item.variant?.product?.images?.[0]?.url && (
                                   // eslint-disable-next-line @next/next/no-img-element
-                                  <img src={item.variant.product.images[0].url} alt="Product" className="w-12 h-12 object-cover rounded-md border border-border/50" />
+                                  <img
+                                    src={item.variant.product.images[0].url}
+                                    alt={item.variant?.product?.name || "Product image"}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  />
                                 )}
                                 <div>
                                   <p className="font-medium text-foreground line-clamp-1">
@@ -836,7 +889,7 @@ export const AdminReturnManagement = ({
                        </div>
                      </div>
                   </div>
-               ))}
+              ))}
             </div>
 
             <div className="space-y-2">
@@ -881,17 +934,24 @@ export const AdminReturnManagement = ({
                )}
             </div>
 
-             <div className="space-y-3">
+            <div className="space-y-3">
               <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground block">
                 {t('dialogs.refund_method')}
               </label>
-               <div className={cn("grid gap-3", selectedReturn?.origin === "ONLINE" ? "grid-cols-1" : "grid-cols-2")}>
+              <div
+                className={cn(
+                  "grid gap-3",
+                  selectedReturn?.origin === "ONLINE"
+                    ? "grid-cols-1"
+                    : "grid-cols-2",
+                )}
+              >
                 {selectedReturn?.origin !== "ONLINE" && (
                   <button
                     onClick={() => setRefundMethod("cash")}
                     className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
-                      refundMethod === "cash" 
-                        ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-900/20" 
+                      refundMethod === "cash"
+                        ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-900/20"
                         : "bg-black/20 border-border/50 text-muted-foreground hover:border-indigo-500/30"
                     }`}
                   >
@@ -902,8 +962,8 @@ export const AdminReturnManagement = ({
                 <button
                   onClick={() => setRefundMethod("bank_transfer")}
                   className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
-                    refundMethod === "bank_transfer" 
-                      ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-900/20" 
+                    refundMethod === "bank_transfer"
+                      ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-900/20"
                       : "bg-black/20 border-border/50 text-muted-foreground hover:border-indigo-500/30"
                   }`}
                 >
@@ -927,9 +987,13 @@ export const AdminReturnManagement = ({
                 onClick={handleAutoCalc}
                 disabled={calculatingRefund}
                 className="h-7 text-[9px] font-bold text-indigo-400 hover:text-white hover:bg-indigo-500/30 border border-indigo-500/20"
-               >
-                 {calculatingRefund ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Auto Calc"}
-               </Button>
+              >
+                {calculatingRefund ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  "Auto Calc"
+                )}
+              </Button>
             </div>
 
             {/* Bank Info for Chuyển khoản */}
@@ -950,8 +1014,8 @@ export const AdminReturnManagement = ({
                     >
                       <RefreshCcw className="w-3 h-3 mr-1" /> {t('buttons.copy')}
                     </Button>
-                 </div>
-                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
                     <div>
                        <p className="text-[8px] text-muted-foreground uppercase font-semibold">{t('dialogs.bank_name')}</p>
                        <p className="font-semibold text-foreground italic">{(selectedReturn.paymentInfo as any).bankName}</p>
@@ -964,9 +1028,9 @@ export const AdminReturnManagement = ({
                        <p className="text-[8px] text-muted-foreground uppercase font-semibold">{t('dialogs.account_holder')}</p>
                        <p className="font-semibold text-foreground uppercase">{(selectedReturn.paymentInfo as any).accountName}</p>
                     </div>
-                 </div>
-              </div>
-            )}
+                  </div>
+                </div>
+              )}
 
             <div className="space-y-4">
               {refundMethod === "bank_transfer" && (
@@ -988,12 +1052,16 @@ export const AdminReturnManagement = ({
                   )}
                   {receiptImageUrl && !isUploadingReceipt && (
                     <div className="mt-2 w-full max-h-40 overflow-hidden rounded-lg border border-indigo-500/30 relative group bg-black/40 flex justify-center">
-                      <img src={receiptImageUrl} alt="Receipt Preview" className="w-full max-h-40 object-contain" />
-                      <button 
+                      <img
+                        src={receiptImageUrl}
+                        alt="Receipt Preview"
+                        className="w-full max-h-40 object-contain"
+                      />
+                      <button
                         onClick={() => setReceiptImageUrl("")}
                         className="absolute top-2 right-2 bg-black/60 hover:bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                         <X className="w-3.5 h-3.5" />
+                        <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )}
@@ -1003,7 +1071,7 @@ export const AdminReturnManagement = ({
               {refundMethod === "cash" && (
                 <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 flex gap-3">
                   <div className="bg-emerald-500/20 p-2 rounded-lg self-start">
-                     <Banknote className="w-4 h-4 text-emerald-400" />
+                    <Banknote className="w-4 h-4 text-emerald-400" />
                   </div>
                     {t('dialogs.cash_refund_desc')}
                 </div>
@@ -1045,7 +1113,7 @@ export const AdminReturnManagement = ({
                {t('pos.title')}
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="p-6 pb-2">
             <div className="relative group">
                <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" />
@@ -1111,7 +1179,10 @@ export const AdminReturnManagement = ({
                         >
                           <div className="flex-1 mr-4">
                             <p className="font-medium text-foreground text-sm line-clamp-1">
-                              {item.product?.name || item.variant?.product?.name || item.variant?.name || "Sản phẩm không xác định"}
+                              {item.product?.name ||
+                                item.variant?.product?.name ||
+                                item.variant?.name ||
+                                "Sản phẩm không xác định"}
                             </p>
                             {item.variant && (
                               <p className="text-xs text-muted-foreground mt-0.5">
@@ -1122,7 +1193,7 @@ export const AdminReturnManagement = ({
                               {t('pos.qty_bought')}: {item.quantity}
                             </Badge>
                           </div>
-                          
+
                           <div className="flex items-center space-x-1 bg-black/40 rounded-lg p-1 border border-border/50">
                             <Button
                               size="icon"
@@ -1147,7 +1218,10 @@ export const AdminReturnManagement = ({
                               onClick={() => {
                                 setPosSelectedItems((prev) => ({
                                   ...prev,
-                                  [item.variantId]: Math.min(item.quantity, qty + 1),
+                                  [item.variantId]: Math.min(
+                                    item.quantity,
+                                    qty + 1,
+                                  ),
                                 }));
                               }}
                             >

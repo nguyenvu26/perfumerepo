@@ -4,6 +4,7 @@ import { AuthGuard } from '@/components/auth/auth-guard';
 import { userService } from '@/services/user.service';
 import { authService } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth.store';
+import { AddressManager } from '@/components/address/address-manager';
 import { User, Mail, Shield, Edit2, Loader2, CheckCircle, Send, Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslations, useLocale, useFormatter } from 'next-intl';
@@ -16,9 +17,6 @@ type ProfileData = {
     fullName?: string | null;
     gender?: string | null;
     dateOfBirth?: string | null;
-    address?: string | null;
-    city?: string | null;
-    country?: string | null;
     avatarUrl?: string | null;
     budgetMin?: number | null;
     budgetMax?: number | null;
@@ -45,9 +43,6 @@ export default function ProfilePage() {
         phone: '',
         gender: '',
         dateOfBirth: '',
-        address: '',
-        city: '',
-        country: '',
         budgetMin: '' as string | number,
         budgetMax: '' as string | number,
     });
@@ -63,9 +58,6 @@ export default function ProfilePage() {
                 phone: me.phone ?? '',
                 gender: me.gender ?? '',
                 dateOfBirth: me.dateOfBirth ? me.dateOfBirth.slice(0, 10) : '',
-                address: me.address ?? '',
-                city: me.city ?? '',
-                country: me.country ?? '',
                 budgetMin: me.budgetMin ?? '',
                 budgetMax: me.budgetMax ?? '',
             });
@@ -102,9 +94,6 @@ export default function ProfilePage() {
                 phone: form.phone || undefined,
                 gender: form.gender || undefined,
                 dateOfBirth: form.dateOfBirth || undefined,
-                address: form.address || undefined,
-                city: form.city || undefined,
-                country: form.country || undefined,
                 budgetMin: typeof form.budgetMin === 'number' ? form.budgetMin : form.budgetMin ? Number(form.budgetMin) : undefined,
                 budgetMax: typeof form.budgetMax === 'number' ? form.budgetMax : form.budgetMax ? Number(form.budgetMax) : undefined,
             });
@@ -341,55 +330,11 @@ export default function ProfilePage() {
                                     )}
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <label className="text-[8px] uppercase tracking-[0.3em] text-muted-foreground font-heading">
-                                        {t('labels.address')}
-                                    </label>
-                                    {editing ? (
-                                        <input
-                                            type="text"
-                                            value={form.address}
-                                            onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                                            className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
-                                        />
-                                    ) : (
-                                        <p className="font-body text-sm border-b border-border/50 pb-2">
-                                            {data?.address || t('fallback.empty')}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[8px] uppercase tracking-[0.3em] text-muted-foreground font-heading">
-                                        {t('labels.city')}
-                                    </label>
-                                    {editing ? (
-                                        <input
-                                            type="text"
-                                            value={form.city}
-                                            onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                                            className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
-                                        />
-                                    ) : (
-                                        <p className="font-body text-sm border-b border-border/50 pb-2">
-                                            {data?.city || t('fallback.empty')}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[8px] uppercase tracking-[0.3em] text-muted-foreground font-heading">
-                                        {t('labels.country')}
-                                    </label>
-                                    {editing ? (
-                                        <input
-                                            type="text"
-                                            value={form.country}
-                                            onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
-                                            className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
-                                        />
-                                    ) : (
-                                        <p className="font-body text-sm border-b border-border/50 pb-2">
-                                            {data?.country || t('fallback.empty')}
-                                        </p>
-                                    )}
+                                    {data?.role === 'CUSTOMER' ? (
+                                        <div className="pt-6 border-t border-border/40">
+                                            <AddressManager />
+                                        </div>
+                                    ) : null}
                                 </div>
                                 {data?.role === 'CUSTOMER' && (
                                     <>

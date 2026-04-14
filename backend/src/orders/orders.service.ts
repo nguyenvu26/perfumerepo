@@ -166,38 +166,54 @@ export class OrdersService {
     return order;
   }
 
-  async listMyOrders(userId: string) {
-    const orders = await this.prisma.order.findMany({
-      where: { userId },
-      include: {
-        items: {
-          include: {
-            variant: {
-              include: {
-                product: {
-                  include: { images: { orderBy: { order: 'asc' }, take: 1 } },
+  async listMyOrders(userId: string, skip = 0, take = 10) {
+    const safeSkip = Math.max(0, skip || 0);
+    const safeTake = Math.min(100, Math.max(1, take || 10));
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { userId },
+        skip: safeSkip,
+        take: safeTake,
+        include: {
+          items: {
+            include: {
+              variant: {
+                include: {
+                  product: {
+                    include: { images: { orderBy: { order: 'asc' }, take: 1 } },
+                  },
                 },
               },
+              review: true,
             },
-            review: true,
+          },
+          promotions: true,
+          returnRequests: {
+            where: { status: { not: 'CANCELLED' } },
+            include: { items: true },
           },
         },
-        promotions: true,
-        returnRequests: {
-          where: { status: { not: 'CANCELLED' } },
-          include: { items: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.order.count({ where: { userId } }),
+    ]);
 
-    return orders.map((order) => ({
+    const data = orders.map((order) => ({
       ...order,
       items: order.items.map((item) => ({
         ...item,
         product: item.variant.product,
       })),
     }));
+
+    return {
+      data,
+      total,
+      skip: safeSkip,
+      take: safeTake,
+      pages: Math.ceil(total / safeTake),
+    };
   }
 
   async listAllOrders(skip: number, take: number) {
@@ -274,6 +290,74 @@ export class OrdersService {
         ...item,
         product: item.variant.product,
       })),
+    };
+  }
+
+  async submitRefundBankInfo(
+    userId: string,
+    orderId: string,
+    payload: {
+      bankName: string;
+      accountNumber: string;
+      accountHolder: string;
+      note?: string;
+    },
+  ) {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, userId },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status !== 'CANCELLED') {
+      throw new BadRequestException('Only cancelled orders accept refund info');
+    }
+    if (order.paymentStatus !== 'PAID') {
+      throw new BadRequestException(
+        'Refund bank info is only needed for paid online orders',
+      );
+    }
+
+    await this.prisma.auditLog.create({
+      data: {
+        userId,
+        action: 'REFUND_BANK_INFO_SUBMITTED',
+        entity: 'ORDER',
+        entityId: orderId,
+        metadata: JSON.stringify({
+          bankName: payload.bankName.trim(),
+          accountNumber: payload.accountNumber.trim(),
+          accountHolder: payload.accountHolder.trim(),
+          note: payload.note?.trim() || null,
+          submittedAt: new Date().toISOString(),
+        }),
+      },
+    });
+
+    return { success: true };
+  }
+
+  async getRefundBankInfo(orderId: string, userId?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: { userId: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (userId && order.userId !== userId) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const log = await this.prisma.auditLog.findFirst({
+      where: {
+        action: 'REFUND_BANK_INFO_SUBMITTED',
+        entity: 'ORDER',
+        entityId: orderId,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!log) return null;
+    return {
+      id: log.id,
+      createdAt: log.createdAt,
+      ...(log.metadata ? JSON.parse(log.metadata) : {}),
     };
   }
 

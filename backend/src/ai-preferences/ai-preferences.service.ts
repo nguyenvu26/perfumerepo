@@ -36,4 +36,15 @@ export class AiPreferencesService {
       },
     });
   }
+
+  async reset(userId: string) {
+    return this.prisma.userAiPreference.update({
+      where: { userId },
+      data: {
+        riskLevel: 0.3,
+        preferredNotes: [],
+        avoidedNotes: [],
+      },
+    });
+  }
 }

@@ -17,4 +17,9 @@ export class AiPreferencesController {
   async updateMyPreferences(@Req() req: any, @Body() dto: UpdateAiPreferencesDto) {
     return this.aiPreferencesService.update(req.user.userId, dto);
   }
+
+  @Patch('reset')
+  async resetMyPreferences(@Req() req: any) {
+    return this.aiPreferencesService.reset(req.user.userId);
+  }
 }

@@ -27,6 +27,8 @@ export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
+  const [skip, setSkip] = useState(0);
+  const [take, setTake] = useState(20);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -57,7 +59,11 @@ export default function AdminProducts() {
     setLoading(true);
     setError(null);
     try {
-      const res = await productService.adminList({ search: search || undefined, take: 50 });
+      const res = await productService.adminList({
+        search: search || undefined,
+        skip,
+        take,
+      });
       setProducts(res.items);
       setTotal(res.total);
     } catch (e: unknown) {
@@ -65,7 +71,7 @@ export default function AdminProducts() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, skip, take]);
 
   const fetchCatalog = useCallback(async () => {
     try {
@@ -89,6 +95,10 @@ export default function AdminProducts() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  useEffect(() => {
+    setSkip(0);
+  }, [search, take]);
 
   useEffect(() => {
     if (showModal && editId) {
@@ -310,6 +320,9 @@ export default function AdminProducts() {
     return product.variants.reduce((acc, v) => acc + v.stock, 0);
   };
 
+  const currentPage = Math.floor(skip / take) + 1;
+  const totalPages = Math.max(1, Math.ceil(total / take));
+
   return (
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-8">
@@ -351,13 +364,14 @@ export default function AdminProducts() {
             <span className="text-muted-foreground">{t('loading')}</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((p) => (
-              <div
-                key={p.id}
-                className={`glass rounded-[2rem] border-border overflow-hidden hover:border-gold/30 transition-all group ${!p.isActive ? 'opacity-60' : ''
-                  }`}
-              >
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((p) => (
+                <div
+                  key={p.id}
+                  className={`glass rounded-[2rem] border-border overflow-hidden hover:border-gold/30 transition-all group ${!p.isActive ? 'opacity-60' : ''
+                    }`}
+                >
                 <div className="aspect-square bg-secondary/30 relative overflow-hidden">
                   {p.images?.length ? (
                     <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover" />
@@ -408,9 +422,48 @@ export default function AdminProducts() {
                     </button>
                   </div>
                 </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                {total === 0
+                  ? '0'
+                  : `${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
+              </p>
+              <div className="flex items-center gap-3">
+                <select
+                  value={take}
+                  onChange={(e) => setTake(Number(e.target.value))}
+                  className="bg-secondary/20 border border-border rounded-full px-3 py-2 text-[10px] uppercase tracking-widest font-bold"
+                >
+                  <option value={10}>10 / trang</option>
+                  <option value={20}>20 / trang</option>
+                  <option value={40}>40 / trang</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setSkip((s) => Math.max(0, s - take))}
+                  disabled={skip === 0}
+                  className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+                >
+                  Trước
+                </button>
+                <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground min-w-24 text-center">
+                  {currentPage}/{totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                  disabled={skip + take >= total}
+                  className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+                >
+                  Sau
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          </>
         )}
 
         {showModal && (

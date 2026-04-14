@@ -76,7 +76,8 @@ export class PaymentsController {
         };
       }
 
-      // Get payment status
+      // Active fallback: reconcile status with PayOS on return
+      await this.paymentsService.verifyAndSyncPaymentStatus(orderId).catch(() => null);
       const payment = await this.paymentsService.getPaymentByOrderId(orderId);
 
       return {
@@ -137,6 +138,7 @@ export class PaymentsController {
       req.user.userId,
       orderId,
     );
+    await this.paymentsService.verifyAndSyncPaymentStatus(order.id).catch(() => null);
     return this.paymentsService.getPaymentByOrderId(order.id);
   }
 

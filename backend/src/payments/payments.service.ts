@@ -1,4 +1,6 @@
 import {
+  OnModuleDestroy,
+  OnModuleInit,
   Injectable,
   BadRequestException,
   NotFoundException,
@@ -11,10 +13,19 @@ import { PayOS } from '@payos/node';
 import { ShippingService } from '../shipping/shipping.service';
 
 @Injectable()
-export class PaymentsService {
+export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   private payos: PayOS;
   private readonly payosReturnUrl: string;
   private readonly payosCancelUrl: string;
+  private pollTimer: NodeJS.Timeout | null = null;
+  private cleanupTimer: NodeJS.Timeout | null = null;
+  private isPolling = false;
+  private isCleaningUp = false;
+  private readonly pollIntervalMs: number;
+  private readonly pollBatchSize: number;
+  private readonly pollConcurrency: number;
+  private readonly pendingTimeoutMinutes: number;
+  private readonly cleanupIntervalMs: number;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -39,10 +50,40 @@ export class PaymentsService {
 
     this.payosReturnUrl = this.config.get<string>('PAYOS_RETURN_URL') || '';
     this.payosCancelUrl = this.config.get<string>('PAYOS_CANCEL_URL') || '';
+    this.pollIntervalMs = Number(
+      this.config.get<string>('PAYOS_FALLBACK_INTERVAL_MS') || 30000,
+    );
+    this.pollBatchSize = Number(
+      this.config.get<string>('PAYOS_POLL_BATCH_SIZE') || 20,
+    );
+    this.pollConcurrency = Number(
+      this.config.get<string>('PAYOS_POLL_CONCURRENCY') || 5,
+    );
+    this.pendingTimeoutMinutes = Number(
+      this.config.get<string>('ORDER_PAYMENT_TTL_MINUTES') || 10,
+    );
+    this.cleanupIntervalMs = Number(
+      this.config.get<string>('PAYOS_CLEANUP_INTERVAL_MS') || 600000,
+    );
 
     if (!this.payosReturnUrl || !this.payosCancelUrl) {
       throw new InternalServerErrorException('PayOS URLs not configured');
     }
+  }
+
+  onModuleInit() {
+    this.pollTimer = setInterval(() => {
+      void this.runPendingPaymentPolling();
+    }, this.pollIntervalMs);
+
+    this.cleanupTimer = setInterval(() => {
+      void this.cleanupExpiredPendingOrders();
+    }, this.cleanupIntervalMs);
+  }
+
+  onModuleDestroy() {
+    if (this.pollTimer) clearInterval(this.pollTimer);
+    if (this.cleanupTimer) clearInterval(this.cleanupTimer);
   }
 
   async createPayOSPaymentLink(
@@ -119,6 +160,100 @@ export class PaymentsService {
     }
   }
 
+  private extractWebhookData(webhookBody: any): {
+    orderCode?: string;
+    statusCode?: string;
+    rawData: any;
+  } {
+    const data = webhookBody?.data ?? webhookBody ?? {};
+    const orderCode = data?.orderCode ?? data?.order_code ?? webhookBody?.orderCode;
+    const statusCode = data?.code ?? webhookBody?.code ?? data?.status;
+    return {
+      orderCode: orderCode?.toString(),
+      statusCode: statusCode?.toString(),
+      rawData: data,
+    };
+  }
+
+  private mapPayOSStatus(statusCode?: string): PaymentStatus {
+    const normalized = (statusCode || '').toUpperCase();
+    return normalized === '00' || normalized === 'PAID'
+      ? PaymentStatus.PAID
+      : PaymentStatus.FAILED;
+  }
+
+  private async finalizePaymentByOrderCode(params: {
+    orderCode: string;
+    statusCode?: string;
+    rawPayload?: any;
+    source: 'webhook' | 'sync';
+  }) {
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        transactionId: params.orderCode,
+        provider: PaymentProvider.PAYOS,
+      },
+      include: { order: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!payment) {
+      return { success: true, message: 'Payment not found' };
+    }
+
+    const nextStatus = this.mapPayOSStatus(params.statusCode);
+    if (payment.status === PaymentStatus.PAID) {
+      return { success: true, message: 'Payment already processed' };
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const previousRaw = payment.providerRawData
+        ? JSON.parse(payment.providerRawData)
+        : {};
+
+      await tx.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: nextStatus,
+          providerRawData: JSON.stringify({
+            ...previousRaw,
+            lastSyncSource: params.source,
+            lastSyncedAt: new Date().toISOString(),
+            lastPayload: params.rawPayload ?? null,
+          }),
+        },
+      });
+
+      if (nextStatus === PaymentStatus.PAID) {
+        await tx.order.update({
+          where: { id: payment.orderId },
+          data: {
+            paymentStatus: PaymentStatus.PAID,
+            status: 'CONFIRMED',
+          },
+        });
+      } else if (payment.status !== PaymentStatus.PAID) {
+        await tx.order.update({
+          where: { id: payment.orderId },
+          data: {
+            paymentStatus: PaymentStatus.FAILED,
+            status: 'CANCELLED',
+          },
+        });
+      }
+    });
+
+    if (nextStatus === PaymentStatus.PAID) {
+      try {
+        await this.shippingService.createGhnShipment(payment.orderId);
+      } catch (e: any) {
+        console.warn('GHN auto-create after payment failed:', e?.message);
+      }
+    }
+
+    return { success: true, message: 'Payment finalized' };
+  }
+
   async handlePayOSWebhook(webhookBody: any) {
     try {
       // Verify webhook signature
@@ -127,89 +262,18 @@ export class PaymentsService {
         throw new BadRequestException('Invalid webhook signature');
       }
 
-      const { code, orderCode, amount } = webhookBody;
-
+      const { orderCode, statusCode, rawData } = this.extractWebhookData(webhookBody);
       if (!orderCode) {
         throw new BadRequestException(
           'Invalid webhook data: missing orderCode',
         );
       }
-
-      // Find payment by transactionId (orderCode)
-      const payment = await this.prisma.payment.findFirst({
-        where: {
-          transactionId: orderCode.toString(),
-        },
-        include: {
-          order: {
-            include: { items: true },
-          },
-        },
+      return this.finalizePaymentByOrderCode({
+        orderCode,
+        statusCode,
+        rawPayload: rawData,
+        source: 'webhook',
       });
-
-      if (!payment) {
-        console.warn(`Payment not found for orderCode: ${orderCode}`);
-        // Still return success to PayOS to prevent retry loops
-        return { success: true, message: 'Payment not found' };
-      }
-
-      // Prevent processing already completed payments
-      if (payment.status === PaymentStatus.PAID) {
-        return { success: true, message: 'Payment already processed' };
-      }
-
-      // Determine payment status based on PayOS response code
-      // PayOS code '00' means success
-      const paymentStatus =
-        code === '00' ? PaymentStatus.PAID : PaymentStatus.FAILED;
-
-      // Update payment and order in transaction
-      await this.prisma.$transaction(async (tx) => {
-        // Update payment record
-        await tx.payment.update({
-          where: { id: payment.id },
-          data: {
-            status: paymentStatus,
-            providerRawData: JSON.stringify({
-              ...JSON.parse(payment.providerRawData || '{}'),
-              payosWebhook: webhookBody,
-            }),
-          },
-        });
-
-        // Update order status if payment succeeded
-        if (paymentStatus === PaymentStatus.PAID) {
-          await tx.order.update({
-            where: { id: payment.orderId },
-            data: {
-              paymentStatus: PaymentStatus.PAID,
-              status: 'CONFIRMED',
-            },
-          });
-        } else {
-          // Payment failed
-          await tx.order.update({
-            where: { id: payment.orderId },
-            data: {
-              paymentStatus: PaymentStatus.FAILED,
-              status: 'CANCELLED',
-            },
-          });
-        }
-      });
-
-      if (paymentStatus === PaymentStatus.PAID) {
-        try {
-          await this.shippingService.createGhnShipment(payment.orderId);
-        } catch (e) {
-          console.warn('GHN shipment creation failed:', e?.message);
-        }
-      }
-
-      console.log(
-        `Payment ${payment.id} processed successfully with status: ${paymentStatus}`,
-      );
-      return { success: true, message: 'Payment processed' };
     } catch (error: any) {
       console.error('Webhook handling error:', error);
       throw new BadRequestException(
@@ -273,64 +337,146 @@ export class PaymentsService {
       }
 
       const payosInfo = await this.payos.paymentRequests.get(
-        parseInt(payment.transactionId),
+        parseInt(payment.transactionId, 10),
       );
-
-      // Status 'PAID' from PayOS means successful
-      if (payosInfo.status === 'PAID') {
-        const updatedPayment = await this.prisma.$transaction(async (tx) => {
-          // Update payment
-          const p = await tx.payment.update({
-            where: { id: payment.id },
-            data: {
-              status: PaymentStatus.PAID,
-              providerRawData: JSON.stringify({
-                ...JSON.parse(payment.providerRawData || '{}'),
-                syncStatus: payosInfo,
-              }),
-            },
-          });
-
-          // Update order
-          await tx.order.update({
-            where: { id: orderId },
-            data: {
-              paymentStatus: PaymentStatus.PAID,
-              status: 'CONFIRMED',
-            },
-          });
-
-          return p;
-        });
-
-        // Trigger GHN Shipment as it was paid
-        try {
-          await this.shippingService.createGhnShipment(orderId);
-        } catch (e) {
-          console.warn('GHN auto-ship failed during sync:', e.message);
-        }
-
-        return updatedPayment;
-      }
-
-      // If cancelled or expired on PayOS, sync that too
-      if (payosInfo.status === 'CANCELLED' || payosInfo.status === 'EXPIRED') {
-        const failedPayment = await this.prisma.payment.update({
-          where: { id: payment.id },
-          data: { status: PaymentStatus.FAILED },
-        });
-        await this.prisma.order.update({
-          where: { id: orderId },
-          data: { paymentStatus: PaymentStatus.FAILED },
-        });
-        return failedPayment;
-      }
-
-      return payment;
+      await this.finalizePaymentByOrderCode({
+        orderCode: payment.transactionId,
+        statusCode: payosInfo?.status,
+        rawPayload: payosInfo,
+        source: 'sync',
+      });
+      return this.getPaymentById(payment.id);
     } catch (error) {
       console.error('PayOS Sync Error:', error);
-      // If PayOS returns 404/not found, it means the link was never fully generated/used
       return payment;
+    }
+  }
+
+  private async runPendingPaymentPolling() {
+    if (this.isPolling) return;
+    this.isPolling = true;
+    try {
+      const timeoutThreshold = new Date(
+        Date.now() - this.pendingTimeoutMinutes * 60 * 1000,
+      );
+      const pendingPayments = await this.prisma.payment.findMany({
+        where: {
+          provider: PaymentProvider.PAYOS,
+          status: PaymentStatus.PENDING,
+          order: {
+            paymentStatus: PaymentStatus.PENDING,
+            createdAt: { gte: timeoutThreshold },
+          },
+        },
+        include: { order: true },
+        orderBy: { createdAt: 'asc' },
+        take: this.pollBatchSize,
+      });
+
+      const queue = [...pendingPayments];
+      const workerCount = Math.max(1, this.pollConcurrency);
+      const workers = Array.from({ length: workerCount }).map(async () => {
+        while (queue.length > 0) {
+          const payment = queue.shift();
+          if (!payment?.transactionId) continue;
+          try {
+            const payosInfo = await this.payos.paymentRequests.get(
+              parseInt(payment.transactionId, 10),
+            );
+            await this.finalizePaymentByOrderCode({
+              orderCode: payment.transactionId,
+              statusCode: payosInfo?.status,
+              rawPayload: payosInfo,
+              source: 'sync',
+            });
+          } catch (e: any) {
+            console.warn(
+              `PayOS polling failed for payment ${payment.id}: ${e?.message}`,
+            );
+          }
+        }
+      });
+      await Promise.all(workers);
+    } finally {
+      this.isPolling = false;
+    }
+  }
+
+  private async cleanupExpiredPendingOrders() {
+    if (this.isCleaningUp) return;
+    this.isCleaningUp = true;
+    try {
+      const timeoutThreshold = new Date(
+        Date.now() - this.pendingTimeoutMinutes * 60 * 1000,
+      );
+      const expiredOrders = await this.prisma.order.findMany({
+        where: {
+          channel: 'ONLINE',
+          status: 'PENDING',
+          paymentStatus: PaymentStatus.PENDING,
+          createdAt: { lt: timeoutThreshold },
+          shipments: { none: {} },
+          payments: {
+            some: {
+              provider: PaymentProvider.PAYOS,
+              status: PaymentStatus.PENDING,
+            },
+          },
+        },
+        include: {
+          payments: {
+            where: {
+              provider: PaymentProvider.PAYOS,
+              status: PaymentStatus.PENDING,
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
+        take: Math.max(10, this.pollBatchSize),
+      });
+
+      for (const order of expiredOrders) {
+        const latestPayment = order.payments[0];
+        if (latestPayment?.transactionId) {
+          try {
+            const payosInfo = await this.payos.paymentRequests.get(
+              parseInt(latestPayment.transactionId, 10),
+            );
+            if ((payosInfo?.status || '').toUpperCase() === 'PAID') {
+              await this.finalizePaymentByOrderCode({
+                orderCode: latestPayment.transactionId,
+                statusCode: payosInfo?.status,
+                rawPayload: payosInfo,
+                source: 'sync',
+              });
+              continue;
+            }
+          } catch {
+            // Keep going with timeout cancellation below
+          }
+        }
+
+        await this.prisma.$transaction(async (tx) => {
+          await tx.order.update({
+            where: { id: order.id },
+            data: {
+              status: 'CANCELLED',
+              paymentStatus: PaymentStatus.FAILED,
+            },
+          });
+          await tx.payment.updateMany({
+            where: {
+              orderId: order.id,
+              provider: PaymentProvider.PAYOS,
+              status: PaymentStatus.PENDING,
+            },
+            data: { status: PaymentStatus.FAILED },
+          });
+        });
+      }
+    } finally {
+      this.isCleaningUp = false;
     }
   }
 }

@@ -25,6 +25,8 @@ export default function CollectionPage() {
     const [priceRange, setPriceRange] = useState<'P1' | 'P2' | 'P3' | 'P4' | null>(null);
     const [selectedSeason, setSelectedSeason] = useState<'XUAN' | 'HA' | 'THU' | 'DONG' | null>(null);
     const [sort, setSort] = useState<'price_desc' | 'price_asc'>('price_desc');
+    const [page, setPage] = useState(1);
+    const pageSize = 20;
 
     useEffect(() => {
         productService.list({ take: 100 }).then((r: ProductListRes) => {
@@ -144,6 +146,14 @@ export default function CollectionPage() {
         return sorted;
     }, [products, searchQuery, selectedBrand, selectedScent, gender, priceRange, selectedSeason, sort]);
 
+    useEffect(() => {
+        setPage(1);
+    }, [searchQuery, selectedBrand, selectedScent, gender, priceRange, selectedSeason, sort]);
+
+    const totalPages = Math.max(1, Math.ceil(visibleProducts.length / pageSize));
+    const pageStart = (page - 1) * pageSize;
+    const pagedProducts = visibleProducts.slice(pageStart, pageStart + pageSize);
+
     const genderLabel = (g: string | null | undefined) => {
         const v = (g || '').toUpperCase();
         if (v === 'MALE' || v === 'MEN') return 'Nam';
@@ -159,7 +169,7 @@ export default function CollectionPage() {
                     <div>
                         <h1 className="text-3xl md:text-4xl font-serif text-foreground">Sản phẩm</h1>
                         <p className="text-[10px] uppercase tracking-[.3em] text-muted-foreground font-bold mt-2">
-                            Hiển thị {loading ? '—' : `${Math.min(visibleProducts.length, 20)}`} sản phẩm
+                            Hiển thị {loading ? '—' : `${pagedProducts.length}`} sản phẩm
                         </p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -334,11 +344,13 @@ export default function CollectionPage() {
                         ) : (
                             <>
                                 <div className="text-[10px] uppercase tracking-[.3em] text-muted-foreground font-bold mb-6">
-                                    Hiển thị 1-{Math.min(20, visibleProducts.length)} của {visibleProducts.length} kết quả
+                                    {visibleProducts.length === 0
+                                        ? 'Hiển thị 0 kết quả'
+                                        : `Hiển thị ${pageStart + 1}-${Math.min(pageStart + pageSize, visibleProducts.length)} của ${visibleProducts.length} kết quả`}
                                 </div>
 
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                                    {visibleProducts.slice(0, 20).map((p) => {
+                                    {pagedProducts.map((p) => {
                                         const price = getMinPrice(p);
                                         return (
                                             <Link key={p.id} href={`/collection/${p.id}`} className="group">
@@ -374,6 +386,27 @@ export default function CollectionPage() {
                                             </Link>
                                         );
                                     })}
+                                </div>
+                                <div className="mt-8 flex items-center justify-end gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                        disabled={page === 1}
+                                        className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+                                    >
+                                        Trước
+                                    </button>
+                                    <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground min-w-24 text-center">
+                                        {page}/{totalPages}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                        disabled={page >= totalPages}
+                                        className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+                                    >
+                                        Sau
+                                    </button>
                                 </div>
                             </>
                         )}

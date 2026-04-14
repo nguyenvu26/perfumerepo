@@ -213,7 +213,7 @@ export default function CustomerReturnDetailPage() {
     STATUS_CONFIG[returnReq.status as ReturnStatus] || STATUS_CONFIG.REQUESTED;
   const StatusIcon = cfg.icon;
   const canAddShipment = CAN_ADD_SHIPMENT.includes(
-    returnReq.status as ReturnStatus
+    returnReq.status as ReturnStatus,
   );
   const canCancel = CAN_CANCEL.includes(returnReq.status as ReturnStatus);
 
@@ -282,17 +282,30 @@ export default function CustomerReturnDetailPage() {
                         </p>
                         <div className="flex gap-3 flex-wrap">
                           {item.images.map((url, idx) => {
-                            const isVideo = url.match(/\.(mp4|webm|mov)$/i) || url.includes("res.cloudinary.com/perfume-gpt/video") || url.includes("returns/videos");
+                            const isVideo =
+                              url.match(/\.(mp4|webm|mov)$/i) ||
+                              url.includes(
+                                "res.cloudinary.com/perfume-gpt/video",
+                              ) ||
+                              url.includes("returns/videos");
                             return (
-                              <div key={idx} className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden relative border border-gold/20 hover:border-gold/60 transition-colors shadow-lg bg-black/50 group">
+                              <div
+                                key={idx}
+                                className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden relative border border-gold/20 hover:border-gold/60 transition-colors shadow-lg bg-black/50 group"
+                              >
                                 {isVideo ? (
-                                  <video 
-                                    src={url} 
-                                    controls 
+                                  <video
+                                    src={url}
+                                    controls
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <a href={url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block w-full h-full"
+                                  >
                                     <Image
                                       src={url}
                                       alt={`evidence-${idx}`}
@@ -321,96 +334,142 @@ export default function CustomerReturnDetailPage() {
                 transition={{ delay: 0.1 }}
                 className={cn(
                   "glass rounded-[3rem] p-8 border backdrop-blur-md",
-                  returnReq.origin === "ONLINE" && returnReq.shipments?.some(s => s.courier === "GHN")
+                  returnReq.origin === "ONLINE" &&
+                    returnReq.shipments?.some((s) => s.courier === "GHN")
                     ? "bg-blue-500/10 border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]"
-                    : "bg-background/40 border-amber-500/20"
+                    : "bg-background/40 border-amber-500/20",
                 )}
               >
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center",
-                    returnReq.origin === "ONLINE" && returnReq.shipments?.some(s => s.courier === "GHN")
-                      ? "bg-blue-500/20"
-                      : "bg-amber-500/10"
-                  )}>
-                    <Truck size={16} className={cn(
-                      returnReq.origin === "ONLINE" && returnReq.shipments?.some(s => s.courier === "GHN")
-                        ? "text-blue-400"
-                        : "text-amber-500"
-                    )} />
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-xl flex items-center justify-center",
+                      returnReq.origin === "ONLINE" &&
+                        returnReq.shipments?.some((s) => s.courier === "GHN")
+                        ? "bg-blue-500/20"
+                        : "bg-amber-500/10",
+                    )}
+                  >
+                    <Truck
+                      size={16}
+                      className={cn(
+                        returnReq.origin === "ONLINE" &&
+                          returnReq.shipments?.some((s) => s.courier === "GHN")
+                          ? "text-blue-400"
+                          : "text-amber-500",
+                      )}
+                    />
                   </div>
                   <h2 className="text-lg font-heading uppercase tracking-widest text-foreground">
                     {t("shipment_title")}
                   </h2>
-                  {returnReq.origin === "ONLINE" && returnReq.shipments?.some(s => s.courier === "GHN") && (
-                    <Badge className="ml-auto bg-blue-500 text-white border-none text-[8px] font-black tracking-[0.2em] px-3">Hỗ trợ Pickup</Badge>
-                  )}
+                  {returnReq.origin === "ONLINE" &&
+                    returnReq.shipments?.some((s) => s.courier === "GHN") && (
+                      <Badge className="ml-auto bg-blue-500 text-white border-none text-[8px] font-black tracking-[0.2em] px-3">
+                        Hỗ trợ Pickup
+                      </Badge>
+                    )}
                 </div>
 
                 {/* Automated GHN Pickup UI */}
-                {returnReq.origin === "ONLINE" && returnReq.shipments?.some(s => s.courier === "GHN") ? (
-                   <div className="space-y-6">
-                      <div className="bg-blue-500/5 border border-blue-500/10 p-5 rounded-3xl animate-in fade-in zoom-in-95">
-                         <p className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
-                           <CheckCircle size={14} /> Hệ thống đã đặt lịch thu hồi tận nơi
-                         </p>
-                         <p className="text-[11px] text-blue-200/60 leading-relaxed mb-4">
-                           Shipper của <strong>GHN</strong> sẽ liên hệ với bạn qua số điện thoại <strong>{returnReq.order?.phone || 'đã đăng ký'}</strong> để đến lấy hàng tại địa chỉ của đơn hàng gốc. Vui lòng đóng gói hàng cẩn thận và chờ shipper liên hệ.
-                         </p>
-                         
-                         {returnReq.shipments.filter(s => s.courier === 'GHN').map(s => (
-                            <div key={s.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 p-4 rounded-2xl border border-blue-500/20 group">
-                               <div>
-                                  <p className="text-[9px] font-black uppercase tracking-widest text-blue-500/70 mb-1">Mã vận đơn GHN</p>
-                                  <p className="font-mono text-base font-bold text-blue-400 select-all group-hover:text-blue-300 transition-colors uppercase">{s.trackingNumber}</p>
-                               </div>
-                               <a 
-                                  href={`https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all w-fit"
-                               >
-                                  {t("tracking_btn", { defaultValue: "Theo dõi hành trình" })}
-                                  <ArrowLeft size={10} className="rotate-180" />
-                               </a>
-                            </div>
-                         ))}
+                {returnReq.origin === "ONLINE" &&
+                returnReq.shipments?.some((s) => s.courier === "GHN") ? (
+                  <div className="space-y-6">
+                    <div className="bg-blue-500/5 border border-blue-500/10 p-5 rounded-3xl animate-in fade-in zoom-in-95">
+                      <p className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
+                        <CheckCircle size={14} /> Hệ thống đã đặt lịch thu hồi
+                        tận nơi
+                      </p>
+                      <p className="text-[11px] text-blue-200/60 leading-relaxed mb-4">
+                        Shipper của <strong>GHN</strong> sẽ liên hệ với bạn qua
+                        số điện thoại{" "}
+                        <strong>
+                          {returnReq.order?.phone || "đã đăng ký"}
+                        </strong>{" "}
+                        để đến lấy hàng tại địa chỉ của đơn hàng gốc. Vui lòng
+                        đóng gói hàng cẩn thận và chờ shipper liên hệ.
+                      </p>
 
-                         {returnReq.status === "APPROVED" && (
-                            <button
-                              onClick={handleHandover}
-                              disabled={confirmingHandover}
-                              className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-4 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all shadow-lg hover:shadow-blue-500/20 disabled:opacity-50"
+                      {returnReq.shipments
+                        .filter((s) => s.courier === "GHN")
+                        .map((s) => (
+                          <div
+                            key={s.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 p-4 rounded-2xl border border-blue-500/20 group"
+                          >
+                            <div>
+                              <p className="text-[9px] font-black uppercase tracking-widest text-blue-500/70 mb-1">
+                                Mã vận đơn GHN
+                              </p>
+                              <p className="font-mono text-base font-bold text-blue-400 select-all group-hover:text-blue-300 transition-colors uppercase">
+                                {s.trackingNumber}
+                              </p>
+                            </div>
+                            <a
+                              href={`https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all w-fit"
                             >
-                              {confirmingHandover ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : (
-                                <Send size={14} />
-                              )}
-                              {t("confirm_handover")}
-                            </button>
+                              {t("tracking_btn", {
+                                defaultValue: "Theo dõi hành trình",
+                              })}
+                              <ArrowLeft size={10} className="rotate-180" />
+                            </a>
+                          </div>
+                        ))}
+
+                      {returnReq.status === "APPROVED" && (
+                        <button
+                          onClick={handleHandover}
+                          disabled={confirmingHandover}
+                          className="w-full mt-4 flex items-center justify-center gap-2 px-6 py-4 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all shadow-lg hover:shadow-blue-500/20 disabled:opacity-50"
+                        >
+                          {confirmingHandover ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Send size={14} />
                           )}
-                      </div>
-                   </div>
+                          {t("confirm_handover")}
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 ) : returnReq.shipments && returnReq.shipments.length > 0 ? (
                   /* Manual Shipment UI (Already submitted) */
                   <div className="space-y-4">
                     {returnReq.shipments.map((s) => (
-                      <div key={s.id} className="p-5 bg-background/40 rounded-3xl border border-border/50 group hover:border-gold/30 transition-colors">
+                      <div
+                        key={s.id}
+                        className="p-5 bg-background/40 rounded-3xl border border-border/50 group hover:border-gold/30 transition-colors"
+                      >
                         <div className="flex justify-between items-start mb-2">
-                           <div>
-                              <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Mã vận đơn đã gửi</p>
-                              <p className="text-sm font-mono font-bold text-foreground uppercase tracking-widest">{s.trackingNumber}</p>
-                           </div>
-                           {s.courier && <Badge variant="outline" className="border-gold/30 text-gold bg-gold/5">{s.courier}</Badge>}
+                          <div>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">
+                              Mã vận đơn đã gửi
+                            </p>
+                            <p className="text-sm font-mono font-bold text-foreground uppercase tracking-widest">
+                              {s.trackingNumber}
+                            </p>
+                          </div>
+                          {s.courier && (
+                            <Badge
+                              variant="outline"
+                              className="border-gold/30 text-gold bg-gold/5"
+                            >
+                              {s.courier}
+                            </Badge>
+                          )}
                         </div>
-                        {s.status && (
+                        {s.receivedAt && (
                           <div className="mt-3 pt-3 border-t border-border/30 flex items-center justify-between">
-                             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gold/80">
-                                <Clock size={12} /> {s.status}
-                             </div>
-                             <span className="text-[9px] text-muted-foreground italic font-mono uppercase">Cập nhật bởi hệ thống</span>
+                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-green-500/80">
+                              <Clock size={12} /> Đã nhận hàng
+                            </div>
+                            <span className="text-[9px] text-muted-foreground italic font-mono uppercase">
+                              Cập nhật bởi hệ thống
+                            </span>
                           </div>
                         )}
                       </div>
@@ -420,17 +479,24 @@ export default function CustomerReturnDetailPage() {
                   /* Form to add shipment (Manual) */
                   <>
                     <p className="text-[11px] text-muted-foreground mb-6 leading-relaxed">
-                      Để hoàn tất quá trình, vui lòng gửi sản phẩm về địa chỉ bên dưới và cung cấp mã vận đơn để chúng tôi theo dõi.
+                      Để hoàn tất quá trình, vui lòng gửi sản phẩm về địa chỉ
+                      bên dưới và cung cấp mã vận đơn để chúng tôi theo dõi.
                     </p>
 
                     <div className="bg-background/40 p-5 rounded-3xl border border-border/50 mb-6 group hover:border-gold/20 transition-all">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gold mb-3">Địa chỉ nhận hàng (Showroom)</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gold mb-3">
+                        Địa chỉ nhận hàng (Showroom)
+                      </p>
                       <div className="space-y-1">
-                        <p className="text-sm text-foreground font-black uppercase tracking-tight">Cửa hàng Perfume GPT Luxury</p>
+                        <p className="text-sm text-foreground font-black uppercase tracking-tight">
+                          Cửa hàng Perfume GPT Luxury
+                        </p>
                         <p className="text-[11px] text-muted-foreground leading-relaxed">
                           123 Nguyễn Huệ, P. Bến Nghé, Quận 1 <br />
                           Thành phố Hồ Chí Minh <br />
-                          <span className="text-gold/80 font-bold">Hotline: 0123 456 789</span>
+                          <span className="text-gold/80 font-bold">
+                            Hotline: 0123 456 789
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -472,7 +538,9 @@ export default function CustomerReturnDetailPage() {
                         <div className="flex gap-3 pt-2">
                           <button
                             onClick={handleAddShipment}
-                            disabled={submittingShipment || !trackingNumber.trim()}
+                            disabled={
+                              submittingShipment || !trackingNumber.trim()
+                            }
                             className="flex-1 flex items-center justify-center gap-2 px-5 py-4 bg-gold text-primary-foreground rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gold/90 transition-all disabled:opacity-40 shadow-xl shadow-gold/20"
                           >
                             {submittingShipment ? (
@@ -480,7 +548,9 @@ export default function CustomerReturnDetailPage() {
                             ) : (
                               <Send size={14} />
                             )}
-                            {submittingShipment ? t("submitting") : t("submit_shipment")}
+                            {submittingShipment
+                              ? t("submitting")
+                              : t("submit_shipment")}
                           </button>
                           <button
                             onClick={() => setShowShipment(false)}
@@ -554,7 +624,8 @@ export default function CustomerReturnDetailPage() {
               returnReq.refunds &&
               returnReq.refunds.length > 0 &&
               (() => {
-                const latestRefund = returnReq.refunds![returnReq.refunds!.length - 1];
+                const latestRefund =
+                  returnReq.refunds![returnReq.refunds!.length - 1];
                 return (
                   <motion.div
                     initial={{ opacity: 0, y: 16 }}
@@ -583,16 +654,22 @@ export default function CustomerReturnDetailPage() {
                     {/* Amount + time */}
                     <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-2xl p-4 mb-5 flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-1">Số tiền đã hoàn</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-1">
+                          Số tiền đã hoàn
+                        </p>
                         <p className="text-2xl font-heading text-emerald-300">
                           {formatCurrency(latestRefund.amount)}
                         </p>
                       </div>
                       {latestRefund.createdAt && (
                         <div className="text-right">
-                          <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-1">Thời gian</p>
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-1">
+                            Thời gian
+                          </p>
                           <p className="text-xs text-emerald-300/80 font-mono">
-                            {new Date(latestRefund.createdAt).toLocaleString("vi-VN")}
+                            {new Date(latestRefund.createdAt).toLocaleString(
+                              "vi-VN",
+                            )}
                           </p>
                         </div>
                       )}
@@ -601,15 +678,21 @@ export default function CustomerReturnDetailPage() {
                     {/* Admin note/message */}
                     {latestRefund.note && (
                       <div className="mb-5 bg-black/30 border border-emerald-500/15 rounded-2xl p-4">
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-2">Lời nhắn từ cửa hàng</p>
-                        <p className="text-sm text-emerald-100/90 leading-relaxed italic">&ldquo;{latestRefund.note}&rdquo;</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-2">
+                          Lời nhắn từ cửa hàng
+                        </p>
+                        <p className="text-sm text-emerald-100/90 leading-relaxed italic">
+                          &ldquo;{latestRefund.note}&rdquo;
+                        </p>
                       </div>
                     )}
 
                     {/* Receipt image */}
                     {latestRefund.receiptImage ? (
                       <div>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-3">Hình ảnh hóa đơn chuyển khoản</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-3">
+                          Hình ảnh hóa đơn chuyển khoản
+                        </p>
                         <a
                           href={latestRefund.receiptImage}
                           target="_blank"
@@ -623,7 +706,9 @@ export default function CustomerReturnDetailPage() {
                             className="w-full object-contain max-h-72 group-hover:scale-[1.02] transition-transform duration-500"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                            <span className="text-[9px] font-bold text-white uppercase tracking-widest">Nhấn để xem toàn màn hình</span>
+                            <span className="text-[9px] font-bold text-white uppercase tracking-widest">
+                              Nhấn để xem toàn màn hình
+                            </span>
                           </div>
                         </a>
                       </div>
@@ -651,7 +736,7 @@ export default function CustomerReturnDetailPage() {
               <span
                 className={cn(
                   "inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border",
-                  cfg.color
+                  cfg.color,
                 )}
               >
                 <StatusIcon size={12} />
@@ -700,12 +785,27 @@ export default function CustomerReturnDetailPage() {
 
               {returnReq.paymentInfo && (
                 <div className="bg-indigo-900/20 border border-indigo-500/20 p-4 rounded-xl mt-2">
-                   <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-2">
-                     Thông tin nhận hoàn tiền
-                   </p>
-                   <p className="text-xs text-white">Ngân hàng: <span className="font-semibold text-indigo-200">{returnReq.paymentInfo.bankName}</span></p>
-                   <p className="text-xs text-white mt-1">Chủ tài khoản: <span className="font-semibold text-indigo-200">{returnReq.paymentInfo.accountName}</span></p>
-                   <p className="text-xs text-white mt-1">Số tài khoản: <span className="font-mono bg-black/30 px-2 py-0.5 rounded text-indigo-200">{returnReq.paymentInfo.accountNumber}</span></p>
+                  <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-2">
+                    Thông tin nhận hoàn tiền
+                  </p>
+                  <p className="text-xs text-white">
+                    Ngân hàng:{" "}
+                    <span className="font-semibold text-indigo-200">
+                      {returnReq.paymentInfo.bankName}
+                    </span>
+                  </p>
+                  <p className="text-xs text-white mt-1">
+                    Chủ tài khoản:{" "}
+                    <span className="font-semibold text-indigo-200">
+                      {returnReq.paymentInfo.accountName}
+                    </span>
+                  </p>
+                  <p className="text-xs text-white mt-1">
+                    Số tài khoản:{" "}
+                    <span className="font-mono bg-black/30 px-2 py-0.5 rounded text-indigo-200">
+                      {returnReq.paymentInfo.accountNumber}
+                    </span>
+                  </p>
                 </div>
               )}
 
@@ -720,17 +820,16 @@ export default function CustomerReturnDetailPage() {
                 </div>
               )}
 
-              {returnReq.refundAmount != null &&
-                returnReq.refundAmount > 0 && (
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
-                      {t("refund_amount")}
-                    </p>
-                    <p className="text-2xl font-heading text-gold">
-                      {formatCurrency(returnReq.refundAmount)}
-                    </p>
-                  </div>
-                )}
+              {returnReq.refundAmount != null && returnReq.refundAmount > 0 && (
+                <div className="pt-4 border-t border-border">
+                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                    {t("refund_amount")}
+                  </p>
+                  <p className="text-2xl font-heading text-gold">
+                    {formatCurrency(returnReq.refundAmount)}
+                  </p>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

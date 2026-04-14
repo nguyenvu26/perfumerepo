@@ -26,6 +26,7 @@ import { UserAddress } from '@/services/address.service';
 import { cn } from '@/lib/utils';
 
 type PaymentMethod = 'COD' | 'ONLINE' | null;
+const PAYMENT_TTL_SECONDS = 10 * 60;
 
 // QR Code Canvas Component
 function QRCodeCanvas({ qrCodeValue }: { qrCodeValue: string }) {
@@ -87,6 +88,8 @@ export default function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
     const [orderId, setOrderId] = useState<string | null>(null);
     const [paymentData, setPaymentData] = useState<PayOSPaymentResponse | null>(null);
+    const [paymentExpiresAt, setPaymentExpiresAt] = useState<number | null>(null);
+    const [secondsLeft, setSecondsLeft] = useState<number>(PAYMENT_TTL_SECONDS);
 
     // GHN shipping
     const [ghnEnabled, setGhnEnabled] = useState(false);
@@ -188,6 +191,18 @@ export default function CheckoutPage() {
 
     const canProceedStep1 = Boolean(selectedAddress && (ghnEnabled ? selectedServiceId : true));
 
+    useEffect(() => {
+        if (!paymentExpiresAt) return;
+        const timer = window.setInterval(() => {
+            const next = Math.max(0, Math.floor((paymentExpiresAt - Date.now()) / 1000));
+            setSecondsLeft(next);
+        }, 1000);
+        return () => window.clearInterval(timer);
+    }, [paymentExpiresAt]);
+
+    const isPaymentExpired = paymentExpiresAt ? Date.now() >= paymentExpiresAt : false;
+    const countdownLabel = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`;
+
     const handleApplyCoupon = async () => {
         if (!couponCode.trim()) return;
         setIsApplyingCoupon(true);
@@ -257,6 +272,8 @@ export default function CheckoutPage() {
             try {
                 const payment = await paymentService.createPayment(currentOrderId);
                 setPaymentData(payment);
+                setPaymentExpiresAt(Date.now() + PAYMENT_TTL_SECONDS * 1000);
+                setSecondsLeft(PAYMENT_TTL_SECONDS);
                 setStep(3);
             } catch (e: any) {
                 alert(e.message || t('error_create_payment'));
@@ -452,6 +469,9 @@ export default function CheckoutPage() {
                                             <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
                                                 {t('qr_desc_scanning')}
                                             </p>
+                                            <p className={`text-[10px] font-bold uppercase tracking-widest ${isPaymentExpired ? 'text-red-500' : 'text-amber-500'}`}>
+                                                Đơn thanh toán QR chỉ tồn tại trong 10 phút - còn lại {countdownLabel}
+                                            </p>
                                         </div>
 
                                         <div className="flex flex-col items-center gap-8 p-12 bg-white dark:bg-zinc-900 rounded-[3rem] border border-stone-100 dark:border-white/5 shadow-2xl">
@@ -478,8 +498,10 @@ export default function CheckoutPage() {
                                             </div>
 
                                             <div className="flex items-center gap-3 py-3 px-6 bg-stone-50 dark:bg-white/5 rounded-full border border-stone-100 dark:border-white/5">
-                                                <Loader2 className="w-4 h-4 animate-spin text-gold" />
-                                                <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{t('waiting_for_payment')}</span>
+                                                {!isPaymentExpired && <Loader2 className="w-4 h-4 animate-spin text-gold" />}
+                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isPaymentExpired ? 'text-red-500' : 'text-stone-400'}`}>
+                                                    {isPaymentExpired ? 'Thanh toán đã hết hạn, vui lòng tạo lại đơn mới' : t('waiting_for_payment')}
+                                                </span>
                                             </div>
                                         </div>
 
@@ -488,13 +510,16 @@ export default function CheckoutPage() {
                                                 {t('pay_via_payos_desc')}
                                             </p>
                                             <a
-                                                href={paymentData.checkoutUrl || '#'}
+                                                href={isPaymentExpired ? '#' : (paymentData.checkoutUrl || '#')}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="block w-full py-5 bg-gold text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] text-center hover:bg-gold/90 transition-all shadow-lg"
+                                                onClick={(e) => {
+                                                    if (isPaymentExpired) e.preventDefault();
+                                                }}
+                                                className={`block w-full py-5 rounded-full font-bold tracking-[.3em] uppercase text-[10px] text-center transition-all shadow-lg ${isPaymentExpired ? 'bg-stone-400 text-white cursor-not-allowed' : 'bg-gold text-white hover:bg-gold/90'}`}
                                             >
-                                                {t('pay_via_payos_btn')}
-                                                <ArrowRight size={16} className="inline ml-3" />
+                                                {isPaymentExpired ? 'ĐÃ HẾT HẠN THANH TOÁN' : t('pay_via_payos_btn')}
+                                                {!isPaymentExpired && <ArrowRight size={16} className="inline ml-3" />}
                                             </a>
                                         </div>
 

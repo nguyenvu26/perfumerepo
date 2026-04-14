@@ -55,7 +55,7 @@ export default function AddressesPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm(t('delete_confirm'))) return;
+        if (!confirm(t('delete_confirm', { type: t('title') }))) return;
         try {
             await addressService.delete(id);
             toast.success(t('success.deleted'));

@@ -149,7 +149,11 @@ export default function AdminOrderDetailPage() {
     };
 
     const hasShipment = shipments.length > 0;
-    const canCreateShipment = !hasShipment && order.shippingAddress && order.status !== 'CANCELLED';
+    const canCreateShipment =
+        !hasShipment &&
+        order.shippingAddress &&
+        order.status !== 'CANCELLED' &&
+        order.paymentStatus === 'PAID';
 
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950">

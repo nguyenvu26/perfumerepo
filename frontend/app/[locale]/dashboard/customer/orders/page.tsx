@@ -25,7 +25,19 @@ export default function CustomerOrdersPage() {
     const locale = useLocale();
     const format = useFormatter();
     const [orders, setOrders] = useState<Order[]>([]);
+    const [total, setTotal] = useState(0);
+    const [skip, setSkip] = useState(0);
+    const [take, setTake] = useState(10);
     const [loading, setLoading] = useState(true);
+    const [refundModalOrderId, setRefundModalOrderId] = useState<string | null>(null);
+    const [loadingRefundInfo, setLoadingRefundInfo] = useState(false);
+    const [savingRefundInfo, setSavingRefundInfo] = useState(false);
+    const [refundInfo, setRefundInfo] = useState({
+        bankName: '',
+        accountNumber: '',
+        accountHolder: '',
+        note: '',
+    });
  
     const STATUS_CONFIG = {
         PENDING: { label: t('status.pending'), color: 'bg-amber-500/10 text-amber-600 border-amber-500/20', icon: Clock },
@@ -37,19 +49,24 @@ export default function CustomerOrdersPage() {
     };
  
     const fetchOrders = useCallback(async () => {
+        setLoading(true);
         try {
-            const data = await orderService.listMy();
-            setOrders(data);
+            const res = await orderService.listMy({ skip, take });
+            setOrders(res.data);
+            setTotal(res.total);
         } catch (error) {
             console.error('Failed to fetch my orders:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [skip, take]);
  
     useEffect(() => {
         fetchOrders();
     }, [fetchOrders]);
+
+    const currentPage = Math.floor(skip / take) + 1;
+    const totalPages = Math.max(1, Math.ceil(total / take));
 
     const formatCurrency = (amount: number) => {
         return format.number(amount, {
@@ -60,6 +77,32 @@ export default function CustomerOrdersPage() {
     };
  
     const tCommon = useTranslations('common');
+
+    const openRefundModal = async (orderId: string) => {
+        setRefundModalOrderId(orderId);
+        setLoadingRefundInfo(true);
+        setRefundInfo({
+            bankName: '',
+            accountNumber: '',
+            accountHolder: '',
+            note: '',
+        });
+        try {
+            const existing = await orderService.getRefundBankInfo(orderId);
+            if (existing) {
+                setRefundInfo({
+                    bankName: existing.bankName || '',
+                    accountNumber: existing.accountNumber || '',
+                    accountHolder: existing.accountHolder || '',
+                    note: existing.note || '',
+                });
+            }
+        } catch {
+            // keep empty form
+        } finally {
+            setLoadingRefundInfo(false);
+        }
+    };
 
     return (
         <AuthGuard allowedRoles={['customer', 'staff', 'admin']}>
@@ -143,12 +186,22 @@ export default function CustomerOrdersPage() {
                                                     </div>
                                                 </div>
                                                 <div className="flex items-end justify-end">
-                                                    <Link
-                                                        href={`/dashboard/customer/orders/${order.id}`}
-                                                        className="text-[10px] font-bold uppercase tracking-widest text-foreground flex items-center gap-2 hover:text-gold transition-colors group"
-                                                    >
-                                                        {t('view_details')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                                    </Link>
+                                                    <div className="flex items-center gap-3">
+                                                        {order.status === 'CANCELLED' && order.paymentStatus === 'PAID' && (
+                                                            <button
+                                                                onClick={() => openRefundModal(order.id)}
+                                                                className="text-[10px] font-bold uppercase tracking-widest text-red-600 border border-red-500/20 px-3 py-1.5 rounded-full hover:bg-red-500/5 transition-all"
+                                                            >
+                                                                Nhập TK hoàn tiền
+                                                            </button>
+                                                        )}
+                                                        <Link
+                                                            href={`/dashboard/customer/orders/${order.id}`}
+                                                            className="text-[10px] font-bold uppercase tracking-widest text-foreground flex items-center gap-2 hover:text-gold transition-colors group"
+                                                        >
+                                                            {t('view_details')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                        </Link>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -159,12 +212,128 @@ export default function CustomerOrdersPage() {
                     )}
                 </div>
 
+                {!loading && total > 0 && (
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                            {`${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
+                        </p>
+                        <div className="flex items-center gap-3">
+                            <select
+                                value={take}
+                                onChange={(e) => {
+                                    const nextTake = Number(e.target.value);
+                                    setTake(nextTake);
+                                    setSkip(0);
+                                }}
+                                className="bg-background/60 border border-border rounded-full px-3 py-2 text-[10px] uppercase tracking-widest font-bold"
+                            >
+                                <option value={5}>5 / trang</option>
+                                <option value={10}>10 / trang</option>
+                                <option value={20}>20 / trang</option>
+                            </select>
+                            <button
+                                type="button"
+                                onClick={() => setSkip((s) => Math.max(0, s - take))}
+                                disabled={skip === 0}
+                                className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+                            >
+                                Trước
+                            </button>
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground min-w-24 text-center">
+                                {currentPage}/{totalPages}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                                disabled={skip + take >= total}
+                                className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
+                            >
+                                Sau
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 <footer className="mt-10 pt-10 border-t border-border text-center">
                     <p className="text-[8px] font-bold uppercase tracking-[.4em] text-muted-foreground">
                         {tCommon('engine_version')}
                     </p>
                 </footer>
             </div>
+
+            {refundModalOrderId && (
+                <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 p-8 space-y-4">
+                        <h3 className="text-lg font-heading uppercase tracking-widest text-foreground">
+                            Thông tin tài khoản nhận hoàn tiền
+                        </h3>
+                        {loadingRefundInfo ? (
+                            <div className="py-10 flex items-center justify-center">
+                                <Loader2 className="animate-spin text-gold" size={24} />
+                            </div>
+                        ) : (
+                            <>
+                                <input
+                                    value={refundInfo.bankName}
+                                    onChange={(e) => setRefundInfo((p) => ({ ...p, bankName: e.target.value }))}
+                                    placeholder="Tên ngân hàng"
+                                    className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                                />
+                                <input
+                                    value={refundInfo.accountNumber}
+                                    onChange={(e) => setRefundInfo((p) => ({ ...p, accountNumber: e.target.value }))}
+                                    placeholder="Số tài khoản"
+                                    className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                                />
+                                <input
+                                    value={refundInfo.accountHolder}
+                                    onChange={(e) => setRefundInfo((p) => ({ ...p, accountHolder: e.target.value }))}
+                                    placeholder="Tên chủ tài khoản"
+                                    className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+                                />
+                                <textarea
+                                    value={refundInfo.note}
+                                    onChange={(e) => setRefundInfo((p) => ({ ...p, note: e.target.value }))}
+                                    placeholder="Ghi chú (không bắt buộc)"
+                                    className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold min-h-24"
+                                />
+                            </>
+                        )}
+
+                        <div className="flex gap-3 pt-2">
+                            <button
+                                onClick={() => setRefundModalOrderId(null)}
+                                className="flex-1 py-3 rounded-full border border-border text-muted-foreground hover:bg-secondary/50 text-[10px] font-bold uppercase tracking-widest"
+                            >
+                                Đóng
+                            </button>
+                            <button
+                                disabled={
+                                    loadingRefundInfo ||
+                                    savingRefundInfo ||
+                                    !refundInfo.bankName.trim() ||
+                                    !refundInfo.accountNumber.trim() ||
+                                    !refundInfo.accountHolder.trim()
+                                }
+                                onClick={async () => {
+                                    setSavingRefundInfo(true);
+                                    try {
+                                        await orderService.submitRefundBankInfo(refundModalOrderId, refundInfo);
+                                        setRefundModalOrderId(null);
+                                    } catch (e: any) {
+                                        alert(e?.response?.data?.message || e?.message || 'Không thể gửi thông tin hoàn tiền');
+                                    } finally {
+                                        setSavingRefundInfo(false);
+                                    }
+                                }}
+                                className="flex-1 py-3 rounded-full bg-gold text-primary-foreground text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+                            >
+                                {savingRefundInfo ? 'Đang gửi...' : 'Gửi thông tin'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AuthGuard>
     );
 }

@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -30,13 +32,35 @@ const SHIPMENT_STATUS_LABELS: Record<string, string> = {
 };
 
 @Injectable()
-export class ShippingService {
+export class ShippingService implements OnModuleInit, OnModuleDestroy {
+  private syncTimer: NodeJS.Timeout | null = null;
+  private isSyncing = false;
+  private readonly syncIntervalMs: number;
+  private readonly syncBatchSize: number;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly ghn: GHNService,
     private readonly notificationsService: NotificationsService,
     private readonly config: ConfigService,
-  ) {}
+  ) {
+    this.syncIntervalMs = Number(
+      this.config.get<string>('GHN_SYNC_INTERVAL_MS') || 30000,
+    );
+    this.syncBatchSize = Number(
+      this.config.get<string>('GHN_SYNC_BATCH_SIZE') || 20,
+    );
+  }
+
+  onModuleInit() {
+    this.syncTimer = setInterval(() => {
+      void this.syncActiveShipmentsFallback();
+    }, this.syncIntervalMs);
+  }
+
+  onModuleDestroy() {
+    if (this.syncTimer) clearInterval(this.syncTimer);
+  }
 
   async createGhnShipmentForUser(userId: string, orderId: string) {
     const order = await this.prisma.order.findFirst({
@@ -62,9 +86,13 @@ export class ShippingService {
     if (!order) throw new NotFoundException('Order not found');
     if (order.channel !== 'ONLINE')
       throw new BadRequestException('Chỉ đơn ONLINE mới tạo GHN');
+    if (order.status === 'CANCELLED') {
+      throw new BadRequestException('Đơn đã bị hủy');
+    }
     if (!order.shippingDistrictId || !order.shippingWardCode) {
       throw new BadRequestException('Đơn chưa có đủ thông tin giao hàng');
     }
+    this.validateOrderAddressForGhn(order);
 
     let serviceId = order.shippingServiceId;
     if (!serviceId || serviceId === 0) {
@@ -91,6 +119,17 @@ export class ShippingService {
       };
     }
 
+    const payosPayment = await this.prisma.payment.findFirst({
+      where: { orderId, provider: 'PAYOS' },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (payosPayment && payosPayment.status !== 'PAID') {
+      throw new BadRequestException(
+        'Đơn online chưa thanh toán thành công, chưa thể tạo GHN',
+      );
+    }
+
+    const normalizedPhone = this.normalizeVietnamPhone(order.phone || '');
     const weight = 500;
     const items = order.items.map((item) => ({
       name: item.variant.product.name + ' ' + item.variant.name,
@@ -99,9 +138,11 @@ export class ShippingService {
       weight: Math.ceil(weight / order.items.length),
     }));
 
+    const codAmount = payosPayment ? 0 : order.finalAmount;
+
     const result = await this.ghn.createOrder({
       toName: order.recipientName ?? 'Khách hàng',
-      toPhone: order.phone ?? '',
+      toPhone: normalizedPhone || '',
       toAddress: order.shippingAddress ?? '',
       toWardCode: order.shippingWardCode,
       toDistrictId: order.shippingDistrictId,
@@ -112,7 +153,7 @@ export class ShippingService {
       serviceId: serviceId,
       serviceTypeId: 2,
       paymentTypeId: 1,
-      codAmount: order.finalAmount,
+      codAmount,
       content: `Đơn hàng ${order.code}`,
       clientOrderCode: order.code,
       items,
@@ -136,6 +177,46 @@ export class ShippingService {
       orderCode: result.order_code,
       fee: result.total_fee,
     };
+  }
+
+  private validateOrderAddressForGhn(order: {
+    recipientName: string | null;
+    phone: string | null;
+    shippingAddress: string | null;
+    shippingDistrictId: number | null;
+    shippingWardCode: string | null;
+  }) {
+    const recipientName = (order.recipientName || '').trim();
+    const shippingAddress = (order.shippingAddress || '').trim();
+    const wardCode = (order.shippingWardCode || '').trim();
+    const normalizedPhone = this.normalizeVietnamPhone(order.phone || '');
+
+    if (!recipientName || recipientName.length < 2) {
+      throw new BadRequestException('Tên người nhận không hợp lệ');
+    }
+    if (!normalizedPhone) {
+      throw new BadRequestException('Số điện thoại người nhận không hợp lệ');
+    }
+    if (!shippingAddress || shippingAddress.length < 6) {
+      throw new BadRequestException('Địa chỉ giao hàng không hợp lệ');
+    }
+    if (!order.shippingDistrictId || order.shippingDistrictId <= 0) {
+      throw new BadRequestException('Thiếu quận/huyện giao hàng hợp lệ');
+    }
+    if (!wardCode) {
+      throw new BadRequestException('Thiếu phường/xã giao hàng');
+    }
+  }
+
+  private normalizeVietnamPhone(raw: string): string | null {
+    const digits = raw.replace(/\D/g, '');
+    if (digits.startsWith('84') && digits.length === 11) {
+      return `0${digits.slice(2)}`;
+    }
+    if (/^0\d{9}$/.test(digits)) {
+      return digits;
+    }
+    return null;
   }
 
   async createGhnReturnPickup(
@@ -276,6 +357,15 @@ export class ShippingService {
           where: { id: shipment.orderId },
           data: { status: 'COMPLETED' },
         });
+      } else if (
+        (newStatus === ShipmentStatus.FAILED ||
+          newStatus === ShipmentStatus.RETURNED) &&
+        shipment.order.status !== 'COMPLETED'
+      ) {
+        await this.prisma.order.update({
+          where: { id: shipment.orderId },
+          data: { status: 'CANCELLED' },
+        });
       }
       return;
     }
@@ -405,6 +495,15 @@ export class ShippingService {
         where: { id: shipment.orderId },
         data: { status: 'COMPLETED' },
       });
+    } else if (
+      (newStatus === ShipmentStatus.FAILED ||
+        newStatus === ShipmentStatus.RETURNED) &&
+      shipment.order.status !== 'COMPLETED'
+    ) {
+      await this.prisma.order.update({
+        where: { id: shipment.orderId },
+        data: { status: 'CANCELLED' },
+      });
     }
 
     return updated;
@@ -450,5 +549,37 @@ export class ShippingService {
       result.push({ ...s, ghnDetail });
     }
     return result;
+  }
+
+  private async syncActiveShipmentsFallback() {
+    if (this.isSyncing || !this.ghn.isConfigured()) return;
+    this.isSyncing = true;
+    try {
+      const active = await this.prisma.shipment.findMany({
+        where: {
+          provider: ShippingProvider.GHN,
+          ghnOrderCode: { not: null },
+          status: {
+            in: [
+              ShipmentStatus.PENDING,
+              ShipmentStatus.PICKED_UP,
+              ShipmentStatus.IN_TRANSIT,
+            ],
+          },
+        },
+        orderBy: { updatedAt: 'asc' },
+        take: this.syncBatchSize,
+      });
+
+      for (const s of active) {
+        try {
+          await this.syncShipmentStatus(s.id);
+        } catch (e: any) {
+          console.warn(`GHN fallback sync failed for ${s.id}: ${e?.message}`);
+        }
+      }
+    } finally {
+      this.isSyncing = false;
+    }
   }
 }

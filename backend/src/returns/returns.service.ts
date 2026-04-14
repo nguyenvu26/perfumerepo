@@ -76,6 +76,14 @@ export class ReturnsService {
     });
     if (!order) throw new NotFoundException('Order not found');
 
+    // Luxury policy: Refund shipping if store fault or VIP
+    const isStoreFault =
+      ret.reason?.includes('[DAMAGED]') || ret.reason?.includes('[WRONG_ITEM]');
+    const isVIP = ((ret as any).user?.loyaltyPoints || 0) >= 5000;
+
+    const shippingRefundable =
+      isStoreFault || isVIP ? Number(order.shippingFee || 0) : 0;
+
     const refundAmount = this.calculateRefundAmount(
       order.items,
       ret.items.map((ri) => ({
@@ -84,7 +92,7 @@ export class ReturnsService {
         qtyReceived: ri.qtyReceived,
       })),
       order.discountAmount,
-      0, // shipping
+      shippingRefundable,
     );
 
     return { suggestedAmount: refundAmount };
@@ -112,7 +120,13 @@ export class ReturnsService {
         refunds: true,
         order: true,
         user: {
-          select: { id: true, fullName: true, email: true, phone: true },
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            phone: true,
+            loyaltyPoints: true,
+          },
         },
         staff: { select: { id: true, fullName: true } },
       },
@@ -190,12 +204,7 @@ export class ReturnsService {
   }
 
   private calculateRefundAmount(
-    orderItems: {
-      variantId: string;
-      unitPrice: number;
-      quantity: number;
-      totalPrice: number;
-    }[],
+    orderItems: any[],
     returnItems: {
       variantId: string;
       quantity: number;
@@ -205,18 +214,29 @@ export class ReturnsService {
     shippingRefundable: number = 0,
   ): number {
     let subtotal = 0;
+    const orderItemsValue = orderItems.reduce(
+      (sum, o) => sum + (Number(o.totalPrice) || 0),
+      0,
+    );
+
     for (const ri of returnItems) {
       const oi = orderItems.find((o) => o.variantId === ri.variantId);
       if (!oi) continue;
       const qty = ri.qtyReceived ?? ri.quantity;
-      subtotal += oi.unitPrice * qty;
+      subtotal += (Number(oi.unitPrice) || 0) * qty;
     }
+
+    if (orderItemsValue === 0) return subtotal + shippingRefundable;
+
     // Pro-rata discount allocation
-    const subtotalRatio =
-      subtotal / orderItems.reduce((sum, o) => sum + o.totalPrice, 0);
-    const discountShare = orderDiscount * subtotalRatio;
+    const subtotalRatio = subtotal / orderItemsValue;
+    const discountShare = (Number(orderDiscount) || 0) * subtotalRatio;
+
+    // Standard e-commerce logic:
+    // Refund = (Gross Price for returned items) - (Discount proportion) + (Shipping if applicable)
     const total = subtotal - discountShare + shippingRefundable;
-    return Math.round(total);
+
+    return Math.max(0, Math.round(total));
   }
 
   // ─────────── CUSTOMER: CREATE ───────────
@@ -227,14 +247,46 @@ export class ReturnsService {
     staffId?: string,
     idempotencyKey?: string,
   ) {
-    // Idempotency check - for create use orderId as temp returnId
-    const check = await this.checkIdempotency(
-      idempotencyKey,
-      dto.orderId,
-      'create',
-    );
-    if (check.existing) {
-      return check.result;
+    // For CREATE: Check if return already exists for this order (idempotency check)
+    // We don't pre-check audit table because returnId doesn't exist yet
+    if (idempotencyKey) {
+      const existingReturn = await this.prisma.returnRequest.findFirst({
+        where: { orderId: dto.orderId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: {
+            include: {
+              variant: {
+                include: {
+                  product: {
+                    include: {
+                      images: { orderBy: { order: 'asc' as const }, take: 1 },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          shipments: true,
+          audits: { orderBy: { createdAt: 'desc' as const } },
+          refunds: true,
+          order: true,
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              phone: true,
+              loyaltyPoints: true,
+            },
+          },
+          staff: { select: { id: true, fullName: true } },
+        },
+      });
+      if (existingReturn) {
+        // Return already exists for this order, treat as successful idempotent response
+        return existingReturn;
+      }
     }
 
     const isStaff = !!staffId;
@@ -244,7 +296,7 @@ export class ReturnsService {
     // 1) Find order
     const order = await this.prisma.order.findFirst({
       where: isStaff ? { id: dto.orderId } : { id: dto.orderId, userId },
-      include: { items: true },
+      include: { items: true, user: true },
     });
     if (!order) throw new NotFoundException('Order not found');
 
@@ -297,11 +349,22 @@ export class ReturnsService {
     }
 
     // 5) Calculate expected refund amount (enhanced)
+    // Luxury Strategy: Refund shipping if reason is DAMAGED or WRONG_ITEM, OR if VIP
+    const isStoreFault =
+      dto.reason?.includes('[DAMAGED]') || dto.reason?.includes('[WRONG_ITEM]');
+
+    // Check if VIP (e.g. loyalty points > 5000)
+    const isVIP = (order.user?.loyaltyPoints ?? 0) >= 5000;
+
+    // For a full order return with store fault or VIP status, we refund full original shipping
+    const shippingRefundable =
+      isStoreFault || isVIP ? Number(order.shippingFee || 0) : 0;
+
     const totalAmount = this.calculateRefundAmount(
       order.items,
       dto.items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
       order.discountAmount,
-      0, // shipping
+      shippingRefundable,
     );
 
     // 6) Create in transaction
@@ -344,13 +407,8 @@ export class ReturnsService {
         },
       );
 
-      // Record idempotency
-      if (idempotencyKey) {
-        await this.recordIdempotency(tx, ret.id, idempotencyKey, 'create', {
-          dto,
-          totalAmount,
-        });
-      }
+      // Note: No idempotency recording needed for CREATE here
+      // We check idempotency by querying returnRequest directly (see above)
 
       return ret;
     });
@@ -579,8 +637,6 @@ export class ReturnsService {
     return { data, total, skip, take, pages: Math.ceil(total / take) };
   }
 
-
-
   async getReturnById(id: string) {
     return this.findReturnOrThrow(id);
   }
@@ -646,7 +702,6 @@ export class ReturnsService {
           ? 'Yêu cầu trả hàng đã được duyệt. Vui lòng gửi hàng về và cung cấp mã vận đơn.'
           : `Yêu cầu trả hàng bị từ chối. ${dto.note || ''}`;
 
-
       this.notificationsService
         .create({
           userId: ret.userId,
@@ -664,7 +719,8 @@ export class ReturnsService {
     // ─────────── AUTOMATED GHN PICKUP ───────────
     if (newStatus === ReturnStatus.APPROVED && ret.origin === 'ONLINE') {
       try {
-        const pickupResult = await this.shippingService.createGhnReturnPickup(id);
+        const pickupResult =
+          await this.shippingService.createGhnReturnPickup(id);
         await this.prisma.returnAudit.create({
           data: {
             returnId: id,
@@ -683,7 +739,7 @@ export class ReturnsService {
             payload: { message: err.message },
           },
         });
-        // We don't throw here to avoid rolling back the approval, 
+        // We don't throw here to avoid rolling back the approval,
         // but we might want to notify staff to retry manually.
       }
     }
@@ -775,12 +831,8 @@ export class ReturnsService {
           },
         });
 
-        // If received and seal intact → restock
-        if (
-          !hasUnsealedItem &&
-          dtoItem.sealIntact !== false &&
-          dtoItem.qtyReceived > 0
-        ) {
+        // If item seal is intact → restock per-item (not gated by hasUnsealedItem)
+        if (dtoItem.sealIntact !== false && dtoItem.qtyReceived > 0) {
           await tx.productVariant.update({
             where: { id: dtoItem.variantId },
             data: { stock: { increment: dtoItem.qtyReceived } },
@@ -885,6 +937,14 @@ export class ReturnsService {
     });
     if (!order) throw new NotFoundException('Order not found');
 
+    // Luxury policy: Refund shipping if store fault or VIP
+    const isStoreFault =
+      ret.reason?.includes('[DAMAGED]') || ret.reason?.includes('[WRONG_ITEM]');
+    const isVIP = ((ret as any).user?.loyaltyPoints || 0) >= 5000;
+
+    const shippingRefundable =
+      isStoreFault || isVIP ? Number(order.shippingFee || 0) : 0;
+
     const refundAmount = this.calculateRefundAmount(
       order.items,
       ret.items.map((ri) => ({
@@ -893,7 +953,7 @@ export class ReturnsService {
         qtyReceived: ri.qtyReceived,
       })),
       order.discountAmount,
-      0,
+      shippingRefundable,
     );
 
     if (refundAmount <= 0) {
@@ -923,6 +983,16 @@ export class ReturnsService {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
+      // Get latest refund if retrying (not just ret.refunds[0] which might be old)
+      let attempts = 1;
+      if (ret.status === ReturnStatus.REFUND_FAILED) {
+        const latestRefund = await tx.refund.findFirst({
+          where: { returnRequestId: id },
+          orderBy: { createdAt: 'desc' },
+        });
+        attempts = (latestRefund?.attempts || 0) + 1;
+      }
+
       const refund = await tx.refund.create({
         data: {
           returnRequestId: id,
@@ -932,10 +1002,7 @@ export class ReturnsService {
           status: refundStatus,
           note: dto.note,
           receiptImage: dto.receiptImage,
-          attempts:
-            ret.status === ReturnStatus.REFUND_FAILED
-              ? (ret.refunds[0]?.attempts || 0) + 1
-              : 1,
+          attempts,
         },
       });
 
@@ -953,14 +1020,24 @@ export class ReturnsService {
         },
       });
 
-      const totalRefunded = order.refundAmount + refundAmount;
-      const newPaymentStatus = totalRefunded >= order.finalAmount ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
+      // Re-read order in transaction to ensure atomic update (avoid race condition)
+      const currentOrder = await tx.order.findUnique({
+        where: { id: ret.orderId },
+      });
+      if (!currentOrder)
+        throw new NotFoundException('Order not found in refund transaction');
+
+      const totalRefunded = currentOrder.refundAmount + refundAmount;
+      const newPaymentStatus =
+        totalRefunded >= currentOrder.finalAmount
+          ? 'REFUNDED'
+          : 'PARTIALLY_REFUNDED';
 
       await tx.order.update({
         where: { id: ret.orderId },
-        data: { 
+        data: {
           paymentStatus: newPaymentStatus,
-          refundAmount: totalRefunded
+          refundAmount: totalRefunded,
         },
       });
 
@@ -985,11 +1062,15 @@ export class ReturnsService {
       if (ret.userId && refundStatus === RefundStatus.SUCCESS) {
         const pointsToDeduct = Math.floor(refundAmount / 10000);
         if (pointsToDeduct > 0) {
+          const orderRef = await tx.order.findUnique({
+            where: { id: ret.orderId },
+          });
+          const orderCodeStr = orderRef?.code || 'unknown';
           await tx.loyaltyTransaction.create({
             data: {
               userId: ret.userId,
               points: -pointsToDeduct,
-              reason: `Tru points do hoan tra don hang \${ret.order.code}`,
+              reason: `Tru points do hoan tra don hang ${orderCodeStr}`,
             },
           });
 

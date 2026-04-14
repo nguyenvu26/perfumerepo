@@ -33,27 +33,65 @@ export default function AdminOrders() {
         REFUNDED: { label: t('payment_status.refunded'), color: 'text-blue-500' },
     };
     const [orders, setOrders] = useState<Order[]>([]);
+    const [total, setTotal] = useState(0);
+    const [skip, setSkip] = useState(0);
+    const [take, setTake] = useState(20);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUND_REQUIRED'>('ALL');
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [updating, setUpdating] = useState(false);
+    const [refundInfo, setRefundInfo] = useState<any>(null);
+    const [loadingRefundInfo, setLoadingRefundInfo] = useState(false);
     const printRef = useRef<HTMLDivElement>(null);
 
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await orderService.listAll(0, 100);
+            const res = await orderService.listAll(skip, take);
             setOrders(res.data);
+            setTotal(res.total);
         } catch (error) {
             console.error('Failed to fetch orders:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [skip, take]);
 
     useEffect(() => {
         fetchOrders();
     }, [fetchOrders]);
+
+    useEffect(() => {
+        setSkip(0);
+    }, [take]);
+
+    useEffect(() => {
+        const loadRefundInfo = async () => {
+            if (!selectedOrder) {
+                setRefundInfo(null);
+                return;
+            }
+            const needsRefund =
+                selectedOrder.status === 'CANCELLED' &&
+                (selectedOrder.paymentStatus === 'PAID' ||
+                    selectedOrder.paymentStatus === 'PARTIALLY_REFUNDED');
+            if (!needsRefund) {
+                setRefundInfo(null);
+                return;
+            }
+            setLoadingRefundInfo(true);
+            try {
+                const data = await orderService.getRefundBankInfoAdmin(selectedOrder.id);
+                setRefundInfo(data);
+            } catch {
+                setRefundInfo(null);
+            } finally {
+                setLoadingRefundInfo(false);
+            }
+        };
+        void loadRefundInfo();
+    }, [selectedOrder]);
 
     const handleUpdateStatus = async (id: string, status: string) => {
         setUpdating(true);
@@ -149,11 +187,21 @@ export default function AdminOrders() {
         printWindow.document.close();
     };
 
-    const filteredOrders = (orders || []).filter(o =>
+    const baseFilteredOrders = (orders || []).filter(o =>
         o.code.toLowerCase().includes(search.toLowerCase()) ||
         o.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
         o.phone?.includes(search)
     );
+    const filteredOrders = baseFilteredOrders.filter((o) => {
+        if (activeTab === 'ALL') return true;
+        if (activeTab === 'REFUND_REQUIRED') {
+            return o.status === 'CANCELLED' && (o.paymentStatus === 'PAID' || o.paymentStatus === 'PARTIALLY_REFUNDED');
+        }
+        return o.status === activeTab;
+    });
+
+    const currentPage = Math.floor(skip / take) + 1;
+    const totalPages = Math.max(1, Math.ceil(total / take));
 
     return (
         <AuthGuard allowedRoles={['admin', 'staff']}>
@@ -183,6 +231,30 @@ export default function AdminOrders() {
                             <Filter size={18} className="text-stone-500" />
                         </div>
                     </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                    {[
+                        { id: 'ALL', label: 'Tất cả' },
+                        { id: 'PENDING', label: 'Chờ xử lý' },
+                        { id: 'PROCESSING', label: 'Đang xử lý' },
+                        { id: 'COMPLETED', label: 'Hoàn thành' },
+                        { id: 'CANCELLED', label: 'Đã hủy' },
+                        { id: 'REFUND_REQUIRED', label: 'Cần hoàn tiền' },
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={cn(
+                                "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all",
+                                activeTab === tab.id
+                                    ? "bg-gold text-primary-foreground border-gold"
+                                    : "bg-white dark:bg-zinc-900 border-stone-200 dark:border-white/10 text-stone-500 hover:border-gold/50"
+                            )}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
                 </div>
 
                 {/* Orders List */}
@@ -275,6 +347,42 @@ export default function AdminOrders() {
                                 <p className="text-[10px] font-bold tracking-widest uppercase text-stone-400">{t('table.no_orders')}</p>
                             </div>
                         )}
+                    </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                        {total === 0 ? '0' : `${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
+                    </p>
+                    <div className="flex items-center gap-3">
+                        <select
+                            value={take}
+                            onChange={(e) => setTake(Number(e.target.value))}
+                            className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-full px-3 py-2 text-[10px] uppercase tracking-widest font-bold"
+                        >
+                            <option value={10}>10 / page</option>
+                            <option value={20}>20 / page</option>
+                            <option value={50}>50 / page</option>
+                        </select>
+                        <button
+                            type="button"
+                            onClick={() => setSkip((s) => Math.max(0, s - take))}
+                            disabled={skip === 0}
+                            className="px-4 py-2 rounded-full border border-stone-200 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+                        >
+                            Prev
+                        </button>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 min-w-24 text-center">
+                            {currentPage}/{totalPages}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                            disabled={skip + take >= total}
+                            className="px-4 py-2 rounded-full border border-stone-200 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
 
@@ -438,6 +546,48 @@ export default function AdminOrders() {
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 blur-[60px] rounded-full" />
                                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 blur-[40px] rounded-full" />
                                     </section>
+
+                                    {/* Refund Bank Info (only cancelled + paid) */}
+                                    {selectedOrder.status === 'CANCELLED' &&
+                                        (selectedOrder.paymentStatus === 'PAID' ||
+                                            selectedOrder.paymentStatus === 'PARTIALLY_REFUNDED') && (
+                                            <section className="glass p-6 rounded-3xl border border-red-500/20 bg-red-500/5">
+                                                <h3 className="text-[10px] font-bold uppercase tracking-[.3em] text-red-500 mb-4">
+                                                    Thông tin nhận hoàn tiền
+                                                </h3>
+                                                {loadingRefundInfo ? (
+                                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                                                        <Loader2 size={12} className="animate-spin" />
+                                                        Đang tải thông tin
+                                                    </div>
+                                                ) : refundInfo ? (
+                                                    <div className="space-y-2 text-xs">
+                                                        <div className="flex justify-between gap-4">
+                                                            <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Ngân hàng</span>
+                                                            <span className="font-bold text-foreground">{refundInfo.bankName || '—'}</span>
+                                                        </div>
+                                                        <div className="flex justify-between gap-4">
+                                                            <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Số tài khoản</span>
+                                                            <span className="font-bold text-foreground">{refundInfo.accountNumber || '—'}</span>
+                                                        </div>
+                                                        <div className="flex justify-between gap-4">
+                                                            <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Chủ tài khoản</span>
+                                                            <span className="font-bold text-foreground">{refundInfo.accountHolder || '—'}</span>
+                                                        </div>
+                                                        {refundInfo.note && (
+                                                            <div className="pt-2 border-t border-border mt-2">
+                                                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Ghi chú</p>
+                                                                <p className="text-xs text-foreground">{refundInfo.note}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                                                        Khách hàng chưa gửi thông tin nhận hoàn tiền
+                                                    </p>
+                                                )}
+                                            </section>
+                                        )}
                                 </div>
 
                                 {updating && (

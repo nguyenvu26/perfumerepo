@@ -40,6 +40,20 @@ export default function CustomerOrderDetailPage() {
   const [reviewingItemId, setReviewingItemId] = useState<number | null>(null);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [existingReturn, setExistingReturn] = useState<ReturnRequest | null>(null);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [savingRefundInfo, setSavingRefundInfo] = useState(false);
+  const [refundInfo, setRefundInfo] = useState<{
+    bankName: string;
+    accountNumber: string;
+    accountHolder: string;
+    note: string;
+  }>({
+    bankName: "",
+    accountNumber: "",
+    accountHolder: "",
+    note: "",
+  });
+  const [submittedRefundInfo, setSubmittedRefundInfo] = useState<any>(null);
 
   const STATUS_CONFIG: Record<
     string,
@@ -88,6 +102,8 @@ export default function CustomerOrderDetailPage() {
         ]);
         setOrder(o);
         setShipments(s);
+        const r = await orderService.getRefundBankInfo(orderId).catch(() => null);
+        setSubmittedRefundInfo(r);
         // Check if return already exists for this order
         returnsService.listMyReturns().then((returns) => {
           const found = returns.find((r) => r.orderId === orderId) || null;
@@ -144,6 +160,10 @@ export default function CustomerOrderDetailPage() {
   const style =
     STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] ||
     STATUS_CONFIG.PENDING;
+  const needsRefundBankInfo =
+    order.status === "CANCELLED" &&
+    order.paymentStatus === "PAID" &&
+    !submittedRefundInfo;
 
   return (
     <AuthGuard allowedRoles={["customer", "staff", "admin"]}>
@@ -394,6 +414,19 @@ export default function CustomerOrderDetailPage() {
                             : order.paymentStatus}
                   </span>
                 </p>
+                {needsRefundBankInfo && (
+                  <button
+                    onClick={() => setShowRefundModal(true)}
+                    className="mt-2 w-fit px-4 py-2 rounded-full bg-red-500/10 text-red-600 border border-red-500/20 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/15 transition-all"
+                  >
+                    Nhập thông tin nhận hoàn tiền
+                  </button>
+                )}
+                {submittedRefundInfo && (
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
+                    Đã gửi thông tin nhận hoàn tiền
+                  </p>
+                )}
               </div>
 
               {/* Return Request Button — only for COMPLETED orders */}
@@ -513,6 +546,83 @@ export default function CustomerOrderDetailPage() {
             fetchOrder();
           }}
         />
+      )}
+      {showRefundModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 p-8 space-y-4">
+            <h3 className="text-lg font-heading uppercase tracking-widest text-foreground">
+              Thông tin tài khoản nhận hoàn tiền
+            </h3>
+            <input
+              value={refundInfo.bankName}
+              onChange={(e) =>
+                setRefundInfo((p) => ({ ...p, bankName: e.target.value }))
+              }
+              placeholder="Tên ngân hàng"
+              className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+            />
+            <input
+              value={refundInfo.accountNumber}
+              onChange={(e) =>
+                setRefundInfo((p) => ({ ...p, accountNumber: e.target.value }))
+              }
+              placeholder="Số tài khoản"
+              className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+            />
+            <input
+              value={refundInfo.accountHolder}
+              onChange={(e) =>
+                setRefundInfo((p) => ({ ...p, accountHolder: e.target.value }))
+              }
+              placeholder="Tên chủ tài khoản"
+              className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
+            />
+            <textarea
+              value={refundInfo.note}
+              onChange={(e) =>
+                setRefundInfo((p) => ({ ...p, note: e.target.value }))
+              }
+              placeholder="Ghi chú (không bắt buộc)"
+              className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold min-h-24"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowRefundModal(false)}
+                className="flex-1 py-3 rounded-full border border-border text-muted-foreground hover:bg-secondary/50 text-[10px] font-bold uppercase tracking-widest"
+              >
+                Hủy
+              </button>
+              <button
+                disabled={
+                  savingRefundInfo ||
+                  !refundInfo.bankName.trim() ||
+                  !refundInfo.accountNumber.trim() ||
+                  !refundInfo.accountHolder.trim()
+                }
+                onClick={async () => {
+                  setSavingRefundInfo(true);
+                  try {
+                    await orderService.submitRefundBankInfo(orderId, refundInfo);
+                    const r = await orderService.getRefundBankInfo(orderId);
+                    setSubmittedRefundInfo(r);
+                    setShowRefundModal(false);
+                  } catch (e: any) {
+                    alert(
+                      e?.response?.data?.message ||
+                        e?.message ||
+                        "Không thể gửi thông tin hoàn tiền",
+                    );
+                  } finally {
+                    setSavingRefundInfo(false);
+                  }
+                }}
+                className="flex-1 py-3 rounded-full bg-gold text-primary-foreground text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
+              >
+                {savingRefundInfo ? "Đang gửi..." : "Gửi thông tin"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </AuthGuard>
   );

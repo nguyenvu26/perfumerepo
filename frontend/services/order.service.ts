@@ -39,6 +39,16 @@ export type Order = {
   }[];
 };
 
+export type RefundBankInfo = {
+  id: number;
+  createdAt: string;
+  bankName: string;
+  accountNumber: string;
+  accountHolder: string;
+  note?: string | null;
+  submittedAt?: string;
+};
+
 export type OrderListResponse = {
   data: Order[];
   total: number;
@@ -63,8 +73,8 @@ export const orderService = {
   }) {
     return api.post<Order>("/orders", dto).then((r) => r.data);
   },
-  listMy() {
-    return api.get<Order[]>("/orders").then((r) => r.data);
+  listMy(params?: { skip?: number; take?: number }) {
+    return api.get<OrderListResponse>("/orders", { params }).then((r) => r.data);
   },
   getById(id: string) {
     return api.get<Order>("/orders/" + id).then((r) => r.data);
@@ -81,6 +91,29 @@ export const orderService = {
   updateStatus(id: string, dto: { status?: string; paymentStatus?: string }) {
     return api
       .post<Order>(`/orders/admin/${id}/status`, dto)
+      .then((r) => r.data);
+  },
+  submitRefundBankInfo(
+    id: string,
+    dto: {
+      bankName: string;
+      accountNumber: string;
+      accountHolder: string;
+      note?: string;
+    },
+  ) {
+    return api
+      .post<{ success: boolean }>(`/orders/${id}/refund-bank-info`, dto)
+      .then((r) => r.data);
+  },
+  getRefundBankInfo(id: string) {
+    return api
+      .get<RefundBankInfo | null>(`/orders/${id}/refund-bank-info`)
+      .then((r) => r.data);
+  },
+  getRefundBankInfoAdmin(id: string) {
+    return api
+      .get<RefundBankInfo | null>(`/orders/admin/${id}/refund-bank-info`)
       .then((r) => r.data);
   },
 };
