@@ -6,7 +6,9 @@ function resolveBaseUrl() {
 
     try {
         const parsed = new URL(env.NEXT_PUBLIC_API_URL);
-        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+        const isLocalHost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+        const isBackendPublishedPort = parsed.port === '5993';
+        if (isLocalHost || isBackendPublishedPort) {
             return `http://backend-app:3000${parsed.pathname}`;
         }
         return env.NEXT_PUBLIC_API_URL;
