@@ -1,8 +1,24 @@
 import axios from 'axios';
 import { env } from './env';
 
+function resolveBaseUrl() {
+    if (typeof window !== 'undefined') return env.NEXT_PUBLIC_API_URL;
+
+    try {
+        const parsed = new URL(env.NEXT_PUBLIC_API_URL);
+        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+            return `http://backend-app:3000${parsed.pathname}`;
+        }
+        return env.NEXT_PUBLIC_API_URL;
+    } catch {
+        return env.NEXT_PUBLIC_API_URL;
+    }
+}
+
+const baseURL = resolveBaseUrl();
+
 const api = axios.create({
-    baseURL: env.NEXT_PUBLIC_API_URL,
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },
