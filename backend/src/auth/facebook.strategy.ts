@@ -23,10 +23,15 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   ): Promise<any> {
     const { id, name, emails, photos } = profile;
 
+    if (!emails || !emails[0] || !emails[0].value) {
+      done(new Error('Facebook account must have a public email to login'), null);
+      return;
+    }
+
     const user = {
       provider: 'facebook',
       providerId: id,
-      email: emails?.[0]?.value,
+      email: emails[0].value,
       firstName: name?.givenName,
       lastName: name?.familyName,
       fullName: `${name?.givenName || ''} ${name?.familyName || ''}`.trim(),

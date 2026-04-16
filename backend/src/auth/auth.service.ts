@@ -321,12 +321,75 @@ export class AuthService {
       verifiedAvatar = payload.picture?.data?.url;
       verifiedProviderId = payload.id;
     } else if (dto.provider === 'zalo') {
-      // Zalo login - usually verified with Zalo OA api.
-      // Doing a mockup accept for now based on DTO fields since we're inside Zalo App environment
-      verifiedEmail = dto.email || `${dto.providerId}@zalo.me`;
+      // Zalo login - accept user info from ZaloApp SDK.
+      // The client sends the Zalo providerId, name, avatar, and optionally a resolved phone number.
+      verifiedProviderId = dto.providerId;
       verifiedName = dto.fullName;
       verifiedAvatar = dto.avatarUrl;
-      verifiedProviderId = dto.providerId;
+
+      // If a phone number was provided (resolved client-side from Zalo SDK getPhoneNumber),
+      // try to find an existing account by phone to link them.
+      if (dto.phone) {
+        const existingByPhone = await this.prisma.user.findFirst({
+          where: { phone: dto.phone },
+        });
+        if (existingByPhone) {
+          // Link Zalo OAuth to existing phone-based account & return tokens
+          const existingOAuth = await this.prisma.oAuthAccount.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: 'zalo',
+                providerAccountId: dto.providerId,
+              },
+            },
+          });
+          if (!existingOAuth) {
+            await this.prisma.oAuthAccount.create({
+              data: {
+                userId: existingByPhone.id,
+                provider: 'zalo',
+                providerAccountId: dto.providerId,
+                accessToken: dto.token,
+              },
+            });
+          }
+          return this.generateTokens(existingByPhone.id, existingByPhone.email, existingByPhone.role);
+        }
+        // No account by phone found, create with this phone
+        verifiedEmail = `zalo_${dto.providerId}@zalo.me`;
+      } else {
+        verifiedEmail = dto.email || `zalo_${dto.providerId}@zalo.me`;
+      }
+
+      // Delegate to validateOAuthUser with phone info for new account creation
+      const tokens = await this.validateOAuthUser({
+        provider: 'zalo',
+        providerId: verifiedProviderId,
+        email: verifiedEmail!,
+        fullName: verifiedName,
+        avatarUrl: verifiedAvatar,
+        accessToken: dto.token,
+      });
+
+      // Attach phone if provided and not already set
+      if (dto.phone && tokens) {
+        const oauthAcc = await this.prisma.oAuthAccount.findUnique({
+          where: {
+            provider_providerAccountId: { provider: 'zalo', providerAccountId: dto.providerId },
+          },
+          include: { user: true },
+        });
+        if (oauthAcc?.user && !oauthAcc.user.phone) {
+          await this.prisma.user.update({
+            where: { id: oauthAcc.user.id },
+            data: { phone: dto.phone },
+          });
+          // Migrate any guest loyalty points for this phone
+          await this.migrateGuestLoyalty(oauthAcc.user.id, dto.phone);
+        }
+      }
+
+      return tokens;
     } else {
       throw new BadRequestException('Unsupported social provider');
     }
