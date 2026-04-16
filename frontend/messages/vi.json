@@ -236,6 +236,8 @@
       "google": "Google",
       "facebook": "Facebook",
       "error_failed": "Lỗi khi cập nhật tạp chí",
+      "error_facebook_email_required": "Đăng nhập Facebook yêu cầu email công khai. Vui lòng đặt email công khai trong cài đặt Facebook hoặc sử dụng phương thức đăng nhập khác.",
+      "error_oauth_failed": "Đăng nhập OAuth thất bại. Vui lòng thử lại.",
       "no_account": "Chưa có tài khoản?",
       "sign_up": "Đăng ký"
     },
@@ -1190,7 +1192,8 @@
         "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
         "stats": {
           "revenue": "Tổng Doanh thu",
-          "consultations": "Tư vấn Đang hoạt động",
+          "orders": "Tổng Đơn hàng",
+          "consultations": "Lượt tư vấn AI",
           "members": "Thành viên Cao cấp",
           "delivery": "Giao hàng Tb."
         },

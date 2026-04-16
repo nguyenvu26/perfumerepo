@@ -235,6 +235,8 @@
       "google": "Google",
       "facebook": "Facebook",
       "error_failed": "Login failed",
+      "error_facebook_email_required": "Facebook login requires a public email address. Please make your email public in Facebook settings or use another login method.",
+      "error_oauth_failed": "OAuth login failed. Please try again.",
       "no_account": "Don't have an account?",
       "sign_up": "Sign up"
     },
@@ -1189,7 +1191,8 @@
         "search_placeholder": "Universal registry search...",
         "stats": {
           "revenue": "Total Revenue",
-          "consultations": "Active Consultations",
+          "orders": "Total Orders",
+          "consultations": "AI Consultations",
           "members": "Prestige Members",
           "delivery": "Avg. Delivery"
         },

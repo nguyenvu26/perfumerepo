@@ -1,133 +1,307 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { 
-    Users, Plus, Search, Package, TrendingUp, ArrowUpRight, 
-    History, Database, Percent, Star, Sparkles, BrainCircuit
+import {
+    TrendingUp, ArrowUpRight, ArrowDownRight,
+    Users, BrainCircuit, ShoppingBag, RefreshCw,
 } from 'lucide-react';
-import { Link } from '@/lib/i18n';
 import { AuthGuard } from '@/components/auth/auth-guard';
+import { SalesChart, SalesTrendPoint } from '@/components/dashboard/admin/SalesChart';
+import { TopProductsList, TopProductDto } from '@/components/dashboard/admin/TopProductsList';
+import { ChannelDonutChart } from '@/components/dashboard/admin/ChannelDonutChart';
+import { LowStockWidget } from '@/components/dashboard/admin/LowStockWidget';
+import { RecentOrdersFeed, RecentOrderDto } from '@/components/dashboard/admin/RecentOrdersFeed';
+import api from '@/lib/axios';
+import { cn } from '@/lib/utils';
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface OverviewData {
+    totalRevenue: number;
+    totalOrders: number;
+    completedOrders: number;
+    cancelledOrders: number;
+    totalCustomers: number;
+    newCustomersToday: number;
+    aiConsultations: number;
+    revenueChange: number;
+    ordersChange: number;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function formatVND(v: number): string {
+    if (v >= 1_000_000_000) return `${(v / 1_000_000_000).toFixed(1)}B₫`;
+    if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M₫`;
+    if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K₫`;
+    return `${v}₫`;
+}
+
+function ChangeChip({ value }: { value: number }) {
+    const positive = value >= 0;
+    return (
+        <span className={cn(
+            'flex items-center gap-0.5 text-[9px] font-bold px-2 py-1 rounded-full border uppercase tracking-widest',
+            positive
+                ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/10'
+                : 'text-red-500 border-red-500/20 bg-red-500/10',
+        )}>
+            {positive ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
+            {Math.abs(value)}%
+        </span>
+    );
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
     const t = useTranslations('dashboard.admin');
-    const tDash = useTranslations('admin_dashboard_page');
+
+    // Overview state
+    const [overview, setOverview] = useState<OverviewData | null>(null);
+    const [overviewLoading, setOverviewLoading] = useState(true);
+
+    // Chart state
+    const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
+    const [trend, setTrend] = useState<SalesTrendPoint[]>([]);
+    const [trendLoading, setTrendLoading] = useState(true);
+
+    // Widgets state
+    const [topProducts, setTopProducts] = useState<TopProductDto[]>([]);
+    const [topLoading, setTopLoading] = useState(true);
+
+    const [channelData, setChannelData] = useState<{ online: number; pos: number }>({ online: 0, pos: 0 });
+    const [channelLoading, setChannelLoading] = useState(true);
+
+    const [lowStock, setLowStock] = useState<any[]>([]);
+    const [lowStockLoading, setLowStockLoading] = useState(true);
+
+    const [recentOrders, setRecentOrders] = useState<RecentOrderDto[]>([]);
+    const [recentLoading, setRecentLoading] = useState(true);
+
+    const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
+
+    // ── Fetchers ────────────────────────────────────────────────────────────
+    const fetchOverview = useCallback(async () => {
+        try {
+            setOverviewLoading(true);
+            const { data } = await api.get<OverviewData>('/analytics/overview');
+            setOverview(data);
+        } catch (e) {
+            console.error('Analytics overview error:', e);
+        } finally {
+            setOverviewLoading(false);
+        }
+    }, []);
+
+    const fetchTrend = useCallback(async (p: 'week' | 'month' | 'year') => {
+        try {
+            setTrendLoading(true);
+            const { data } = await api.get<SalesTrendPoint[]>('/analytics/sales-trend', { params: { period: p } });
+            setTrend(data);
+        } catch (e) {
+            console.error('Sales trend error:', e);
+        } finally {
+            setTrendLoading(false);
+        }
+    }, []);
+
+    const fetchTopProducts = useCallback(async () => {
+        try {
+            setTopLoading(true);
+            const { data } = await api.get<TopProductDto[]>('/analytics/top-products', { params: { limit: 5 } });
+            setTopProducts(data);
+        } catch (e) {
+            console.error('Top products error:', e);
+        } finally {
+            setTopLoading(false);
+        }
+    }, []);
+
+    const fetchChannel = useCallback(async () => {
+        try {
+            setChannelLoading(true);
+            const { data } = await api.get<{ online: number; pos: number }>('/analytics/channel-breakdown');
+            setChannelData(data);
+        } catch (e) {
+            console.error('Channel breakdown error:', e);
+        } finally {
+            setChannelLoading(false);
+        }
+    }, []);
+
+    const fetchLowStock = useCallback(async () => {
+        try {
+            setLowStockLoading(true);
+            const { data } = await api.get('/analytics/low-stock');
+            setLowStock(data);
+        } catch (e) {
+            console.error('Low stock error:', e);
+        } finally {
+            setLowStockLoading(false);
+        }
+    }, []);
+
+    const fetchRecentOrders = useCallback(async () => {
+        try {
+            setRecentLoading(true);
+            const { data } = await api.get<RecentOrderDto[]>('/analytics/recent-orders', { params: { limit: 8 } });
+            setRecentOrders(data);
+        } catch (e) {
+            console.error('Recent orders error:', e);
+        } finally {
+            setRecentLoading(false);
+        }
+    }, []);
+
+    const refreshAll = useCallback(() => {
+        fetchOverview();
+        fetchTrend(period);
+        fetchTopProducts();
+        fetchChannel();
+        fetchLowStock();
+        fetchRecentOrders();
+        setLastRefreshed(new Date());
+    }, [fetchOverview, fetchTrend, period, fetchTopProducts, fetchChannel, fetchLowStock, fetchRecentOrders]);
+
+    // Initial load
+    useEffect(() => {
+        fetchOverview();
+        fetchTopProducts();
+        fetchChannel();
+        fetchLowStock();
+        fetchRecentOrders();
+    }, [fetchOverview, fetchTopProducts, fetchChannel, fetchLowStock, fetchRecentOrders]);
+
+    // Re-fetch when period changes
+    useEffect(() => {
+        fetchTrend(period);
+    }, [period, fetchTrend]);
+
+    // ── Stat card definitions ────────────────────────────────────────────────
+    const statCards = overview
+        ? [
+            {
+                label: t('home.stats.revenue'),
+                value: formatVND(overview.totalRevenue),
+                change: overview.revenueChange,
+                icon: TrendingUp,
+                color: 'bg-emerald-500/10 text-emerald-500',
+            },
+            {
+                label: t('home.stats.orders') || 'Total Orders',
+                value: overview.totalOrders.toLocaleString(),
+                change: overview.ordersChange,
+                icon: ShoppingBag,
+                color: 'bg-gold/10 text-gold',
+            },
+            {
+                label: t('home.stats.members'),
+                value: overview.totalCustomers.toLocaleString(),
+                change: null,
+                icon: Users,
+                color: 'bg-blue-500/10 text-blue-400',
+                subtext: `+${overview.newCustomersToday} today`,
+            },
+            {
+                label: t('home.stats.consultations'),
+                value: overview.aiConsultations.toLocaleString(),
+                change: null,
+                icon: BrainCircuit,
+                color: 'bg-violet-500/10 text-violet-400',
+                subtext: 'AI sessions · 30D',
+            },
+        ]
+        : [];
 
     return (
         <AuthGuard allowedRoles={['admin']}>
-            <div className="flex flex-col gap-10 py-10 px-8">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col gap-8 py-10 px-6 md:px-10 max-w-[1600px] mx-auto">
+
+                {/* ── Header ─────────────────────────────────────────────── */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <header>
-                        <h1 className="text-4xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+                        <h1 className="text-4xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter">
                             {t('home.title')}
                         </h1>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold mt-1">
                             {t('home.subtitle')}
                         </p>
                     </header>
-                    <div className="flex items-center gap-4">
-                        <div className="relative group">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-gold transition-colors" />
-                            <input
-                                type="text"
-                                placeholder={t('home.search_placeholder')}
-                                className="glass bg-background/50 border border-border rounded-2xl py-3 pl-12 pr-6 text-xs outline-none focus:border-gold transition-all w-64 shadow-sm"
-                            />
-                        </div>
+                    <div className="flex items-center gap-3">
+                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest hidden sm:block">
+                            Last updated: {lastRefreshed.toLocaleTimeString()}
+                        </span>
+                        <button
+                            onClick={refreshAll}
+                            className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest border border-border rounded-full px-4 py-2 hover:border-gold/40 hover:text-gold transition-all"
+                        >
+                            <RefreshCw className="w-3 h-3" />
+                            Refresh
+                        </button>
                     </div>
                 </div>
 
-                {/* Stats Grid */}
-                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {[
-                        { key: "revenue", value: tDash('stats.revenue_val'), icon: TrendingUp, color: "bg-emerald-500/10 text-emerald-600", delay: 0.1 },
-                        { key: "consultations", value: tDash('stats.consultations_val'), icon: Sparkles, color: "bg-gold/10 text-gold", delay: 0.2 },
-                        { key: "members", value: tDash('stats.members_val'), icon: Users, color: "bg-blue-500/10 text-blue-600", delay: 0.3 },
-                        { key: "delivery", value: tDash('stats.delivery_val'), icon: History, color: "bg-secondary text-muted-foreground", delay: 0.4 }
-                    ].map((stat, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: stat.delay }}
-                            className="glass bg-background/40 p-8 rounded-[2.5rem] border border-border shadow-sm hover:shadow-xl transition-all group"
-                        >
-                            <div className="flex justify-between items-start mb-6">
-                                <div className={`p-4 rounded-2xl ${stat.color} group-hover:scale-110 transition-transform`}>
-                                    <stat.icon size={24} strokeWidth={2} />
+                {/* ── KPI Stats ──────────────────────────────────────────── */}
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {overviewLoading
+                        ? Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="glass bg-background/40 rounded-[2.5rem] border border-border p-8 animate-pulse h-40" />
+                        ))
+                        : statCards.map((card, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.08 }}
+                                className="glass bg-background/40 rounded-[2.5rem] border border-border p-7 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5 transition-all group"
+                            >
+                                <div className="flex justify-between items-start mb-5">
+                                    <div className={`p-3.5 rounded-2xl ${card.color} group-hover:scale-110 transition-transform`}>
+                                        <card.icon className="w-5 h-5" />
+                                    </div>
+                                    {card.change !== null && card.change !== undefined && (
+                                        <ChangeChip value={card.change} />
+                                    )}
                                 </div>
-                                <div className="p-2 border border-border rounded-full text-muted-foreground hover:text-gold cursor-pointer transition-colors">
-                                    <ArrowUpRight size={14} />
-                                </div>
-                            </div>
-                            <h3 className="text-[9px] font-bold text-muted-foreground mb-1 uppercase tracking-widest">{t(`home.stats.${stat.key}`)}</h3>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-heading text-foreground tracking-tighter">{stat.value}</span>
-                            </div>
-                        </motion.div>
-                    ))}
+                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                                    {card.label}
+                                </p>
+                                <p className="text-2xl font-heading text-foreground tracking-tighter">{card.value}</p>
+                                {card.subtext && (
+                                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-1">{card.subtext}</p>
+                                )}
+                            </motion.div>
+                        ))
+                    }
                 </section>
 
-                {/* Management Consoles */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    {[
-                        { key: 'products', icon: Package, href: '/dashboard/admin/products' },
-                        { key: 'catalog', icon: Database, href: '/dashboard/admin/catalog' },
-                        { key: 'orders', icon: History, href: '/dashboard/admin/orders' },
-                        { key: 'discounts', icon: Percent, href: '/dashboard/admin/marketing/promotions' },
-                        { key: 'users', icon: Users, href: '/dashboard/admin/users' },
-                        { key: 'reviews', icon: Star, href: '/dashboard/admin/reviews' },
-                    ].map((mod, i) => (
-                        <Link
-                            key={i}
-                            href={mod.href}
-                            className="glass bg-background/40 rounded-[2.5rem] p-8 border border-border group hover:border-gold/30 hover:scale-[1.02] transition-all"
-                        >
-                            <div className="flex gap-6 items-center">
-                                <div className="p-4 rounded-2xl bg-secondary group-hover:bg-gold group-hover:text-primary-foreground transition-all">
-                                    <mod.icon className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-foreground group-hover:text-gold transition-colors">{t(`home.management.${mod.key}`)}</h4>
-                                    <p className="text-[10px] text-muted-foreground font-bold tracking-widest uppercase mt-0.5 opacity-50">{t(`home.management.${mod.key}_desc`)}</p>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-
-                <div className="glass bg-background/40 rounded-[3rem] border border-border overflow-hidden p-10">
-                    <header className="flex justify-between items-center mb-10 border-b border-border pb-8">
-                        <div className="flex items-center gap-4">
-                            <Sparkles className="w-5 h-5 text-gold" />
-                            <h3 className="text-xl font-heading uppercase tracking-widest">{t('home.feed.title')}</h3>
-                        </div>
-                        <button className="text-[10px] font-bold uppercase tracking-widest border border-gold/20 px-6 py-2.5 rounded-full hover:bg-gold hover:text-black transition-all">
-                            {t('home.feed.cta')}
-                        </button>
-                    </header>
-
-                    <div className="space-y-8">
-                        {[4932, 2819, 1042].map(id => (
-                            <div key={id} className="flex gap-6 items-start">
-                                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0 border border-border">
-                                    <BrainCircuit className="w-4 h-4 text-gold" />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-foreground uppercase tracking-tight">
-                                            {t('home.feed.sequence', { id })}
-                                        </p>
-                                        <span className="text-[12px] font-heading text-gold">{t('home.feed.match_score')}: 98%</span>
-                                    </div>
-                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-50">{tDash('feed_active')}</p>
-                                </div>
-                            </div>
-                        ))}
+                {/* ── Sales Chart + Top Products ────────────────────────── */}
+                <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    <div className="xl:col-span-2">
+                        <SalesChart
+                            data={trend}
+                            period={period}
+                            onPeriodChange={setPeriod}
+                            loading={trendLoading}
+                        />
                     </div>
-                </div>
+                    <TopProductsList data={topProducts} loading={topLoading} />
+                </section>
+
+                {/* ── Channel + Low Stock + Recent Orders ───────────────── */}
+                <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <ChannelDonutChart
+                        online={channelData.online}
+                        pos={channelData.pos}
+                        loading={channelLoading}
+                    />
+                    <LowStockWidget data={lowStock} loading={lowStockLoading} />
+                    <RecentOrdersFeed data={recentOrders} loading={recentLoading} />
+                </section>
+
             </div>
         </AuthGuard>
     );

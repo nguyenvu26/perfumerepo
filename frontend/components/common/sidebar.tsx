@@ -55,7 +55,7 @@ export const Sidebar = () => {
 
         const admin = [
             { icon: Users, label: navT('admin.users'), href: '/dashboard/admin/users' },
-            { icon: ShieldCheck, label: navT('admin.rbac'), href: '/dashboard/admin/rbac' },
+            // { icon: ShieldCheck, label: navT('admin.rbac'), href: '/dashboard/admin/rbac' },
             { icon: Store, label: navT('admin.stores'), href: '/dashboard/admin/stores' },
             { icon: Warehouse, label: navT('admin.stock'), href: '/dashboard/admin/stores/stock' },
             { icon: Package, label: navT('admin.products'), href: '/dashboard/admin/products' },
@@ -65,10 +65,10 @@ export const Sidebar = () => {
             { icon: Tag, label: navT('admin.promotions'), href: '/dashboard/admin/marketing/promotions' },
             { icon: Receipt, label: commonT('orders'), href: '/dashboard/admin/orders' },
             { icon: RotateCcw, label: navT('admin.returns'), href: '/dashboard/admin/returns' },
-            { icon: BarChart3, label: navT('admin.analytics'), href: '/dashboard/admin/analytics' },
-            { icon: Mail, label: navT('admin.marketing'), href: '/dashboard/admin/marketing' },
+            // { icon: BarChart3, label: navT('admin.analytics'), href: '/dashboard/admin/analytics' },
+            // { icon: Mail, label: navT('admin.marketing'), href: '/dashboard/admin/marketing' },
             { icon: Sparkles, label: navT('admin.manage_banner'), href: '/dashboard/admin/manage-banner' },
-            { icon: Settings2, label: commonT('settings'), href: '/dashboard/admin/settings' },
+            // { icon: Settings2, label: commonT('settings'), href: '/dashboard/admin/settings' },
         ];
 
         if (role === 'ADMIN') return [...publicPages.filter(p => p.href !== '/collection'), ...shared, ...admin];

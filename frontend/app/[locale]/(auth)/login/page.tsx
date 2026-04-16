@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/use-auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Mail, Lock, Globe, Facebook, Eye, EyeOff } from 'lucide-react';
 import { Link } from '@/lib/i18n';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
     const t = useTranslations('auth.login');
     const tCommon = useTranslations('common');
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { login } = useAuth();
 
     const [formData, setFormData] = useState({
@@ -22,6 +23,17 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const errorParam = searchParams.get('error');
+        if (errorParam) {
+            if (errorParam === 'facebook_email_required') {
+                setError(t('error_facebook_email_required') || 'Facebook login requires a public email address. Please make your email public in Facebook settings or use another login method.');
+            } else if (errorParam === 'oauth_failed') {
+                setError(t('error_oauth_failed') || 'OAuth login failed. Please try again.');
+            }
+        }
+    }, [searchParams, t]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

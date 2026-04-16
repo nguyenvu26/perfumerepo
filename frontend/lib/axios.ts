@@ -1,26 +1,8 @@
 import axios from 'axios';
 import { env } from './env';
 
-function resolveBaseUrl() {
-    if (typeof window !== 'undefined') return env.NEXT_PUBLIC_API_URL;
-
-    try {
-        const parsed = new URL(env.NEXT_PUBLIC_API_URL);
-        const isLocalHost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
-        const isBackendPublishedPort = parsed.port === '5993';
-        if (isLocalHost || isBackendPublishedPort) {
-            return `http://backend-app:3000${parsed.pathname}`;
-        }
-        return env.NEXT_PUBLIC_API_URL;
-    } catch {
-        return env.NEXT_PUBLIC_API_URL;
-    }
-}
-
-const baseURL = resolveBaseUrl();
-
 const api = axios.create({
-    baseURL,
+    baseURL: env.NEXT_PUBLIC_API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
