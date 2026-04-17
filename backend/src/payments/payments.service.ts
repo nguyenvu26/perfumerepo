@@ -271,13 +271,7 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
       }
     });
 
-    if (nextStatus === PaymentStatus.PAID) {
-      try {
-        await this.shippingService.createGhnShipment(payment.orderId);
-      } catch (e: any) {
-        console.warn('GHN auto-create after payment failed:', e?.message);
-      }
-    }
+    // GHN shipment creation is now triggered manually via admin interface
 
     return { success: true, message: 'Payment finalized' };
   }

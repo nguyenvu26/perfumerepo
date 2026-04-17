@@ -403,14 +403,7 @@ export class OrdersService {
       },
     });
 
-    // Create GHN shipment automatically when order is CONFIRMED
-    if (status === "CONFIRMED") {
-      try {
-        await this.shippingService.createGhnShipment(updated.id);
-      } catch (e) {
-        console.warn("GHN shipment creation failed on confirmation:", e?.message);
-      }
-    }
+    // GHN shipment creation is now triggered manually via admin interface
 
     if (status === 'COMPLETED' && updated.userId) {
       await this.loyaltyService.earnPoints(

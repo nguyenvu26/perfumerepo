@@ -124,6 +124,32 @@ export default function AdminOrders() {
         }
     };
 
+    const handleConfirmAndCreateGhn = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        if (!window.confirm("Xác nhận đơn hàng và đẩy lên Giao Hàng Nhanh?")) return;
+        setUpdating(true);
+        try {
+            // Confirm the order first if not already confirmed
+            const currentOrder = orders.find(o => o.id === id);
+            if (currentOrder && currentOrder.status !== 'CONFIRMED') {
+                await orderService.updateStatus(id, { status: 'CONFIRMED' });
+            }
+            // Then create GHN shipment
+            await orderService.createGhnShipment(id);
+            
+            setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'CONFIRMED' } : o));
+            if (selectedOrder?.id === id) {
+                setSelectedOrder(prev => prev ? { ...prev, status: 'CONFIRMED' } : null);
+            }
+            alert('Đã xử lý và đẩy đơn lên hệ thống GHN thành công!');
+        } catch (error: any) {
+            console.error('GHN Creation failed:', error);
+            alert('Lỗi tạo đơn GHN: ' + (error.response?.data?.message || 'Có lỗi xảy ra'));
+        } finally {
+            setUpdating(false);
+        }
+    };
+
     const handlePrint = () => {
         const content = printRef.current?.innerHTML;
         if (!content) return;
@@ -331,6 +357,15 @@ export default function AdminOrders() {
                                             </td>
                                             <td className="px-8 py-6 text-right">
                                                 <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    {order.status === 'PENDING' && (
+                                                        <button 
+                                                            onClick={(e) => handleConfirmAndCreateGhn(e, order.id)}
+                                                            title="Xác nhận & Chuyển cho GHN"
+                                                            className="flex flex-row items-center gap-2 p-2 px-3 rounded-xl border border-gold text-gold hover:bg-gold hover:text-white transition-all text-[9px] uppercase tracking-widest font-bold"
+                                                        >
+                                                            <Truck size={14} /> Chuyển GHN
+                                                        </button>
+                                                    )}
                                                     <button className="p-2.5 rounded-xl border border-stone-200 dark:border-white/10 hover:border-gold hover:text-gold transition-all">
                                                         <Eye size={14} />
                                                     </button>
@@ -428,7 +463,17 @@ export default function AdminOrders() {
                                 <div className="p-10 space-y-12">
                                     {/* Quick Actions / Status Update */}
                                     <section>
-                                        <h3 className="text-[10px] font-bold uppercase tracking-[.3em] text-stone-400 mb-6">{t('modal.transformation')}</h3>
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h3 className="text-[10px] font-bold uppercase tracking-[.3em] text-stone-400">{t('modal.transformation')}</h3>
+                                            {(selectedOrder.status === 'PENDING' || selectedOrder.status === 'CONFIRMED') && (
+                                                <button
+                                                    onClick={(e) => handleConfirmAndCreateGhn(e, selectedOrder.id)}
+                                                    className="flex flex-row items-center gap-2 py-2 px-4 rounded-full bg-gold text-white text-[9px] uppercase tracking-widest font-bold shadow-lg shadow-gold/20 hover:scale-105 transition-all"
+                                                >
+                                                    <Truck size={12} /> Đẩy đơn GHN
+                                                </button>
+                                            )}
+                                        </div>
                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                             {Object.entries(STATUS_CONFIG).map(([key, config]) => {
                                                 const isActive = selectedOrder.status === key;
