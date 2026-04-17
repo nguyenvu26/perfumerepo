@@ -52,6 +52,11 @@ export class StaffPosController {
     return this.staffPosService.lookupLoyaltyByPhone(phone);
   }
 
+  @Get('search-customers')
+  searchCustomers(@Query('phone') phone: string) {
+    return this.staffPosService.searchCustomersByPhone(phone);
+  }
+
   @Post('orders')
   createDraftOrder(
     @Req() req: any,
@@ -136,6 +141,26 @@ export class StaffPosController {
       body.storeId,
       body.items,
       body.paymentMethod,
+      body.customerPhone,
+    );
+  }
+
+  @Post('save-draft')
+  saveDraft(
+    @Req() req: any,
+    @Body()
+    body: {
+      storeId: string;
+      items: { variantId: string; quantity: number }[];
+      customerPhone?: string;
+    },
+  ) {
+    const user = req.user as { userId: string; role: string };
+    return this.staffPosService.saveAsDraft(
+      user.userId,
+      user.role,
+      body.storeId,
+      body.items,
       body.customerPhone,
     );
   }

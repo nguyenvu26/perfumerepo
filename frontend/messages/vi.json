@@ -824,7 +824,7 @@
         "completed": "HOÀN THÀNH",
         "paid": "ĐÃ THANH TOÁN",
         "cancelled": "ĐÃ HỦY",
-        "pending": "CHỜ THANH TOÁN",
+        "pending": "CHỜ XÁC NHẬN",
         "unknown": "Không rõ"
       },
       "detail": {
@@ -1027,7 +1027,7 @@
         "destination": "Điểm Đến",
         "view_details": "Xem Chi Tiết",
         "status": {
-          "pending": "CHỜ THANH TOÁN",
+          "pending": "CHỜ XÁC NHẬN",
           "confirmed": "ĐÃ XÁC NHẬN",
           "processing": "ĐANG CHUẨN BỊ",
           "shipped": "ĐANG GIAO HÀNG",
@@ -1428,7 +1428,7 @@
         "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
         "stats": {
           "active_roles": "Vai trò Ma trận Hoạt động",
-          "pending": "CHỜ THANH TOÁN",
+          "pending": "CHỜ XÁC NHẬN",
           "alerts": "Cảnh báo Cộng hưởng Bảo mật"
         },
         "matrix": {
@@ -1806,7 +1806,7 @@
           "guest": "Khách vãng lai"
         },
         "status": {
-          "pending": "CHỜ THANH TOÁN",
+          "pending": "CHỜ XÁC NHẬN",
           "confirmed": "ĐÃ XÁC NHẬN",
           "processing": "ĐANG CHUẨN BỊ",
           "shipped": "ĐANG GIAO HÀNG",
@@ -1937,7 +1937,7 @@
           "status": {
             "completed": "HOÀN THÀNH",
             "paid": "ĐÃ THANH TOÁN",
-            "pending": "CHỜ THANH TOÁN",
+            "pending": "CHỜ XÁC NHẬN",
             "cancelled": "ĐÃ HỦY"
           },
           "stats": {
@@ -2065,7 +2065,7 @@
             "destination": "Điểm Đến",
             "view_details": "Xem Chi Tiết",
             "status": {
-              "pending": "CHỜ THANH TOÁN",
+              "pending": "CHỜ XÁC NHẬN",
               "confirmed": "ĐÃ XÁC NHẬN",
               "processing": "ĐANG CHUẨN BỊ",
               "shipped": "ĐANG GIAO HÀNG",
@@ -2108,6 +2108,11 @@
             "reviewed": "Đã đánh giá",
             "not_found": "Không tìm thấy đơn hàng",
             "back_to_list": "Quay lại danh sách đơn hàng",
+            "cancel_order": "Hủy Đơn Hàng",
+            "confirm_cancel_title": "Xác nhận hủy đơn",
+            "confirm_cancel_desc": "Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.",
+            "cancel_success": "Đơn hàng đã được hủy thành công.",
+            "cancel_error": "Không thể hủy đơn hàng này.",
             "payment_status": {
               "paid": "ĐÃ THANH TOÁN",
               "pending": "CHỜ THANH TOÁN"
@@ -2351,7 +2356,7 @@
         "status": {
           "completed": "HOÀN THÀNH",
           "paid": "ĐÃ THANH TOÁN",
-          "pending": "CHỜ THANH TOÁN",
+          "pending": "CHỜ XÁC NHẬN",
           "cancelled": "ĐÃ HỦY"
         },
         "stats": {
@@ -2374,7 +2379,7 @@
     "estimated_arrival": "Thời gian giao hàng dự kiến",
     "payment_method": "Phương thức",
     "status_paid": "Đã thanh toán",
-    "status_pending": "Chờ thanh toán",
+    "status_pending": "Chờ xác nhận",
     "status_cod": "Thanh toán khi nhận hàng",
     "view_order": "Xem đơn hàng & theo dõi",
     "back_home": "Về trang chủ",

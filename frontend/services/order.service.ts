@@ -93,6 +93,9 @@ export const orderService = {
       .post<Order>(`/orders/admin/${id}/status`, dto)
       .then((r) => r.data);
   },
+  cancel(id: string) {
+    return api.post<Order>(`/orders/${id}/cancel`).then((r) => r.data);
+  },
   submitRefundBankInfo(
     id: string,
     dto: {

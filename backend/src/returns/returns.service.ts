@@ -620,7 +620,7 @@ export class ReturnsService {
             },
           },
           order: {
-            select: { id: true, code: true, finalAmount: true, channel: true },
+            select: { id: true, code: true, finalAmount: true, channel: true, storeId: true },
           },
           user: {
             select: { id: true, fullName: true, email: true, phone: true },
@@ -717,7 +717,11 @@ export class ReturnsService {
     }
 
     // ─────────── AUTOMATED GHN PICKUP ───────────
-    if (newStatus === ReturnStatus.APPROVED && ret.origin === 'ONLINE') {
+    if (
+      newStatus === ReturnStatus.APPROVED &&
+      ret.origin === 'ONLINE' &&
+      !ret.createdBy
+    ) {
       try {
         const pickupResult =
           await this.shippingService.createGhnReturnPickup(id);

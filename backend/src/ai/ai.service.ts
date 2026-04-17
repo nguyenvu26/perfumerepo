@@ -31,19 +31,25 @@ export class AiService {
       const reviews = await this.prisma.review.findMany({
         where: { productId, isHidden: false },
         select: { rating: true, content: true },
-        take: 100,
+        take: 50,
         orderBy: { createdAt: 'desc' },
       });
 
-      if (reviews.length === 0) return;
+      if (reviews.length < 3) return; // Need at least 3 reviews to make sense
 
       const reviewTexts = reviews
-        .map((r) => `Rating: ${r.rating}/5. ${r.content ?? ''}`)
+        .map((r) => `[Rating: ${r.rating}/5] ${r.content ?? '(No text)'}`)
         .join('\n');
 
-      const prompt = `Summarize the following product reviews.
-Return a JSON object with keys: summary, pros, cons, keywords, sentiment.
-Only return the JSON, no markdown fences.
+      const prompt = `You are an expert fragrance critic. Summarize the following customer reviews for a perfume.
+Return a JSON object with the following structure:
+{
+  "summary": "A concise paragraph (2-3 sentences) summarizing the overall sentiment in Vietnamese",
+  "pros": "Bulleted list of pros in Vietnamese",
+  "cons": "Bulleted list of cons in Vietnamese",
+  "keywords": "Comma-separated keywords (scent notes, performance, etc.)",
+  "sentiment": "POSITIVE", "NEGATIVE", or "NEUTRAL"
+}
 
 Reviews:
 ${reviewTexts}`;
@@ -53,33 +59,40 @@ ${reviewTexts}`;
         contents: prompt,
       });
 
-      const text = response.text ?? '{}';
-      let parsed: Record<string, string> = {};
+      const text = response.text || '';
+      let parsed: any = null;
+
       try {
+        // Find JSON in response (handles potential markdown fences)
         const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
-      } catch {
-        /* not valid JSON – use raw text */
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        this.logger.error('Failed to parse AI JSON response', e);
       }
 
-      await this.prisma.reviewSummary.upsert({
-        where: { productId },
-        create: {
-          productId,
-          summary: parsed.summary ?? text,
-          pros: parsed.pros ?? '',
-          cons: parsed.cons ?? '',
-          keywords: parsed.keywords ?? '',
-          sentiment: parsed.sentiment ?? 'NEUTRAL',
-        },
-        update: {
-          summary: parsed.summary ?? text,
-          pros: parsed.pros ?? '',
-          cons: parsed.cons ?? '',
-          keywords: parsed.keywords ?? '',
-          sentiment: parsed.sentiment ?? 'NEUTRAL',
-        },
-      });
+      if (parsed) {
+        await this.prisma.reviewSummary.upsert({
+          where: { productId },
+          create: {
+            productId,
+            summary: parsed.summary || text.slice(0, 500),
+            pros: parsed.pros || '',
+            cons: parsed.cons || '',
+            keywords: parsed.keywords || '',
+            sentiment: parsed.sentiment || 'NEUTRAL',
+          },
+          update: {
+            summary: parsed.summary || text.slice(0, 500),
+            pros: parsed.pros || '',
+            cons: parsed.cons || '',
+            keywords: parsed.keywords || '',
+            sentiment: parsed.sentiment || 'NEUTRAL',
+          },
+        });
+        this.logger.log(`Updated AI summary for product ${productId}`);
+      }
     } catch (error) {
       this.logger.error('Failed to summarize reviews', error);
     }
@@ -298,5 +311,57 @@ YÊU CẦU:
       this.logger.error('Failed to parse quiz AI response', error);
     }
     return [];
+  }
+
+  async generateProductScentAnalysis(productId: string): Promise<string> {
+    try {
+      const product = await this.prisma.product.findUnique({
+        where: { id: productId },
+        include: {
+          brand: true,
+          notes: { include: { note: true } },
+        },
+      });
+
+      if (!product) return '';
+
+      const notesStr = product.notes
+        .map((n) => `${n.note.type}: ${n.note.name}`)
+        .join(', ');
+
+      const prompt = `Bạn là một chuyên gia phê bình nước hoa cao cấp. Hãy viết một đoạn phân tích ngắn (khoảng 3-4 câu) về mùi hương của chai nước hoa này cho khách hàng.
+Sản phẩm: ${product.name} của thương hiệu ${product.brand.name}.
+Các nốt hương: ${notesStr}.
+Mô tả: ${product.description || 'N/A'}.
+
+YÊU CẦU:
+- Văn phong sang trọng, tinh tế, giàu hình ảnh cảm xúc.
+- Giải thích sự hòa quyện giữa các tầng hương mang lại trải nghiệm gì cho người dùng.
+- Trả về nội dung bằng Tiếng Việt.
+- Không dùng từ ngữ quá phổ thông, hãy làm khách hàng cảm thấy đây là một kiệt tác.
+- Chỉ trả về đoạn văn bản phân tích, không thêm tiêu đề hay định dạng code block.`;
+
+      const response = await this.ai.models.generateContent({
+        model: this.model,
+        contents: prompt,
+      });
+
+      const analysis = response.text || '';
+
+      if (analysis) {
+        await this.prisma.product.update({
+          where: { id: productId },
+          data: { scentAnalysis: analysis },
+        });
+      }
+
+      return analysis;
+    } catch (error) {
+      this.logger.error(
+        `Failed to generate scent analysis for ${productId}`,
+        error,
+      );
+      return '';
+    }
   }
 }

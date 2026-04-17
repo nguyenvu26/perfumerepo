@@ -138,17 +138,7 @@ export class OrdersService {
       return created;
     });
 
-    if (
-      dto.paymentMethod === 'COD' &&
-      order.shippingDistrictId &&
-      order.shippingWardCode
-    ) {
-      try {
-        await this.shippingService.createGhnShipment(order.id);
-      } catch (e) {
-        console.warn('GHN shipment creation failed:', e?.message);
-      }
-    }
+    // GHN shipment creation moved to updateStatus when status becomes CONFIRMED
 
     // Notify user about new order
     if (order.userId) {
@@ -413,6 +403,15 @@ export class OrdersService {
       },
     });
 
+    // Create GHN shipment automatically when order is CONFIRMED
+    if (status === "CONFIRMED") {
+      try {
+        await this.shippingService.createGhnShipment(updated.id);
+      } catch (e) {
+        console.warn("GHN shipment creation failed on confirmation:", e?.message);
+      }
+    }
+
     if (status === 'COMPLETED' && updated.userId) {
       await this.loyaltyService.earnPoints(
         updated.userId,
@@ -441,6 +440,57 @@ export class OrdersService {
         status,
       });
     }
+
+    return updated;
+  }
+
+  async cancelMyOrder(userId: string, id: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, userId },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const allowedStatuses = ['PENDING', 'CONFIRMED', 'PROCESSING'];
+    if (!allowedStatuses.includes(order.status)) {
+      throw new BadRequestException(
+        `Không thể hủy đơn hàng ở trạng thái ${order.status}`,
+      );
+    }
+
+    // Try to cancel GHN shipment if it exists
+    if (order.status === 'CONFIRMED' || order.status === 'PROCESSING') {
+      try {
+        await this.shippingService.cancelGhnShipment(order.id);
+      } catch (e) {
+        console.warn('GHN cancel failed during order cancellation:', e?.message);
+      }
+    }
+
+    const updated = await this.prisma.order.update({
+      where: { id },
+      data: { status: 'CANCELLED' },
+    });
+
+    // Notify user
+    this.notificationsService
+      .create({
+        userId,
+        type: 'ORDER',
+        title: 'Đã hủy đơn hàng',
+        content: `Bạn đã hủy đơn hàng ${updated.code} thành công.`,
+        data: {
+          orderId: updated.id,
+          orderCode: updated.code,
+          status: 'CANCELLED',
+        },
+      })
+      .catch(() => {});
+
+    this.notificationsService.emitOrderStatusChanged(userId, {
+      orderId: updated.id,
+      orderCode: updated.code,
+      status: 'CANCELLED',
+    });
 
     return updated;
   }

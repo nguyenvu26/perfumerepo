@@ -269,8 +269,22 @@ export class ReviewsService {
   }
 
   async getSummary(productId: string) {
-    return this.prisma.reviewSummary.findUnique({
+    const summary = await this.prisma.reviewSummary.findUnique({
       where: { productId },
     });
+
+    // If summary is missing but there are plenty of reviews, trigger generation
+    if (!summary) {
+      const count = await this.prisma.review.count({
+        where: { productId, isHidden: false },
+      });
+      if (count >= 3) {
+        this.aiService.summarizeProductReviews(productId).catch((e) => {
+          console.error('On-demand AI Summary failed:', e);
+        });
+      }
+    }
+
+    return summary;
   }
 }

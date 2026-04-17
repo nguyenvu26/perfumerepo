@@ -2107,6 +2107,11 @@
             "reviewed": "Documented",
             "not_found": "Sequence Not Found",
             "back_to_list": "Return to Archives",
+            "cancel_order": "Cancel Acquisition",
+            "confirm_cancel_title": "Confirm Cancellation",
+            "confirm_cancel_desc": "Are you sure you want to cancel this acquisition? This action cannot be undone.",
+            "cancel_success": "Acquisition revoked successfully.",
+            "cancel_error": "Failed to revoke acquisition.",
             "payment_status": {
               "paid": "Settled",
               "pending": "Awaiting Fulfillment"

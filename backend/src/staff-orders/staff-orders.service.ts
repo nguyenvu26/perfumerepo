@@ -19,12 +19,15 @@ export class StaffOrdersService {
     date?: string,
     status?: string,
   ) {
-    const where: any = {
-      channel: OrderChannel.POS,
-    };
+    const where: any = {};
 
     if (role === 'STAFF') {
-      where.staffId = userId;
+      const userStores = await this.prisma.userStore.findMany({
+        where: { userId },
+        select: { storeId: true },
+      });
+      const storeIds = userStores.map((s) => s.storeId);
+      where.storeId = { in: storeIds };
     }
 
     if (date) {
@@ -38,6 +41,13 @@ export class StaffOrdersService {
     if (status) {
       where.status = status;
     }
+
+    // Hide temporary POS orders (e.g. abandoned QR checkouts) that wasn't saved as draft
+    where.NOT = {
+      channel: OrderChannel.POS,
+      paymentStatus: 'PENDING',
+      isPosDraft: false,
+    };
 
     // Search by order code or customer phone
     if (search && search.trim()) {
@@ -68,6 +78,7 @@ export class StaffOrdersService {
           user: {
             select: { id: true, fullName: true, email: true, phone: true },
           },
+          returnRequests: true,
         },
         orderBy: { createdAt: 'desc' },
       }),
@@ -115,6 +126,7 @@ export class StaffOrdersService {
         },
         store: true,
         statusHistory: { orderBy: { createdAt: 'desc' } },
+        returnRequests: true,
       },
     });
 
@@ -122,9 +134,16 @@ export class StaffOrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    // Staff can only view their own POS orders
-    if (role === 'STAFF' && order.staffId !== userId) {
-      throw new ForbiddenException('You can only view your own orders');
+    // Staff can only view orders from their assigned stores
+    if (role === 'STAFF') {
+      const userStores = await this.prisma.userStore.findMany({
+        where: { userId },
+        select: { storeId: true },
+      });
+      const storeIds = userStores.map((s) => s.storeId);
+      if (!order.storeId || !storeIds.includes(order.storeId)) {
+        throw new ForbiddenException('You can only view orders from your assigned stores');
+      }
     }
 
     return order;
@@ -159,13 +178,23 @@ export class StaffOrdersService {
       throw new NotFoundException('Order not found');
     }
 
+    // Removed channel restriction to allow finding online orders for the store
+    /*
     if (order.channel !== OrderChannel.POS) {
       throw new ForbiddenException('Only POS orders are allowed in this flow');
     }
+    */
 
-    // Staff can only view their own POS orders
-    if (role === 'STAFF' && order.staffId !== userId) {
-      throw new ForbiddenException('You can only view your own orders');
+    // Staff can only view orders from their assigned stores
+    if (role === 'STAFF') {
+      const userStores = await this.prisma.userStore.findMany({
+        where: { userId },
+        select: { storeId: true },
+      });
+      const storeIds = userStores.map((s) => s.storeId);
+      if (!order.storeId || !storeIds.includes(order.storeId)) {
+        throw new ForbiddenException('You can only view orders from your assigned stores');
+      }
     }
 
     return order;

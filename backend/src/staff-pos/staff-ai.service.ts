@@ -29,7 +29,7 @@ export class StaffAiService {
         private readonly config: ConfigService,
     ) {
         this.apiKey = this.config.get<string>('GEMINI_API_KEY', '');
-        this.model = this.config.get<string>('GEMINI_MODEL', 'gemini-2.0-flash');
+        this.model = this.config.get<string>('GEMINI_MODEL', 'gemini-3-flash-preview');
     }
 
     async consultForStaff(
@@ -86,12 +86,13 @@ export class StaffAiService {
                         maxOutputTokens: 2048,
                     },
                 },
-                { timeout: 15000 },
+                { timeout: 30000 },
             );
 
             rawResponse =
                 res.data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
         } catch (err: any) {
+            console.error('AI Consultation Error:', err.response?.data || err.message);
             const message = err?.response?.data?.error?.message ?? err.message;
             throw new InternalServerErrorException(
                 `AI consultation failed: ${message}`,
@@ -156,22 +157,43 @@ YÊU CẦU:
             }
 
             const parsed = JSON.parse(jsonStr);
-            if (!Array.isArray(parsed)) return [];
+            if (!Array.isArray(parsed)) {
+                // Try to find an array in the string if direct parse fails
+                const arrayMatch = jsonStr.match(/\[[\s\S]*\]/);
+                if (arrayMatch) {
+                    const fallbackParsed = JSON.parse(arrayMatch[0]);
+                    if (Array.isArray(fallbackParsed)) return this.mapToRecommendations(fallbackParsed);
+                }
+                return [];
+            }
 
-            return parsed
-                .slice(0, 5)
-                .map((item: any) => ({
-                    productId: item.productId ?? '',
-                    productName: item.productName ?? '',
-                    variantId: item.variantId ?? '',
-                    variantName: item.variantName ?? '',
-                    price: Number(item.price) || 0,
-                    reason: item.reason ?? '',
-                }))
-                .filter((r: AiRecommendation) => r.productId);
-        } catch {
-            // If parsing fails, return empty array
+            return this.mapToRecommendations(parsed);
+        } catch (e) {
+            // Try one more time to find anything that looks like an array
+            try {
+                const arrayMatch = raw.match(/\[[\s\S]*?\]/);
+                if (arrayMatch) {
+                    const fallbackParsed = JSON.parse(arrayMatch[0]);
+                    if (Array.isArray(fallbackParsed)) return this.mapToRecommendations(fallbackParsed);
+                }
+            } catch {
+                // Ultimate failure
+            }
             return [];
         }
+    }
+
+    private mapToRecommendations(parsed: any[]): AiRecommendation[] {
+        return parsed
+            .slice(0, 5)
+            .map((item: any) => ({
+                productId: item.productId ?? '',
+                productName: item.productName ?? '',
+                variantId: item.variantId ?? '',
+                variantName: item.variantName ?? '',
+                price: Number(item.price) || 0,
+                reason: item.reason ?? '',
+            }))
+            .filter((r: AiRecommendation) => r.productId);
     }
 }

@@ -193,6 +193,7 @@ model Product {
   isBestseller  Boolean            @default(false)
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
+  scentAnalysis String?            @db.Text
 
   brand         Brand              @relation(fields: [brandId], references: [id])
   category      Category?          @relation(fields: [categoryId], references: [id])
@@ -342,6 +343,7 @@ model Order {
   shippingServiceId   Int?
   recipientName       String?
   phone               String?
+  isPosDraft          Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   promotions      AppliedPromotion[]

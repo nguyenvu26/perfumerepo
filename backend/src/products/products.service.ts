@@ -5,11 +5,14 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
+import { AiService } from '../ai/ai.service';
+
 @Injectable()
 export class ProductsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly aiService: AiService,
   ) { }
 
   async list(query: QueryProductsDto) {
@@ -77,13 +80,42 @@ export class ProductsService {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        {
+          scentFamily: { name: { contains: search, mode: 'insensitive' } },
+        },
       ];
     }
+    if (query.notes) {
+      where.notes = {
+        some: {
+          note: { name: { contains: query.notes, mode: 'insensitive' } },
+        },
+      };
+    }
+    if (query.occasion) {
+      // Occasion often mentioned in description or name
+      where.OR = [
+        ...(where.OR || []),
+        { name: { contains: query.occasion, mode: 'insensitive' } },
+        { description: { contains: query.occasion, mode: 'insensitive' } },
+      ];
+    }
+    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
+      where.variants = {
+        some: {
+          price: {
+            gte: query.minPrice ? Number(query.minPrice) : undefined,
+            lte: query.maxPrice ? Number(query.maxPrice) : undefined,
+          },
+          isActive: true,
+        },
+      };
+    }
     if (brandId) {
-      where.brandId = brandId;
+      where.brandId = Number(brandId);
     }
     if (categoryId) {
-      where.categoryId = categoryId;
+      where.categoryId = Number(categoryId);
     }
     if (isFeatured === 'true' || isFeatured === true) {
       where.isFeatured = true;
@@ -199,6 +231,13 @@ export class ProductsService {
 
     if (!product || !product.isActive) {
       throw new NotFoundException('Product not found');
+    }
+
+    // On-demand AI Scent Analysis generation
+    if (!product.scentAnalysis) {
+      this.aiService.generateProductScentAnalysis(id).catch((err) => {
+        console.error('Failed to generate on-demand AI scent analysis:', err);
+      });
     }
 
     return product;

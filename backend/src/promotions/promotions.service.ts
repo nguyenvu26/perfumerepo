@@ -31,14 +31,33 @@ export class PromotionsService {
     });
   }
 
-  async findActive() {
+  async findActive(userId?: string) {
     const now = new Date();
+    const where: any = {
+      isActive: true,
+      startDate: { lte: now },
+      endDate: { gte: now },
+    };
+
+    if (userId) {
+      // Get IDs of promotions owned by the user
+      const ownedPromos = await this.prisma.userPromotion.findMany({
+        where: { userId, status: UserPromotionStatus.UNUSED },
+        select: { promotionId: true },
+      });
+      const ownedIds = ownedPromos.map((p) => p.promotionId);
+
+      where.OR = [
+        { isPublic: true },
+        { id: { in: ownedIds } },
+      ];
+    } else {
+      // For anonymous, only public
+      where.isPublic = true;
+    }
+
     return this.prisma.promotionCode.findMany({
-      where: {
-        isActive: true,
-        startDate: { lte: now },
-        endDate: { gte: now },
-      },
+      where,
       orderBy: { endDate: 'asc' },
     });
   }
@@ -59,8 +78,16 @@ export class PromotionsService {
     });
   }
 
-  async findRedeemable() {
+  async findRedeemable(userId: string) {
     const now = new Date();
+
+    // Get IDs of promotions already redeemed by this user
+    const userPromos = await this.prisma.userPromotion.findMany({
+      where: { userId },
+      select: { promotionId: true },
+    });
+    const redeemedIds = userPromos.map((p) => p.promotionId);
+
     return this.prisma.promotionCode.findMany({
       where: {
         isActive: true,
@@ -68,6 +95,7 @@ export class PromotionsService {
         pointsCost: { gt: 0 },
         startDate: { lte: now },
         endDate: { gte: now },
+        id: { notIn: redeemedIds },
       },
       orderBy: { pointsCost: 'asc' },
     });

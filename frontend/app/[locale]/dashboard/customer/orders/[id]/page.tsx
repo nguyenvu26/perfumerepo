@@ -40,6 +40,7 @@ export default function CustomerOrderDetailPage() {
   const [reviewingItemId, setReviewingItemId] = useState<number | null>(null);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [existingReturn, setExistingReturn] = useState<ReturnRequest | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [savingRefundInfo, setSavingRefundInfo] = useState(false);
   const [refundInfo, setRefundInfo] = useState<{
@@ -114,6 +115,21 @@ export default function CustomerOrderDetailPage() {
       } finally {
         setLoading(false);
       }
+    }
+  };
+
+  const handleCancelOrder = async () => {
+    if (!window.confirm(tDetail("confirm_cancel_desc"))) return;
+
+    setCancelling(true);
+    try {
+      await orderService.cancel(orderId);
+      fetchOrder();
+    } catch (err) {
+      console.error("Cancel error:", err);
+      alert(tDetail("cancel_error"));
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -400,6 +416,21 @@ export default function CustomerOrderDetailPage() {
                   <style.icon size={12} />
                   {style.label}
                 </span>
+
+                {["PENDING", "CONFIRMED", "PROCESSING"].includes(order.status) && (
+                  <button
+                    disabled={cancelling}
+                    onClick={handleCancelOrder}
+                    className="flex items-center gap-2 w-fit px-4 py-2 rounded-full border border-red-500/30 text-red-600 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/5 transition-all disabled:opacity-50"
+                  >
+                    {cancelling ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <XCircle size={12} />
+                    )}
+                    {tDetail("cancel_order")}
+                  </button>
+                )}
                 <p className="text-[10px] text-stone-400 uppercase tracking-widest font-bold">
                   {tDetail("payment")}:{" "}
                   <span className="text-luxury-black dark:text-white uppercase">

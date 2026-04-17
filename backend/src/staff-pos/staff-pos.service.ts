@@ -196,6 +196,24 @@ export class StaffPosService {
     };
   }
 
+  async searchCustomersByPhone(prefix: string) {
+    if (!prefix) return [];
+    return this.prisma.user.findMany({
+      where: {
+        phone: {
+          startsWith: prefix,
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        phone: true,
+        loyaltyPoints: true,
+      },
+      take: 5,
+    });
+  }
+
   async getOrder(staffUserId: string, orderId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
@@ -270,6 +288,7 @@ export class StaffPosService {
         finalAmount: 0,
         status: OrderStatus.PENDING,
         paymentStatus: PaymentStatus.PENDING,
+        isPosDraft: true,
       },
       include: {
         items: {
@@ -620,6 +639,109 @@ export class StaffPosService {
       order.finalAmount,
       order.items,
     );
+  }
+
+  /**
+   * Save a local cart from mobile as a server-side draft (PENDING) order.
+   */
+  async saveAsDraft(
+    staffUserId: string,
+    role: string,
+    storeId: string,
+    items: { variantId: string; quantity: number }[],
+    customerPhone?: string,
+  ) {
+    if (!items || items.length === 0) {
+      throw new BadRequestException('Cart is empty');
+    }
+
+    await this.storesService.ensureStaffCanAccessStore(
+      staffUserId,
+      storeId,
+      role,
+    );
+
+    // Resolve customer
+    let customerId: string | undefined;
+    if (customerPhone) {
+      const customer = await this.prisma.user.findFirst({
+        where: { phone: customerPhone },
+      });
+      if (customer) customerId = customer.id;
+    }
+
+    // Validate stock & gather variant prices
+    const variantData: {
+      variantId: string;
+      quantity: number;
+      price: number;
+    }[] = [];
+
+    for (const item of items) {
+      if (item.quantity <= 0) continue;
+      const variant = await this.prisma.productVariant.findUnique({
+        where: { id: item.variantId },
+      });
+      if (!variant) {
+        throw new NotFoundException(`Variant ${item.variantId} not found`);
+      }
+
+      variantData.push({
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: variant.price,
+      });
+    }
+
+    const totalAmount = variantData.reduce(
+      (sum, v) => sum + v.price * v.quantity,
+      0,
+    );
+
+    const order = await this.prisma.$transaction(async (tx) => {
+      const newOrder = await tx.order.create({
+        data: {
+          code: `POS-${Date.now()}`,
+          staffId: staffUserId,
+          storeId,
+          userId: customerId ?? undefined,
+          phone: customerPhone ?? undefined,
+          channel: OrderChannel.POS,
+          totalAmount,
+          discountAmount: 0,
+          finalAmount: totalAmount,
+          status: OrderStatus.PENDING,
+          paymentStatus: PaymentStatus.PENDING,
+          isPosDraft: true,
+        },
+      });
+
+      for (const v of variantData) {
+        await tx.orderItem.create({
+          data: {
+            orderId: newOrder.id,
+            variantId: v.variantId,
+            quantity: v.quantity,
+            unitPrice: v.price,
+            totalPrice: v.price * v.quantity,
+          },
+        });
+      }
+      return newOrder;
+    });
+
+    return this.prisma.order.findUnique({
+      where: { id: order.id },
+      include: {
+        items: {
+          include: { variant: { include: { product: true } } },
+        },
+        store: true,
+        user: {
+          select: { id: true, fullName: true, phone: true, loyaltyPoints: true },
+        },
+      },
+    });
   }
 
   /**

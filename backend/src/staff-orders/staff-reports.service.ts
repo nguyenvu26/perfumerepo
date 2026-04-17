@@ -6,11 +6,16 @@ export interface DailyReport {
   date: string;
   totalRevenue: number;
   totalOrders: number;
-  successfulOrders: number;
+  completedOrders: number;
   cancelledOrders: number;
   refundedOrders: number;
   avgOrderValue: number;
   completionRate: number;
+  hourlySales: {
+    hour: number;
+    revenue: number;
+    orderCount: number;
+  }[];
   topProducts: {
     productName: string;
     variantName: string;
@@ -35,12 +40,16 @@ export class StaffReportsService {
     endOfDay.setHours(23, 59, 59, 999);
 
     const where: any = {
-      channel: OrderChannel.POS,
       createdAt: { gte: startOfDay, lte: endOfDay },
     };
 
     if (role === 'STAFF') {
-      where.staffId = userId;
+      const userStores = await this.prisma.userStore.findMany({
+        where: { userId },
+        select: { storeId: true },
+      });
+      const storeIds = userStores.map((s) => s.storeId);
+      where.storeId = { in: storeIds };
     }
 
     const orders = await this.prisma.order.findMany({
@@ -117,15 +126,38 @@ export class StaffReportsService {
       .sort((a, b) => b.totalQuantity - a.totalQuantity)
       .slice(0, 5);
 
+    // Hourly sales for the line chart
+    const hourlySalesMap = new Map<number, { revenue: number, orderCount: number }>();
+    for (let i = 0; i < 24; i++) {
+        hourlySalesMap.set(i, { revenue: 0, orderCount: 0 });
+    }
+
+    for (const order of paidOrders) {
+        // Simple hour extraction, adjust for timezone if needed
+        const hour = new Date(order.createdAt).getUTCHours() + 7; 
+        const normalizedHour = hour >= 24 ? hour - 24 : hour;
+        const entry = hourlySalesMap.get(normalizedHour);
+        if (entry) {
+            entry.revenue += (order.finalAmount - order.refundAmount);
+            entry.orderCount += 1;
+        }
+    }
+
+    const hourlySales = Array.from(hourlySalesMap.entries()).map(([hour, stats]) => ({
+      hour,
+      ...stats
+    }));
+
     return {
       date: startOfDay.toISOString().slice(0, 10),
       totalRevenue,
       totalOrders,
-      successfulOrders: successful.length,
+      completedOrders: successful.length,
       cancelledOrders: cancelled.length,
       refundedOrders: refunded.length,
       avgOrderValue,
       completionRate,
+      hourlySales,
       topProducts,
     };
   }

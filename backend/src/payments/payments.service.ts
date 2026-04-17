@@ -26,6 +26,7 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   private readonly pollConcurrency: number;
   private readonly pendingTimeoutMinutes: number;
   private readonly cleanupIntervalMs: number;
+  private readonly enableVerbosePollingLog: boolean;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -65,6 +66,9 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     this.cleanupIntervalMs = Number(
       this.config.get<string>('PAYOS_CLEANUP_INTERVAL_MS') || 600000,
     );
+    this.enableVerbosePollingLog =
+      (this.config.get<string>('PAYOS_VERBOSE_POLLING_LOG') || 'true') ===
+      'true';
 
     if (!this.payosReturnUrl || !this.payosCancelUrl) {
       throw new InternalServerErrorException('PayOS URLs not configured');
@@ -175,11 +179,26 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-  private mapPayOSStatus(statusCode?: string): PaymentStatus {
+  private mapPayOSStatus(
+    statusCode?: string,
+  ): PaymentStatus | 'PENDING' | 'UNKNOWN' {
     const normalized = (statusCode || '').toUpperCase();
-    return normalized === '00' || normalized === 'PAID'
-      ? PaymentStatus.PAID
-      : PaymentStatus.FAILED;
+    if (normalized === '00' || normalized === 'PAID' || normalized === 'SUCCESS')
+      return PaymentStatus.PAID;
+    if (
+      normalized === 'FAILED' ||
+      normalized === 'FAIL' ||
+      normalized === 'CANCELLED' ||
+      normalized === 'EXPIRED'
+    )
+      return PaymentStatus.FAILED;
+    if (
+      normalized === 'PENDING' ||
+      normalized === 'PROCESSING' ||
+      normalized === ''
+    )
+      return 'PENDING';
+    return 'UNKNOWN';
   }
 
   private async finalizePaymentByOrderCode(params: {
@@ -202,6 +221,14 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     }
 
     const nextStatus = this.mapPayOSStatus(params.statusCode);
+    if (nextStatus === 'PENDING' || nextStatus === 'UNKNOWN') {
+      if (this.enableVerbosePollingLog) {
+        console.log(
+          `[PAYOS][${params.source}] skip finalize for orderCode=${params.orderCode}, status=${params.statusCode ?? 'N/A'}`,
+        );
+      }
+      return { success: true, message: 'Payment not finalized yet' };
+    }
     if (payment.status === PaymentStatus.PAID) {
       return { success: true, message: 'Payment already processed' };
     }
@@ -220,6 +247,7 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
             lastSyncSource: params.source,
             lastSyncedAt: new Date().toISOString(),
             lastPayload: params.rawPayload ?? null,
+            mappedStatus: nextStatus,
           }),
         },
       });
@@ -355,7 +383,13 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
   private async runPendingPaymentPolling() {
     if (this.isPolling) return;
     this.isPolling = true;
+    const pollStartedAt = new Date();
     try {
+      if (this.enableVerbosePollingLog) {
+        console.log(
+          `[PAYOS][poll] tick start at=${pollStartedAt.toISOString()} intervalMs=${this.pollIntervalMs} batch=${this.pollBatchSize} concurrency=${this.pollConcurrency}`,
+        );
+      }
       const timeoutThreshold = new Date(
         Date.now() - this.pendingTimeoutMinutes * 60 * 1000,
       );
@@ -372,24 +406,43 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
         orderBy: { createdAt: 'asc' },
         take: this.pollBatchSize,
       });
+      if (this.enableVerbosePollingLog) {
+        console.log(
+          `[PAYOS][poll] fetched pending payments count=${pendingPayments.length} timeoutMin=${this.pendingTimeoutMinutes}`,
+        );
+      }
 
       const queue = [...pendingPayments];
       const workerCount = Math.max(1, this.pollConcurrency);
+      let successCount = 0;
+      let failedCount = 0;
       const workers = Array.from({ length: workerCount }).map(async () => {
         while (queue.length > 0) {
           const payment = queue.shift();
           if (!payment?.transactionId) continue;
           try {
+            if (this.enableVerbosePollingLog) {
+              console.log(
+                `[PAYOS][poll] checking paymentId=${payment.id} orderId=${payment.orderId} orderCode=${payment.transactionId}`,
+              );
+            }
             const payosInfo = await this.payos.paymentRequests.get(
               parseInt(payment.transactionId, 10),
             );
+            if (this.enableVerbosePollingLog) {
+              console.log(
+                `[PAYOS][poll] payos response paymentId=${payment.id} status=${payosInfo?.status ?? 'N/A'}`,
+              );
+            }
             await this.finalizePaymentByOrderCode({
               orderCode: payment.transactionId,
               statusCode: payosInfo?.status,
               rawPayload: payosInfo,
               source: 'sync',
             });
+            successCount += 1;
           } catch (e: any) {
+            failedCount += 1;
             console.warn(
               `PayOS polling failed for payment ${payment.id}: ${e?.message}`,
             );
@@ -397,6 +450,11 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
         }
       });
       await Promise.all(workers);
+      if (this.enableVerbosePollingLog) {
+        console.log(
+          `[PAYOS][poll] tick done checked=${pendingPayments.length} success=${successCount} failed=${failedCount}`,
+        );
+      }
     } finally {
       this.isPolling = false;
     }

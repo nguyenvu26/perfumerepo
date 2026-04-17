@@ -33,8 +33,8 @@ export class PromotionsController {
 
   @Get('active')
   @UseGuards(JwtAuthGuard)
-  async findActive() {
-    return this.promotionsService.findActive();
+  async findActive(@Request() req) {
+    return this.promotionsService.findActive(req.user.userId);
   }
 
   @Get('public')
@@ -44,8 +44,8 @@ export class PromotionsController {
 
   @Get('redeemable')
   @UseGuards(JwtAuthGuard)
-  async findRedeemable() {
-    return this.promotionsService.findRedeemable();
+  async findRedeemable(@Request() req) {
+    return this.promotionsService.findRedeemable(req.user.userId);
   }
 
   @Get('my-promotions')

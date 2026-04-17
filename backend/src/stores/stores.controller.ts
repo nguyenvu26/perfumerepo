@@ -60,7 +60,12 @@ export class StoresController {
   adminImportStock(
     @Req() req: any,
     @Body()
-    body: { storeId: string; variantId: string; quantity: number; reason?: string },
+    body: {
+      storeId: string;
+      variantId: string;
+      quantity: number;
+      reason?: string;
+    },
   ) {
     const user = req.user as { userId: string };
     return this.storesService.adminImportStock(
