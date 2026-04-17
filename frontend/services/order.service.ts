@@ -119,4 +119,9 @@ export const orderService = {
       .get<RefundBankInfo | null>(`/orders/admin/${id}/refund-bank-info`)
       .then((r) => r.data);
   },
+  createGhnShipment(id: string) {
+    return api
+      .post<{ shipmentId: string; orderCode: string; fee: number }>(`/shipping/admin/${id}/create-ghn`)
+      .then((r) => r.data);
+  },
 };
