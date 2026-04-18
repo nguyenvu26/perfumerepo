@@ -16,7 +16,8 @@ export class StaffOrdersController {
     @Query('skip') skip?: string,
     @Query('take') take?: string,
     @Query('search') search?: string,
-    @Query('date') date?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
     @Query('status') status?: string,
   ) {
     const user = req.user as { userId: string; role: string };
@@ -29,7 +30,8 @@ export class StaffOrdersController {
       s,
       t,
       search,
-      date,
+      startDate,
+      endDate,
       status,
     );
   }

@@ -4,27 +4,29 @@ import React from 'react';
 import { Header } from '@/components/common/header';
 import { motion } from 'framer-motion';
 import { Droplets, Sparkles, Wind, Zap } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function IngredientsPage() {
+    const t = useTranslations('ingredients_page');
     const categories = [
         {
-            title: "The Resins",
-            items: "Omani Frankincense, Aged Labdanum, Somalian Myrrh",
+            title: t('categories.resins_title'),
+            items: t('categories.resins_desc'),
             icon: Zap
         },
         {
-            title: "The Florals",
-            items: "Grasse Jasmine Grandiflorum, Bulgarian Damask Rose, Florentine Iris",
+            title: t('categories.florals_title'),
+            items: t('categories.florals_desc'),
             icon: Droplets
         },
         {
-            title: "The Woods",
-            items: "Mysore Sandalwood, Indonesian Oud, Caledonian Cedar",
+            title: t('categories.woods_title'),
+            items: t('categories.woods_desc'),
             icon: Wind
         },
         {
-            title: "The Neutrals",
-            items: "Ethical Ambergris, Molecular Musk, Clean Vetiver",
+            title: t('categories.neutrals_title'),
+            items: t('categories.neutrals_desc'),
             icon: Sparkles
         }
     ];
@@ -40,7 +42,7 @@ export default function IngredientsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-7xl font-serif text-luxury-black dark:text-white mb-6"
                     >
-                        The <span className="italic">Anthology</span>
+                        {t('title_line1')} <span className="italic">{t('title_line2')}</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -48,7 +50,7 @@ export default function IngredientsPage() {
                         transition={{ delay: 0.2 }}
                         className="text-stone-500 dark:text-stone-400 text-lg font-light max-w-2xl mx-auto"
                     >
-                        Explore the raw molecular heritage that defines our syntheses.
+                        {t('subtitle')}
                     </motion.p>
                 </div>
 
@@ -80,7 +82,7 @@ export default function IngredientsPage() {
                 <div className="mt-40 text-center">
                     <div className="inline-block p-1 bg-stone-100 dark:bg-white/5 rounded-full mb-8">
                         <div className="px-6 py-2 bg-white dark:bg-zinc-900 rounded-full text-[10px] font-bold tracking-[.3em] uppercase text-stone-400">
-                            Ethically Sourced
+                            {t('ethically_sourced')}
                         </div>
                     </div>
                 </div>

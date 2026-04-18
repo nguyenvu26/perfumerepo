@@ -2,8 +2,10 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function SupportPage() {
+    const t = useTranslations('support_page');
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors pt-32">
             <div className="container mx-auto px-6 py-20">
@@ -14,25 +16,25 @@ export default function SupportPage() {
                     className="text-center mb-24"
                 >
                     <span className="text-[10px] font-bold tracking-[.5em] uppercase text-gold mb-6 block">
-                        Concierge Service
+                        {t('badge')}
                     </span>
                     <h1 className="text-6xl md:text-8xl font-serif text-luxury-black dark:text-white mb-6">
-                        How Can We Assist?
+                        {t('title')}
                     </h1>
                     <p className="text-xl text-stone-500 dark:text-stone-400 max-w-2xl mx-auto">
-                        Our dedicated team is here to guide you through your olfactory journey
+                        {t('subtitle')}
                     </p>
                 </motion.div>
 
-                <div className="grid lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-16 max-w-6xl mx-auto">
                     {/* Contact Info */}
                     <div className="space-y-8">
                         <div className="space-y-6">
                             {[
-                                { icon: Mail, label: 'Email', value: 'concierge@auraai.com' },
-                                { icon: Phone, label: 'Phone', value: '+84 (028) 3925 xxxx' },
-                                { icon: MapPin, label: 'Atelier', value: 'District 1, Ho Chi Minh City' },
-                                { icon: Clock, label: 'Hours', value: 'Mon-Sat: 10AM - 8PM' },
+                                { icon: Mail, label: t('email_label'), value: 'concierge@perfumegpt.com' },
+                                { icon: Phone, label: t('phone_label'), value: '+84 (028) 3925 xxxx' },
+                                { icon: MapPin, label: t('atelier_label'), value: t('atelier_value') },
+                                { icon: Clock, label: t('hours_label'), value: t('hours_value') },
                             ].map((item, i) => (
                                 <motion.div
                                     key={i}
@@ -64,44 +66,44 @@ export default function SupportPage() {
                         className="glass dark:bg-white/5 p-10 rounded-3xl border border-stone-200 dark:border-white/5"
                     >
                         <h2 className="text-2xl font-serif text-luxury-black dark:text-white mb-8">
-                            Send Us a Message
+                            {t('form_title')}
                         </h2>
                         <form className="space-y-6">
                             <div>
                                 <label className="text-xs font-bold tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-3 block">
-                                    Your Name
+                                    {t('form_name')}
                                 </label>
                                 <input
                                     type="text"
                                     className="w-full px-6 py-4 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 text-luxury-black dark:text-white outline-none focus:border-gold transition-all"
-                                    placeholder="Alexander Dupont"
+                                    placeholder={t('form_name_placeholder')}
                                 />
                             </div>
                             <div>
                                 <label className="text-xs font-bold tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-3 block">
-                                    Email Address
+                                    {t('form_email')}
                                 </label>
                                 <input
                                     type="email"
                                     className="w-full px-6 py-4 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 text-luxury-black dark:text-white outline-none focus:border-gold transition-all"
-                                    placeholder="alexander@example.com"
+                                    placeholder={t('form_email_placeholder')}
                                 />
                             </div>
                             <div>
                                 <label className="text-xs font-bold tracking-widest uppercase text-stone-400 dark:text-stone-500 mb-3 block">
-                                    Message
+                                    {t('form_message')}
                                 </label>
                                 <textarea
                                     rows={6}
                                     className="w-full px-6 py-4 rounded-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 text-luxury-black dark:text-white outline-none focus:border-gold transition-all resize-none"
-                                    placeholder="How can we help you today?"
+                                    placeholder={t('form_message_placeholder')}
                                 />
                             </div>
                             <button
                                 type="submit"
                                 className="w-full py-4 bg-luxury-black dark:bg-gold text-white rounded-full font-bold tracking-widest uppercase flex items-center justify-center gap-3 hover:bg-stone-800 dark:hover:bg-gold/80 transition-all"
                             >
-                                <Send size={18} /> Send Message
+                                <Send size={18} /> {t('form_submit')}
                             </button>
                         </form>
                     </motion.div>

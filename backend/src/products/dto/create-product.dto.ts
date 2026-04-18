@@ -51,4 +51,8 @@ export class CreateProductDto {
   @ValidateNested({ each: true })
   @Type(() => CreateProductVariantDto)
   variants: CreateProductVariantDto[];
+
+  @IsOptional()
+  @IsArray()
+  scentNotes?: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[];
 }

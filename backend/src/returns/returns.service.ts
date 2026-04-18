@@ -597,10 +597,17 @@ export class ReturnsService {
     take: number,
     status?: string,
     orderId?: string,
+    startDate?: string,
+    endDate?: string,
   ) {
     const where: any = {};
     if (status) where.status = status;
     if (orderId) where.orderId = orderId;
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.returnRequest.findMany({

@@ -70,6 +70,7 @@ export const orderService = {
     promotionCode?: string;
     redeemPoints?: number;
     paymentMethod?: "COD" | "ONLINE";
+    cartItemIds?: number[];
   }) {
     return api.post<Order>("/orders", dto).then((r) => r.data);
   },
@@ -80,9 +81,12 @@ export const orderService = {
     return api.get<Order>("/orders/" + id).then((r) => r.data);
   },
   // Admin endpoints
-  listAll(skip: number = 0, take: number = 10) {
+  listAll(skip: number = 0, take: number = 10, startDate?: string, endDate?: string) {
+    const params: any = { skip, take };
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
     return api
-      .get<OrderListResponse>(`/orders/admin/all?skip=${skip}&take=${take}`)
+      .get<OrderListResponse>(`/orders/admin/all`, { params })
       .then((r) => r.data);
   },
   getAdminById(id: string) {

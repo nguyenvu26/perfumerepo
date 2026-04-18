@@ -6,8 +6,11 @@ import { Link } from '@/lib/i18n';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/common/header';
 import { Sparkles, Wind, Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function StoryPage() {
+    const t = useTranslations('story_page');
+
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors">
             <Header />
@@ -36,7 +39,7 @@ export default function StoryPage() {
                             transition={{ delay: 0.5 }}
                             className="inline-block px-4 py-1.5 glass text-white text-xs font-bold tracking-[.3em] uppercase mb-8 border border-white/20"
                         >
-                            Since 2026
+                            {t('intro.since')}
                         </motion.span>
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
@@ -44,8 +47,8 @@ export default function StoryPage() {
                             transition={{ delay: 0.7 }}
                             className="text-6xl md:text-8xl font-serif text-white mb-12 leading-tight"
                         >
-                            The Intersection of <br />
-                            <span className="italic">Nature & Intellect</span>
+                            {t('intro.title_line1')} <br />
+                            <span className="italic">{t('intro.title_line2')}</span>
                         </motion.h1>
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -62,17 +65,17 @@ export default function StoryPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
                             <div>
                                 <span className="text-xs font-bold tracking-[.2em] uppercase text-gold mb-6 block">
-                                    Our Philosophy
+                                    {t('philosophy.badge')}
                                 </span>
                                 <h2 className="text-4xl md:text-5xl font-serif text-luxury-black dark:text-white mb-10 italic transition-colors">
-                                    "Scent is the most intense form of memory."
+                                    {t('philosophy.quote')}
                                 </h2>
                                 <div className="space-y-6 text-stone-600 dark:text-stone-400 leading-[1.8] text-lg font-light transition-colors">
                                     <p>
-                                        AURA was founded on a simple yet radical idea: that the ancient art of perfumery should be personal, precise, and profoundly intelligent.
+                                        {t('philosophy.p1')}
                                     </p>
                                     <p>
-                                        We combined the sensitivity of world-class "noses" with the analytical power of advanced AI to bridge the gap between human emotion and chemical composition.
+                                        {t('philosophy.p2')}
                                     </p>
                                 </div>
                             </div>
@@ -93,7 +96,7 @@ export default function StoryPage() {
                     <div className="container mx-auto px-6">
                         <div className="text-center mb-24">
                             <h2 className="text-4xl md:text-5xl font-serif text-luxury-black dark:text-white transition-colors">
-                                The Aura Method
+                                {t('method.title')}
                             </h2>
                         </div>
 
@@ -101,18 +104,18 @@ export default function StoryPage() {
                             {[
                                 {
                                     icon: Wind,
-                                    title: "Sourcing",
-                                    desc: "We travel the globe to source the highest quality raw materials from sustainable estates."
+                                    title: t('method.sourcing.title'),
+                                    desc: t('method.sourcing.desc')
                                 },
                                 {
                                     icon: Sparkles,
-                                    title: "Analysis",
-                                    desc: "Our AI engine analyzes millions of sensory data points to understand human olfactory resonance."
+                                    title: t('method.analysis.title'),
+                                    desc: t('method.analysis.desc')
                                 },
                                 {
                                     icon: Heart,
-                                    title: "Crafting",
-                                    desc: "Each bottle is finished by hand in our atelier, ensuring the human touch remains at our core."
+                                    title: t('method.crafting.title'),
+                                    desc: t('method.crafting.desc')
                                 }
                             ].map((step, i) => {
                                 const Icon = step.icon;
@@ -140,24 +143,24 @@ export default function StoryPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
                             <div>
                                 <span className="text-xs font-bold tracking-[.2em] uppercase text-gold mb-6 block">
-                                    Store Location
+                                    {t('location.badge')}
                                 </span>
                                 <h2 className="text-4xl md:text-5xl font-serif text-luxury-black dark:text-white mb-8 italic transition-colors">
-                                    Visit our atelier
+                                    {t('location.title')}
                                 </h2>
                                 <p className="text-stone-600 dark:text-stone-400 leading-[1.8] text-lg font-light transition-colors">
-                                    Bạn có thể ghé cửa hàng để trải nghiệm mùi hương trực tiếp. Bản đồ dưới đây hiển thị vị trí cửa hàng hiện tại.
+                                    {t('location.desc')}
                                 </p>
                                 <div className="mt-10 space-y-2 text-sm text-stone-500 dark:text-stone-400">
-                                    <p className="font-bold tracking-widest uppercase text-[10px] text-gold">NOXH An Phú Thịnh</p>
-                                    <p>Phường Quy Nhơn Đông, Tỉnh Gia Lai</p>
+                                    <p className="font-bold tracking-widest uppercase text-[10px] text-gold">{t('location.store_name')}</p>
+                                    <p>{t('location.province')}</p>
                                     <a
                                         href="https://maps.app.goo.gl/ttgEyPDpoqE93x8W6"
                                         target="_blank"
                                         rel="noreferrer"
                                         className="inline-flex text-[10px] font-bold uppercase tracking-widest text-gold hover:underline underline-offset-4"
                                     >
-                                        Xem trên Google Maps
+                                        {t('location.map_link')}
                                     </a>
                                 </div>
                             </div>
@@ -180,13 +183,13 @@ export default function StoryPage() {
                 <section className="py-48 relative overflow-hidden bg-luxury-black text-white text-center">
                     <div className="container mx-auto px-6 relative z-10">
                         <h2 className="text-5xl md:text-7xl font-serif mb-12">
-                            Experience the Future <br /> of Fragrance.
+                            {t('cta.title_line1')} <br /> {t('cta.title_line2')}
                         </h2>
                         <Link
                             href="/customer/consultation"
                             className="inline-block px-12 py-5 bg-gold text-white rounded-full font-bold tracking-widest uppercase hover:bg-gold/80 transition-all shadow-xl"
                         >
-                            Discover My Scent
+                            {t('cta.button')}
                         </Link>
                     </div>
                     <div className="absolute inset-0 opacity-20">

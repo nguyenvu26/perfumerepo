@@ -2,7 +2,7 @@
  
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { Tag, Sparkles, ArrowUpRight, Zap, Coins, Inbox, MapPinned, User } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/lib/i18n';
 import { useTranslations, useFormatter } from 'next-intl';
  
 export default function CustomerDashboard() {
@@ -46,7 +46,7 @@ export default function CustomerDashboard() {
                                 <p className="text-sm text-muted-foreground font-body mb-8 leading-relaxed">
                                     {t('evolving_desc')}
                                 </p>
-                                <Link href="/dashboard/customer/quiz" className="bg-gold text-primary-foreground px-8 py-3.5 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold hover:scale-105 transition-all text-center">
+                                <Link href="/quiz" className="bg-gold text-primary-foreground px-8 py-3.5 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold hover:scale-105 transition-all text-center">
                                     {t('refresh_btn')}
                                 </Link>
                             </div>
@@ -99,7 +99,7 @@ export default function CustomerDashboard() {
                         { key: "orders", icon: Inbox, href: "/dashboard/customer/orders", color: "text-blue-400" },
                         { key: "loyalty", icon: Coins, href: "/dashboard/customer/loyalty", color: "text-gold" },
                         { key: "ai_chat", icon: Zap, href: "/dashboard/customer/ai-chat", color: "text-ai" },
-                        { key: "quiz", icon: Sparkles, href: "/dashboard/customer/quiz", color: "text-gold" }
+                        { key: "quiz", icon: Sparkles, href: "/quiz", color: "text-gold" }
                     ].map((item, i) => (
                         <Link key={i} href={item.href}>
                             <div className="glass px-6 py-5 rounded-3xl border-border hover:border-gold/30 transition-all flex items-center gap-4 group">

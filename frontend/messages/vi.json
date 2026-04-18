@@ -2,14 +2,14 @@
   "featured": {
     "currency_code": "VND",
     "currency_symbol": "đ",
-    "badge_ai": "Hòa Hợp Phân Tử",
+    "badge_ai": "Gợi Ý Bởi AI",
     "badge_limited": "Phiên Bản Giới Hạn",
-    "badge_bestseller": "Tác Phẩm Ưa Chuộng",
-    "badge_new": "Dấu Ấn Mới",
-    "badge": "Kho Lưu Trữ",
-    "title": "Bộ Sưu Tập Vĩnh Cửu",
-    "cta": "Khám Phá Toàn Bộ Tác Phẩm",
-    "add": "Thêm Vào Bộ Sưu Tập",
+    "badge_bestseller": "Bán Chạy Nhất",
+    "badge_new": "Mới Ra Mắt",
+    "badge": "Đặc Biệt",
+    "title": "Bộ Sưu Tập Nổi Bật",
+    "cta": "Xem Tất Cả Sản Phẩm",
+    "add": "Thêm Vào Giỏ Hàng",
     "types": {
       "extrait": "Extrait de Parfum",
       "pure": "Pure Essence",
@@ -22,27 +22,27 @@
     }
   },
   "vouchers": {
-    "title": "Quản Lý Đơn Hàng",
-    "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-    "badge": "Dịch Vụ Quản Gia",
-    "public_section": "Ưu Đãi Công Khai",
+    "title": "Ưu Đãi Dành Cho Bạn",
+    "subtitle": "Khám phá các ưu đãi và mã giảm giá đặc biệt.",
+    "badge": "Hỗ Trợ Khách Hàng",
+    "public_section": "Ưu Đãi Cho Mọi Người",
     "redeemable_section": "Đổi Điểm Thưởng",
-    "your_points": "Loyal Point",
-    "claim_btn": "Lưu Mã Ngay",
-    "redeem_btn": "Đổi bằng {points} Loyal Point",
-    "no_public": "Hiện không có ưu đãi công khai nào.",
-    "no_redeemable": "Hiện không có voucher nào để quy đổi.",
-    "loading": "Đang tải bộ dữ liệu khứu giác...",
-    "login_required": "Hồ sơ giác quan của bạn cần một ngôi nhà nơ-ron để lưu kết quả.",
-    "claim_success": "Mã giảm giá đã được thêm vào Ví của bạn.",
-    "redeem_success": "Quy đổi thành công! Voucher đã có trong Ví của bạn.",
-    "insufficient_points": "Số dư điểm thưởng không đủ để thực hiện quy đổi này.",
-    "confirm_redeem": "Bạn có chắc chắn muốn dùng {points} điểm để đổi voucher này?",
-    "action_failed": "Thao tác thất bại.",
-    "loyalty_reason": "Loyalty reward for your continued patronage."
+    "your_points": "Điểm Thưởng Hiện Có",
+    "claim_btn": "Nhận Ưu Đãi",
+    "redeem_btn": "Đổi bằng {points} Điểm Thưởng",
+    "no_public": "Hiện chưa có ưu đãi nào.",
+    "no_redeemable": "Hiện chưa có voucher nào để đổi.",
+    "loading": "Đang tải ưu đãi...",
+    "login_required": "Vui lòng đăng nhập để xem và lưu ưu đãi của bạn.",
+    "claim_success": "Đã lưu mã ưu đãi vào tài khoản của bạn.",
+    "redeem_success": "Đổi điểm thành công! Mã ưu đãi đã sẵn sàng.",
+    "insufficient_points": "Điểm thưởng của bạn chưa đủ để đổi ưu đãi này.",
+    "confirm_redeem": "Bạn có chắc muốn dùng {points} điểm để lấy ưu đãi này?",
+    "action_failed": "Thao tác thất bại. Vui lòng thử lại.",
+    "loyalty_reason": "Phần thưởng tri ân khách hàng thân thiết."
   },
   "common": {
-    "title": "Quản Lý Đơn Hàng",
+    "title": "Perfume GPT",
     "consultation": "Tư Vấn AI",
     "membership": "Hội Viên",
     "discovery": "Khám Phá Mùi Hương",
@@ -53,13 +53,13 @@
     "collection": "Bộ Sưu Tập",
     "about": "Về Chúng Tôi",
     "contact": "Liên Hệ",
-    "cta_discover": "Bắt Đầu Hành Trình",
-    "cta_learn_more": "Nghệ Thuật Chế Tác",
+    "cta_discover": "Bắt Đầu",
+    "cta_learn_more": "Tìm Hiểu Thêm",
     "forgot_password": "Quên Mật Khẩu?",
     "reset_password": "Cài Lại Mật Khẩu",
-    "back_to_login": "Quay Lại Cổng Đăng Nhập",
-    "send_reset_link": "Yêu Cầu Liên Kết Khôi Phục",
-    "send_link": "Gửi Liên Kết Khôi Phục",
+    "back_to_login": "Quay Lại Đăng Nhập",
+    "send_reset_link": "Gửi Link Khôi Phục Mật Khẩu",
+    "send_link": "Gửi Link Khôi Phục",
     "search": "Tìm kiếm...",
     "cart": "Giỏ Hàng",
     "favorites": "Yêu Thích",
@@ -74,7 +74,7 @@
     "my_profile": "Hồ Sơ Của Tôi",
     "member": "Thành viên",
     "all": "Tất cả đánh giá",
-    "loading": "Đang tải bộ dữ liệu khứu giác...",
+    "loading": "Đang tải...",
     "processing": "ĐANG CHUẨN BỊ",
     "view_options": "Xem Chi Tiết",
     "clear_filters": "Xóa Bộ Lọc",
@@ -84,42 +84,42 @@
     "catalog": "Danh mục",
     "admin_dashboard": "Quản Trị Viên",
     "staff_dashboard": "Nhân Viên",
-    "curation": "Giám Tuyển",
-    "description": "Sự phù hợp thần kinh được xác minh chính xác 98,4% trên tất cả các chiều không gian khứu giác.",
+    "curation": "Tuyển Chọn",
+    "description": "Tìm nước hoa phù hợp với bạn — được gợi ý bởi AI dựa trên phong cách và sở thích cá nhân.",
     "keywords": "nước hoa, nước hoa cao cấp, ai scent, nước hoa cá nhân hóa, aura ai, nước hoa niche",
     "breadcrumbs": {
       "home": "Trang Chủ",
-      "collection": "Sổ Định Danh"
+      "collection": "Bộ Sưu Tập"
     },
-    "engine_version": "Động Cơ Thương Mại Aura AI v2.0"
+    "engine_version": "Động Cơ Thương Mại Perfume GPT v2.0"
   },
   "notifications": {
-    "success": "Cập nhật bài viết thành công!",
-    "error": "Lỗi Hệ Thống",
+    "success": "Đã lưu giữ bản sao thành công!",
+    "error": "Sự Cố Hệ Thống",
     "info": "Thông Báo",
-    "review_success": "Cảm ơn bạn đã chia sẻ trải nghiệm tinh tế của mình!",
-    "review_error": "Không thể gửi đánh giá. Vui lòng thử lại sau.",
-    "image_upload_error": "Tải ảnh lên thất bại. Vui lòng kiểm tra lại.",
-    "image_limit": "Bạn chỉ có thể tải lên tối đa {max} hình ảnh.",
-    "image_size_error": "Tệp {name} quá lớn (tối đa {max}MB).",
-    "image_type_error": "Tệp {name} không phải là định dạng ảnh hợp lệ.",
-    "rating_required": "Vui lòng chọn mức độ hài lòng của bạn.",
-    "save_success": "Thông tin đã được đồng bộ hóa thành công.",
+    "review_success": "Cảm ơn bạn đã gửi đánh giá!",
+    "review_error": "Không thể gửi đánh giá. Vui lòng thử lại sau giây lát.",
+    "image_upload_error": "Tải ảnh lên thất bại. Vui lòng kiểm tra lại cấu trúc tệp.",
+    "image_limit": "Bạn chỉ có thể tải lên tối đa {max} ảnh.",
+    "image_size_error": "Tệp {name} vượt quá dung lượng cho phép (tối đa {max}MB).",
+    "image_type_error": "Tệp {name} không phải là định dạng hình ảnh hợp lệ.",
+    "rating_required": "Vui lòng chọn số sao đánh giá.",
+    "save_success": "Các thông số đã được đồng bộ hóa thành công.",
     "save_error": "Không thể lưu thay đổi. Vui lòng kiểm tra lại kết nối.",
-    "logged_in": "Chào mừng bạn đã trở lại Sanctuary.",
-    "logged_out": "Bạn đã được ngắt kết nối an toàn.",
-    "helpful_success": "Đã ghi nhận sự hữu ích của bạn.",
-    "report_success": "Báo cáo đã được gửi để kiểm duyệt.",
+    "logged_in": "Đăng nhập thành công! Chào mừng bạn trở lại.",
+    "logged_out": "Đã đăng xuất. Hẹn gặp lại!",
+    "helpful_success": "Đã ghi nhận sự hữu ích trong chia sẻ của bạn.",
+    "report_success": "Báo cáo đã được gửi để giám định.",
     "failed_to_react": "Không thể thực hiện tương tác này.",
-    "anonymous_user": "Khách ẩn danh",
-    "action_success": "Thao tác thực hiện thành công.",
+    "anonymous_user": "Khách Ẩn Danh",
+    "action_success": "Thực hiện thành công.",
     "action_failed": "Thao tác thất bại.",
-    "review_hidden": "Đánh giá đã được ẩn khỏi công cộng.",
-    "review_visible": "Đánh giá hiện đã hiển thị công khai.",
-    "review_pinned": "Đánh giá đã được ghim lên đầu.",
+    "review_hidden": "Đánh giá đã được bảo mật khỏi công chúng.",
+    "review_visible": "Đánh giá hiện đã được công khai.",
+    "review_pinned": "Đánh giá đã được ghim lên vị trí nổi bật.",
     "review_unpinned": "Đánh giá đã được bỏ ghim.",
-    "review_flagged": "Đánh giá đã được đánh dấu để kiểm tra.",
-    "review_purged": "Đánh giá đã được xóa vĩnh viễn."
+    "review_flagged": "Đánh giá đã được đánh dấu để kiểm định.",
+    "review_purged": "Đánh giá đã được xóa vĩnh viễn khỏi lưu trữ."
   },
   "navigation": {
     "customer": {
@@ -158,107 +158,108 @@
       "returns": "Yêu cầu Đổi trả"
     },
     "shared": {
-      "chat": "Trò chuyện Aura"
+      "chat": "Trò chuyện Perfume GPT"
     }
   },
   "hero": {
-    "badge": "Haute Parfumerie",
-    "title": "Linh Hồn Nước Hoa",
-    "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-    "cta": "Khởi Tạo Tư Cách Thành Viên",
-    "explore": "Khám phá module →",
-    "scroll_to_discover": "Cuộn Để Khám Phá"
+    "badge": "Nước Hoa Cao Cấp",
+    "title": "Bản Sắc Của Bạn, Kết Tinh Thành Hương Thơm.",
+    "subtitle": "Được gợi ý bởi AI dựa trên phong cách sống, cảm xúc và sở thích cá nhân của bạn.",
+    "cta": "Tìm Nước Hoa Của Tôi",
+    "explore": "Xem Bộ Sưu Tập →",
+    "scroll_to_discover": "Cuộn Xuống"
   },
   "story": {
-    "badge": "Dịch Vụ Quản Gia",
-    "title": "Quản Lý Đơn Hàng",
-    "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-    "feature1_title": "Lập Bản Đồ DNA Khứu Giác",
-    "feature1_desc": "Giải trình tự số hóa các hợp âm nền và cộng hưởng nốt cao.",
-    "feature2_title": "Tầm Lan Môi Trường",
-    "feature2_desc": "Phép chiếu được tối ưu hóa cho khí hậu và mật độ xã hội cụ thể của bạn.",
-    "feature3_title": "Tính Toàn Vẹn Phân Tử",
-    "feature3_desc": "Nồng độ pha trộn thủ công được ổn định trong 90 ngày.",
-    "cta": "Khởi Tạo Tư Cách Thành Viên",
-    "analysis_title": "Phân Tích Thần Kinh",
-    "analysis_subtitle": "Đang Xử Lý Hồ Sơ 042-B",
-    "affinity": "Ái Lực Mùi Hương"
+    "badge": "Câu Chuyện Của Chúng Tôi",
+    "title": "Khám Phá Dấu Ấn Khứu Giác Thuộc Về Riêng Bạn.",
+    "subtitle": "Perfume GPT giúp bạn tìm đúng nước hoa — không cần thử hàng chục lọ, không cần phải là chuyên gia. AI sẽ phân tích sở thích của bạn và đề xuất những mùi hương phù hợp nhất.",
+    "feature1_title": "Phân Tích Mùi Hương Cá Nhân",
+    "feature1_desc": "Hiểu rõ các nhóm hương bạn thích và những nốt hương nào phù hợp với bạn nhất.",
+    "feature2_title": "Phù Hợp Với Lối Sống",
+    "feature2_desc": "Gợi ý nước hoa phù hợp với môi trường, công việc và khí hậu nơi bạn sống.",
+    "feature3_title": "Chất Lượng Đảm Bảo",
+    "feature3_desc": "Nguyên liệu chất lượng cao, nồng độ ổn định và được kiểm định nghiêm ngặt.",
+    "cta": "Bắt Đầu Khám Phá",
+    "analysis_title": "Phân Tích AI",
+    "analysis_subtitle": "Đang Xử Lý",
+    "affinity": "Độ Phù Hợp"
   },
   "membership": {
-    "title": "Quản Lý Đơn Hàng",
-    "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-    "benefit1_title": "Tổng Hợp Bespoke",
-    "benefit1_desc": "Nước hoa chế tác bởi AI hàng tháng, phù hợp với sự thay đổi của mùa và cảm xúc.",
-    "benefit2_title": "The Vault",
-    "benefit2_desc": "Quyền truy cập sớm các phiên bản cực kỳ giới hạn từ các bậc thầy khách mời.",
-    "benefit3_title": "Privé Concierge",
-    "benefit3_desc": "Truy cập 24/7 với tư vấn viên mùi hương AI cá nhân và hướng dẫn kết hợp mùi hương.",
-    "badge": "Dịch Vụ Quản Gia",
-    "cta_access": "Yêu Cầu Quyền Truy Cập Residence",
-    "member_no": "Mã Hội Viên {no} / VIP"
+    "title": "Chương Trình Thành Viên",
+    "subtitle": "Dành cho những ai yêu thích nước hoa và muốn trải nghiệm dịch vụ đặc biệt hơn.",
+    "benefit1_title": "Nước Hoa Hàng Tháng",
+    "benefit1_desc": "Nhận hộp nước hoa được chọn riêng cho bạn mỗi tháng.",
+    "benefit2_title": "Sản Phẩm Giới Hạn",
+    "benefit2_desc": "Ưu tiên mua các phiên bản giới hạn trước khi bán ra công khai.",
+    "benefit3_title": "Hỗ Trợ Riêng 24/7",
+    "benefit3_desc": "Được tư vấn trực tiếp từ chuyên gia mùi hương bất cứ lúc nào.",
+    "badge": "Thành Viên Cao Cấp",
+    "cta_access": "Đăng Ký Thành Viên",
+    "member_no": "Thành viên số {no} / VIP"
   },
   "discovery": {
-    "title": "Khám Phá Hoạt Động của AI",
-    "step1_title": "Bản Đồ Sinh Học",
-    "step1_desc": "AI của chúng tôi phân tích 147 điểm dữ liệu từ sở thích cảm quan và lối sống của bạn.",
-    "step2_title": "Tổng Hợp",
-    "step2_desc": "Một công thức phân tử độc nhất được tạo ra, kết hợp hơn 200 nguyên liệu quý hiếm.",
-    "step3_title": "Hiện Hữu",
-    "step3_desc": "Được rót thủ công tại Grasse, Pháp, và vận chuyển trong những chai thủy tinh obsidian.",
-    "methodology": "Phương Thức Nghiên Cứu",
-    "phase": "Giai Đoạn",
-    "begin_profile": "Bắt Đầu Hồ Sơ Thần Kinh Của Tôi",
+    "title": "Cách Chúng Tôi Gợi Ý Nước Hoa",
+    "step1_title": "Tìm Hiểu Sở Thích",
+    "step1_desc": "AI phân tích phong cách sống, lối sống và các mùi hương bạn đã thích trước đây.",
+    "step2_title": "Ghép Cặp Mùi Hương",
+    "step2_desc": "Tạo ra công thức phù hợp từ những nguyên liệu tự nhiên chất lượng cao.",
+    "step3_title": "Hoàn Thiện & Giao Hàng",
+    "step3_desc": "Sản phẩm được ủ và đóng gói thủ công tại Grasse, giao đến tận tay bạn.",
+    "methodology": "Quy Trình",
+    "phase": "Bước",
+    "begin_profile": "Bắt Đầu Tìm Nước Hoa",
     "steps": [
       {
-        "label": "Khám phá Khứu giác"
+        "label": "Trả Lời Câu Hỏi"
       },
       {
-        "label": "Khám phá Khứu giác"
+        "label": "AI Phân Tích"
       },
       {
-        "label": "Khám phá Khứu giác"
+        "label": "Nhận Gợi Ý"
       }
     ]
   },
   "auth": {
     "login": {
-      "badge": "Dịch Vụ Quản Gia",
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+      "badge": "Đăng Nhập",
+      "title": "Đăng Nhập",
+      "subtitle": "Đăng nhập để xem đơn hàng, điểm thưởng và gợi ý nước hoa của bạn.",
       "welcome_back": "Chào mừng trở lại",
       "please_login": "Vui lòng đăng nhập để tiếp tục",
       "email_label": "Email Đã Đăng Ký",
       "email_placeholder": "EMAIL CỦA BẠN",
       "password_label": "Mật Khẩu",
-      "password_placeholder": "••••••••",
+      "password_placeholder": "••••",
       "sign_in": "Đăng nhập",
       "or_continue": "Hoặc tiếp tục với",
       "google": "Google",
       "facebook": "Facebook",
-      "error_failed": "Lỗi khi cập nhật tạp chí",
+      "error_failed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
       "error_facebook_email_required": "Đăng nhập Facebook yêu cầu email công khai. Vui lòng đặt email công khai trong cài đặt Facebook hoặc sử dụng phương thức đăng nhập khác.",
       "error_oauth_failed": "Đăng nhập OAuth thất bại. Vui lòng thử lại.",
       "no_account": "Chưa có tài khoản?",
-      "sign_up": "Đăng ký"
+      "sign_up": "Đăng ký",
+      "back_to_login": "Quay Lại Đăng Nhập"
     },
     "register": {
-      "badge": "Dịch Vụ Quản Gia",
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-      "page_title": "Cài Lại Mật Khẩu",
-      "page_subtitle": "Yêu cầu khôi phục truy cập hệ thống an toàn",
+      "badge": "Tạo Tài Khoản",
+      "title": "Đăng Ký",
+      "subtitle": "Tạo tài khoản để lưu kết quả gợi ý và theo dõi đơn hàng.",
+      "page_title": "Tạo Tài Khoản Mới",
+      "page_subtitle": "Gia nhập cộng đồng yêu nước hoa của Perfume GPT",
       "name_label": "Tên *",
-      "name_placeholder": "Nhập tên",
-      "email_label": "Email Đã Đăng Ký",
+      "name_placeholder": "Nhập tên của bạn",
+      "email_label": "Email Đăng Ký",
       "email_placeholder": "EMAIL CỦA BẠN",
       "password_label": "Mật Khẩu",
-      "password_placeholder": "••••••••",
-      "confirm_password_label": "Xác Nhận Mật Khẩu Mới",
-      "confirm_password_placeholder": "••••••••",
+      "password_placeholder": "••••",
+      "confirm_password_label": "Xác Nhận Mật Khẩu",
+      "confirm_password_placeholder": "••••",
       "terms_text": "Bằng việc tạo tài khoản, tôi đồng ý với",
       "terms_link": "Điều Khoản Dịch Vụ",
       "privacy_link": "Cam Kết Bảo Mật",
-      "start_journey": "Bắt Đầu Hành Trình",
+      "start_journey": "Tạo Tài Khoản",
       "or_register": "Hoặc đăng ký với",
       "google": "Google",
       "facebook": "Facebook",
@@ -268,170 +269,194 @@
       "success_desc": "Tài khoản đã được tạo. Bạn có thể đăng nhập ngay. Xác thực email có thể thực hiện sau trong trang Hồ sơ.",
       "go_to_login": "Đến trang Đăng nhập",
       "phone_label": "Số điện thoại (Tùy chọn)",
-      "phone_placeholder": "Nhập SĐT khách hàng...",
+      "phone_placeholder": "Nhập số điện thoại...",
       "error_terms": "Bạn phải chấp nhận các điều khoản và điều kiện",
       "error_password_match": "Mật khẩu không khớp",
-      "error_failed": "Lỗi khi cập nhật tạp chí",
+      "error_failed": "Đăng ký thất bại. Vui lòng thử lại.",
       "join_badge": "Tham gia cùng chúng tôi",
-      "create_profile": "Tạo hồ sơ mùi hương của bạn"
+      "create_profile": "Tạo hồ sơ của bạn"
     },
     "forgot_password": {
-      "badge": "Dịch Vụ Quản Gia",
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-      "page_title": "Cài Lại Mật Khẩu",
-      "page_subtitle": "Yêu cầu khôi phục truy cập hệ thống an toàn",
-      "enter_email": "Nhập định danh số của bạn để tiếp tục",
+      "badge": "Quên Mật Khẩu",
+      "title": "Quên Mật Khẩu",
+      "subtitle": "Chúng tôi sẽ gửi liên kết khôi phục đến email của bạn.",
+      "page_title": "Khôi Phục Mật Khẩu",
+      "page_subtitle": "Nhập email để nhận link đặt lại mật khẩu",
+      "enter_email": "Nhập email đã đăng ký của bạn để tiếp tục",
       "email_label": "Email Đã Đăng Ký",
       "email_placeholder": "EMAIL CỦA BẠN",
       "verification_sent": "Đã Gửi Xác Minh",
       "check_email": "Vui lòng kiểm tra email để biết hướng dẫn",
       "link_sent": "Một liên kết được mã hóa đã được gửi đến",
-      "link_valid": "Nó có hiệu lực trong vòng 60 phút.",
+      "link_valid": "Liên kết có hiệu lực trong vòng 60 phút.",
       "didnt_receive": "Không nhận được? Thử lại",
-      "back_to_login": "Quay Lại Cổng Đăng Nhập",
-      "error_failed": "Lỗi khi cập nhật tạp chí"
+      "back_to_login": "Quay Lại Đăng Nhập",
+      "error_failed": "Không thể gửi liên kết khôi phục. Vui lòng thử lại."
     },
     "reset_password": {
-      "badge": "Dịch Vụ Quản Gia",
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+      "badge": "Đặt Lại Mật Khẩu",
+      "title": "Đặt Lại Mật Khẩu",
+      "subtitle": "Thiết lập mật khẩu mới để bảo vệ tài khoản của bạn.",
       "page_title": "Cài Lại Mật Khẩu",
-      "establish_security": "Thiết lập các thông số bảo mật mới của bạn",
+      "establish_security": "Nhập mật khẩu mới cho tài khoản của bạn",
       "new_password_label": "Mật Khẩu Mới",
-      "new_password_placeholder": "••••••••",
-      "confirm_label": "Xác Nhận Chữ Ký",
-      "confirm_placeholder": "••••••••",
-      "update_security": "Cập Nhật Bảo Mật",
-      "security_updated": "Đã Cập Nhật Bảo Mật",
-      "portal_secured": "Cổng của bạn hiện được bảo mật bằng chữ ký mới",
-      "success_message": "Mật khẩu của bạn đã được tổng hợp lại thành công. Bây giờ bạn có thể quay lại cổng để xác thực lại.",
+      "new_password_placeholder": "••••",
+      "confirm_label": "Xác Nhận Mật Khẩu Mới",
+      "confirm_placeholder": "••••",
+      "update_security": "Cập Nhật Mật Khẩu",
+      "security_updated": "Mật Khẩu Đã Được Cập Nhật",
+      "portal_secured": "Tài khoản của bạn hiện được bảo mật bằng mật khẩu mới",
+      "success_message": "Mật khẩu của bạn đã được cập nhật thành công. Bạn có thể đăng nhập lại ngay bây giờ.",
       "proceed_login": "Tiến Đến Đăng Nhập",
       "error_missing_token": "Thiếu hoặc sai mã khôi phục",
-      "error_invalid_token": "Phiên khôi phục không hợp lệ",
-      "error_password_match": "Mật khẩu không khớp",
-      "error_failed": "Lỗi khi cập nhật tạp chí"
+      "error_invalid_token": "Phiên khôi phục không hợp lệ hoặc đã hết hạn",
+      "error_password_match": "Mật khẩu xác nhận không khớp",
+      "error_failed": "Cập nhật mật khẩu thất bại. Vui lòng thử lại."
     },
     "logout": {
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-      "quote": "\\\"Một kiệt tác về tuyển chọn. Mỗi chiếc hộp như một bức thư tay từ xưởng chế tác của chúng tôi.\\\"",
+      "title": "Đã Đăng Xuất",
+      "subtitle": "Cảm ơn bạn đã ghé thăm Perfume GPT. Hẹn gặp lại!",
+      "quote": "\"Mỗi lần ghé thăm là một trải nghiệm mới.\"",
       "home": "Trang Chủ",
-      "return_portal": "Quay Lại Cổng"
+      "return_portal": "Quay Lại Trang Chủ"
     }
   },
   "quiz": {
     "intro": {
-      "label": "Khám phá Khứu giác",
-      "title": "Khám Phá Mùi Hương Của Bạn",
-      "description": "Sự phù hợp thần kinh được xác minh chính xác 98,4% trên tất cả các chiều không gian khứu giác.",
-      "start_btn": "Bắt đầu Khám phá",
-      "login_btn": "Đăng nhập để Bắt đầu",
-      "login_required": "Hồ sơ giác quan của bạn cần một ngôi nhà nơ-ron để lưu kết quả.",
-      "time_estimate": "Thời gian dự kiến: 2 Phút"
+      "label": "Khám Phá Mùi Hương",
+      "title": "Tìm Nước Hoa Phù Hợp Với Bạn",
+      "description": "Trả lời vài câu hỏi ngắn — AI sẽ gợi ý nước hoa phù hợp với phong cách và sở thích của bạn.",
+      "start_btn": "Bắt Đầu",
+      "login_btn": "Đăng Nhập Để Lưu Kết Quả",
+      "login_required": "Đăng nhập để lưu kết quả gợi ý và xem lại sau.",
+      "time_estimate": "Chỉ mất khoảng 2 phút"
     },
-    "step_label": "Bước",
+    "step_label": "Giai đoạn",
     "prev_step": "Quay lại",
     "steps": {
       "gender": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Bạn muốn nước hoa cho ai?",
+        "subtitle": "Chọn hướng mùi hương phù hợp.",
         "options": {
-          "male": "Nam (Masculine)",
-          "female": "Nữ (Feminine)",
-          "unisex": "Unisex (Equilibrium)"
+          "male": "Nam",
+          "female": "Nữ",
+          "unisex": "Unisex"
         }
       },
       "occasion": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Bạn thường dùng nước hoa khi nào?",
+        "subtitle": "Chọn trường hợp sử dụng chính.",
         "options": {
-          "daily": "Hàng ngày",
-          "office": "Văn phòng",
-          "date": "Thời Điểm",
-          "party": "Tiệc tùng",
-          "special": "Dịp đặc biệt Hiếm gặp"
+          "daily": "Hàng Ngày",
+          "office": "Đi Làm / Học",
+          "date": "Hẹn Hò",
+          "party": "Tiệc Tùng",
+          "special": "Dịp Đặc Biệt"
         }
       },
       "budget": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Ngân sách của bạn là bao nhiêu?",
+        "subtitle": "Chúng tôi sẽ gợi ý phù hợp với mức giá bạn chọn.",
         "options": {
-          "under_500k": "Khám phá Cơ bản",
-          "500k_1m": "Tổng hợp Tiêu chuẩn",
-          "1m_2m": "Lựa chọn Cao cấp",
-          "2m_5m": "Phân khúc Nghệ nhân",
-          "over_5m": "Tuyệt phẩm Sưu tầm"
+          "under_500k": "Dưới 500.000đ",
+          "500k_1m": "500.000đ – 1.000.000đ",
+          "1m_2m": "1.000.000đ – 2.000.000đ",
+          "2m_5m": "2.000.000đ – 5.000.000đ",
+          "over_5m": "Trên 5.000.000đ"
         }
       },
       "scent_family": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Bạn thích nhóm mùi hương nào?",
+        "subtitle": "Chọn nhóm hương gần với sở thích của bạn nhất.",
         "options": {
-          "fresh": "Tươi mát (Fresh)",
-          "floral": "Hương hoa (Floral)",
-          "woody": "Gỗ & Vỏ cây (Woody)",
-          "oriental": "Gia vị & Nhựa (Oriental)",
-          "aromatic": "Thảo mộc (Aromatic)"
+          "fresh": "Tươi Mát (Fresh)",
+          "floral": "Hoa Tươi (Floral)",
+          "woody": "Gỗ Trầm (Woody)",
+          "oriental": "Bí Ẩn & Nhựa (Oriental)",
+          "aromatic": "Thảo Mộc (Aromatic)"
         }
       },
       "longevity": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Bạn muốn nước hoa lưu hương bao lâu?",
+        "subtitle": "Chọn độ lưu hương phù hợp với nhu cầu của bạn.",
         "options": {
-          "light": "Nhẹ nhàng (2-4h)",
-          "moderate": "Trung bình (4-6h)",
-          "long": "Kéo dài (6-8h)",
-          "very_long": "Tuyệt đối (8h+)"
+          "light": "Nhẹ nhàng (2-4 tiếng)",
+          "moderate": "Vừa phải (4-6 tiếng)",
+          "long": "Lâu (6-8 tiếng)",
+          "very_long": "Rất lâu (8 tiếng+)"
         }
       }
     },
     "analyzing": {
-      "step1": "Khởi tạo Trọng số Thần kinh...",
-      "step2": "Quét Cơ sở Dữ liệu Khứu giác...",
-      "step3": "Bản đồ hóa Sự Phù hợp Phân tử...",
-      "step4": "Dự đoán Độ Tỏa hương Cá nhân...",
-      "message": "AI của chúng tôi đang chưng cất hồ sơ bản chất độc đáo của bạn..."
+      "step1": "Đang phân tích câu trả lời của bạn...",
+      "step2": "Đang tìm kiếm trong kho nước hoa...",
+      "step3": "Đang ghép cặp mùi hương phù hợp...",
+      "step4": "Đang hoàn thiện danh sách gợi ý...",
+      "message": "AI đang tìm nước hoa phù hợp nhất cho bạn..."
     },
     "results": {
-      "no_results_title": "Không Tìm Thấy Kết Quả",
-      "no_results_desc": "AI của chúng tôi không thể tìm thấy sự phù hợp hoàn hảo cho các thông số cụ thể đó. Hãy thử điều chỉnh lại quá trình khám phá của bạn.",
-      "retake": "Thực hiện lại Khám phá",
-      "ai_picked": "Lựa chọn từ Aura AI",
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-      "view_detail": "Xem chi tiết"
-    }
+      "no_results_title": "Chưa Tìm Thấy Kết Quả Phù Hợp",
+      "no_results_desc": "Hệ thống chưa tìm thấy sản phẩm phù hợp. Hãy thử điều chỉnh lựa chọn của bạn.",
+      "retake": "Thực Hiện Lại Bước",
+      "ai_picked": "Giám Tuyển Bởi Perfume GPT",
+      "title": "Bản Vẽ Khứu Giác Của Bạn (Blueprint)",
+      "subtitle": "Dựa trên hồ sơ AI, hệ thống của chúng tôi đã tuyển chọn những sản phẩm này với mức độ phù hợp 98.4%.",
+      "view_detail": "Thưởng Lãm Chi Tiết"
+    },
+    "elite_series": "Dòng Cao Cấp",
+    "rating_label": "Đánh Giá: {rating}/5",
+    "select_size": "Chọn Dung Tích",
+    "select_olfactory_volume": "Chọn Dung Tích",
+    "olfactory_structure": "Cấu Trúc Mùi Hương",
+    "top_notes": "Hương Đầu",
+    "heart_notes": "Hương Giữa",
+    "base_notes": "Hương Cuối",
+    "technical_specifications": "Thông Số Sản Phẩm",
+    "concentration": "Nồng Độ",
+    "longevity": "Độ Lưu Hương",
+    "unit_added_queue": "Đã thêm sản phẩm vào giỏ hàng",
+    "assemble_acquisition": "Tiến Hành Đặt Mua",
+    "pattern_matching": "Độ Phù Hợp Với Bạn",
+    "pattern_matching_desc": "Mức độ phù hợp với sở thích của bạn.",
+    "authenticity_shield": "Bảo Chứng Chính Hãng",
+    "authenticity_shield_desc": "Sản phẩm chính hãng, có nguồn gốc rõ ràng.",
+    "toast_login_required": "Vui lòng đăng nhập để lưu sản phẩm yêu thích",
+    "toast_select_size": "Vui lòng chọn dung tích trước khi thêm vào giỏ",
+    "toast_favorite_added": "Đã thêm vào danh sách yêu thích",
+    "toast_favorite_removed": "Đã xóa khỏi danh sách yêu thích",
+    "fallback_description": "Một mùi hương tinh tế, phù hợp với nhiều dịp khác nhau.",
+    "remove_favorite": "Xóa Khỏi Yêu Thích",
+    "add_favorite": "Thêm Vào Yêu Thích"
   },
   "product_detail": {
-    "visual_data_unavailable": "Không Có Dữ Liệu Hình Ảnh",
-    "neural_scanning_active": "Đang Quét Thần Kinh",
-    "elite_series": "Dòng Cao Cấp",
-    "archived_hash": "Lưu Trữ #",
-    "rating_label": "Xếp hạng: {rating}/5",
-    "select_size": "Chọn Kích Cỡ",
-    "select_olfactory_volume": "Chọn Thể Tích Khứu Giác (Size)",
-    "olfactory_structure": "Cấu Trúc Khứu Giác",
-    "top_notes": "Hương Đầu",
-    "heart_notes": "Nốt Hương Giữa",
-    "base_notes": "Nốt Hương Cuối",
-    "technical_specifications": "Thông Số Kỹ Thuật",
-    "concentration": "Nồng độ",
-    "longevity": "Độ lưu hương",
-    "unit_added_queue": "Đã thêm vào hàng đợi sở hữu",
-    "assemble_acquisition": "Tiến Hành Sở Hữu",
-    "pattern_matching": "Khớp Mẫu",
-    "pattern_matching_desc": "Khớp với hồ sơ sinh học của bạn với độ chính xác 98.4%.",
-    "authenticity_shield": "Giáp Xác Thực",
-    "authenticity_shield_desc": "Chữ ký phân tử không thể tẩy xóa để chứng nhận.",
-    "toast_login_required": "Vui lòng đăng nhập để lưu sản phẩm yêu thích",
-    "toast_select_size": "Vui lòng chọn dung tích trước khi thêm yêu thích",
-    "toast_favorite_added": "Đã thêm sản phẩm vào mục yêu thích",
-    "toast_favorite_removed": "Đã xóa sản phẩm khỏi mục yêu thích",
-    "toast_favorite_error": "Không thể cập nhật mục yêu thích",
-    "fallback_description": "Một tinh chất được tuyển chọn bậc thầy, lưu giữ sự giao thoa giữa ánh đèn neon đô thị và sức mạnh thực vật thô mộc. Được thiết kế để cộng hưởng với chữ ký khứu giác độc đáo của người đeo.",
-    "remove_favorite": "Xóa khỏi yêu thích",
-    "add_favorite": "Thêm vào yêu thích"
+    "visual_data_unavailable": "Dữ Liệu Hình Ảnh Đang Được Khởi Tạo",
+    "neural_scanning_active": "Hệ Thống Đang Cảm Biến Cấu Trúc Hương",
+    "elite_series": "Dòng Cao Cấp (Elite)",
+    "archived_hash": "Mã Lưu Trữ #",
+    "rating_label": "Mức Độ Phù Hợp: {rating}/5",
+    "select_size": "Lựa Chọn Dung Tích",
+    "select_olfactory_volume": "Lựa Chọn Thể Tích Khứu Giác (Volume)",
+    "olfactory_structure": "Kiến Trúc Tầng Hương",
+    "top_notes": "Nốt Hương Đầu (Làn Gió Đầu)",
+    "heart_notes": "Nốt Hương Giữa (Trái Tim Của Độ Lưu Hương)",
+    "base_notes": "Nốt Hương Cuối (Dấu Ấn Lưu Lại)",
+    "technical_specifications": "Thông Số Tuyển Chọn",
+    "concentration": "Nồng Độ Mùi Hương",
+    "longevity": "Độ Lưu Hương",
+    "unit_added_queue": "Sản phẩm đã được đưa vào danh mục sở hữu",
+    "assemble_acquisition": "Thêm vào giỏ hàng",
+    "pattern_matching": "Độ Tương Thích Thông Minh",
+    "pattern_matching_desc": "Hòa hợp với hồ sơ sinh học của bạn với độ chính xác tuyệt đối.",
+    "authenticity_shield": "Ấn Ký Bảo Chứng (Authenticity Shield)",
+    "authenticity_shield_desc": "Chữ ký riêng cho bạn chứng nhận nguồn gốc cao cấp.",
+    "toast_login_required": "Vui lòng gia nhập để lưu lại những nốt hương yêu thích",
+    "toast_select_size": "Vui lòng chọn dung tích trước khi thêm vào bộ sưu tập",
+    "toast_favorite_added": "Đã thêm vào thư viện yêu thích",
+    "toast_favorite_removed": "Đã xóa khỏi thư viện yêu thích",
+    "toast_favorite_error": "Không thể cập nhật thư viện vào lúc này",
+    "fallback_description": "Một mùi hương được tạo ra bậc thầy, nơi sự tĩnh lặng của rừng già gặp gỡ nhịp đập của thời đại. Được tạo ra để phù hợp hoàn hảo với phong cách mùi hương riêng cho bạn của người sở hữu.",
+    "remove_favorite": "Xóa Khỏi Thư Viện",
+    "add_favorite": "Thêm Vào Thư Viện"
   },
   "review": {
     "customer_reviews": "Đánh Giá Khách Hàng",
@@ -450,16 +475,16 @@
     "showing_count": "Hiển thị {start}-{end} trong {total}",
     "reason_reporting": "Lý do báo cáo:",
     "form": {
-      "title": "Quản Lý Đơn Hàng",
+      "title": "Chia Sẻ Trải Nghiệm Của Bạn",
       "reviewing_label": "Đang đánh giá:",
       "rating_label": "Xếp hạng: {rating}/5",
       "description_label": "Câu chuyện của bạn",
-      "description_placeholder": "Mô tả mùi hương, độ lưu hương hoặc những lời khen ngợi bạn nhận được...",
-      "visual_label": "Ký Ức Hình Ảnh",
-      "visual_desc": "Giúp đỡ người khác bằng cách tải lên ảnh của chai nước hoa hoặc bao bì. Tối đa 5MB mỗi ảnh.",
+      "description_placeholder": "Mô tả mùi hương, độ lưu hương hoặc chia sẻ trải nghiệm của bạn...",
+      "visual_label": "Thêm Ảnh",
+      "visual_desc": "Tải ảnh chai nước hoa hoặc bao bì lên để giúp người khác. Tối đa 5MB mỗi ảnh.",
       "add_photo": "Thêm ảnh",
       "cancel": "Hủy bỏ",
-      "submit": "Kích hoạt Giao thức",
+      "submit": "Gửi Đánh Giá",
       "sending": "Đang gửi...",
       "uploading": "Đang tải ảnh...",
       "rating_desc": {
@@ -472,77 +497,39 @@
     }
   },
   "review_summary": {
-    "ai_distilling": "AI đang tinh lọc tinh túy...",
-    "ai_powered_insights": "Thông Tin Khứu Giác Từ AI",
-    "what_people_saying": "Mọi người đang nói gì",
+    "ai_distilling": "AI đang tổng hợp đánh giá...",
+    "ai_powered_insights": "Tổng Hợp Đánh Giá Từ AI",
+    "what_people_saying": "Khách Hàng Nói Gì",
     "overall_sentiment": "Cảm xúc chung: {sentiment}",
-    "the_allure": "Sự Quyến Rũ",
-    "the_nuance": "Sắc Thái"
+    "the_allure": "Điểm Nổi Bật",
+    "the_nuance": "Chi Tiết Đáng Chú Ý"
   },
   "journal_page": {
-    "digital_anthology": "Tập Ký Số",
-    "journal_title": "Tạp chí <italic>Hương</italic>",
-    "journal_subtitle": "Khám phá giao thoa giữa truyền thống, khoa học thần kinh và nước hoa cao cấp.",
-    "special_release": "Phát Hành Đặc Biệt",
-    "consume_story": "Đọc Câu Chuyện",
-    "load_older": "Tải Thêm Bản Ghi",
-    "categories": {
-      "all": "Tất cả đánh giá",
-      "science": "Khoa Học",
-      "philosophy": "Triết Học",
-      "artistry": "Nghệ Thuật"
-    },
-    "featured_article": {
-      "title": "Quản Lý Đơn Hàng",
-      "excerpt": "Trích dẫn (Excerpt)"
-    },
-    "articles": [
-      {
-        "category": "Phân loại",
-        "title": "Quản Lý Đơn Hàng",
-        "excerpt": "Trích dẫn (Excerpt)",
-        "date": "Thời Điểm",
-        "image": "/luxury_ai_scent_lab.png"
-      },
-      {
-        "category": "Phân loại",
-        "title": "Quản Lý Đơn Hàng",
-        "excerpt": "Trích dẫn (Excerpt)",
-        "date": "Thời Điểm",
-        "image": "/luxury_ai_scent_lab.png"
-      },
-      {
-        "category": "Phân loại",
-        "title": "Quản Lý Đơn Hàng",
-        "excerpt": "Trích dẫn (Excerpt)",
-        "date": "Thời Điểm",
-        "image": "/luxury_ai_scent_lab.png"
-      },
-      {
-        "category": "Phân loại",
-        "title": "Quản Lý Đơn Hàng",
-        "excerpt": "Trích dẫn (Excerpt)",
-        "date": "Thời Điểm",
-        "image": "/luxury_ai_scent_lab.png"
-      }
-    ]
+    "loading": "Đang tải hệ thống tạp chí...",
+    "empty_title": "Tạp chí Perfume GPT",
+    "empty_desc": "Hiện chưa có ấn bản nào được xuất bản.",
+    "header_badge": "Biên Tập Điểm Nhấn",
+    "header_title": "Ấn Bản Kỷ Nguyên",
+    "header_desc": "Khám phá nghệ thuật chế tác hương thơm, câu chuyện lịch sử và nguồn cảm hứng bất tận đằng sau mỗi giọt nước hoa.",
+    "featured_badge": "Tiêu Điểm",
+    "read_more": "Đọc Ký Sự"
   },
   "collection": {
-    "badge": "Dịch Vụ Quản Gia",
-    "title": "Quản Lý Đơn Hàng",
+    "badge": "Sản Phẩm",
+    "title": "Bộ Sưu Tập Nước Hoa",
     "refine": "Lọc",
     "sortBy": "Sắp Xếp",
-    "showing": "Hiển thị {count} đơn vị / tổng {total}"
+    "showing": "Hiển thị {count} sản phẩm / tổng {total}"
   },
   "footer": {
-    "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+    "desc": "Đăng ký để nhận thông tin về sản phẩm mới và ưu đãi độc quyền.",
     "column_exploration": "Khám Phá",
-    "column_house": "Ngôi Nhà",
-    "newsletter_title": "Tin Tức Thượng Lưu",
-    "newsletter_desc": "Tham gia vòng tròn nội bộ để nhận các bản phát hành lưu trữ và thông tin chi tiết từ AI.",
+    "column_house": "Về Chúng Tôi",
+    "newsletter_title": "Bản Tin Perfume GPT",
+    "newsletter_desc": "Nhận thông tin sản phẩm mới và ưu đãi đặc biệt sớm nhất.",
     "email_placeholder": "EMAIL CỦA BẠN",
-    "copyright": "© 2026 AURA HOUSE. BẢO LƯU MỌI QUYỀN.",
-    "engine": "Động Cơ Aura AI v4.2",
+    "copyright": "© 2026 PERFUME GPT HOUSE. BẢO LƯU MỌI QUYỀN.",
+    "engine": "Động Cơ Perfume GPT v4.2",
     "location": "Grasse • Paris • Tokyo",
     "navigation_labels": {
       "products": "Sản phẩm",
@@ -561,12 +548,15 @@
     }
   },
   "cart": {
-    "title": "Quản Lý Đơn Hàng",
+    "title": "Giỏ Hàng Của Bạn",
     "signin_required": "Vui lòng đăng nhập để xem giỏ hàng của bạn.",
     "signin_btn": "Đăng Nhập",
-    "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+    "empty": "Giỏ hàng của bạn đang trống. Hãy xem bộ sưu tập nhé.",
     "continue_shopping": "Tiếp Tục Mua Sắm",
-    "loading": "Đang tải bộ dữ liệu khứu giác...",
+    "select_all": "Chọn Tất Cả",
+    "deselect_all": "Bỏ Chọn",
+    "items_selected": "{count} sản phẩm được chọn",
+    "loading": "Đang tải...",
     "each": "mỗi sản phẩm",
     "summary": "Tóm tắt",
     "subtotal": "Tổng Tiền Hàng",
@@ -575,12 +565,12 @@
     "total": "Tổng Thanh Toán",
     "proceed_checkout": "Tiến Hành Thanh Toán",
     "secure_checkout": "THANH TOÁN BẢO MẬT BỞI",
-    "intelligence": "TRÍ TUỆ AURA AI",
+    "intelligence": "Perfume GPT",
     "perks": {
-      "delivery_title": "Giao Hàng Găng Tay Trắng",
+      "delivery_title": "Giao Hàng Tận Nơi",
       "delivery_desc": "Miễn phí cho tất cả đơn hàng.",
-      "auth_title": "Đảm Bảo Chính Hãng",
-      "auth_desc": "Được niêm phong bằng ấn ký số.",
+      "auth_title": "Hàng Chính Hãng",
+      "auth_desc": "Được đảm bảo chính hãng 100%.",
       "refill_title": "Dịch Vụ Nạp Lại",
       "refill_desc": "Sự bền vững trong từng chai nước hoa."
     }
@@ -592,7 +582,7 @@
     "set_default": "Không thể đặt làm mặc định.",
     "save_address": "Lưu địa chỉ",
     "recipient_placeholder": "Nguyễn Văn A",
-    "phone_placeholder": "Nhập SĐT khách hàng...",
+    "phone_placeholder": "Nhập số điện thoại...",
     "street_placeholder": "Số 123, đường ABC...",
     "province_label": "Tỉnh/Thành Phố *",
     "district_label": "Quận/Huyện *",
@@ -611,33 +601,38 @@
   },
   "dashboard": {
     "kpi": {
-      "title": "Quản Lý Đơn Hàng",
+      "title": "Hiệu Suất Ngày",
       "subtitle_prefix": "KPI Hôm Nay —",
-      "loading": "Đang tải bộ dữ liệu khứu giác...",
+      "loading": "Đang tải...",
       "cards": {
         "revenue": "Tổng Doanh thu",
         "total_orders": "Tổng Đơn Hàng",
         "avg_order_value": "Giá Trị Đơn Trung Bình",
         "completion_rate": "Tỉ Lệ Hoàn Tất",
-        "completed_suffix": "Hoàn tất"
+        "cancel_rate": "Tỉ Lệ Hủy",
+        "refund_amount": "Lượng hoàn tiền",
+        "completed_suffix": "Hoàn tất",
+        "successful": "Hoàn tất",
+        "cancelled": "Đã hủy",
+        "refunded": "Hoàn tiền"
       },
       "top_products": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Sản Phẩm Bán Chạy",
         "sold_suffix": "đã bán",
-        "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu."
+        "empty": "Chưa có dữ liệu bán hàng."
       },
       "errors": {
         "load_failed": "Không tải được danh sách đơn hàng"
       }
     },
     "profile": {
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-      "user_placeholder": "Khách Aura",
+      "title": "Hồ Sơ Cá Nhân",
+      "subtitle": "Quản lý thông tin và tùy chỉnh trải nghiệm mùi hương của bạn.",
+      "user_placeholder": "Khách Perfume GPT",
       "personal_info": "Thông tin cá nhân",
       "roles": {
         "admin": "Quản trị viên",
-        "staff": "NHÂN VIÊN",
+        "staff": "Nhân Viên",
         "customer": "Khách Hàng"
       },
       "edit": "Sửa",
@@ -647,11 +642,11 @@
         "fullName": "Họ tên",
         "phone": "Số Điện Thoại",
         "email": "Email",
-        "email_immutable": "Dấu ấn định danh kĩ thuật số này là duy nhất và không thể thay thế.",
+        "email_immutable": "Email đăng ký không thể thay đổi sau khi tạo tài khoản.",
         "gender": "Giới tính",
         "dob": "Ngày sinh",
-        "address": "5-1-15 Jinguumae, Shibuya",
-        "city": "Tokyo",
+        "address": "Địa chỉ",
+        "city": "Thành phố",
         "country": "Quốc gia",
         "min_budget": "Ngân sách tối thiểu (VNĐ)",
         "max_budget": "Ngân sách tối đa (VNĐ)"
@@ -665,29 +660,29 @@
         "other": "Khác"
       },
       "security": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Bảo Mật Tài Khoản",
         "protected": "Tài khoản đang được bảo vệ",
         "change_password": "Đổi mật khẩu",
         "modal_subtitle": "Nhập mật khẩu cũ, mật khẩu mới và xác nhận lại.",
         "old_password": "Mật khẩu cũ",
         "new_password": "Mật khẩu mới",
         "confirm_password": "Xác nhận mật khẩu mới",
-        "success": "Cập nhật bài viết thành công!",
+        "success": "Cập nhật mật khẩu thành công!",
         "error_old_required": "Vui lòng nhập mật khẩu cũ",
         "error_new_min": "Mật khẩu mới phải có ít nhất 6 ký tự",
         "error_mismatch": "Xác nhận mật khẩu mới không khớp",
-        "waiting": "Đang đợi..."
+        "waiting": "Đang xử lý..."
       },
       "verification": {
-        "title": "Quản Lý Đơn Hàng",
-        "verified": "Xác minh",
+        "title": "Xác Thực Email",
+        "verified": "Đã xác minh",
         "unverified": "Email chưa xác thực. (Tùy chọn)",
         "resend": "Gửi email xác thực",
         "sending": "Đang gửi...",
         "sent": "Đã gửi email xác thực thành công."
       },
       "chat": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Trò Chuyện & Hỗ Trợ",
         "buttons": {
           "perfume_ai": "Trợ lý Nước hoa (AI)",
           "marketing_ai": "Trợ lý Tiếp thị (AI)"
@@ -697,7 +692,7 @@
           "type_message": "Nhập tin nhắn..."
         },
         "tabs": {
-          "history": "Lịch sử giao dịch",
+          "history": "Lịch sử trò chuyện",
           "contacts": "Liên hệ"
         },
         "fallbacks": {
@@ -721,10 +716,10 @@
         "settings": "Cài Đặt"
       },
       "premium_member": "Thành Viên Cao Cấp",
-      "active": "Cộng hưởng Hoạt động",
-      "loyalty_points": "Điểm Aura",
-      "ai_profile_badge": "Hồ Sơ Tạo Bởi AI",
-      "match_score": "Điểm Phối Chế",
+      "active": "Đang Hoạt Động",
+      "loyalty_points": "Điểm Thưởng",
+      "ai_profile_badge": "Hồ Sơ Được Tạo Bởi AI",
+      "match_score": "Điểm Phù Hợp",
       "preferred_families": "Nhóm Hương Ưa Thích",
       "intensity": "Độ Đậm Đặc",
       "top_notes": "Hương Đầu",
@@ -736,17 +731,17 @@
       "save_changes": "Lưu thay đổi",
       "coming_soon": "Sắp ra mắt",
       "fallback": {
-        "user": "Định danh (Người dùng)",
-        "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+        "user": "Khách Hàng",
+        "empty": "Chưa có dữ liệu. Hãy bắt đầu khám phá bộ sưu tập.",
         "placeholder_phone": "+84 901 234 567"
       }
     },
     "addresses": {
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-      "add_new": "Thêm Tài sản Mới",
+      "title": "Sổ Địa Chỉ",
+      "subtitle": "Quản lý các địa chỉ giao hàng của bạn.",
+      "add_new": "Thêm Địa Chỉ Mới",
       "edit": "Sửa",
-      "delete_confirm": "Xóa bỏ {type} này? Hành động này sẽ cập nhật tất cả sản phẩm liên quan.",
+      "delete_confirm": "Xóa địa chỉ này? Hành động này không thể hoàn tác.",
       "no_addresses": "Bạn chưa có địa chỉ nào được lưu.",
       "set_default": "Không thể đặt làm mặc định.",
       "default_label": "Mặc định",
@@ -754,18 +749,18 @@
         "added": "Thêm địa chỉ mới thành công!",
         "updated": "Cập nhật địa chỉ thành công!",
         "deleted": "Xóa địa chỉ thành công!",
-        "set_default": "Không thể đặt làm mặc định."
+        "set_default": "Đã đặt làm địa chỉ mặc định."
       },
       "error": {
         "fetch": "Không thể tải danh sách địa chỉ.",
-        "delete": "Xóa",
+        "delete": "Không thể xóa địa chỉ.",
         "set_default": "Không thể đặt làm mặc định.",
         "generic": "Đã có lỗi xảy ra."
       }
     },
     "inventory": {
-      "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+      "title": "Quản Lý Tồn Kho",
+      "subtitle": "Theo dõi và cập nhật số lượng hàng tồn kho tại các boutique.",
       "store": "Phân bổ Boutique",
       "select_store": "Vui lòng chọn quầy để xem sản phẩm.",
       "no_store_assigned": "Chưa được gán quầy. Liên hệ Admin.",
@@ -783,8 +778,8 @@
         "optimal": "Ổn định"
       },
       "operations": {
-        "title": "Quản Lý Đơn Hàng",
-        "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+        "title": "Thao Tác Nhập / Điều Chỉnh Kho",
+        "desc": "Cập nhật số lượng tồn kho theo từng phiên bản sản phẩm.",
         "selected_variant": "Phiên Bản Đã Chọn",
         "none": "Trống",
         "import_qty": "Số Lượng Nhập",
@@ -796,11 +791,11 @@
         "default_reason": "Điều chỉnh thủ công"
       },
       "logs": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Nhật Ký Tồn Kho",
         "no_logs": "Chưa có nhật ký tồn kho."
       },
       "processing": "ĐANG CHUẨN BỊ",
-      "loading": "Đang tải bộ dữ liệu khứu giác...",
+      "loading": "Đang tải...",
       "errors": {
         "load_stores": "Không tải được danh sách quầy",
         "load_overview": "Không tải được tổng quan tồn kho",
@@ -810,15 +805,15 @@
     },
     "orders": {
       "title": "Quản Lý Đơn Hàng",
-      "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+      "subtitle": "Theo dõi và xử lý toàn bộ đơn hàng trong hệ thống.",
       "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
       "table": {
-        "code": "BOUTIQUE-01",
+        "code": "Mã Đơn",
         "date": "Thời Điểm",
-        "items": "Sản phẩm trả",
-        "status": "Trạng Thái Đơn",
+        "items": "Sản Phẩm",
+        "status": "Trạng Thái",
         "total": "Tổng Thanh Toán",
-        "actions": "Giao Thức"
+        "actions": "Thao Tác"
       },
       "status": {
         "completed": "HOÀN THÀNH",
@@ -828,29 +823,33 @@
         "unknown": "Không rõ"
       },
       "detail": {
-        "title": "Quản Lý Đơn Hàng",
-        "staff": "NHÂN VIÊN",
+        "title": "Chi Tiết Đơn Hàng",
+        "staff": "Nhân Viên",
         "store": "Phân bổ Boutique",
-        "items": "Sản phẩm trả",
+        "items": "Sản Phẩm",
         "subtotal": "Tổng Tiền Hàng",
         "discount": "Giảm Giá",
         "total": "Tổng Thanh Toán",
         "payments": "LỊCH SỬ THANH TOÁN"
       },
       "stats": {
-        "showing": "Hiển thị {count} đơn vị / tổng {total}"
+        "showing": "Hiển thị {count} đơn / tổng {total}"
       },
       "errors": {
         "load_failed": "Không tải được danh sách đơn hàng"
       },
-      "loading": "Đang tải bộ dữ liệu khứu giác...",
+      "loading": "Đang tải...",
       "no_orders": "Không tìm thấy đơn hàng nào phù hợp."
     },
     "pos": {
-      "title": "Quản Lý Đơn Hàng",
+      "title": "Bán Hàng Tại Quầy (POS)",
+      "scan_camera_btn": "Quét bằng Camera",
+      "barcode_hint": "Quét mã vạch sản phẩm để thêm vào đơn",
+      "scan_camera_title": "Máy Quét Mã Vạch",
+      "scan_camera_desc": "Đưa mã vạch sản phẩm vào khung hình để tự động nhận diện.",
       "store": "Phân bổ Boutique",
       "select_store": "Vui lòng chọn quầy để xem sản phẩm.",
-      "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
+      "search_placeholder": "Tìm sản phẩm, thương hiệu...",
       "loading_products": "Đang tải sản phẩm...",
       "no_products": {
         "select_store": "Vui lòng chọn quầy để xem sản phẩm.",
@@ -860,16 +859,16 @@
       "low_stock_warning": "Chỉ còn {count} sản phẩm trong kho!",
       "product_out_warning": "Sản phẩm đã hết hàng!",
       "ai": {
-        "title": "Quản Lý Đơn Hàng",
-        "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+        "title": "Gợi Ý Sản Phẩm Bằng AI",
+        "desc": "Nhập thông tin khách để AI gợi ý nước hoa phù hợp.",
         "gender": "Giới tính",
         "occasion": "Dịp sử dụng",
         "budget": "Ngân sách (VNĐ)",
         "notes": "Ghi chú / Vibes",
-        "consult_btn": "Khởi tạo Đồng bộ",
-        "consulting": "Đang đồng bộ...",
-        "no_results": "Không tìm thấy sự cộng hưởng nào.",
-        "results_title": "Kết quả cộng hưởng được tìm thấy:",
+        "consult_btn": "Tìm Sản Phẩm Phù Hợp",
+        "consulting": "Đang tìm...",
+        "no_results": "Không tìm thấy sản phẩm phù hợp.",
+        "results_title": "Kết quả gợi ý:",
         "add_to_bill": "Thêm vào đơn",
         "genders": {
           "male": "Nam (Masculine)",
@@ -879,7 +878,7 @@
         "occasions": {
           "daily": "Hàng ngày",
           "office": "Văn phòng",
-          "date": "Thời Điểm",
+          "date": "Hẹn hò",
           "party": "Tiệc tùng",
           "gift": "Quà tặng",
           "sport": "Thể thao"
@@ -887,10 +886,10 @@
       },
       "guest_customer": "Khách vãng lai",
       "cart": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Giỏ Hàng Tại Quầy",
         "paid": "ĐÃ THANH TOÁN",
         "customer": "Khách Hàng",
-        "phone_placeholder": "Nhập SĐT khách hàng...",
+        "phone_placeholder": "Nhập số điện thoại khách hàng...",
         "lookup_btn": "Tra cứu",
         "looking_up": "Đang tra cứu...",
         "member": "Thành viên",
@@ -898,7 +897,7 @@
         "points": "{count} điểm tích lũy",
         "pending_points": "{count} điểm đang chờ",
         "guest_desc": "Điểm sẽ được tích khi thanh toán. Đăng ký để sử dụng.",
-        "no_items": "Không tìm thấy {type} trong khu vực này.",
+        "no_items": "Chưa có sản phẩm nào trong giỏ hàng.",
         "subtotal": "Tổng Tiền Hàng",
         "total": "Tổng Thanh Toán",
         "receipt_btn": "Xem hóa đơn",
@@ -915,8 +914,8 @@
         "open_payos": "Mở cổng thanh toán PayOS"
       },
       "receipt": {
-        "complete": "Phân Tích Hoàn Tất",
-        "order": "Cộng hưởng Đơn hàng",
+        "complete": "Thanh Toán Hoàn Tất",
+        "order": "Đơn Hàng",
         "earned_points": "+{count} điểm tích lũy",
         "reg_to_use": "(đăng ký để sử dụng)",
         "subtotal": "Tổng Tiền Hàng",
@@ -940,53 +939,54 @@
       "explorer": "Người khám phá",
       "guest": "Khách vãng lai",
       "admin": "Quản trị viên",
-      "staff": "NHÂN VIÊN",
+      "staff": "Nhân Viên",
       "customer": "Khách Hàng"
     },
     "customer": {
       "loyalty": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Điểm Thưởng & Ưu Đãi",
+        "subtitle": "Mỗi đơn hàng giúp bạn tích thêm điểm để đổi ưu đãi.",
         "credits_suffix": "ĐIỂM",
-        "history_title": "Lịch sử giao dịch",
-        "syncing": "Đang đồng bộ dữ liệu nơ-ron...",
-        "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+        "history_title": "Lịch Sử Điểm Thưởng",
+        "syncing": "Đang tải...",
+        "empty": "Chưa có giao dịch nào. Bắt đầu mua sắm để tích điểm.",
         "perks_title": "Đặc quyền",
         "perks_list": {
           "free_shipping": "Logistics Ưu tiên",
-          "discount_10": "Chữ ký Giảm giá 10%",
+          "discount_10": "Giảm giá 10% cho đơn tiếp theo",
           "rare_case": "Hộp lưu trữ Thủ công"
         },
         "ai_insight_title": "Phân tích Cộng hưởng AI",
         "ai_insight_desc": "Điểm tích lũy của bạn cho thấy sự ưu tiên cho các chiết xuất quý hiếm và nồng độ lưu hương cao.",
         "reasons": {
-          "purchase": "Cộng hưởng Sở hữu",
+          "purchase": "Mua hàng",
           "refund": "Hoàn trả Tinh chất",
-          "referral": "Đồng bộ hóa Đại sứ",
-          "bonus": "Quà tặng Thiên cung",
-          "redeem": "Quy đổi Khí quyển",
-          "order_completed": "Giao dịch Hoàn tất",
-          "order": "Cộng hưởng Đơn hàng",
+          "referral": "Giới thiệu thành viên",
+          "bonus": "Điểm thưởng đặc biệt",
+          "redeem": "Quy đổi voucher",
+          "order_completed": "Đơn hàng hoàn tất",
+          "order": "Tích điểm từ đơn hàng",
           "earned_from_order": "Tích lũy từ đơn hàng #{id}",
-          "exchanged_for_voucher": "Quy đổi mã khứu ký",
+          "exchanged_for_voucher": "Quy đổi mã giảm giá",
           "exchanged_for_voucher_generic": "Quy đổi mã giảm giá {code}",
           "redeemed_for_order_voucher_redeem_freeship_max": "Sử dụng ưu đãi Miễn phí vận chuyển"
         },
-        "history": "Lịch sử giao dịch"
+        "history": "Lịch Sử Điểm Thưởng",
+        "discover_market": "Khám phá thị trường ưu đãi"
       },
       "home": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "credits_label": "Điểm Aura",
+        "title": "Trang Chủ Thành Viên",
+        "subtitle": "Chào mừng bạn trở lại. Hãy tiếp tục khám phá nước hoa.",
+        "credits_label": "Điểm Thưởng",
         "credits_suffix": "ĐIỂM",
-        "analyzing": "Đang phân tích DNA...",
-        "evolving_title": "Dấu ấn Khứu giác đang tiến hóa",
-        "evolving_desc": "AI của chúng tôi đã phát hiện các cộng hưởng khứu giác mới dựa trên tương tác gần đây. Cập nhật hồ sơ để đồng bộ.",
-        "refresh_btn": "Làm mới Tổng hợp",
-        "loyalty_points": "Điểm Aura",
+        "analyzing": "Đang phân tích...",
+        "evolving_title": "Hồ Sơ Mùi Hương Đã Cập Nhật",
+        "evolving_desc": "AI đã phát hiện sở thích mới dựa trên hoạt động gần đây. Cập nhật hồ sơ để nhận gợi ý chính xác hơn.",
+        "refresh_btn": "Cập Nhật Hồ Sơ",
+        "loyalty_points": "Điểm Thưởng",
         "offers_title": "Ưu đãi Hiện có",
         "offers_new": "Mới",
-        "offers_desc": "{count} Phần thưởng sẵn sàng tổng hợp",
+        "offers_desc": "{count} ưu đãi đang chờ bạn",
         "modules": {
           "profile": "Hồ sơ cá nhân",
           "addresses": "Sổ địa chỉ",
@@ -994,32 +994,34 @@
           "loyalty": "Điểm thưởng",
           "ai_chat": "Tư vấn AI",
           "quiz": "Kết quả Trắc nghiệm",
-          "explore": "Khám phá module →"
+          "explore": "Khám phá thêm →"
         }
       },
       "promotions": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Ưu Đãi Của Tôi",
+        "marketplace_title": "Thị trường Đặc quyền",
+        "subtitle": "Các mã giảm giá và đặc quyền đang chờ bạn sử dụng.",
+        "verified_signature": "Chữ ký Bảo chứng",
         "time_left": "Còn lại {time}",
         "expired": "Hết hạn",
         "copy_btn": "Sao chép mã",
         "copied": "Đã sao chép vào bộ nhớ tạm",
-        "benefit_label": "Lợi ích Tổng hợp",
-        "no_promos": "Bộ sưu tập của bạn đang trống",
+        "benefit_label": "Lợi ích",
+        "no_promos": "Bộ sưu tập ưu đãi của bạn đang trống",
         "no_promos_desc": "Hãy đổi điểm thưởng để nhận thêm ưu đãi mới.",
         "discount_off": "GIẢM {value}%",
         "discount_fixed": "GIẢM {value} {currency}",
-        "fallback_desc": "Đặc quyền olfactory đặc biệt dành cho khách hàng của House.",
+        "fallback_desc": "Đặc quyền dành riêng cho khách hàng của Perfume GPT.",
         "referral": {
-          "title": "Quản Lý Đơn Hàng",
-          "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+          "title": "Chương Trình Giới Thiệu",
+          "desc": "Chia sẻ mã của bạn và nhận điểm thưởng đặc biệt khi bạn bè đặt hàng.",
           "cta": "Khởi Tạo Tư Cách Thành Viên"
         }
       },
       "orders": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "empty_title": "Chưa có sản phẩm yêu thích nào",
+        "title": "Đơn Hàng Của Tôi",
+        "subtitle": "Theo dõi toàn bộ hành trình sở hữu những sản phẩm hương thơm.",
+        "empty_title": "Chưa có đơn hàng nào",
         "empty_desc": "Bắt đầu cuộc hành trình vào thế giới hương thơm xa hoa ngay hôm nay.",
         "order_label": "Đơn hàng",
         "more_suffix": "(+thêm {count})",
@@ -1036,9 +1038,9 @@
         }
       },
       "favorite": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
+        "title": "Tủ Hương Yêu Thích",
+        "subtitle": "Những sản phẩm đã chạm đến trái tim và khứu giác của bạn.",
+        "loading": "Đang tải...",
         "empty_title": "Chưa có sản phẩm yêu thích nào",
         "view_collection": "Khám phá bộ sưu tập",
         "details": "Xem chi tiết",
@@ -1049,10 +1051,10 @@
       "order_detail": {
         "back": "Quay Lại",
         "order_number": "Đơn hàng {code}",
-        "date": "Thời Điểm",
+        "date": "Ngày đặt hàng",
         "status": "Trạng Thái Đơn",
         "shipping_address": "Địa Chỉ Giao Hàng",
-        "items": "Sản phẩm trả",
+        "items": "Sản Phẩm",
         "summary": "Tóm tắt",
         "subtotal": "Tổng Tiền Hàng",
         "shipping": "Vận chuyển",
@@ -1087,10 +1089,10 @@
         "view_return": "Xem Đơn Trả Hàng"
       },
       "returns": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "empty_title": "Chưa có sản phẩm yêu thích nào",
-        "empty_desc": "Bắt đầu cuộc hành trình vào thế giới hương thơm xa hoa ngay hôm nay.",
+        "title": "Yêu Cầu Đổi Trả",
+        "subtitle": "Theo dõi và quản lý các yêu cầu đổi trả sản phẩm của bạn.",
+        "empty_title": "Chưa có yêu cầu đổi trả nào",
+        "empty_desc": "Bạn chưa có yêu cầu đổi trả nào. Nếu cần hỗ trợ, vui lòng liên hệ chúng tôi.",
         "back_to_orders": "Quay lại đơn hàng",
         "return_id": "Mã yêu cầu",
         "order_ref": "Đơn hàng liên quan",
@@ -1112,10 +1114,10 @@
         },
         "detail": {
           "back": "Quay Lại",
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Chi Tiết Yêu Cầu Đổi Trả",
           "return_id": "Mã yêu cầu",
-          "order": "Cộng hưởng Đơn hàng",
-          "status": "Trạng Thái Đơn",
+          "order": "Đơn hàng liên quan",
+          "status": "Trạng Thái",
           "reason": "Lý do",
           "refund_amount": "Số tiền hoàn",
           "total_amount": "Tổng giá trị trả",
@@ -1129,21 +1131,21 @@
           "tracking_number": "Mã vận đơn *",
           "tracking_placeholder": "Nhập mã vận đơn...",
           "submit_shipment": "Xác nhận đã gửi hàng",
-          "submitting": "Đang rèn...",
+          "submitting": "Đang xử lý...",
           "shipment_added": "Đã cập nhật thông tin vận chuyển",
           "cancel_btn": "Hủy",
           "cancel_confirm": "Bạn có chắc muốn hủy yêu cầu này?",
           "cancel_reason_placeholder": "Lý do hủy (tùy chọn)...",
           "cancelling": "Đang hủy...",
           "cancelled": "ĐÃ HỦY",
-          "not_found": "Không tìm thấy đơn hàng"
+          "not_found": "Không tìm thấy yêu cầu đổi trả"
         },
         "create_modal": {
-          "title": "Quản Lý Đơn Hàng",
-          "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+          "title": "Tạo Yêu Cầu Đổi Trả",
+          "subtitle": "Cung cấp thông tin để chúng tôi xử lý yêu cầu của bạn nhanh chóng.",
           "select_items": "Chọn sản phẩm đổi trả",
           "quantity_label": "Số lượng: {qty}",
-          "reason_label": "Lý do nhận lại (Bắt buộc)",
+          "reason_label": "Lý do đổi trả (Bắt buộc)",
           "reason_placeholder": "Ghi nhận tình trạng: Hàng bể vỡ, Bao bì móp, Khách đổi ý...",
           "item_reason_label": "Lý do riêng",
           "item_reason_placeholder": "Lý do cụ thể cho sản phẩm này...",
@@ -1159,21 +1161,21 @@
           "video_uploaded": "Video đã tải lên",
           "remove_video": "Xóa video",
           "min_images_warning": "Vui lòng thêm ít nhất 3 ảnh minh chứng.",
-          "submit_btn": "LƯU THAY ĐỔI",
-          "submitting": "Đang rèn...",
+          "submit_btn": "GỬI YÊU CẦU",
+          "submitting": "Đang xử lý...",
           "cancel_btn": "Hủy",
-          "success": "Cập nhật bài viết thành công!",
+          "success": "Gửi yêu cầu đổi trả thành công!",
           "error_no_items": "Vui lòng chọn ít nhất 1 sản phẩm.",
           "error_qty": "Số lượng trả phải lớn hơn 0.",
           "uploading": "Đang tải ảnh..."
         }
       },
       "notifications": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Thông Báo",
+        "subtitle": "Cập nhật mới nhất về đơn hàng và ưu đãi dành cho bạn.",
         "mark_all_read": "Đánh dấu tất cả đã đọc",
         "mark_read": "Đánh dấu đã đọc",
-        "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+        "empty": "Bạn chưa có thông báo nào.",
         "view_details": "Xem Chi Tiết",
         "load_more": "Tải Thêm Thông Báo",
         "time": {
@@ -1187,8 +1189,8 @@
     },
     "admin": {
       "home": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Bảng Điều Khiển Quản Trị",
+        "subtitle": "Tổng quan hoạt động kinh doanh và hệ thống Perfume GPT.",
         "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
         "stats": {
           "revenue": "Tổng Doanh thu",
@@ -1199,102 +1201,102 @@
         },
         "management": {
           "products": "Sản phẩm",
-          "products_desc": "Quản lý bộ sưu tập",
+          "products_desc": "Quản lý bộ sưu tập hương thơm",
           "catalog": "Danh mục",
           "catalog_desc": "Thương hiệu, nhóm hương",
           "orders": "Đơn hàng",
-          "orders_desc": "Sổ đăng ký hoàn tất",
+          "orders_desc": "Theo dõi và xử lý đơn hàng",
           "discounts": "Giảm giá",
-          "discounts_desc": "Phần thưởng chiến dịch",
+          "discounts_desc": "Quản lý mã khuyến mãi",
           "users": "Người dùng",
-          "users_desc": "Tài khoản thành viên"
+          "users_desc": "Quản lý tài khoản thành viên"
         },
         "feed": {
-          "title": "Quản Lý Đơn Hàng",
-          "cta": "Khởi Tạo Tư Cách Thành Viên",
+          "title": "Hoạt Động Gần Đây",
+          "cta": "Xem Tất Cả Hoạt Động",
           "match_score": "Điểm Phối Chế",
-          "sequence": "Tổng hợp Sequence #{id}"
+          "sequence": "Giao dịch #{id}"
         },
         "products": {
-          "title": "Quản Lý Đơn Hàng",
-          "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+          "title": "Quản Lý Sản Phẩm",
+          "subtitle": "Quản lý toàn bộ hương sắc trong Bộ Sưu Tập.",
           "curate_btn": "Tạo Sản Phẩm Mới",
-          "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
-          "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+          "search_placeholder": "Tìm theo tên sản phẩm, thương hiệu...",
+          "loading": "Đang tải...",
+          "empty": "Chưa có sản phẩm nào. Hãy tạo sản phẩm đầu tiên.",
           "status": {
             "hidden": "Đã ẩn",
-            "active": "Cộng hưởng Hoạt động",
+            "active": "Đang hoạt động",
             "in_stock": "{count} còn lại"
           },
           "modal": {
-            "create_title": "Khởi tạo {type}",
-            "edit_title": "Sửa đổi {type}",
+            "create_title": "Tạo {type} Mới",
+            "edit_title": "Chỉnh Sửa {type}",
             "loading_product": "Đang tải thông tin sản phẩm...",
             "labels": {
-              "name": "Obsidian Absolute",
-              "slug": "Neural Slug *",
+              "name": "Tên sản phẩm *",
+              "slug": "Đường dẫn (Slug) *",
               "brand": "Thương hiệu *",
               "category": "Phân loại",
               "scent_family": "Họ hương",
               "gender": "Giới tính",
               "longevity": "Độ lưu hương",
               "concentration": "Nồng độ",
-              "description": "Sự phù hợp thần kinh được xác minh chính xác 98,4% trên tất cả các chiều không gian khứu giác.",
+              "description": "Mô tả sản phẩm",
               "variant_title": "Các Dung Tích Sản Phẩm *",
               "add_variant": "+ Thêm Dung Tích",
               "size_name": "Tên dung tích",
-              "price": "{amount}",
+              "price": "Giá ({amount})",
               "stock": "Số lượng",
               "images": "Hình ảnh (tối đa {max})",
               "active_checkbox": "Hiển thị công khai"
             },
             "placeholders": {
-              "gender": "Giới tính",
-              "concentration": "Nồng độ",
-              "size": "ví dụ: 50ml"
+              "gender": "Chọn giới tính",
+              "concentration": "Chọn nồng độ",
+              "size": "VD: 50ml"
             },
             "buttons": {
               "cancel": "Hủy bỏ",
               "create": "Tạo mới",
               "update": "Áp dụng thay đổi",
-              "processing": "ĐANG CHUẨN BỊ"
+              "processing": "ĐANG XỬ LÝ"
             }
           },
           "confirm": {
-            "hide": "Ẩn công cộng",
-            "show": "Hiện"
+            "hide": "Ẩn khỏi công chúng",
+            "show": "Hiện công khai"
           },
           "errors": {
             "required": "Vui lòng nhập tên, slug và thương hiệu.",
-            "invalid_variant": "Mỗi biến thể phải có tên và giá hợp lệ."
+            "invalid_variant": "Mỗi biến thể phải có tên và giá trị hợp lệ."
           },
           "form": {
             "default_variant": "Full Bottle"
           }
         },
         "intelligence": {
-          "title": "Quản Lý Đơn Hàng",
-          "trending_notes": "Xu hướng nốt hương phân tử",
-          "market_absorption": "Hấp thụ thị trường",
+          "title": "Trí Tuệ Thị Trường",
+          "trending_notes": "Xu Hướng Nốt Hương Phổ Biến",
+          "market_absorption": "Hấp Thụ Thị Trường",
           "tier_platinum": "Hạng Bạch kim Sang trọng",
           "tier_niche": "Phân khúc Niche Thủ công",
-          "report_btn": "Tạo Báo cáo Đầy đủ"
+          "report_btn": "Tạo Báo Cáo Đầy Đủ"
         }
       },
       "manageJournal": {
         "list": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Danh Sách Bài Viết",
           "create_btn": "Viết Bài Mới",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
-          "delete_confirm": "Xóa bỏ {type} này? Hành động này sẽ cập nhật tất cả sản phẩm liên quan.",
-          "delete_error": "Lỗi xoá banner",
+          "loading": "Đang tải...",
+          "delete_confirm": "Xóa bài viết này? Hành động này không thể hoàn tác.",
+          "delete_error": "Lỗi xoá bài viết",
           "priority_label": "Ưu tiên: {value}",
           "no_excerpt": "Không có mô tả ngắn...",
           "date_locale": "vi-VN"
         },
         "fields": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Tiêu đề bài viết *",
           "title_placeholder": "VD: Khám phá mùa xuân",
           "category": "Phân loại",
           "category_placeholder": "VD: science, philosophy, artistry",
@@ -1306,7 +1308,7 @@
           "sections": "Cấu trúc Nội dung (Sections)",
           "add_section": "Thêm đoạn",
           "section_index": "Nội dung {index}",
-          "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+          "subtitle": "Tiêu đề phụ",
           "subtitle_placeholder": "VD: Bộ sưu tập mới...",
           "product_link": "Liên kết tới Sản Phẩm",
           "no_product_link": "-- Không gắn link sản phẩm --",
@@ -1317,26 +1319,26 @@
           "content_placeholder": "Nội dung cho đoạn này..."
         },
         "create": {
-          "title": "Quản Lý Đơn Hàng",
-          "submit_btn": "LƯU THAY ĐỔI",
-          "submitting": "Đang rèn...",
-          "success": "Cập nhật bài viết thành công!",
+          "title": "Tạo Bài Viết Mới",
+          "submit_btn": "ĐĂNG BÀI VIẾT",
+          "submitting": "Đang đăng...",
+          "success": "Đăng bài viết thành công!",
           "error_main_image": "Bắt buộc phải có ảnh bìa chính",
           "error_content": "Mỗi đoạn nội dung bắt buộc phải có văn bản",
-          "error_failed": "Lỗi khi cập nhật tạp chí"
+          "error_failed": "Lỗi khi đăng bài viết"
         },
         "edit": {
-          "title": "Quản Lý Đơn Hàng",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
+          "title": "Chỉnh Sửa Bài Viết",
+          "loading": "Đang tải...",
           "submit_btn": "LƯU THAY ĐỔI",
-          "submitting": "Đang rèn...",
+          "submitting": "Đang lưu...",
           "success": "Cập nhật bài viết thành công!",
           "error_load": "Lỗi tải bài viết",
-          "error_failed": "Lỗi khi cập nhật tạp chí"
+          "error_failed": "Lỗi khi cập nhật bài viết"
         }
       },
       "manageBanner": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Quản Lý Banner",
         "form": {
           "add_title": "Thêm Banner Mới",
           "update_title": "Cập Nhật Banner",
@@ -1351,14 +1353,14 @@
           "link_placeholder": "VD: /collection/...",
           "submit_add": "THÊM MỚI",
           "submit_update": "LƯU THAY ĐỔI",
-          "submitting": "Đang rèn..."
+          "submitting": "Đang lưu..."
         },
         "list": {
-          "title": "Quản Lý Đơn Hàng",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
+          "title": "Danh Sách Banner",
+          "loading": "Đang tải...",
           "no_title": "Không có tiêu đề",
           "no_subtitle": "—",
-          "delete_confirm": "Xóa bỏ {type} này? Hành động này sẽ cập nhật tất cả sản phẩm liên quan.",
+          "delete_confirm": "Xóa banner này? Hành động này không thể hoàn tác.",
           "delete_error": "Lỗi xoá banner",
           "update_success": "Cập nhật banner thành công",
           "create_success": "Thêm banner thành công",
@@ -1367,43 +1369,43 @@
         }
       },
       "analytics": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Phân Tích & Báo Cáo",
         "stats": {
           "revenue": "Tổng Doanh thu",
           "users": "Người dùng",
           "acceptance": "AI Acceptance",
-          "inventory": "Kho Cửa Hàng"
+          "inventory": "Tồn Kho"
         },
         "performance": {
-          "title": "Quản Lý Đơn Hàng"
+          "title": "Hiệu Suất Hệ Thống"
         },
         "feed": {
-          "title": "Quản Lý Đơn Hàng",
-          "event_label": "EVENT:",
-          "sync_complete": "User #{id} sync complete",
-          "active_now": "Active Now"
+          "title": "Luồng Hoạt Động Thời Gian Thực",
+          "event_label": "SỰ KIỆN:",
+          "sync_complete": "Người dùng #{id} đồng bộ hoàn tất",
+          "active_now": "Đang hoạt động"
         }
       },
       "users": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "syncing": "Đang đồng bộ dữ liệu nơ-ron...",
+        "title": "Quản Lý Người Dùng",
+        "subtitle": "Quản lý tài khoản thành viên và phân quyền trong hệ thống.",
+        "syncing": "Đang tải...",
         "filter_role": "Lọc vai trò:",
         "roles": {
-          "all": "Tất cả đánh giá",
+          "all": "Tất cả",
           "admin": "Quản trị viên",
-          "staff": "NHÂN VIÊN",
+          "staff": "Nhân Viên",
           "customer": "Khách Hàng"
         },
         "table": {
-          "user": "Định danh (Người dùng)",
-          "role": "Tổng hợp (Vai trò)",
-          "store": "Phân bổ Boutique",
-          "status": "Trạng Thái Đơn",
-          "actions": "Giao Thức"
+          "user": "Người Dùng",
+          "role": "Vai Trò",
+          "store": "Boutique",
+          "status": "Trạng Thái",
+          "actions": "Thao Tác"
         },
         "status": {
-          "active": "Cộng hưởng Hoạt động",
+          "active": "Đang hoạt động",
           "inactive": "Vô hiệu"
         },
         "actions": {
@@ -1412,41 +1414,41 @@
           "unassign_store": "Hủy Phân bổ"
         },
         "modals": {
-          "edit_title": "Sửa đổi {type}",
+          "edit_title": "Chỉnh Sửa {type}",
           "assign_title": "Gán nhân viên vào quầy: {name}",
-          "assign_desc": "Chọn thực thể nhân viên (STAFF) để đồng bộ với quầy này.",
+          "assign_desc": "Chọn nhân viên để phân bổ vào quầy này.",
           "save": "Lưu Thay đổi",
-          "saving": "Đang đồng bộ...",
+          "saving": "Đang lưu...",
           "cancel": "Hủy bỏ",
           "close": "Đóng",
-          "no_stores": "Không có boutique khả dụng để đồng bộ hóa."
+          "no_stores": "Không có boutique khả dụng để phân bổ."
         },
-        "no_users": "Không tìm thấy định danh nào trong khu vực này."
+        "no_users": "Không tìm thấy người dùng nào."
       },
       "rbac": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Phân Quyền Hệ Thống",
+        "subtitle": "Quản lý vai trò và quyền truy cập cho từng thành phần hệ thống.",
         "stats": {
-          "active_roles": "Vai trò Ma trận Hoạt động",
+          "active_roles": "Vai trò Hoạt động",
           "pending": "CHỜ XÁC NHẬN",
-          "alerts": "Cảnh báo Cộng hưởng Bảo mật"
+          "alerts": "Cảnh báo Bảo mật"
         },
         "matrix": {
-          "title": "Quản Lý Đơn Hàng",
-          "sync_msg": "Ma trận bảo mật đang được đồng bộ hóa với mạng lưới thần kinh."
+          "title": "Ma Trận Phân Quyền",
+          "sync_msg": "Ma trận phân quyền đang được đồng bộ hóa."
         }
       },
       "stores": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "add_new": "Thêm Tài sản Mới",
+        "title": "Quản Lý Hệ Thống Cửa Hàng",
+        "subtitle": "Quản lý thông tin và nhân sự tại các boutique.",
+        "add_new": "Thêm Cửa Hàng Mới",
         "edit": "Sửa",
         "columns": {
-          "name": "Obsidian Absolute",
-          "code": "BOUTIQUE-01",
-          "address": "5-1-15 Jinguumae, Shibuya",
-          "staff": "NHÂN VIÊN",
-          "actions": "Giao Thức"
+          "name": "Tên Cửa Hàng",
+          "code": "Mã Boutique",
+          "address": "Địa Chỉ",
+          "staff": "Nhân Viên",
+          "actions": "Thao Tác"
         },
         "actions": {
           "assign": "+ Gán NV",
@@ -1456,39 +1458,39 @@
         },
         "status": {
           "hidden": "Đã ẩn",
-          "active": "Cộng hưởng Hoạt động"
+          "active": "Đang hoạt động"
         },
         "messages": {
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
-          "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
-          "confirm_delete": "Xóa quầy này? Tồn kho và gán nhân sự sẽ bị ảnh hưởng.",
-          "saving": "Đang đồng bộ...",
+          "loading": "Đang tải...",
+          "empty": "Chưa có cửa hàng nào. Hãy tạo cửa hàng đầu tiên.",
+          "confirm_delete": "Xóa cửa hàng này? Tồn kho và gán nhân sự sẽ bị ảnh hưởng.",
+          "saving": "Đang lưu...",
           "save": "Lưu Thay đổi",
           "cancel": "Hủy bỏ"
         },
         "modal": {
           "assign_title": "Gán nhân viên vào quầy: {name}",
-          "assign_desc": "Chọn thực thể nhân viên (STAFF) để đồng bộ với quầy này.",
+          "assign_desc": "Chọn nhân viên để phân bổ vào quầy này.",
           "assign_btn": "Gán",
-          "none_available": "Không còn nhân viên khả dụng trong khu vực.",
+          "none_available": "Không còn nhân viên khả dụng.",
           "close": "Đóng"
         },
         "form": {
-          "name": "Obsidian Absolute",
-          "code": "BOUTIQUE-01",
-          "address": "5-1-15 Jinguumae, Shibuya",
-          "status": "Trạng Thái Đơn"
+          "name": "Tên cửa hàng *",
+          "code": "Mã boutique *",
+          "address": "Địa chỉ *",
+          "status": "Trạng Thái"
         }
       },
       "returns": {
-        "title": "Quản lý Đổi trả",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Quản Lý Đổi Trả",
+        "subtitle": "Xem xét và xử lý các yêu cầu đổi trả từ khách hàng.",
         "buttons": {
           "refresh": "Làm mới",
           "create_pos": "Tạo Đơn Đổi Trả"
         },
         "tabs": {
-          "all": "Tất cả đánh giá",
+          "all": "Tất cả",
           "online": "Trực tuyến",
           "pos": "Tại Quầy (POS)"
         },
@@ -1496,15 +1498,15 @@
           "source": "Nguồn",
           "id": "Mã Đơn",
           "order_id": "Mã Đơn Hàng",
-          "date": "Thời Điểm",
+          "date": "Ngày tạo",
           "reason": "Lý do",
           "shipping": "Vận chuyển",
-          "status": "Trạng Thái Đơn",
-          "actions": "Giao Thức",
+          "status": "Trạng Thái",
+          "actions": "Thao Tác",
           "no_reason": "Không có lý do",
           "no_shipment": "Chưa có vận đơn",
-          "syncing": "Đang đồng bộ dữ liệu nơ-ron...",
-          "no_returns": "Bản ghi trống"
+          "syncing": "Đang tải...",
+          "no_returns": "Chưa có yêu cầu đổi trả nào"
         },
         "status": {
           "REQUESTED": "Yêu cầu mới",
@@ -1523,7 +1525,7 @@
         "dialogs": {
           "review_title": "Xét duyệt Yêu cầu Đổi Trả",
           "receive_title": "Xác nhận Nhận Hàng",
-          "refund_title": "Giao thức Hoàn tiền",
+          "refund_title": "Xử Lý Hoàn Tiền",
           "request_id": "Mã Yêu Cầu",
           "order_id": "Mã Đơn Hàng",
           "source": "Nguồn",
@@ -1536,7 +1538,7 @@
           "note_label": "Ghi chú hoặc Phản hồi cho {target}",
           "note_placeholder_staff": "Nhập ghi chú hoặc lý do chi tiết để phản hồi lại cho nhân viên tại quầy...",
           "note_placeholder_customer": "Nhập ghi chú hoặc lý do chi tiết để thông báo lại khách hàng...",
-          "btn_reject": "Bác bỏ Yêu cầu",
+          "btn_reject": "Từ Chối Yêu Cầu",
           "btn_approve": "Chấp nhận & Cho phép Gửi Hàng",
           "receive_desc": "Hệ thống sẽ cập nhật kho {target} và đánh dấu quy trình hoàn trả hàng bước vào giai đoạn hoàn tiền. Nếu hàng bị bóc seal, yêu cầu sẽ tự động bị TỪ CHỐI.",
           "receive_condition": "Tình trạng Sản phẩm Nhận về",
@@ -1551,7 +1553,7 @@
           "refund_receipt": "Ảnh hóa đơn/Biên lai",
           "upload_success": "Tải ảnh hóa đơn thành công",
           "upload_error": "Lỗi tải ảnh lên",
-          "btn_refund": "Thực thi Hoàn tiền",
+          "btn_refund": "Xác Nhận Hoàn Tiền",
           "btn_cancel": "Hủy",
           "note_label_receive": "Ghi chú tình trạng hàng nhập kho",
           "note_placeholder_receive": "Ví dụ: Đã kiểm tra nguyên seal...",
@@ -1560,7 +1562,7 @@
           "cash_refund_desc": "Xác nhận hoàn tiền bằng tiền mặt trực tiếp tại quầy. Nhân viên vui lòng kiểm tra kỹ số tiền trả cho khách hàng.",
           "refund_note_placeholder_cash": "Ví dụ: Đã trả tiền mặt cho khách...",
           "refund_note_placeholder_bank": "Ví dụ: Mã giao dịch hoặc ghi chú hoàn tiền...",
-          "variant": "Loại",
+          "variant": "Phiên bản",
           "cash": "Tiền mặt",
           "bank_transfer": "Chuyển khoản",
           "refund_amount": "Số tiền hoàn",
@@ -1573,19 +1575,19 @@
         },
         "pos": {
           "error_not_found": "Không tìm thấy đơn hàng. Kiểm tra lại mã đơn POS.",
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Tạo Đơn Đổi Trả Tại Quầy",
           "searching": "Đang tìm...",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
+          "loading": "Đang tải...",
           "order_info": "Thông tin giao dịch",
           "guest": "Khách vãng lai",
           "select_items": "Chọn sản phẩm đổi trả",
-          "variant": "Loại",
+          "variant": "Phiên bản",
           "qty_bought": "SL Đã mua",
-          "reason_label": "Lý do nhận lại (Bắt buộc)",
+          "reason_label": "Lý do đổi trả (Bắt buộc)",
           "reason_placeholder": "Ghi nhận tình trạng: Hàng bể vỡ, Bao bì móp, Khách đổi ý...",
-          "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
-          "submitting": "Đang rèn...",
-          "btn_submit": "Khởi tạo Yêu cầu",
+          "search_placeholder": "Tìm theo mã đơn POS...",
+          "submitting": "Đang xử lý...",
+          "btn_submit": "Tạo Yêu Cầu",
           "btn_cancel": "Hủy",
           "verify_btn": "Xác minh đơn",
           "order_total": "Tổng tiền đơn:",
@@ -1598,7 +1600,7 @@
           "approved": "Đã duyệt yêu cầu thành công",
           "rejected": "Đã từ chối yêu cầu thành công",
           "confirm_cancel": "Bạn có chắc chắn muốn hủy yêu cầu trả hàng này?",
-          "receive_success": "Đã xác nhận thao tác nhận hàng thành công",
+          "receive_success": "Đã xác nhận nhận hàng thành công",
           "receive_error": "Lỗi khi xác nhận nhận hàng",
           "refund_success": "Đã xác nhận hoàn tiền và gửi thông báo cho khách hàng",
           "refund_error": "Lỗi khi xử lý hoàn tiền",
@@ -1607,8 +1609,8 @@
           "pos_search_error_today": "Ràng buộc: Chỉ có thể đổi trả đơn hàng trong ngày.",
           "pos_search_error_not_found": "Không tìm thấy đơn hàng. Kiểm tra lại mã đơn POS.",
           "pos_items_required": "Vui lòng chọn ít nhất một sản phẩm để trả",
-          "pos_success": "Tạo yêu cầu hoàn trả POS thành công!",
-          "pos_error": "Lỗi khi tạo yêu cầu hoàn trả POS",
+          "pos_success": "Tạo yêu cầu đổi trả thành công!",
+          "pos_error": "Lỗi khi tạo yêu cầu đổi trả",
           "cancel_success": "Hủy yêu cầu thành công",
           "cancel_error": "Lỗi khi hủy yêu cầu",
           "cancel_reason_default": "Hủy yêu cầu bởi nhân viên/cửa hàng",
@@ -1616,97 +1618,97 @@
         }
       },
       "products": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "add_new": "Thêm Tài sản Mới",
-        "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
+        "title": "Quản Lý Sản Phẩm",
+        "subtitle": "Quản lý toàn bộ danh mục hương thơm trong hệ thống.",
+        "add_new": "Thêm Sản Phẩm Mới",
+        "search_placeholder": "Tìm theo tên sản phẩm, thương hiệu...",
         "status": {
           "hidden": "Đã ẩn",
           "in_stock": "{count} còn lại"
         },
         "actions": {
           "edit": "Sửa",
-          "hide": "Ẩn công cộng",
-          "show": "Hiện"
+          "hide": "Ẩn khỏi công chúng",
+          "show": "Hiện công khai"
         },
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
+        "loading": "Đang tải...",
         "form": {
-          "title_create": "Tuyển chọn Hương sắc mới",
-          "title_edit": "Sửa đổi tài sản",
+          "title_create": "Tuyển Chọn Hương Sắc Mới",
+          "title_edit": "Chỉnh Sửa Sản Phẩm",
           "loading_product": "Đang tải thông tin sản phẩm...",
-          "name": "Obsidian Absolute",
-          "slug": "Neural Slug *",
+          "name": "Tên sản phẩm *",
+          "slug": "Đường dẫn (Slug) *",
           "brand": "Thương hiệu *",
           "category": "Phân loại",
           "scent_family": "Họ hương",
           "gender": "Giới tính",
           "longevity": "Độ lưu hương",
           "concentration": "Nồng độ",
-          "description": "Sự phù hợp thần kinh được xác minh chính xác 98,4% trên tất cả các chiều không gian khứu giác.",
-          "isActive": "Hoạt động công khai",
+          "description": "Mô tả sản phẩm",
+          "isActive": "Hiển thị công khai",
           "variants": {
-            "title": "Quản Lý Đơn Hàng",
-            "add": "Tải ảnh",
-            "name": "Obsidian Absolute",
-            "price": "{amount}",
+            "title": "Các Dung Tích Sản Phẩm *",
+            "add": "Thêm dung tích",
+            "name": "Tên dung tích",
+            "price": "Giá ({amount})",
             "stock": "Số lượng",
             "sku": "Mã SKU",
             "default_name": "Tiêu chuẩn"
           },
           "images": {
-            "title": "Quản Lý Đơn Hàng",
-            "add": "Tải ảnh"
+            "title": "Hình Ảnh Sản Phẩm",
+            "add": "Tải ảnh lên"
           },
-          "submit_create": "Tạo tài sản hương thơm",
+          "submit_create": "Tạo sản phẩm mới",
           "submit_edit": "Áp dụng thay đổi",
-          "processing": "ĐANG CHUẨN BỊ",
+          "processing": "ĐANG XỬ LÝ",
           "cancel": "Hủy bỏ"
         },
         "errors": {
-          "fill_fields": "Please fill name, slug and brand identifier.",
-          "variant_invalid": "Each variant must have a name and a valid valuation."
+          "fill_fields": "Vui lòng nhập tên, slug và thương hiệu.",
+          "variant_invalid": "Mỗi biến thể phải có tên và giá trị hợp lệ."
         },
-        "confirm_hide": "Ẩn khả năng hiển thị của tài sản này?",
-        "confirm_show": "Khôi phục khả năng hiển thị của tài sản này?"
+        "confirm_hide": "Ẩn sản phẩm này khỏi trang công khai?",
+        "confirm_show": "Hiện sản phẩm này lên trang công khai?"
       },
       "promotions": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
+        "title": "Quản Lý Ưu Đãi",
+        "subtitle": "Tạo và quản lý các mã giảm giá, chương trình khuyến mãi.",
+        "search_placeholder": "Tìm theo mã ưu đãi...",
         "stats": {
-          "total": "Tổng Thanh Toán",
-          "active": "Cộng hưởng Hoạt động",
-          "redemptions": "Quy đổi Toàn cầu"
+          "total": "Tổng Ưu Đãi",
+          "active": "Đang hoạt động",
+          "redemptions": "Lượt quy đổi"
         },
         "table": {
-          "code": "BOUTIQUE-01",
+          "code": "Mã Ưu Đãi",
           "discount": "Giảm Giá",
-          "conditions": "Thông số",
+          "conditions": "Điều Kiện",
           "redeemed": "Đã quy đổi",
-          "validity": "Hiệu lực Thời gian",
-          "status": "Trạng Thái Đơn",
-          "actions": "Giao Thức"
+          "validity": "Hiệu lực",
+          "status": "Trạng Thái",
+          "actions": "Thao Tác"
         },
         "status": {
-          "active": "Cộng hưởng Hoạt động",
+          "active": "Đang hoạt động",
           "expired": "Hết hạn"
         },
         "promotion_singular": "ưu đãi",
         "modals": {
-          "create_title": "Khởi tạo {type}",
-          "create_subtitle": "Cấu hình Logic Ưu đãi",
-          "code": "BOUTIQUE-01",
+          "create_title": "Tạo {type} Mới",
+          "create_subtitle": "Cấu hình logic ưu đãi",
+          "code": "Mã ưu đãi",
           "type": "LOẠI LỢI ÍCH",
-          "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+          "desc": "Mô tả ưu đãi",
           "value": "GIÁ TRỊ",
-          "limit": "ĐỊNH LƯỢNG SỬ DỤNG",
+          "limit": "GIỚI HẠN SỬ DỤNG",
           "start": "NGÀY BẮT ĐẦU",
           "end": "NGÀY HẾT HẠN",
           "is_public": "LOẠI TIẾP CẬN",
           "points_cost": "PHÍ QUY ĐỔI (ĐIỂM)",
-          "submit": "Kích hoạt Giao thức",
-          "submitting": "Đang rèn...",
-          "error_create": "Lỗi khởi tạo giao thức."
+          "submit": "Kích hoạt Ưu Đãi",
+          "submitting": "Đang tạo...",
+          "error_create": "Lỗi tạo ưu đãi."
         },
         "types": {
           "percentage": "PHẦN TRĂM (%)",
@@ -1714,26 +1716,26 @@
           "public": "CÔNG KHAI (MIỄN PHÍ)",
           "private": "NỘI BỘ (DÙNG ĐIỂM)"
         },
-        "delete_confirm": "Xóa bỏ {type} này? Hành động này sẽ cập nhật tất cả sản phẩm liên quan."
+        "delete_confirm": "Xóa ưu đãi này? Hành động này không thể hoàn tác."
       },
       "reviews": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Quản Lý Đánh Giá",
+        "subtitle": "Kiểm duyệt và quản lý đánh giá của khách hàng.",
         "stats": {
-          "total": "Tổng Thanh Toán",
+          "total": "Tổng Đánh Giá",
           "pending_reports": "Báo cáo chờ"
         },
         "tabs": {
           "all": "Tất cả đánh giá",
           "reports": "Báo cáo"
         },
-        "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
+        "search_placeholder": "Tìm theo tên khách hàng, sản phẩm...",
         "all_ratings": "Tất cả mức sao",
         "table": {
           "customer_product": "Khách & Sản phẩm",
-          "impression": "Ấn tượng",
-          "feedback": "Phản hồi",
-          "status": "Trạng Thái Đơn",
+          "impression": "Xếp hạng",
+          "feedback": "Nhận xét",
+          "status": "Trạng Thái",
           "action": "Thao tác"
         },
         "status": {
@@ -1744,65 +1746,65 @@
         },
         "actions": {
           "unhide": "Hiện đánh giá",
-          "hide": "Ẩn công cộng",
+          "hide": "Ẩn đánh giá",
           "unpin": "Bỏ ghim",
           "pin": "Ghim lên đầu",
           "flag": "Đánh dấu nghi ngờ",
           "purge": "Xóa vĩnh viễn"
         },
         "reports": {
-          "purity_title": "Sự Thuần Khiết Được Duy Trì",
+          "purity_title": "Không Có Báo Cáo Chờ",
           "purity_desc": "Không có báo cáo nào đang chờ xử lý",
           "concern": "Mối quan tâm được báo cáo",
           "reason": "Lý do",
           "on_review_by": "Về đánh giá của {name}"
         },
         "messages": {
-          "curating": "Đang tổng hợp đánh giá...",
-          "silence": "Sự im lặng trong thư viện.",
+          "curating": "Đang tải đánh giá...",
+          "silence": "Chưa có đánh giá nào.",
           "no_commentary": "Không có bình luận",
-          "essence_voices": "tiếng nói tinh hoa",
+          "essence_voices": "tiếng nói cao cấp",
           "confirm_purge": "Bạn có chắc chắn muốn XÓA VĨNH VIỄN đánh giá này? Hành động này không thể hoàn tác."
         },
         "rating_label": "Xếp hạng: {rating}/5"
       },
       "orders": {
         "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "subtitle": "Theo dõi và xử lý toàn bộ đơn hàng trong hệ thống.",
         "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
-        "filter": "Lọc cộng hưởng...",
+        "filter": "Lọc trạng thái...",
         "table": {
           "id": "Mã Đơn",
           "customer": "Khách Hàng",
           "total": "Tổng Thanh Toán",
           "fulfillment": "Hoàn Tất",
-          "payment": "Thanh toán:",
-          "date": "Thời Điểm",
-          "actions": "Giao Thức",
+          "payment": "Thanh toán",
+          "date": "Ngày đặt",
+          "actions": "Thao Tác",
           "no_orders": "Không tìm thấy đơn hàng nào phù hợp."
         },
         "modal": {
-          "header_prefix": "Hoàn Tất Nơ-ron",
-          "transformation": "Biến Đổi Quy Trình",
-          "identity": "Danh Tính",
-          "destination": "Điểm Đến",
-          "manifesto": "Bản Kê Khai",
-          "financial_matrix": "Ma Trận Tài Chính",
-          "revenue_base": "Doanh Thu Gốc",
+          "header_prefix": "Chi Tiết Đơn Hàng",
+          "transformation": "Cập Nhật Trạng Thái",
+          "identity": "Thông Tin Khách Hàng",
+          "destination": "Địa Chỉ Giao Hàng",
+          "manifesto": "Danh Sách Sản Phẩm",
+          "financial_matrix": "Tóm Tắt Tài Chính",
+          "revenue_base": "Tổng Tiền Hàng",
           "delivery_fee": "Phí Giao Hàng",
           "complimentary": "Miễn Phí",
-          "liquid_settlement": "Quyết Toán Linh Hoạt",
-          "syncing": "Đang đồng bộ dữ liệu nơ-ron..."
+          "liquid_settlement": "Tổng Thanh Toán",
+          "syncing": "Đang xử lý..."
         },
         "print": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Hóa Đơn Perfume GPT",
           "recipient": "NGƯỜI NHẬN",
-          "content": "NỘI DUNG",
+          "content": "SẢN PHẨM",
           "payment": "Thanh toán:",
           "method": "Hình thức:",
           "paid": "ĐÃ THANH TOÁN",
           "cod": "C.O.D",
-          "footer": "Cảm ơn bạn đã lựa chọn Aura AI Atelier.",
+          "footer": "Cảm ơn bạn đã lựa chọn Perfume GPT Cửa Hàng.",
           "guest": "Khách vãng lai"
         },
         "status": {
@@ -1821,20 +1823,20 @@
         }
       },
       "catalog": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "add_new": "Thêm Tài sản Mới",
+        "title": "Quản Lý Danh Mục",
+        "subtitle": "Quản lý thương hiệu, phân loại và nhóm hương trong hệ thống.",
+        "add_new": "Thêm Mục Mới",
         "tabs": {
           "brands": "Thương hiệu",
           "categories": "Danh mục",
           "scentFamilies": "Nhóm hương"
         },
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
-        "no_items": "Không tìm thấy {type} trong khu vực này.",
-        "delete_confirm": "Xóa bỏ {type} này? Hành động này sẽ cập nhật tất cả sản phẩm liên quan.",
+        "loading": "Đang tải...",
+        "no_items": "Không tìm thấy {type} nào.",
+        "delete_confirm": "Xóa {type} này? Hành động này sẽ ảnh hưởng đến tất cả sản phẩm liên quan.",
         "modal": {
-          "create_title": "Khởi tạo {type}",
-          "edit_title": "Sửa đổi {type}",
+          "create_title": "Tạo {type} Mới",
+          "edit_title": "Chỉnh Sửa {type}",
           "name_label": "Tên *",
           "name_placeholder": "Nhập tên",
           "desc_label": "Mô tả",
@@ -1842,15 +1844,15 @@
           "cancel": "Hủy bỏ",
           "save": "Lưu Thay đổi",
           "create": "Tạo mới",
-          "saving": "Đang đồng bộ..."
+          "saving": "Đang lưu..."
         },
         "errors": {
           "name_required": "Tên là bắt buộc."
         }
       },
       "marketing": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Trợ Lý Tiếp Thị AI",
+        "subtitle": "Công cụ AI hỗ trợ phân tích thị trường và tối ưu hóa chiến lược tiếp thị.",
         "stats": {
           "subscribers": "Người đăng ký",
           "open_rate": "Tỉ lệ Mở",
@@ -1858,78 +1860,78 @@
           "roi": "ROI Quảng cáo"
         },
         "campaigns": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Chiến Dịch Đang Hoạt Động",
           "ends_in": "Kết thúc sau {days} ngày",
-          "active": "Cộng hưởng Hoạt động"
+          "active": "Đang hoạt động"
         },
         "promotions": {
-          "title": "Quản Lý Đơn Hàng",
-          "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+          "title": "Quản Lý Khuyến Mãi",
+          "desc": "Tạo và quản lý mã giảm giá, ưu đãi đặc biệt.",
           "manage_btn": "Quản lý Coupon"
         },
         "suggestions": {
-          "title": "Quản Lý Đơn Hàng",
-          "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+          "title": "Gợi Ý Chiến Lược AI",
+          "desc": "Nhận phân tích và đề xuất chiến lược marketing từ AI.",
           "generate_btn": "Tạo Chiến lược"
         }
       },
       "settings": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Cài Đặt Hệ Thống",
+        "subtitle": "Cấu hình các thông số vận hành của hệ thống Perfume GPT.",
         "sections": {
           "localization": {
-            "title": "Quản Lý Đơn Hàng",
-            "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+            "title": "Bản Địa Hóa",
+            "desc": "Cài đặt ngôn ngữ, múi giờ và định dạng tiền tệ."
           },
           "security": {
-            "title": "Quản Lý Đơn Hàng",
-            "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+            "title": "Bảo Mật",
+            "desc": "Cấu hình xác thực và quyền truy cập hệ thống."
           },
           "notifications": {
-            "title": "Quản Lý Đơn Hàng",
-            "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+            "title": "Thông Báo",
+            "desc": "Quản lý cài đặt thông báo và email hệ thống."
           },
           "data": {
-            "title": "Quản Lý Đơn Hàng",
-            "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+            "title": "Dữ Liệu & Sao Lưu",
+            "desc": "Quản lý dữ liệu, xuất báo cáo và sao lưu hệ thống."
           }
         },
         "footer": {
           "version": "Phiên bản {version}",
-          "reload": "Tải lại Manifest"
+          "reload": "Tải lại Hệ Thống"
         }
       },
       "stores_extra": {
         "placeholders": {
-          "name": "Obsidian Absolute",
-          "code": "BOUTIQUE-01",
-          "address": "5-1-15 Jinguumae, Shibuya"
+          "name": "VD: Cửa Hàng Hà Nội",
+          "code": "VD: HN-01",
+          "address": "Địa chỉ đầy đủ..."
         },
-        "unnamed_staff": "Thực thể chưa đặt tên"
+        "unnamed_staff": "Nhân viên chưa đặt tên"
       },
       "staff": {
         "home": {
-          "title": "Quản Lý Đơn Hàng",
-          "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
+          "title": "Tổng Quan Nhân Viên",
+          "subtitle": "Theo dõi hiệu suất và hoạt động bán hàng tại quầy.",
+          "loading": "Đang tải...",
           "total_orders": "Tổng Đơn Hàng",
           "completed_suffix": "Hoàn tất",
           "avg_order_value": "Giá Trị Đơn Trung Bình",
           "today_revenue": "Doanh Thu Hôm Nay"
         },
         "orders": {
-          "title": "Quản Lý Đơn Hàng",
-          "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+          "title": "Đơn Hàng Tại Quầy",
+          "subtitle": "Quản lý các đơn hàng được tạo tại quầy của bạn.",
           "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
-          "loading": "Đang tải bộ dữ liệu khứu giác...",
+          "loading": "Đang tải...",
           "no_orders": "Không tìm thấy đơn hàng nào phù hợp.",
           "table": {
-            "code": "BOUTIQUE-01",
-            "date": "Thời Điểm",
-            "items": "Sản phẩm trả",
-            "status": "Trạng Thái Đơn",
+            "code": "Mã Đơn",
+            "date": "Ngày tạo",
+            "items": "Sản Phẩm",
+            "status": "Trạng Thái",
             "total": "Tổng Thanh Toán",
-            "actions": "Giao Thức",
+            "actions": "Thao Tác",
             "product_fallback": "Sản phẩm",
             "more": "+{count} khác",
             "pos": "Tại Quầy (POS)"
@@ -1941,13 +1943,13 @@
             "cancelled": "ĐÃ HỦY"
           },
           "stats": {
-            "showing": "Hiển thị {count} đơn vị / tổng {total}"
+            "showing": "Hiển thị {count} đơn / tổng {total}"
           },
           "detail": {
-            "title": "Quản Lý Đơn Hàng",
-            "staff": "NHÂN VIÊN",
-            "store": "Phân bổ Boutique",
-            "items": "Sản phẩm trả",
+            "title": "Chi Tiết Đơn Hàng",
+            "staff": "Nhân Viên",
+            "store": "Boutique",
+            "items": "Sản Phẩm",
             "subtotal": "Tổng Tiền Hàng",
             "discount": "Giảm Giá",
             "total": "Tổng Thanh Toán",
@@ -1959,70 +1961,70 @@
         }
       },
       "profile": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "user_placeholder": "Khách Aura",
+        "title": "Hồ Sơ Quản Trị Viên",
+        "subtitle": "Quản lý thông tin và cài đặt tài khoản quản trị.",
+        "user_placeholder": "Quản Trị Viên",
         "personal_info": "Thông tin cá nhân",
         "edit": "Sửa",
         "save": "Lưu Thay đổi",
         "cancel": "Hủy bỏ",
         "roles": {
           "customer": "Khách Hàng",
-          "staff": "NHÂN VIÊN",
+          "staff": "Nhân Viên",
           "admin": "Quản trị viên"
         },
         "user": {
           "explorer": "Người khám phá",
           "guest": "Khách vãng lai",
           "admin": "Quản trị viên",
-          "staff": "NHÂN VIÊN",
+          "staff": "Nhân Viên",
           "customer": "Khách Hàng"
         },
         "customer": {
           "loyalty": {
-            "title": "Quản Lý Đơn Hàng",
-            "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+            "title": "Điểm Thưởng & Đặc Quyền",
+            "subtitle": "Mỗi giao dịch là một bước tiến trên hành trình trở thành khách hàng cao cấp.",
             "credits_suffix": "ĐIỂM",
-            "history_title": "Lịch sử giao dịch",
-            "syncing": "Đang đồng bộ dữ liệu nơ-ron...",
-            "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
-            "discover_market": "Khám phá Thị trường",
+            "history_title": "Lịch Sử Điểm Thưởng",
+            "syncing": "Đang tải...",
+            "empty": "Chưa có giao dịch nào. Bắt đầu mua sắm để tích điểm.",
+            "discover_market": "Khám phá Bộ Sưu Tập",
             "perks_title": "Đặc quyền",
             "perks_list": {
               "free_shipping": "Logistics Ưu tiên",
-              "discount_10": "Chữ ký Giảm giá 10%",
+              "discount_10": "Giảm giá 10% cho đơn tiếp theo",
               "rare_case": "Hộp lưu trữ Thủ công"
             },
             "ai_insight_title": "Phân tích Cộng hưởng AI",
             "ai_insight_desc": "Điểm tích lũy của bạn cho thấy sự ưu tiên cho các chiết xuất quý hiếm và nồng độ lưu hương cao.",
             "reasons": {
-              "purchase": "Cộng hưởng Sở hữu",
+              "purchase": "Mua hàng",
               "refund": "Hoàn trả Tinh chất",
-              "referral": "Đồng bộ hóa Đại sứ",
-              "bonus": "Quà tặng Thiên cung",
-              "redeem": "Quy đổi Khí quyển",
-              "order_completed": "Giao dịch Hoàn tất",
-              "order": "Cộng hưởng Đơn hàng",
+              "referral": "Giới thiệu thành viên",
+              "bonus": "Điểm thưởng đặc biệt",
+              "redeem": "Quy đổi voucher",
+              "order_completed": "Đơn hàng hoàn tất",
+              "order": "Tích điểm từ đơn hàng",
               "earned_from_order": "Tích lũy từ đơn hàng #{id}",
-              "exchanged_for_voucher": "Quy đổi mã khứu ký",
+              "exchanged_for_voucher": "Quy đổi mã giảm giá",
               "exchanged_for_voucher_generic": "Quy đổi mã giảm giá {code}",
               "redeemed_for_order_voucher_redeem_freeship_max": "Sử dụng ưu đãi Miễn phí vận chuyển"
             },
-            "history": "Lịch sử giao dịch"
+            "history": "Lịch Sử Điểm Thưởng"
           },
           "home": {
-            "title": "Quản Lý Đơn Hàng",
-            "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-            "credits_label": "Điểm Aura",
+            "title": "Trang Chủ Thành Viên",
+            "subtitle": "Chào mừng trở lại. Hành trình khứu giác của bạn đang chờ tiếp nối.",
+            "credits_label": "Điểm Thưởng",
             "credits_suffix": "ĐIỂM",
-            "analyzing": "Đang phân tích DNA...",
-            "evolving_title": "Dấu ấn Khứu giác đang tiến hóa",
-            "evolving_desc": "AI của chúng tôi đã phát hiện các cộng hưởng khứu giác mới dựa trên tương tác gần đây. Cập nhật hồ sơ để đồng bộ.",
-            "refresh_btn": "Làm mới Tổng hợp",
-            "loyalty_points": "Điểm Aura",
+            "analyzing": "Đang phân tích...",
+            "evolving_title": "Hồ Sơ Mùi Hương Đã Cập Nhật",
+            "evolving_desc": "AI đã phát hiện sở thích mới. Cập nhật hồ sơ để nhận gợi ý chính xác hơn.",
+            "refresh_btn": "Cập Nhật Hồ Sơ",
+            "loyalty_points": "Điểm Thưởng",
             "offers_title": "Ưu đãi Hiện có",
             "offers_new": "Mới",
-            "offers_desc": "{count} Phần thưởng sẵn sàng tổng hợp",
+            "offers_desc": "{count} ưu đãi đang chờ bạn",
             "modules": {
               "profile": "Hồ sơ cá nhân",
               "addresses": "Sổ địa chỉ",
@@ -2030,34 +2032,34 @@
               "loyalty": "Điểm thưởng",
               "ai_chat": "Tư vấn AI",
               "quiz": "Kết quả Trắc nghiệm",
-              "explore": "Khám phá module →"
+              "explore": "Khám phá thêm →"
             }
           },
           "promotions": {
-            "title": "Quản Lý Đơn Hàng",
-            "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+            "title": "Ưu Đãi Của Tôi",
+            "subtitle": "Các mã giảm giá và đặc quyền đang chờ bạn sử dụng.",
             "marketplace_title": "Thị trường Đặc quyền",
-            "verified_signature": "Dấu ấn Đã xác thực",
+            "verified_signature": "Đã xác thực",
             "time_left": "Còn lại {time}",
             "expired": "Hết hạn",
             "copy_btn": "Sao chép mã",
             "copied": "Đã sao chép vào bộ nhớ tạm",
-            "benefit_label": "Lợi ích Tổng hợp",
-            "no_promos": "Bộ sưu tập của bạn đang trống",
+            "benefit_label": "Lợi ích",
+            "no_promos": "Bộ sưu tập ưu đãi của bạn đang trống",
             "no_promos_desc": "Hãy đổi điểm thưởng để nhận thêm ưu đãi mới.",
             "discount_off": "GIẢM {value}%",
             "discount_fixed": "GIẢM {value} {currency}",
-            "fallback_desc": "Đặc quyền olfactory đặc biệt dành cho khách hàng của House.",
+            "fallback_desc": "Đặc quyền dành riêng cho khách hàng của Perfume GPT.",
             "referral": {
-              "title": "Quản Lý Đơn Hàng",
-              "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+              "title": "Chương Trình Giới Thiệu",
+              "desc": "Chia sẻ mã của bạn và nhận điểm thưởng đặc biệt khi bạn bè đặt hàng.",
               "cta": "Khởi Tạo Tư Cách Thành Viên"
             }
           },
           "orders": {
-            "title": "Quản Lý Đơn Hàng",
-            "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-            "empty_title": "Chưa có sản phẩm yêu thích nào",
+            "title": "Đơn Hàng Của Tôi",
+            "subtitle": "Theo dõi toàn bộ hành trình sở hữu những sản phẩm hương thơm.",
+            "empty_title": "Chưa có đơn hàng nào",
             "empty_desc": "Bắt đầu cuộc hành trình vào thế giới hương thơm xa hoa ngay hôm nay.",
             "order_label": "Đơn hàng",
             "more_suffix": "(+thêm {count})",
@@ -2074,9 +2076,9 @@
             }
           },
           "favorite": {
-            "title": "Quản Lý Đơn Hàng",
-            "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-            "loading": "Đang tải bộ dữ liệu khứu giác...",
+            "title": "Tủ Hương Yêu Thích",
+            "subtitle": "Những sản phẩm đã chạm đến trái tim và khứu giác của bạn.",
+            "loading": "Đang tải...",
             "empty_title": "Chưa có sản phẩm yêu thích nào",
             "view_collection": "Khám phá bộ sưu tập",
             "details": "Xem chi tiết",
@@ -2087,10 +2089,10 @@
           "order_detail": {
             "back": "Quay Lại",
             "order_number": "Đơn hàng {code}",
-            "date": "Thời Điểm",
+            "date": "Ngày đặt hàng",
             "status": "Trạng Thái Đơn",
             "shipping_address": "Địa Chỉ Giao Hàng",
-            "items": "Sản phẩm trả",
+            "items": "Sản Phẩm",
             "summary": "Tóm tắt",
             "subtotal": "Tổng Tiền Hàng",
             "shipping": "Vận chuyển",
@@ -2127,11 +2129,11 @@
             }
           },
           "notifications": {
-            "title": "Quản Lý Đơn Hàng",
-            "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+            "title": "Thông Báo",
+            "subtitle": "Cập nhật mới nhất về đơn hàng và ưu đãi dành cho bạn.",
             "mark_all_read": "Đánh dấu tất cả đã đọc",
             "mark_read": "Đánh dấu đã đọc",
-            "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+            "empty": "Bạn chưa có thông báo nào.",
             "view_details": "Xem Chi Tiết",
             "load_more": "Tải Thêm Thông Báo",
             "time": {
@@ -2149,11 +2151,11 @@
           "other": "Khác"
         },
         "fallback": {
-          "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu.",
+          "empty": "Chưa có dữ liệu. Hãy bắt đầu khám phá bộ sưu tập.",
           "placeholder_phone": "+84 901 234 567"
         },
         "security": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Bảo Mật Tài Khoản",
           "protected": "Tài khoản đang được bảo vệ",
           "change_password": "Đổi mật khẩu",
           "modal_subtitle": "Nhập mật khẩu cũ, mật khẩu mới và xác nhận lại.",
@@ -2163,24 +2165,24 @@
           "error_old_required": "Vui lòng nhập mật khẩu cũ",
           "error_new_min": "Mật khẩu mới phải có ít nhất 6 ký tự",
           "error_mismatch": "Xác nhận mật khẩu mới không khớp",
-          "success": "Cập nhật bài viết thành công!",
-          "waiting": "Đang đợi..."
+          "success": "Cập nhật mật khẩu thành công!",
+          "waiting": "Đang xử lý..."
         },
         "verification": {
-          "title": "Quản Lý Đơn Hàng",
-          "verified": "Xác minh",
+          "title": "Xác Thực Email",
+          "verified": "Đã xác minh",
           "unverified": "Email chưa xác thực. (Tùy chọn)",
           "resend": "Gửi email xác thực",
           "sent": "Đã gửi email xác thực thành công."
         }
       },
       "inventory": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Quản Lý Tồn Kho",
+        "subtitle": "Theo dõi và cập nhật số lượng hàng tồn kho tại các boutique.",
         "store": "Phân bổ Boutique",
         "select_store": "Vui lòng chọn quầy để xem sản phẩm.",
         "no_store_assigned": "Chưa được gán quầy. Liên hệ Admin.",
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
+        "loading": "Đang tải...",
         "total_units": "Tổng Sản Phẩm",
         "low_stock": "Sắp Hết Hàng",
         "recent_refill": "Lần Nhập Gần Nhất",
@@ -2196,8 +2198,8 @@
           "optimal": "Ổn định"
         },
         "operations": {
-          "title": "Quản Lý Đơn Hàng",
-          "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+          "title": "Thao Tác Nhập / Điều Chỉnh Kho",
+          "desc": "Cập nhật số lượng tồn kho theo từng phiên bản sản phẩm.",
           "selected_variant": "Phiên Bản Đã Chọn",
           "none": "Trống",
           "import_qty": "Số Lượng Nhập",
@@ -2209,7 +2211,7 @@
           "default_reason": "Điều chỉnh thủ công"
         },
         "logs": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Nhật Ký Tồn Kho",
           "no_logs": "Chưa có nhật ký tồn kho."
         },
         "errors": {
@@ -2222,7 +2224,7 @@
       "pos": {
         "store": "Phân bổ Boutique",
         "select_store": "Vui lòng chọn quầy để xem sản phẩm.",
-        "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
+        "search_placeholder": "Tìm sản phẩm, thương hiệu...",
         "loading_products": "Đang tải sản phẩm...",
         "no_products": {
           "empty_store": "Không có sản phẩm nào trong quầy này.",
@@ -2232,8 +2234,8 @@
         "low_stock_warning": "Chỉ còn {count} sản phẩm trong kho!",
         "product_out_warning": "Sản phẩm đã hết hàng!",
         "ai": {
-          "title": "Quản Lý Đơn Hàng",
-          "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+          "title": "Tư Vấn Mùi Hương AI",
+          "desc": "Nhập thông tin để AI gợi ý sản phẩm phù hợp cho khách.",
           "gender": "Giới tính",
           "genders": {
             "male": "Nam (Masculine)",
@@ -2244,7 +2246,7 @@
           "occasions": {
             "daily": "Hàng ngày",
             "office": "Văn phòng",
-            "date": "Thời Điểm",
+            "date": "Hẹn hò",
             "party": "Tiệc tùng",
             "gift": "Quà tặng",
             "sport": "Thể thao"
@@ -2253,22 +2255,22 @@
           "notes": "Ghi chú / Vibes",
           "consult_btn": "Khởi tạo Đồng bộ",
           "consulting": "Đang đồng bộ...",
-          "no_results": "Không tìm thấy sự cộng hưởng nào.",
-          "results_title": "Kết quả cộng hưởng được tìm thấy:",
+          "no_results": "Không tìm thấy sự phù hợp nào.",
+          "results_title": "Kết quả gợi ý:",
           "add_to_bill": "Thêm vào đơn"
         },
         "cart": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Giỏ Hàng Tại Quầy",
           "paid": "ĐÃ THANH TOÁN",
           "customer": "Khách Hàng",
-          "phone_placeholder": "Nhập SĐT khách hàng...",
+          "phone_placeholder": "Nhập số điện thoại khách hàng...",
           "lookup_btn": "Tra cứu",
           "member": "Thành viên",
           "guest": "Khách vãng lai",
           "guest_desc": "Điểm sẽ được tích khi thanh toán. Đăng ký để sử dụng.",
           "points": "{count} điểm tích lũy",
           "pending_points": "{count} điểm đang chờ",
-          "no_items": "Không tìm thấy {type} trong khu vực này.",
+          "no_items": "Chưa có sản phẩm nào trong giỏ hàng.",
           "subtotal": "Tổng Tiền Hàng",
           "total": "Tổng Thanh Toán",
           "receipt_btn": "Xem hóa đơn",
@@ -2285,8 +2287,8 @@
           "open_payos": "Mở cổng thanh toán PayOS"
         },
         "receipt": {
-          "complete": "Phân Tích Hoàn Tất",
-          "order": "Cộng hưởng Đơn hàng",
+          "complete": "Thanh Toán Hoàn Tất",
+          "order": "Đơn Hàng",
           "subtotal": "Tổng Tiền Hàng",
           "discount": "Giảm Giá",
           "total": "Tổng Thanh Toán",
@@ -2306,9 +2308,9 @@
         }
       },
       "kpi": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Hiệu Suất Ngày",
         "subtitle_prefix": "KPI Hôm Nay —",
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
+        "loading": "Đang tải...",
         "cards": {
           "revenue": "Tổng Doanh thu",
           "total_orders": "Tổng Đơn Hàng",
@@ -2317,9 +2319,9 @@
           "completed_suffix": "Hoàn tất"
         },
         "top_products": {
-          "title": "Quản Lý Đơn Hàng",
+          "title": "Sản Phẩm Bán Chạy",
           "sold_suffix": "đã bán",
-          "empty": "Chưa có quầy nào. Khởi tạo một điểm mới để bắt đầu."
+          "empty": "Chưa có dữ liệu bán hàng."
         },
         "errors": {
           "load_failed": "Không tải được danh sách đơn hàng"
@@ -2328,27 +2330,27 @@
     },
     "staff": {
       "home": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
+        "title": "Tổng Quan Nhân Viên",
+        "subtitle": "Theo dõi hiệu suất và hoạt động bán hàng tại quầy.",
+        "loading": "Đang tải...",
         "total_orders": "Tổng Đơn Hàng",
         "completed_suffix": "Hoàn tất",
         "avg_order_value": "Giá Trị Đơn Trung Bình",
         "today_revenue": "Doanh Thu Hôm Nay"
       },
       "orders": {
-        "title": "Quản Lý Đơn Hàng",
-        "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+        "title": "Đơn Hàng Tại Quầy",
+        "subtitle": "Quản lý các đơn hàng được tạo tại quầy của bạn.",
         "search_placeholder": "Tìm theo mã đơn, tên, số điện thoại...",
-        "loading": "Đang tải bộ dữ liệu khứu giác...",
+        "loading": "Đang tải...",
         "no_orders": "Không tìm thấy đơn hàng nào phù hợp.",
         "table": {
-          "code": "BOUTIQUE-01",
-          "date": "Thời Điểm",
-          "items": "Sản phẩm trả",
-          "status": "Trạng Thái Đơn",
+          "code": "Mã Đơn",
+          "date": "Ngày tạo",
+          "items": "Sản Phẩm",
+          "status": "Trạng Thái",
           "total": "Tổng Thanh Toán",
-          "actions": "Giao Thức",
+          "actions": "Thao Tác",
           "product_fallback": "Sản phẩm",
           "more": "+{count} khác",
           "pos": "Tại Quầy (POS)"
@@ -2360,21 +2362,21 @@
           "cancelled": "ĐÃ HỦY"
         },
         "stats": {
-          "showing": "Hiển thị {count} đơn vị / tổng {total}"
+          "showing": "Hiển thị {count} đơn / tổng {total}"
         },
         "detail": {
-          "title": "Quản Lý Đơn Hàng",
-          "staff": "NHÂN VIÊN",
-          "store": "Phân bổ Boutique",
-          "items": "Sản phẩm trả",
+          "title": "Chi Tiết Đơn Hàng",
+          "staff": "Nhân Viên",
+          "store": "Boutique",
+          "items": "Sản Phẩm",
           "total": "Tổng Thanh Toán"
         }
       }
     }
   },
   "order_success": {
-    "title": "Quản Lý Đơn Hàng",
-    "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+    "title": "Đơn Hàng Đã Được Xác Nhận",
+    "desc": "Tuyệt tác của bạn đang được chuẩn bị với sự tỉ mỉ và tình yêu từ Cửa Hàng.",
     "order_code": "Mã Đơn Hàng",
     "estimated_arrival": "Thời gian giao hàng dự kiến",
     "payment_method": "Phương thức",
@@ -2383,12 +2385,12 @@
     "status_cod": "Thanh toán khi nhận hàng",
     "view_order": "Xem đơn hàng & theo dõi",
     "back_home": "Về trang chủ",
-    "wait_quote": "\\\"Sự chờ đợi là phần tinh tế nhất của mỗi nghi lễ.\\\"",
-    "processed_by": "Được xử lý an toàn bởi trí tuệ Aura AI"
+    "wait_quote": "\"Sự chờ đợi là phần tinh tế nhất của mỗi trải nghiệm.\"",
+    "processed_by": "Được xử lý an toàn bởi trí tuệ Perfume GPT"
   },
   "checkout": {
     "return_to_cart": "Quay lại giỏ hàng",
-    "page_title_part1": "Nghi lễ",
+    "page_title_part1": "Hoàn tất",
     "page_title_part2": "Thanh toán",
     "shipping_address": "Địa Chỉ Giao Hàng",
     "shipping_service": "Dịch vụ vận chuyển",
@@ -2400,7 +2402,7 @@
     "online_payment_label": "Thanh toán Trực tuyến",
     "back_to_address": "Quay lại địa chỉ",
     "qr_title": "Mã QR <span>Thanh toán</span>",
-    "qr_desc_scanning": "Vui lòng quét mã để hoàn tất nghi lễ.",
+    "qr_desc_scanning": "Vui lòng quét mã để hoàn tất giao dịch.",
     "download_qr": "Tải mã QR",
     "waiting_for_payment": "Đang chờ thanh toán...",
     "pay_via_payos_desc": "Giao dịch an toàn qua cổng PayOS.",
@@ -2412,154 +2414,154 @@
     "coupon_code": "Mã giảm giá",
     "apply": "Áp dụng",
     "coupon_applied": "Áp dụng thành công (Giảm {amount})",
-    "loyalty_points": "Điểm Aura",
+    "loyalty_points": "Điểm Thưởng",
     "subtotal": "Tổng Tiền Hàng",
     "total": "Tổng Thanh Toán",
     "invalid_coupon": "Mã không hợp lệ hoặc đã hết hạn",
     "error_missing_address": "Vui lòng chọn địa chỉ giao hàng",
     "error_create_payment": "Không thể tạo yêu cầu thanh toán",
-    "error_create_order": "Thất bại khi khởi tạo sự cộng hưởng sở hữu khứu giác.",
+    "error_create_order": "Không thể tạo đơn hàng. Vui lòng thử lại.",
     "error_calculate_fee": "Lỗi tính phí vận chuyển",
     "coupon_discount_label": "Coupon giảm giá",
-    "promotion_label": "ƯU ĐÃI NƠ-RON",
-    "select_voucher": "Chọn ƯU ĐÃI PHÙ HỢP",
+    "promotion_label": "ƯU ĐÃI",
+    "select_voucher": "CHỌN MÃ ƯU ĐÃI",
     "vouchers_modal_title": "Ví Voucher Của Bạn",
-    "vouchers_modal_subtitle": "Chọn mã giảm giá khả dụng để áp dụng cho nghi lễ.",
+    "vouchers_modal_subtitle": "Chọn mã giảm giá khả dụng để áp dụng cho đơn hàng.",
     "no_vouchers": "Hiện không có đặc quyền nào khả dụng.",
-    "shipping_fee_summary": "Phụ phí Logistics"
+    "shipping_fee_summary": "Phí vận chuyển"
   },
   "consultation_page": {
     "section_prefix": "Phần",
     "prev_step": "Quay lại",
     "analysis": {
-      "initializing": "Đang khởi tạo trọng số thần kinh...",
-      "loading": "Đang tải bộ dữ liệu khứu giác...",
-      "cross_referencing": "Đang đối chiếu hồ sơ {intensity}...",
-      "finalizing": "Đang hoàn tất các điểm neo cảm xúc...",
-      "calculating": "Công cụ thần kinh Aura AI đang tính toán...",
+      "initializing": "Đang khởi động...",
+      "loading": "Đang tải...",
+      "cross_referencing": "Đang so sánh hồ sơ {intensity}...",
+      "finalizing": "Đang hoàn thiện kết quả...",
+      "calculating": "AI đang tính toán gợi ý cho bạn...",
       "complete": "Phân Tích Hoàn Tất",
-      "description": "Sự phù hợp thần kinh được xác minh chính xác 98,4% trên tất cả các chiều không gian khứu giác.",
-      "dna_blueprint": "Bản Thiết Kế DNA Của Bạn.",
+      "description": "Hồ sơ mùi hương của bạn đã sẵn sàng.",
+      "dna_blueprint": "Hồ Sơ Mùi Hương Của Bạn",
       "profile_label": "HỒ SƠ",
       "view_profile": "Xem Hồ Sơ Của Bạn"
     },
     "steps": {
       "intensity": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Bạn muốn mùi hương như thế nào?",
         "options": {
-          "subtle": "Tinh tế & Thoáng đãng",
-          "balanced": "Cân bằng & Sang trọng",
-          "intense": "Mạnh mẽ & Nồng nàn"
+          "subtle": "Nhẹ nhàng & Thoáng",
+          "balanced": "Cân bằng & Sang",
+          "intense": "Mạnh & Đậm"
         }
       },
       "environment": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Bạn thường dùng ở đâu?",
         "options": {
-          "outdoor": "Ngoài trời đầy nắng",
-          "urban": "Không gian Đô thị hiện đại",
-          "midnight": "Phòng chờ Đêm yên tĩnh"
+          "outdoor": "Ngoài trời",
+          "urban": "Môi trường đô thị",
+          "midnight": "Ban đêm / Phòng kín"
         }
       },
       "emotion": {
-        "title": "Quản Lý Đơn Hàng",
+        "title": "Bạn muốn mùi hương gợi lên cảm xúc gì?",
         "options": {
-          "sophisticated": "Sự Tinh tế",
-          "playful": "Sự Ham chơi",
-          "mysterious": "Sự Bí ẩn",
-          "vitality": "Sức Sống"
+          "sophisticated": "Tinh tế, lịch sự",
+          "playful": "Vui tươi, năng động",
+          "mysterious": "Bí ẩn, cuốn hút",
+          "vitality": "Tươi mới, tràn năng lượng"
         }
       }
     }
   },
   "boutiques_page": {
     "hero": {
-      "badge": "Dịch Vụ Quản Gia",
-      "title": "Quản Lý Đơn Hàng"
+      "badge": "Cửa Hàng",
+      "title": "Hệ Thống Cửa Hàng"
     },
-    "book_btn": "Đặt Lịch Khám Phá Riêng",
+    "book_btn": "Đặt Lịch Tư Vấn",
     "concierge": {
-      "badge": "Dịch Vụ Quản Gia",
-      "title": "Quản Lý Đơn Hàng",
-      "desc": "Cập nhật hồ sơ của bạn hàng tháng",
+      "badge": "Hỗ Trợ Khách Hàng",
+      "title": "Tư Vấn Trực Tiếp",
+      "desc": "Đặt lịch hẹn để được tư vấn và trải nghiệm nước hoa trực tiếp tại cửa hàng.",
       "global_assistance": "Hỗ Trợ Toàn Cầu",
-      "bespoke_inquiries": "Yêu Cầu Riêng Biệt",
-      "schedule_btn": "Lên Lịch Buổi Tư Vấn Riêng"
+      "bespoke_inquiries": "Yêu Cầu Riêng",
+      "schedule_btn": "Đặt Lịch Tư Vấn"
     },
     "locations": {
       "paris": {
-        "city": "Tokyo",
-        "address": "5-1-15 Jinguumae, Shibuya",
-        "phone": "Số Điện Thoại",
-        "hours": "11:00 - 20:00"
+        "city": "Paris",
+        "address": "24 Rue du Faubourg Saint-Honoré, 75008 Paris",
+        "phone": "+33 1 XX XX XX XX",
+        "hours": "10:00 – 19:00"
       },
       "london": {
-        "city": "Tokyo",
-        "address": "5-1-15 Jinguumae, Shibuya",
-        "phone": "Số Điện Thoại",
-        "hours": "11:00 - 20:00"
+        "city": "London",
+        "address": "15 Old Bond Street, Mayfair, London W1S 4AX",
+        "phone": "+44 20 XXXX XXXX",
+        "hours": "10:00 – 18:30"
       },
       "new_york": {
-        "city": "Tokyo",
-        "address": "5-1-15 Jinguumae, Shibuya",
-        "phone": "Số Điện Thoại",
-        "hours": "11:00 - 20:00"
+        "city": "New York",
+        "address": "680 Madison Avenue, New York, NY 10065",
+        "phone": "+1 212 XXX XXXX",
+        "hours": "10:00 – 19:00"
       },
       "tokyo": {
         "city": "Tokyo",
-        "address": "5-1-15 Jinguumae, Shibuya",
-        "phone": "Số Điện Thoại",
-        "hours": "11:00 - 20:00"
+        "address": "5-1-15 Jingumae, Shibuya, Tokyo 150-0001",
+        "phone": "+81 3 XXXX XXXX",
+        "hours": "11:00 – 20:00"
       }
     }
   },
   "subscription_page": {
-    "title": "Quản Lý Đơn Hàng",
-    "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+    "title": "Gói Thành Viên",
+    "subtitle": "Trải nghiệm dịch vụ độc quyền và những sản phẩm nước hoa được chọn riêng cho bạn.",
     "card": {
-      "title": "Quản Lý Đơn Hàng",
-      "quote": "\\\"Một kiệt tác về tuyển chọn. Mỗi chiếc hộp như một bức thư tay từ xưởng chế tác của chúng tôi.\\\"",
+      "title": "Perfume GPT Elite",
+      "quote": "\"Một kiệt tác về tuyển chọn. Mỗi chiếc hộp như một bức thư tay từ xưởng chế tác của chúng tôi.\"",
       "price": "{amount}",
-      "per_month": " / tháng",
-      "cta": "Khởi Tạo Tư Cách Thành Viên"
+      "per_month": "/ tháng",
+      "cta": "Đăng Ký Ngay"
     },
     "perks": {
       "drops": {
-        "title": "Quản Lý Đơn Hàng",
-        "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+        "title": "Hộp Nước Hoa Hàng Tháng",
+        "desc": "Nhận hộp nước hoa được chọn riêng hàng tháng dựa trên hồ sơ mùi hương của bạn."
       },
       "sync": {
-        "title": "Quản Lý Đơn Hàng",
-        "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+        "title": "Gợi Ý Ngày Càng Chính Xác",
+        "desc": "AI liên tục học hỏi và cải thiện gợi ý theo thời gian."
       },
       "retraining": {
-        "title": "Quản Lý Đơn Hàng",
-        "desc": "Cập nhật hồ sơ của bạn hàng tháng"
+        "title": "Cập Nhật Hồ Sơ Định Kỳ",
+        "desc": "Hồ sơ mùi hương của bạn được cập nhật thường xuyên để luôn phù hợp."
       }
     }
   },
   "rewards_page": {
-    "title": "Quản Lý Đơn Hàng",
-    "subtitle": "Bạn càng khám phá nhiều, mối liên hệ của bạn với House càng sâu sắc.",
+    "title": "Chương Trình Tích Điểm",
+    "subtitle": "Tích điểm qua mỗi lần mua hàng và đổi điểm lấy ưu đãi hấp dẫn.",
     "tiers": {
       "silver": {
-        "name": "Obsidian Absolute",
-        "req": "Chỉ qua Lời mời",
-        "perk": "Ủy thác Chiết xuất Riêng • Bảo trì Trọn đời"
+        "name": "Bạc (Silver)",
+        "req": "Tích lũy từ 1.000 Điểm Thưởng",
+        "perk": "Giao Hàng Ưu Tiên • Giảm 5% Đơn Tiếp Theo"
       },
       "gold": {
-        "name": "Obsidian Absolute",
-        "req": "Chỉ qua Lời mời",
-        "perk": "Ủy thác Chiết xuất Riêng • Bảo trì Trọn đời"
+        "name": "Vàng (Gold)",
+        "req": "Tích lũy từ 5.000 Điểm Thưởng",
+        "perk": "Tư Vấn Riêng 1-1 • Giảm 10% Mọi Đơn • Giao Hàng Miễn Phí"
       },
       "platinum": {
-        "name": "Obsidian Absolute",
-        "req": "Chỉ qua Lời mời",
-        "perk": "Ủy thác Chiết xuất Riêng • Bảo trì Trọn đời"
+        "name": "Bạch Kim (Platinum)",
+        "req": "Chỉ qua Lời Mời",
+        "perk": "Chế Tác • Hộp Thủ Công • Ưu Tiên Ra Mắt Giới Hạn"
       },
       "obsidian": {
         "name": "Obsidian Absolute",
-        "req": "Chỉ qua Lời mời",
-        "perk": "Ủy thác Chiết xuất Riêng • Bảo trì Trọn đời"
+        "req": "Chỉ qua Lời Mời",
+        "perk": "Ủy Thác Chiết Xuất Riêng • Hỗ Trợ Cá Nhân • Bảo Trì Trọn Đời"
       }
     }
   },
@@ -2570,7 +2572,7 @@
       "members_val": "2.1k",
       "delivery_val": "1.2d"
     },
-    "feed_active": "Chuỗi Cộng hưởng Hoạt động • 2 phút trước"
+    "feed_active": "Chuỗi hoạt động • 2 phút trước"
   },
   "admin_orders_page": {
     "title": "Quản Lý Đơn Hàng",
@@ -2598,24 +2600,24 @@
     "created_at": "Ngày tạo",
     "updated_at": "Cập nhật",
     "track_ghn": "Tra Cứu GHN",
-    "no_shipping": "Chưa có đơn vận chuyển. Nhấn \\\"Tạo đơn GHN\\\" để tạo.",
+    "no_shipping": "Chưa có đơn vận chuyển. Nhấn \"Tạo đơn GHN\" để tạo.",
     "no_shipping_data": "Không có thông tin vận chuyển.",
     "products_list": "Danh Sách Sản Phẩm",
     "qty": "Số lượng",
     "no_products": "Không có sản phẩm",
     "status_labels": {
       "PENDING": "Chờ lấy hàng",
-      "PROCESSING": "Đang Xử Lý",
-      "CONFIRMED": "Đã Xác Nhận",
-      "SHIPPED": "Đang Giao",
-      "COMPLETED": "Hoàn Thành",
-      "CANCELLED": "Đã Hủy"
+      "PROCESSING": "Đang xử lý",
+      "CONFIRMED": "Đã xác nhận",
+      "SHIPPED": "Đang giao",
+      "COMPLETED": "Hoàn thành",
+      "CANCELLED": "Đã hủy"
     },
     "payment_labels": {
-      "PENDING": "Chờ lấy hàng",
-      "PAID": "Đã Thanh Toán",
+      "PENDING": "Chờ thanh toán",
+      "PAID": "Đã thanh toán",
       "FAILED": "Thất bại / Hủy",
-      "REFUNDED": "Đã Hoàn Tiền"
+      "REFUNDED": "Đã hoàn tiền"
     },
     "shipment_status": {
       "PENDING": "Chờ lấy hàng",
@@ -2625,5 +2627,97 @@
       "FAILED": "Thất bại / Hủy",
       "RETURNED": "Hoàn hàng"
     }
+  },
+  "support_page": {
+    "badge": "DỊCH VỤ ĐẶC QUYỀN",
+    "title": "Chúng Tôi Có Thể Hỗ Trợ Gì?",
+    "subtitle": "Đội ngũ chuyên gia luôn sẵn lòng dẫn lối bạn qua mọi trải nghiệm khứu giác",
+    "email_label": "Email",
+    "phone_label": "Điện thoại",
+    "atelier_label": "Phòng trưng bày",
+    "atelier_value": "Quận 1, TP. Hồ Chí Minh",
+    "hours_label": "Giờ mở cửa",
+    "hours_value": "T2 - T7: 10:00 - 20:00",
+    "form_title": "Gửi Tin Nhắn Cho Chúng Tôi",
+    "form_name": "Tên Của Bạn",
+    "form_name_placeholder": "Nguyễn Văn A",
+    "form_email": "Địa Chỉ Email",
+    "form_email_placeholder": "nguyenvana@example.com",
+    "form_message": "Tin Nhắn",
+    "form_message_placeholder": "Chúng tôi có thể giúp gì cho bạn hôm nay?",
+    "form_submit": "Gửi Tin Nhắn"
+  },
+  "privacy_page": {
+    "title": "Chính Sách Bảo Mật",
+    "last_updated": "Cập nhật lần cuối: Tháng 1 năm 2026",
+    "key_points": {
+      "protection_title": "Bảo Vệ Dữ Liệu",
+      "protection_desc": "Dữ liệu của bạn được mã hóa an toàn",
+      "storage_title": "Lưu Trữ An Toàn",
+      "storage_desc": "Chuẩn mã hóa công nghiệp",
+      "transparency_title": "Minh Bạch",
+      "transparency_desc": "Chính sách sử dụng dữ liệu rõ ràng",
+      "control_title": "Kiểm Soát",
+      "control_desc": "Bạn toàn quyền kiểm soát dữ liệu cá nhân"
+    },
+    "sections": {
+      "collect_title": "Thông Tin Thu Thập",
+      "collect_desc": "Chúng tôi thu thập thông tin bạn cung cấp trực tiếp, bao gồm tên, email, sở thích và phản hồi từ các bài phân tích AI để mang đến những gợi ý nước hoa cá nhân hóa chính xác nhất.",
+      "use_title": "Cách Sử Dụng Dữ Liệu",
+      "use_desc": "Dữ liệu được dùng để cải thiện các thuật toán AI, nâng tầm trải nghiệm cá nhân hóa, xử lý đơn hàng và gửi các thông tin sản phẩm liên quan.",
+      "ai_title": "AI & Học Máy",
+      "ai_desc": "Dữ liệu bài phân tích của bạn giúp rèn luyện các mô hình AI. Tất cả đều được ẩn danh và tổng hợp riêng cho mục đích đào tạo AI cốt lõi.",
+      "security_title": "Bảo Mật Hệ Thống",
+      "security_desc": "Chúng tôi áp dụng các tiêu chuẩn an ninh mạng hàng đầu, bao gồm mã hóa, máy chủ bảo mật và kiểm định thường xuyên để bảo vệ thông tin của bạn.",
+      "rights_title": "Quyền Của Bạn",
+      "rights_desc": "Bạn có quyền truy cập, cập nhật hoặc yêu cầu xóa dữ liệu cá nhân bất cứ lúc nào. Vui lòng liên hệ bộ phận Đặc Quyền để được hỗ trợ."
+    }
+  },
+  "terms_page": {
+    "title": "Điều Khoản Dịch Vụ",
+    "last_updated": "Cập nhật lần cuối: Tháng 1 năm 2026",
+    "sections": {
+      "acceptance_title": "1. Chấp Nhận Điều Khoản",
+      "acceptance_desc": "Bằng việc truy cập và sử dụng dịch vụ của Perfume GPT, bạn hoàn toàn đồng ý tuân thủ các điều khoản được quy định trong bản thỏa thuận này.",
+      "license_title": "2. Cấp Phép Trải Nghiệm",
+      "license_desc": "Được phép tạm thời truy cập các tài liệu trên website Perfume GPT dành cho mục đích cá nhân, phi thương mại.",
+      "ai_title": "3. Kết Quả Chẩn Đoán Từ AI",
+      "ai_desc": "Dịch vụ AI của chúng tôi cung cấp các tư vấn quyến rũ mang tính cá nhân hóa. Kết quả dựa trên thuật toán phân tích và nên được xem như những định hướng tham khảo đầy nghệ thuật.",
+      "product_title": "4. Tính Chuẩn Xác Thông Tin",
+      "product_desc": "Chúng tôi cam kết đảm bảo tính chính xác trong định giá và diện mạo sản phẩm. Tuy nhiên, sự tinh tế trong mỹ quan có thể không tuyệt đối ở mọi điều kiện.",
+      "liability_title": "5. Giới Hạn Trách Nhiệm",
+      "liability_desc": "Trong bất cứ trường hợp nào, Perfume GPT sẽ không chịu trách nhiệm với những rủi ro phát sinh trong quá trình diễn giải hay tiếp nhận dịch vụ tư vấn."
+    }
+  },
+  "ingredients_page": {
+    "title_line1": "Bộ Sưu Tập",
+    "title_line2": "Hương Liệu Thượng Hạng",
+    "subtitle": "Khám phá di sản phân tử nguyên bản tạo nên những tuyệt tác lưu hương.",
+    "ethically_sourced": "NGUỒN GỐC KẾ THỪA BỀN VỮNG",
+    "categories": {
+      "resins_title": "Hương Nhựa Cây (Resins)",
+      "resins_desc": "Trầm Hương Hoàng Gia Oman, Nhựa Labdanum Cổ Điển, Một Dược Somalia",
+      "florals_title": "Hương Hoa Độc Bản (Florals)",
+      "florals_desc": "Nhài Grandiflorum Xứ Grasse, Hồng Đan Mạch Damask, Diên Vĩ Florentine",
+      "woods_title": "Hương Gỗ Trầm Lắng (Woods)",
+      "woods_desc": "Đàn Hương Mysore, Trầm Hương Indonesia, Tuyết Tùng Caledonia",
+      "neutrals_title": "Nguyên Bản (Neutrals)",
+      "neutrals_desc": "Long Diên Hương Sinh Học, Xạ Hương Phân Tử, Cỏ Hương Bài Thanh Khiết"
+    }
+  },
+  "gifting_page": {
+    "title_line1": "Nghệ Thuật",
+    "title_line2": "Quà Tặng Thượng Lưu",
+    "subtitle": "Trao gửi trải nghiệm cá nhân hóa mùi hương đẳng cấp đến những người sành điệu.",
+    "physical_category": "Thực Thể Phân Tử",
+    "physical_title_line1": "Bộ Trải Nghiệm",
+    "physical_title_line2": "Discovery Set",
+    "physical_desc": "Bộ sưu tập thủ công gồm những siêu phẩm của chúng tôi. Lựa chọn tuyệt vời giúp người nhận bước đầu tìm kiếm dải tần rung động trước khi đến với phòng thí nghiệm AI.",
+    "physical_cta": "Mua Bộ Trải Nghiệm • 2.000.000đ",
+    "digital_category": "Thẻ Mời Đặc Quyền",
+    "digital_title_line1": "Thẻ Điện Tử",
+    "digital_title_line2": "Atelier Pass",
+    "digital_desc": "Tấm vé danh giá tham gia chuyến hành trình tinh xảo AI. Món quà trao gửi một dấu ấn phân tử độc bản, được thiết lập ngay tức thì qua cổng điện tử hoàng gia.",
+    "digital_cta": "Gửi Tặng Thẻ Đặc Quyền • 5.500.000đ"
   }
 }

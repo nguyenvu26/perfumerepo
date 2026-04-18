@@ -6,7 +6,7 @@ import {
     Receipt, Search, Filter, Eye, Printer,
     CheckCircle2, Clock, Truck, PackageCheck,
     XCircle, ChevronRight, User, MapPin, Phone,
-    CreditCard, Loader2, ArrowLeft
+    CreditCard, Loader2, ArrowLeft, Calendar
 } from 'lucide-react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { orderService, type Order } from '@/services/order.service';
@@ -43,12 +43,23 @@ export default function AdminOrders() {
     const [updating, setUpdating] = useState(false);
     const [refundInfo, setRefundInfo] = useState<any>(null);
     const [loadingRefundInfo, setLoadingRefundInfo] = useState(false);
+    const [filterDate, setFilterDate] = useState('');
     const printRef = useRef<HTMLDivElement>(null);
 
     const fetchOrders = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await orderService.listAll(skip, take);
+            let startDate: string | undefined;
+            let endDate: string | undefined;
+
+            if (filterDate) {
+                const start = new Date(`${filterDate}T00:00:00`);
+                const end = new Date(`${filterDate}T23:59:59`);
+                startDate = start.toISOString();
+                endDate = end.toISOString();
+            }
+
+            const res = await orderService.listAll(skip, take, startDate, endDate);
             setOrders(res.data);
             setTotal(res.total);
         } catch (error) {
@@ -56,7 +67,7 @@ export default function AdminOrders() {
         } finally {
             setLoading(false);
         }
-    }, [skip, take]);
+    }, [skip, take, filterDate]);
 
     useEffect(() => {
         fetchOrders();
@@ -176,7 +187,7 @@ export default function AdminOrders() {
                 <body>
                     <div class="label">
                         <div class="header">
-                            <div class="brand">AURA AI</div>
+                            <div class="brand">PERFUME GPT AI</div>
                             <div style="text-align: right; font-size: 12px">
                                 ${selectedOrder?.code}<br/>
                                 ${format.dateTime(new Date())}
@@ -253,8 +264,23 @@ export default function AdminOrders() {
                                 className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-6 text-xs outline-none focus:border-gold transition-all w-80 shadow-sm"
                             />
                         </div>
-                        <div className="p-3 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl cursor-pointer hover:border-gold transition-all shadow-sm">
-                            <Filter size={18} className="text-stone-500" />
+                        <div className="flex items-center gap-2">
+                            <div className="relative group">
+                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
+                                <input
+                                    type="date"
+                                    value={filterDate}
+                                    onChange={(e) => setFilterDate(e.target.value)}
+                                    className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl py-3 pl-10 pr-4 text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm cursor-pointer invert dark:invert-0"
+                                />
+                            </div>
+                            <button 
+                                onClick={() => { setFilterDate(''); setSearch( ''); }}
+                                className="p-3 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl cursor-pointer hover:border-gold transition-all shadow-sm"
+                                title="Làm mới"
+                            >
+                                <Filter size={18} className="text-stone-500" />
+                            </button>
                         </div>
                     </div>
                 </div>

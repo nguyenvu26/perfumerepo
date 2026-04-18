@@ -79,15 +79,12 @@ export const Sidebar = () => {
     const items = getMenuItems();
 
     return (
-        <aside className="w-72 h-screen glass border-r border-border flex flex-col p-6 sticky top-0 overflow-y-auto custom-scrollbar">
-            <Link href="/" className="flex items-center gap-3 mb-12 px-2 group cursor-pointer">
-                <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <BrainCircuit className="text-primary w-5 h-5" />
-                </div>
-                <span className="font-heading text-xl gold-gradient tracking-widest uppercase group-hover:tracking-[0.3em] transition-all">AURA</span>
+        <aside className="w-72 h-screen glass border-r border-border flex flex-col px-4 py-8 fixed left-0 top-0 z-50 overflow-y-auto overflow-x-hidden custom-scrollbar">
+            <Link href="/" className="flex items-center justify-center mb-10 px-4 group cursor-pointer">
+                <img src="/logo-dark.png" className="h-14 w-14 object-contain rounded-full border border-gold/10 shadow-lg group-hover:scale-110 transition-transform" alt="Perfume GPT" />
             </Link>
 
-            <nav className="flex-1 space-y-1">
+            <nav className="flex-1 space-y-1.5 px-0">
                 {items.map((item, index) => {
                     // Find all items that match the current pathname
                     const matchingItems = items.filter(i =>
@@ -109,23 +106,23 @@ export const Sidebar = () => {
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                "group flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 relative overflow-hidden",
+                                "group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden mx-1",
                                 isActive
                                     ? "bg-gold text-primary-foreground shadow-lg shadow-gold/20"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
                             )}
                         >
                             <item.icon className={cn(
-                                "w-5 h-5 transition-transform duration-300 group-hover:scale-110",
+                                "w-5 h-5 transition-transform duration-300 group-hover:scale-110 flex-shrink-0",
                                 isActive ? "text-primary-foreground" : "text-gold"
                             )} />
-                            <span className="font-heading text-xs uppercase tracking-widest font-medium">
+                            <span className="font-heading text-[11px] uppercase tracking-[0.2em] font-medium truncate">
                                 {item.label}
                             </span>
                             {isActive && (
                                 <motion.div
                                     layoutId="sidebar-active"
-                                    className="absolute left-0 w-1 h-6 bg-primary-foreground rounded-r-full"
+                                    className="absolute left-0 w-1 h-5 bg-primary-foreground rounded-full"
                                 />
                             )}
                         </Link>
@@ -151,7 +148,7 @@ export const Sidebar = () => {
                 {/* Theme and Language Controls */}
                 <div className="flex items-center justify-center gap-3 px-2">
                     <ThemeToggle />
-                    <LanguageSwitch />
+                    {/* <LanguageSwitch /> */}
                 </div>
 
                 <button

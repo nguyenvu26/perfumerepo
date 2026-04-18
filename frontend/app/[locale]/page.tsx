@@ -7,7 +7,6 @@ import { Hero } from '@/components/sections/hero';
 import { Story } from '@/components/sections/story';
 import { FeaturedProducts } from '@/components/sections/featured-products';
 import { Discovery } from '@/components/sections/discovery';
-import { Membership } from '@/components/sections/membership';
 import { Footer } from '@/components/sections/footer';
 
 export default function Home() {
@@ -43,7 +42,6 @@ export default function Home() {
                 <Story />
                 <FeaturedProducts />
                 <Discovery />
-                <Membership />
             </main>
 
             <Footer />

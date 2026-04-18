@@ -38,7 +38,18 @@ export class OrdersService {
       throw new BadRequestException('Cart is empty');
     }
 
-    const totalAmount = cart.items.reduce(
+    const { cartItemIds } = dto;
+
+    // Filter items if cartItemIds provided
+    const itemsToProcess = cartItemIds
+      ? cart.items.filter((item) => cartItemIds.includes(item.id))
+      : cart.items;
+
+    if (itemsToProcess.length === 0 && cartItemIds) {
+      throw new BadRequestException('Selected items not found in cart');
+    }
+
+    const totalAmount = itemsToProcess.reduce(
       (sum, item) => sum + item.quantity * item.variant.price,
       0,
     );
@@ -93,7 +104,7 @@ export class OrdersService {
           recipientName: dto.recipientName,
           phone: dto.phone,
           items: {
-            create: cart.items.map((item) => ({
+            create: itemsToProcess.map((item) => ({
               variantId: item.variantId,
               unitPrice: item.variant.price,
               quantity: item.quantity,
@@ -133,7 +144,8 @@ export class OrdersService {
         );
       }
 
-      await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+      const itemIdsToRemove = itemsToProcess.map((i) => i.id);
+      await tx.cartItem.deleteMany({ where: { id: { in: itemIdsToRemove } } });
 
       return created;
     });
@@ -206,9 +218,17 @@ export class OrdersService {
     };
   }
 
-  async listAllOrders(skip: number, take: number) {
+  async listAllOrders(skip: number, take: number, startDate?: string, endDate?: string) {
+    const where: any = {};
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
+
     const [rawData, total] = await Promise.all([
       this.prisma.order.findMany({
+        where,
         skip,
         take,
         include: {
@@ -229,7 +249,7 @@ export class OrdersService {
         },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.order.count(),
+      this.prisma.order.count({ where }),
     ]);
 
     const data = rawData.map((order) => ({

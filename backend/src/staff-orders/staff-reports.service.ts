@@ -9,8 +9,10 @@ export interface DailyReport {
   completedOrders: number;
   cancelledOrders: number;
   refundedOrders: number;
+  totalRefundedAmount: number;
   avgOrderValue: number;
   completionRate: number;
+  cancelRate: number;
   hourlySales: {
     hour: number;
     revenue: number;
@@ -19,6 +21,7 @@ export interface DailyReport {
   topProducts: {
     productName: string;
     variantName: string;
+    imageUrl?: string;
     totalQuantity: number;
     totalRevenue: number;
   }[];
@@ -56,7 +59,17 @@ export class StaffReportsService {
       where,
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { 
+            variant: { 
+              include: { 
+                product: { 
+                  include: { 
+                    images: { take: 1 } 
+                  } 
+                } 
+              } 
+            } 
+          },
         },
       },
     });
@@ -87,11 +100,16 @@ export class StaffReportsService {
       0,
     );
 
+    const totalRefundedAmount = orders.reduce((acc, order) => acc + order.refundAmount, 0);
+
     const avgOrderValue =
       successful.length > 0 ? Math.round(totalRevenue / successful.length) : 0;
 
     const completionRate =
       totalOrders > 0 ? Math.round((successful.length / totalOrders) * 100) : 0;
+
+    const cancelRate =
+        totalOrders > 0 ? Math.round((cancelled.length / totalOrders) * 100) : 0;
 
     // Aggregate top products from non-cancelled orders
     const productMap = new Map<
@@ -99,6 +117,7 @@ export class StaffReportsService {
       {
         productName: string;
         variantName: string;
+        imageUrl?: string;
         totalQuantity: number;
         totalRevenue: number;
       }
@@ -115,6 +134,7 @@ export class StaffReportsService {
           productMap.set(key, {
             productName: item.variant.product.name,
             variantName: item.variant.name,
+            imageUrl: item.variant.product.images[0]?.url,
             totalQuantity: item.quantity,
             totalRevenue: item.totalPrice,
           });
@@ -155,8 +175,10 @@ export class StaffReportsService {
       completedOrders: successful.length,
       cancelledOrders: cancelled.length,
       refundedOrders: refunded.length,
+      totalRefundedAmount,
       avgOrderValue,
       completionRate,
+      cancelRate,
       hourlySales,
       topProducts,
     };

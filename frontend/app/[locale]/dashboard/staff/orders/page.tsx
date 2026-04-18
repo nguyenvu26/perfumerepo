@@ -38,19 +38,32 @@ export default function StaffOrdersPage() {
         setLoading(true);
         setError(null);
         try {
+            let startDate: string | undefined;
+            let endDate: string | undefined;
+
+            if (date) {
+                // date is YYYY-MM-DD from input[type=date]
+                // Create dates in local time then convert to ISO (UTC)
+                const start = new Date(`${date}T00:00:00`);
+                const end = new Date(`${date}T23:59:59`);
+                startDate = start.toISOString();
+                endDate = end.toISOString();
+            }
+
             const res = await staffOrdersService.list({ 
                 take: 50, 
                 search: search || undefined,
-                date: date || undefined,
+                startDate,
+                endDate,
             });
             setOrders(res.data);
             setTotal(res.total);
         } catch (e: any) {
-            setError(e.message || t('errors.load_failed'));
+            setError(e.message || 'Lỗi tải danh sách');
         } finally {
             setLoading(false);
         }
-    }, [t]);
+    }, []);
 
     useEffect(() => {
         void loadOrders(searchTerm, filterDate);

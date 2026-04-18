@@ -12,7 +12,6 @@ export const Footer = () => {
         { label: t('navigation_labels.products'), href: '/products' },
         { label: t('navigation_labels.consultation'), href: '/customer/consultation' },
         { label: t('navigation_labels.journal'), href: '/journal' },
-        { label: t('navigation_labels.subscription'), href: '/customer/subscription' },
         { label: t('navigation_labels.boutiques'), href: '/boutiques' },
         { label: t('navigation_labels.gifting'), href: '/gifting' }
     ];
@@ -35,7 +34,7 @@ export const Footer = () => {
                     <div className="col-span-1 md:col-span-1">
                         <Link href="/">
                             <h2 className="text-3xl font-serif text-white tracking-[0.3em] font-bold mb-10 uppercase">
-                                AURA
+                                PERFUME GPT
                             </h2>
                         </Link>
                         <p className="text-sm leading-relaxed mb-10 font-light italic">

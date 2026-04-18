@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from '@/lib/i18n';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, ArrowRight, ShieldCheck, Truck, RotateCcw, ShoppingBag, Sparkles, Loader2 } from 'lucide-react';
+import { Trash2, ArrowRight, ShieldCheck, Truck, RotateCcw, ShoppingBag, Sparkles, Loader2, Check } from 'lucide-react';
 import { cartService, type Cart, type CartItem } from '@/services/cart.service';
 import { useAuth } from '@/hooks/use-auth';
 import { useTranslations, useLocale, useFormatter } from 'next-intl';
@@ -15,6 +15,7 @@ export default function CartPage() {
   const { isAuthenticated } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const fetchCart = useCallback(() => {
     if (!isAuthenticated) {
@@ -25,7 +26,13 @@ export default function CartPage() {
     setLoading(true);
     cartService
       .getCart()
-      .then(setCart)
+      .then((c) => {
+        setCart(c);
+        // Default select all items on first load if not already set
+        if (c.items.length > 0) {
+          setSelectedIds(c.items.map(i => i.id));
+        }
+      })
       .catch(() => setCart(null))
       .finally(() => setLoading(false));
   }, [isAuthenticated]);
@@ -88,7 +95,22 @@ export default function CartPage() {
   }
 
   const items = cart?.items ?? [];
-  const subtotal = items.reduce((acc, i) => acc + i.variant.price * i.quantity, 0);
+  const selectedItems = items.filter(i => selectedIds.includes(i.id));
+  const subtotal = selectedItems.reduce((acc, i) => acc + i.variant.price * i.quantity, 0);
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === items.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(items.map(i => i.id));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background transition-colors">
@@ -131,6 +153,28 @@ export default function CartPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-24">
             <div className="lg:col-span-8 space-y-10">
+              {/* Select All Controls */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center justify-between px-10 py-6 glass bg-foreground/[0.01] rounded-full border border-border/30"
+              >
+                <button
+                  onClick={toggleSelectAll}
+                  className="flex items-center gap-4 group"
+                >
+                  <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${selectedIds.length === items.length ? 'bg-gold border-gold' : 'border-gold/30 group-hover:border-gold'}`}>
+                    {selectedIds.length === items.length && <Check size={14} className="text-white" strokeWidth={3} />}
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-[.4em] text-foreground">
+                    {selectedIds.length === items.length ? t('deselect_all') : t('select_all')}
+                  </span>
+                </button>
+                <div className="text-[10px] font-black uppercase tracking-[.4em] text-gold italic">
+                  {t('items_selected', { count: selectedIds.length })}
+                </div>
+              </motion.div>
+
               <AnimatePresence mode="popLayout">
                 {items.map((item, idx) => (
                   <motion.div
@@ -139,8 +183,18 @@ export default function CartPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    className="flex flex-col sm:flex-row gap-10 p-10 glass bg-foreground/[0.02] rounded-[3.5rem] border border-border/50 items-center group hover:border-gold/30 hover:bg-gold/[0.02] transition-all duration-700 shadow-sm"
+                    className="flex flex-col sm:flex-row gap-10 p-10 glass bg-foreground/[0.02] rounded-[3.5rem] border border-border/50 items-center group hover:border-gold/30 hover:bg-gold/[0.02] transition-all duration-700 shadow-sm relative overflow-hidden"
                   >
+                    {/* Item Selection Badge/Checkbox */}
+                    <button
+                      onClick={() => toggleSelect(item.id)}
+                      className="absolute top-8 left-8 z-10 sm:relative sm:top-0 sm:left-0"
+                    >
+                      <div className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${selectedIds.includes(item.id) ? 'bg-gold border-gold shadow-lg shadow-gold/20' : 'border-gold/20 bg-background/50 group-hover:border-gold/50'}`}>
+                        {selectedIds.includes(item.id) && <Check size={16} className="text-white" strokeWidth={3} />}
+                      </div>
+                    </button>
+
                     <div className="relative w-40 h-40 rounded-[2.5rem] overflow-hidden bg-background/50 border border-border/30 flex-shrink-0 group-hover:scale-105 transition-transform duration-700">
                       {item.variant.product.images?.[0]?.url ? (
                         <img src={item.variant.product.images[0].url} alt={item.variant.product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" />
@@ -248,8 +302,15 @@ export default function CartPage() {
 
                 <div className="space-y-6 relative z-10">
                   <Link
-                    href="/checkout"
-                    className="block w-full bg-gold text-primary-foreground py-6 rounded-full font-black tracking-[.4em] uppercase flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-gold/30 text-[10px]"
+                    href={selectedIds.length > 0 ? `/checkout?items=${selectedIds.join(',')}` : '#'}
+                    onClick={(e) => {
+                      if (selectedIds.length === 0) e.preventDefault();
+                    }}
+                    className={`block w-full py-6 rounded-full font-black tracking-[.4em] uppercase flex items-center justify-center gap-4 transition-all shadow-2xl text-[10px] ${
+                      selectedIds.length > 0
+                        ? 'bg-gold text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-gold/30'
+                        : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
+                    }`}
                   >
                     {t('proceed_checkout')} <ArrowRight size={18} />
                   </Link>

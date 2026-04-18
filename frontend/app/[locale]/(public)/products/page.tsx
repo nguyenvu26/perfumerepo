@@ -34,7 +34,7 @@ export default function ProductsPage() {
                                 </div>
                             </div>
                             <div className="space-y-2 px-2">
-                                <p className="text-[10px] text-gold uppercase tracking-[0.3em] font-bold">Aura Premiere</p>
+                                <p className="text-[10px] text-gold uppercase tracking-[0.3em] font-bold">Perfume GPT Premiere</p>
                                 <h3 className="font-heading text-xl uppercase tracking-widest group-hover:text-gold transition-colors">Obsidian Mist {i}</h3>
                                 <div className="flex justify-between items-center pt-2">
                                     <p className="font-heading text-lg">$240.00</p>

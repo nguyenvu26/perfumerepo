@@ -8,6 +8,7 @@ export interface StaffAiConsultRequest {
     occasion?: string;   // e.g. "date", "office", "daily", "party", "gift"
     budget?: number;     // max budget in VND
     notes?: string;      // free-text from staff
+    storeId?: string;    // specific store to filter stock
 }
 
 export interface AiRecommendation {
@@ -36,13 +37,49 @@ export class StaffAiService {
         staffUserId: string,
         req: StaffAiConsultRequest,
     ): Promise<{ recommendations: AiRecommendation[]; rawResponse: string }> {
-        // 1. Fetch available products from DB
+        // 1. Fetch available products from DB (filtered by store stock if storeId provided)
         const products = await this.prisma.product.findMany({
-            where: { isActive: true },
+            where: {
+                isActive: true,
+                ...(req.storeId ? {
+                    variants: {
+                        some: {
+                            isActive: true,
+                            storeStocks: {
+                                some: {
+                                    storeId: req.storeId,
+                                    quantity: { gt: 0 }
+                                }
+                            }
+                        }
+                    }
+                } : {
+                    variants: { some: { isActive: true, stock: { gt: 0 } } }
+                })
+            },
             include: {
                 brand: true,
                 scentFamily: true,
-                variants: { where: { isActive: true, stock: { gt: 0 } } },
+                variants: {
+                    where: {
+                        isActive: true,
+                        ...(req.storeId ? {
+                            storeStocks: {
+                                some: {
+                                    storeId: req.storeId,
+                                    quantity: { gt: 0 }
+                                }
+                            }
+                        } : {
+                            stock: { gt: 0 }
+                        })
+                    },
+                    include: {
+                        storeStocks: {
+                            where: req.storeId ? { storeId: req.storeId } : undefined
+                        }
+                    }
+                },
                 notes: { include: { note: true } },
             },
             take: 100,
@@ -64,7 +101,9 @@ export class StaffAiService {
                     id: v.id,
                     name: v.name,
                     price: v.price,
-                    stock: v.stock,
+                    stock: req.storeId
+                        ? v.storeStocks.find(ss => ss.storeId === req.storeId)?.quantity ?? 0
+                        : v.stock,
                 })),
             }));
 

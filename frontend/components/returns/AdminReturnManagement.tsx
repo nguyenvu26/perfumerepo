@@ -42,6 +42,7 @@ import {
   Loader2,
   Banknote,
   Truck,
+  Calendar,
 } from "lucide-react";
 import api from "@/lib/axios";
 import {
@@ -132,6 +133,7 @@ export const AdminReturnManagement = ({
   >({});
   const [audits, setAudits] = useState<any[]>([]);
   const [auditsLoading, setAuditsLoading] = useState(false);
+  const [filterDate, setFilterDate] = useState("");
 
   useEffect(() => {
     if (isReceiveOpen && selectedReturn) {
@@ -220,7 +222,17 @@ export const AdminReturnManagement = ({
   const loadData = async () => {
     setLoading(true);
     try {
-      const resp = await returnsService.listAll(0, 50);
+      let startDate: string | undefined;
+      let endDate: string | undefined;
+
+      if (filterDate) {
+        const start = new Date(`${filterDate}T00:00:00`);
+        const end = new Date(`${filterDate}T23:59:59`);
+        startDate = start.toISOString();
+        endDate = end.toISOString();
+      }
+
+      const resp = await returnsService.listAll(0, 50, undefined, undefined, startDate, endDate);
       setData(resp as any);
     } catch (err: any) {
       toast.error("Lỗi tải danh sách trả hàng", { description: err.message });
@@ -231,7 +243,7 @@ export const AdminReturnManagement = ({
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [filterDate]);
 
   const filteredData = useMemo(() => {
     if (!isAdmin) {
@@ -431,6 +443,15 @@ export const AdminReturnManagement = ({
           >
             <RefreshCcw className="w-4 h-4 mr-2 text-gold" /> Làm mới
           </Button>
+          <div className="relative group">
+            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
+            <Input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="pl-9 w-40 glass border-gold/20 text-[11px] font-medium h-10 focus:ring-1 focus:ring-gold/30 transition-all cursor-pointer invert dark:invert-0"
+            />
+          </div>
           {!isAdmin && (
             <Button
               className="bg-gold hover:bg-gold/90 text-primary-foreground shadow-lg shadow-gold/20"
@@ -854,7 +875,7 @@ export const AdminReturnManagement = ({
                                 ) : (
                                   // eslint-disable-next-line @next/next/no-img-element
                                   <img
-                                    src={item.variant?.product?.images?.[0]?.url}
+                                    src={url}
                                     alt={item.variant?.product?.name || "Product image"}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                   />

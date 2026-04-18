@@ -38,12 +38,19 @@ export class OrdersController {
   }
 
   @Get('admin/all')
-  async listAll(@Query('skip') skip?: string | number, @Query('take') take?: string | number) {
+  async listAll(
+    @Query('skip') skip?: string | number,
+    @Query('take') take?: string | number,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
     const parsedSkip = Number(skip ?? 0);
     const parsedTake = Number(take ?? 10);
     return this.ordersService.listAllOrders(
       Number.isFinite(parsedSkip) ? parsedSkip : 0,
       Number.isFinite(parsedTake) ? parsedTake : 10,
+      startDate,
+      endDate,
     );
   }
 

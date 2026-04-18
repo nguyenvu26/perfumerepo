@@ -73,7 +73,8 @@ export const staffOrdersService = {
     skip?: number;
     take?: number;
     search?: string;
-    date?: string;
+    startDate?: string;
+    endDate?: string;
     status?: string;
   }): Promise<StaffPosOrderListRes> {
     return api

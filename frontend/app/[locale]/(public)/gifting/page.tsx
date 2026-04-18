@@ -4,8 +4,10 @@ import React from 'react';
 import { Gift, Mail } from 'lucide-react';
 import { Header } from '@/components/common/header';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function GiftingPage() {
+    const t = useTranslations('gifting_page');
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors">
             <Header />
@@ -17,7 +19,7 @@ export default function GiftingPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-5xl md:text-7xl font-serif text-luxury-black dark:text-white mb-6"
                     >
-                        The Art of <span className="italic">Giving</span>
+                        {t('title_line1')} <span className="italic">{t('title_line2')}</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -25,7 +27,7 @@ export default function GiftingPage() {
                         transition={{ delay: 0.2 }}
                         className="text-stone-500 dark:text-stone-400 text-lg font-light max-w-2xl mx-auto"
                     >
-                        Bestow the luxury of a personal olfactory journey upon another.
+                        {t('subtitle')}
                     </motion.p>
                 </div>
 
@@ -41,14 +43,14 @@ export default function GiftingPage() {
                                 <Gift size={40} strokeWidth={1} />
                             </div>
                             <h3 className="text-4xl font-serif text-luxury-black dark:text-white transition-colors uppercase tracking-widest leading-none">
-                                The Physical <br /><span className="italic">Discovery Set</span>
+                                {t('physical_title_line1')} <br /><span className="italic">{t('physical_title_line2')}</span>
                             </h3>
                             <p className="text-stone-400 dark:text-stone-500 text-sm font-light leading-relaxed italic border-l-2 border-stone-100 dark:border-white/5 pl-6">
-                                A hand-packaged selection of our permanent collection, allowing them to find their initial resonance before the AI synthesis.
+                                {t('physical_desc')}
                             </p>
                         </div>
                         <button className="w-full py-6 border-2 border-luxury-black dark:border-gold text-luxury-black dark:text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] hover:bg-luxury-black hover:text-white dark:hover:bg-gold transition-all cursor-pointer">
-                            Buy Physical Set • 2.000.000đ
+                            {t('physical_cta')}
                         </button>
                     </motion.div>
 
@@ -65,14 +67,14 @@ export default function GiftingPage() {
                                 <Mail size={40} strokeWidth={1} />
                             </div>
                             <h3 className="text-4xl font-serif text-white transition-colors uppercase tracking-widest leading-none italic">
-                                The Digital <br />Atelier Pass
+                                {t('digital_title_line1')} <br />{t('digital_title_line2')}
                             </h3>
                             <p className="text-stone-400 text-sm font-light leading-relaxed italic border-l-2 border-white/10 pl-6">
-                                An invitation to our AI-powered consultation. The gift of a bespoke molecular signature delivered instantly via the digital registry.
+                                {t('digital_desc')}
                             </p>
                         </div>
                         <button className="w-full py-6 bg-gold text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] hover:bg-white hover:text-luxury-black transition-all shadow-xl relative z-10 cursor-pointer">
-                            Send Digital Pass • 5.500.000đ
+                            {t('digital_cta')}
                         </button>
                     </motion.div>
                 </div>

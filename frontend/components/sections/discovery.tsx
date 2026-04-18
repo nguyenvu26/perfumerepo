@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Cpu, FlaskConical, PackageCheck } from 'lucide-react';
+import { Link } from '@/lib/i18n';
 
 export const Discovery = () => {
     const t = useTranslations('discovery');
@@ -91,7 +92,7 @@ export const Discovery = () => {
                     transition={{ delay: 0.8 }}
                     className="mt-24 text-center"
                 >
-                    <Link href="/customer/quiz">
+                    <Link href="/quiz">
                         <button className="px-10 py-4 glass border-foreground/10 text-foreground font-body font-bold text-[10px] uppercase tracking-[0.4em] rounded-full hover:bg-foreground hover:text-background transition-all">
                             {t('begin_profile')}
                         </button>
@@ -101,4 +102,4 @@ export const Discovery = () => {
         </section>
     );
 };
-import { Link } from '@/lib/i18n';
+

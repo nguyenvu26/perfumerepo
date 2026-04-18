@@ -31,12 +31,16 @@ export class ReturnsAdminController {
     @Query('take') take?: number,
     @Query('status') status?: string,
     @Query('orderId') orderId?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
     return this.returnsService.listAllReturns(
       Number(skip) || 0,
       Number(take) || 20,
       status,
       orderId,
+      startDate,
+      endDate,
     );
   }
 

@@ -111,7 +111,7 @@ export class AuthController {
     if (!req.user) {
       // Detect locale from referer or default to 'en'
       const referer = req.headers.referer || '';
-      const locale = referer.includes('/vi/') ? 'vi' : 'en';
+      const locale = referer.includes('/vi/') ? 'vi' : 'vi';
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       const errorRedirectUrl = `${frontendUrl}/${locale}/login?error=oauth_failed`;
@@ -122,7 +122,7 @@ export class AuthController {
 
     // Detect locale from referer or default to 'en'
     const referer = req.headers.referer || '';
-    const locale = referer.includes('/vi/') ? 'vi' : 'en';
+    const locale = referer.includes('/vi/') ? 'vi' : 'vi';
 
     // Redirect to frontend with tokens
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -144,7 +144,7 @@ export class AuthController {
     if (!req.user) {
       // Detect locale from referer or default to 'en'
       const referer = req.headers.referer || '';
-      const locale = referer.includes('/vi/') ? 'vi' : 'en';
+      const locale = referer.includes('/vi/') ? 'vi' : 'vi';
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       const errorRedirectUrl = `${frontendUrl}/${locale}/login?error=facebook_email_required`;
@@ -155,7 +155,7 @@ export class AuthController {
 
     // Detect locale from referer or default to 'en'
     const referer = req.headers.referer || '';
-    const locale = referer.includes('/vi/') ? 'vi' : 'en';
+    const locale = referer.includes('/vi/') ? 'vi' : 'vi';
 
     // Redirect to frontend with tokens
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';

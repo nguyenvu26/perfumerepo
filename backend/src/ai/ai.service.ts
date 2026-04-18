@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { PrismaService } from '../prisma/prisma.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class AiService {
@@ -12,6 +13,7 @@ export class AiService {
   constructor(
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly analyticsService: AnalyticsService,
   ) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     this.model =
@@ -239,11 +241,59 @@ ${catalog || '(No products currently in system)'}
     adminMessage: string,
     history: Array<{ role: string; text: string }>,
   ): Promise<string> {
-    const systemPrompt = `You are "PerfumeGPT Marketing", a marketing advisor for a perfume shop.
-Rules:
-- Respond in the same language the admin writes in.
-- Give actionable marketing insights, promotions ideas, and strategy tips.
-- Be professional and data-oriented when possible.`;
+    let contextStr = '';
+    try {
+      const [overview, topProducts, lowStock] = await Promise.all([
+        this.analyticsService.getOverview(),
+        this.analyticsService.getTopProducts(10),
+        this.analyticsService.getLowStockItems(10),
+      ]);
+
+      const topProductsStr = topProducts
+        .map(
+          (p) =>
+            `- ${p.productName} (Đã bán: ${p.totalQuantity}, Doanh thu: ${p.totalRevenue.toLocaleString()} VND)`
+        )
+        .join('\n');
+
+      const lowStockStr = lowStock
+        .map(
+          (p) =>
+            `- ${p.productName} [${p.variantName}] - Chú ý: Chỉ còn ${p.stock} sản phẩm!`
+        )
+        .join('\n');
+
+      contextStr = `
+CURRENT STORE DATA (Last 30 Days):
+- Total Revenue: ${overview.totalRevenue.toLocaleString()} VND
+- Total Orders: ${overview.totalOrders}
+- Completed Orders: ${overview.completedOrders}
+- Cancelled Orders: ${overview.cancelledOrders}
+- New Customers Today: ${overview.newCustomersToday}
+- AI Consultations: ${overview.aiConsultations}
+
+TOP SELLING PRODUCTS (Last 30 Days):
+${topProductsStr || 'No data'}
+
+LOW STOCK ALERTS (Critical to restock):
+${lowStockStr || 'No data'}
+`;
+    } catch (e) {
+      this.logger.error('Failed to fetch analytics context for AI', e);
+    }
+
+    const systemPrompt = `You are "PerfumeGPT Marketing", an expert strategic business consultant, retail manager, and chief marketing advisor for a luxury perfume brand called "PerfumeGPT".
+Your client is the Administrator (CEO) of the system.
+
+${contextStr}
+
+INSTRUCTIONS:
+1. Base your strategies strictly on the provided real-time data above.
+2. If the admin asks for restock advice, prioritize the "LOW STOCK ALERTS" and suggest ordering popular items from "TOP SELLING PRODUCTS".
+3. If asked about marketing strategy, suggest campaigns around the top-selling products or clearance strategies for slow-moving stock (if any).
+4. Always respond in a professional, high-end consulting tone (like a McKinsey/BCG consultant).
+5. You must answer in the same language as the admin.
+6. Format your advice clearly with bullet points, actionable steps, and data references. Make sure the numbers match system context exactly.`;
 
     const contents = [
       systemPrompt,

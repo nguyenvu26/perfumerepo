@@ -30,8 +30,8 @@ export const FeaturedProducts = () => {
         if (products.length === 0) return null;
         return (
             <div className="mb-32 last:mb-0">
-                <div className="flex justify-between items-end mb-16 gap-12">
-                    <h3 className="text-4xl md:text-5xl font-serif text-luxury-black dark:text-white transition-colors leading-none tracking-tighter">
+                <div className="flex flex-col md:flex-row justify-between md:items-end mb-16 gap-6 md:gap-12">
+                    <h3 className="text-3xl md:text-5xl font-serif text-luxury-black dark:text-white transition-colors leading-[1.1] tracking-tight">
                         {title}
                     </h3>
                     <Link
@@ -97,11 +97,11 @@ export const FeaturedProducts = () => {
     return (
         <section className="py-40 bg-white dark:bg-zinc-950 transition-colors" id="collections">
             <div className="container mx-auto px-6">
-                <div className="max-w-2xl mb-24">
-                    <p className="text-[10px] text-stone-400 dark:text-stone-500 font-bold tracking-[.5em] uppercase mb-6 transition-colors font-serif italic">
+                <div className="max-w-4xl mb-24">
+                    <p className="text-[12px] text-stone-400 dark:text-stone-500 font-bold tracking-[.4em] uppercase mb-6 transition-colors font-serif italic">
                         {t('badge')}
                     </p>
-                    <h2 className="text-6xl md:text-8xl font-serif text-luxury-black dark:text-white transition-colors leading-none tracking-tighter">
+                    <h2 className="text-5xl md:text-7xl font-serif text-luxury-black dark:text-white transition-colors leading-[1.1] tracking-tight">
                         {t('title')}
                     </h2>
                 </div>

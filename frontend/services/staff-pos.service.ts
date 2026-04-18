@@ -120,6 +120,7 @@ export const staffPosService = {
     occasion?: string;
     budget?: number;
     notes?: string;
+    storeId?: string;
   }): Promise<{
     recommendations: {
       productId: string;

@@ -43,4 +43,7 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   paymentMethod?: 'COD' | 'ONLINE';
+
+  @IsOptional()
+  cartItemIds?: number[];
 }

@@ -27,7 +27,7 @@ export default function DashboardLayout({
 
             <Sidebar />
 
-            <div className="flex-1 flex flex-col min-w-0 relative z-10">
+            <div className="flex-1 flex flex-col min-w-0 relative z-10 pl-72">
                 <header className="h-20 border-b border-border/50 flex items-center justify-between px-8 bg-background/40 backdrop-blur-2xl sticky top-0 z-30 shrink-0">
                     <div className="flex items-center gap-6">
                         <div className="h-10 px-5 rounded-2xl glass border-gold/10 flex items-center gap-3 text-muted-foreground hover:text-foreground transition-all cursor-pointer group hover:border-gold/30">
@@ -41,7 +41,7 @@ export default function DashboardLayout({
                     <div className="flex items-center gap-4">
                         <div className="h-10 w-px bg-border/50 mx-2" />
                         <ThemeToggle />
-                        <LanguageSwitch />
+                        {/* <LanguageSwitch /> */}
                     </div>
                 </header>
 

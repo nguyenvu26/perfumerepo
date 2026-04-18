@@ -97,7 +97,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
-                    className="max-w-2xl text-white"
+                    className="max-w-4xl text-white"
                 >
                     {/* Badge */}
                     <motion.span
@@ -118,7 +118,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                             transition={{ duration: 0.8 }}
                         >
                             {/* Headline */}
-                            <h1 className="text-7xl md:text-9xl font-serif mb-8 leading-[1.1] tracking-normal drop-shadow-2xl">
+                            <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif mb-8 leading-[1.15] tracking-tight drop-shadow-2xl whitespace-pre-line">
                                 {currentBanner?.title || t('title')}
                             </h1>
 

@@ -348,6 +348,7 @@ export default function PosPage() {
                 occasion: aiOccasion || undefined,
                 budget: aiBudget > 0 ? aiBudget : undefined,
                 notes: aiNotes || undefined,
+                storeId: selectedStoreId || undefined,
             });
             setAiResults(res.recommendations);
             if (res.recommendations.length === 0) setAiError(t('ai.no_results'));

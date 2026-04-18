@@ -4,14 +4,17 @@ export type DailyReport = {
   date: string;
   totalRevenue: number;
   totalOrders: number;
-  successfulOrders: number;
+  completedOrders: number;
   cancelledOrders: number;
   refundedOrders: number;
+  totalRefundedAmount: number;
   avgOrderValue: number;
   completionRate: number;
+  cancelRate: number;
   topProducts: {
     productName: string;
     variantName: string;
+    imageUrl?: string;
     totalQuantity: number;
     totalRevenue: number;
   }[];

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations, useLocale, useFormatter } from 'next-intl';
 import { Link, useRouter } from '@/lib/i18n';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import QRCode from 'qrcode';
 import {
@@ -75,6 +75,7 @@ export default function CheckoutPage() {
     const t = useTranslations('checkout');
     const locale = useLocale();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const format = useFormatter();
     const tFeatured = useTranslations('featured');
     const { isAuthenticated } = useAuth();
@@ -125,7 +126,13 @@ export default function CheckoutPage() {
             return;
         }
         cartService.getCart().then((c) => {
-            setCartItems(c.items);
+            const itemsParam = searchParams.get('items');
+            if (itemsParam) {
+                const selectedIds = itemsParam.split(',').map(id => parseInt(id));
+                setCartItems(c.items.filter(item => selectedIds.includes(item.id)));
+            } else {
+                setCartItems(c.items);
+            }
             setLoading(false);
         }).catch(() => setLoading(false));
 
@@ -267,6 +274,7 @@ export default function CheckoutPage() {
                         shippingFee,
                     }
                     : {}),
+                cartItemIds: cartItems.map(i => i.id),
             });
             setOrderId(order.id);
             return order.id;

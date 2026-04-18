@@ -1,8 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function TermsPage() {
+    const t = useTranslations('terms_page');
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors pt-32">
             <div className="container mx-auto px-6 py-20 max-w-4xl">
@@ -12,46 +14,46 @@ export default function TermsPage() {
                     className="mb-16"
                 >
                     <h1 className="text-6xl font-serif text-luxury-black dark:text-white mb-6">
-                        Terms of Service
+                        {t('title')}
                     </h1>
                     <p className="text-stone-500 dark:text-stone-400">
-                        Last updated: January 2026
+                        {t('last_updated')}
                     </p>
                 </motion.div>
 
                 <div className="prose prose-lg dark:prose-invert max-w-none space-y-8 text-luxury-black dark:text-white">
                     <section>
-                        <h2 className="text-3xl font-serif mb-4">1. Acceptance of Terms</h2>
+                        <h2 className="text-3xl font-serif mb-4">{t('sections.acceptance_title')}</h2>
                         <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
-                            By accessing and using Aura AI services, you accept and agree to be bound by the terms and provision of this agreement.
+                            {t('sections.acceptance_desc')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-3xl font-serif mb-4">2. Use License</h2>
+                        <h2 className="text-3xl font-serif mb-4">{t('sections.license_title')}</h2>
                         <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
-                            Permission is granted to temporarily access the materials on Aura AI's website for personal, non-commercial transitory viewing only.
+                            {t('sections.license_desc')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-3xl font-serif mb-4">3. AI-Generated Content</h2>
+                        <h2 className="text-3xl font-serif mb-4">{t('sections.ai_title')}</h2>
                         <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
-                            Our AI consultation service provides personalized fragrance recommendations. Results are based on algorithmic analysis and should be considered as suggestions.
+                            {t('sections.ai_desc')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-3xl font-serif mb-4">4. Product Information</h2>
+                        <h2 className="text-3xl font-serif mb-4">{t('sections.product_title')}</h2>
                         <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
-                            We strive to provide accurate product descriptions and pricing. However, we do not warrant that product descriptions or other content is accurate, complete, or error-free.
+                            {t('sections.product_desc')}
                         </p>
                     </section>
 
                     <section>
-                        <h2 className="text-3xl font-serif mb-4">5. Limitation of Liability</h2>
+                        <h2 className="text-3xl font-serif mb-4">{t('sections.liability_title')}</h2>
                         <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
-                            In no event shall Aura AI or its suppliers be liable for any damages arising out of the use or inability to use our services.
+                            {t('sections.liability_desc')}
                         </p>
                     </section>
                 </div>

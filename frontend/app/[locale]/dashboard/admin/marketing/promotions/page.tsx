@@ -244,7 +244,7 @@ export default function PromotionsAdmin() {
                             value={form.code}
                             onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                             className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all font-mono"
-                            placeholder="e.g. AURA20"
+                            placeholder="e.g. PERFUME GPT20"
                           />
                         </div>
                         <div className="space-y-3">

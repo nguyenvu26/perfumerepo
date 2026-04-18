@@ -76,7 +76,7 @@ export default function SearchPage() {
                                     <div className="absolute inset-0 bg-linear-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                                 <div className="px-2">
-                                    <p className="text-[10px] text-gold font-bold uppercase tracking-[0.2em] mb-1">Aura Premiere</p>
+                                    <p className="text-[10px] text-gold font-bold uppercase tracking-[0.2em] mb-1">Perfume GPT Premiere</p>
                                     <h3 className="font-heading text-xl uppercase tracking-widest mb-2 group-hover:text-gold transition-colors">Obsidian Mist {i}</h3>
                                     <p className="text-lg font-heading">$210.00</p>
                                 </div>

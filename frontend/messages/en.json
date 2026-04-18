@@ -42,7 +42,7 @@
     "loyalty_reason": "Loyalty reward for your continued patronage."
   },
   "common": {
-    "title": "Aura AI | Personalized Luxury Perfume",
+    "title": "Perfume GPT | Personalized Luxury Perfume",
     "consultation": "AI Consultation",
     "membership": "Membership",
     "discovery": "Scent Discovery",
@@ -85,13 +85,13 @@
     "admin_dashboard": "Admin Dashboard",
     "staff_dashboard": "Staff Dashboard",
     "curation": "Curation",
-    "description": "Aura AI - Personalized luxury perfume experience powered by artificial intelligence and neuroscience.",
+    "description": "Perfume GPT - Personalized luxury perfume experience powered by artificial intelligence and neuroscience.",
     "keywords": "perfume, luxury perfume, ai scent, personalized fragrance, aura ai, niche perfume",
     "breadcrumbs": {
       "home": "Odyssey",
       "collection": "Catalog"
     },
-    "engine_version": "Aura AI Neural Commerce Engine v2.0"
+    "engine_version": "Perfume GPT Neural Commerce Engine v2.0"
   },
   "notifications": {
     "success": "Success",
@@ -157,7 +157,7 @@
       "returns": "Return Requests"
     },
     "shared": {
-      "chat": "Aura Chat"
+      "chat": "Perfume GPT Chat"
     }
   },
   "hero": {
@@ -171,7 +171,7 @@
   "story": {
     "badge": "Neural Synthesizer",
     "title": "Your Signature, AI-Refined.",
-    "subtitle": "At Aura AI, we bypass the chaos of traditional counters. Our proprietary AI engine decodes your olfactory preferences through a series of emotional and environmental triggers.",
+    "subtitle": "At Perfume GPT, we bypass the chaos of traditional counters. Our proprietary AI engine decodes your olfactory preferences through a series of emotional and environmental triggers.",
     "feature1_title": "Olfactory DNA Mapping",
     "feature1_desc": "Digital sequencing of base chords and top note resonances.",
     "feature2_title": "Environmental Sillage",
@@ -396,7 +396,7 @@
       "no_results_title": "No Matches Found",
       "no_results_desc": "Our AI couldn't find a perfect match for those specific parameters. Try refining your discovery.",
       "retake": "Retake Discovery",
-      "ai_picked": "Aura AI Selection",
+      "ai_picked": "Perfume GPT Selection",
       "title": "Your Olfactory Blueprint",
       "subtitle": "Based on your bio-profile, our neural engine has curated these signatures with 98.4% precision.",
       "view_detail": "View Detail"
@@ -479,52 +479,14 @@
     "the_nuance": "The Nuance"
   },
   "journal_page": {
-    "digital_anthology": "Digital Anthology",
-    "journal_title": "Aura <italic>Journal</italic>",
-    "journal_subtitle": "Exploring the intersection of tradition, neural science, and luxury perfumery.",
-    "special_release": "Special Release",
-    "consume_story": "Consume the Story",
-    "load_older": "Load Older Transcripts",
-    "categories": {
-      "all": "All",
-      "science": "Science",
-      "philosophy": "Philosophy",
-      "artistry": "Artistry"
-    },
-    "featured_article": {
-      "title": "Sustainable Synthesis: The Future of Raw Materials",
-      "excerpt": "How neural AI is predicting the next century of botanical rarity and how we're preserving it today."
-    },
-    "articles": [
-      {
-        "category": "Olfactory Science",
-        "title": "The Neural Mapping of Memory",
-        "excerpt": "How our AI engine decodes the link between nostalgia and scent molecules to create deeply personal fragrances.",
-        "date": "Jan 12, 2026",
-        "image": "/luxury_perfume_hero_cinematic.png"
-      },
-      {
-        "category": "Mastery",
-        "title": "Grasse: The Heart of Extraction",
-        "excerpt": "A look inside our solar-powered laboratories where traditional distillation meets computational precision.",
-        "date": "Dec 15, 2025",
-        "image": "/luxury_ai_scent_lab.png"
-      },
-      {
-        "category": "Trends",
-        "title": "The Rise of Nocturnal Florals",
-        "excerpt": "Why the global shift towards deep, animalic jasmine and ink notes is defining the current generation of prestige scents.",
-        "date": "Nov 28, 2025",
-        "image": "/luxury_perfume_hero_cinematic.png"
-      },
-      {
-        "category": "Experience",
-        "title": "The Architecture of Sillage",
-        "excerpt": "Understanding projection and how AI optimizes the volume of your scent based on your environment.",
-        "date": "Nov 02, 2025",
-        "image": "/luxury_ai_scent_lab.png"
-      }
-    ]
+    "loading": "Loading Editorial...",
+    "empty_title": "The Perfume GPT Journal",
+    "empty_desc": "No editorial releases have been published yet.",
+    "header_badge": "Editorial",
+    "header_title": "The Edition",
+    "header_desc": "Explore the art of fragrance making, historical narratives, and endless inspiration behind every drop of perfume.",
+    "featured_badge": "Featured",
+    "read_more": "Read Article"
   },
   "collection": {
     "badge": "The Anthology",
@@ -540,8 +502,8 @@
     "newsletter_title": "Concierge News",
     "newsletter_desc": "Join the inner circle for archival releases and AI insights.",
     "email_placeholder": "YOUR EMAIL",
-    "copyright": "© 2026 AURA HOUSE. ALL RIGHTS RESERVED.",
-    "engine": "Aura AI v4.2 Engine",
+    "copyright": "© 2026 PERFUME GPT HOUSE. ALL RIGHTS RESERVED.",
+    "engine": "Perfume GPT v4.2 Engine",
     "location": "Grasse • Paris • Tokyo",
     "navigation_labels": {
       "products": "Products",
@@ -565,6 +527,9 @@
     "signin_btn": "Sign In",
     "empty": "Your cart is empty.",
     "continue_shopping": "Continue Shopping",
+    "select_all": "Select All",
+    "deselect_all": "Deselect All",
+    "items_selected": "{count} items selected",
     "loading": "Loading...",
     "each": "each",
     "summary": "Summary",
@@ -574,7 +539,7 @@
     "total": "Total",
     "proceed_checkout": "Proceed to Checkout",
     "secure_checkout": "SECURE CHECKOUT POWERED BY",
-    "intelligence": "AURA AI INTELLIGENCE",
+    "intelligence": "PERFUME GPT AI INTELLIGENCE",
     "perks": {
       "delivery_title": "White-Glove Delivery",
       "delivery_desc": "Complimentary on all orders.",
@@ -618,7 +583,12 @@
         "total_orders": "Total Orders",
         "avg_order_value": "Avg Order Value",
         "completion_rate": "Completion Rate",
-        "completed_suffix": "completed"
+        "cancel_rate": "Cancellation Rate",
+        "refund_amount": "Refund Amount",
+        "completed_suffix": "completed",
+        "successful": "Fufilled",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded"
       },
       "top_products": {
         "title": "Top Selling Products",
@@ -632,7 +602,7 @@
     "profile": {
       "title": "Olfactory Profile",
       "subtitle": "Manage your sensory signature and account credentials.",
-      "user_placeholder": "Aura Guest",
+      "user_placeholder": "Perfume GPT Guest",
       "personal_info": "Personal Intel",
       "roles": {
         "admin": "Command Core (Admin)",
@@ -735,7 +705,7 @@
       "save_changes": "Save Changes",
       "coming_soon": "Coming Soon",
       "fallback": {
-        "user": "Aura Member",
+        "user": "Perfume GPT Member",
         "empty": "—",
         "placeholder_phone": "+84 901 234 567"
       }
@@ -847,6 +817,10 @@
     },
     "pos": {
       "title": "Boutique POS",
+      "scan_camera_btn": "Scan with Camera",
+      "barcode_hint": "Scan product barcode to add to order",
+      "scan_camera_title": "Barcode Scanner",
+      "scan_camera_desc": "Position the barcode within the frame for automatic detection.",
       "store": "Store",
       "select_store": "-- Select Store --",
       "search_placeholder": "Search products, SKU or scan barcode...",
@@ -859,7 +833,7 @@
       "low_stock_warning": "Only {count} items left in stock!",
       "product_out_warning": "Product is out of stock!",
       "ai": {
-        "title": "Aura AI Consultant",
+        "title": "Perfume GPT Consultant",
         "desc": "Neural resonance matchmaking for the perfect essence.",
         "gender": "Gender Synthesis",
         "occasion": "Occasion Logic",
@@ -936,7 +910,7 @@
       }
     },
     "user": {
-      "explorer": "Aura Explorer",
+      "explorer": "Perfume GPT Explorer",
       "guest": "House Guest",
       "admin": "Administrator",
       "staff": "Boutique Staff",
@@ -944,7 +918,7 @@
     },
     "customer": {
       "loyalty": {
-        "title": "Aura Credits",
+        "title": "GPT Credits",
         "subtitle": "Your olfactory resonance history and member privileges.",
         "credits_suffix": "Credits",
         "history_title": "Sync History",
@@ -971,12 +945,13 @@
           "exchanged_for_voucher_generic": "Exchanged for voucher {code}",
           "redeemed_for_order_voucher_redeem_freeship_max": "Applied Free Shipping Offer"
         },
-        "history": "Transaction History"
+        "history": "Transaction History",
+        "discover_market": "Explore Marketplace"
       },
       "home": {
         "title": "My Sanctuary",
         "subtitle": "Tailored for your unique essence.",
-        "credits_label": "Aura Credits",
+        "credits_label": "GPT Credits",
         "credits_suffix": "PTS",
         "analyzing": "Analyzing DNA...",
         "evolving_title": "Your Neural Signature is evolving",
@@ -998,7 +973,9 @@
       },
       "promotions": {
         "title": "Olfactory Incentives",
+        "marketplace_title": "Privilege Marketplace",
         "subtitle": "Exclusive mathematical benefits for your next discovery.",
+        "verified_signature": "Verified Signature",
         "time_left": "{time} left",
         "expired": "Temporal Resonance Expired",
         "copy_btn": "Trace Signature",
@@ -1011,7 +988,7 @@
         "fallback_desc": "Digital benefit for your next neural acquisition.",
         "referral": {
           "title": "Artisan Referral Program",
-          "desc": "Share the Aura experience with a fellow connoisseur and unlock a 10ml rare decant once they complete their first synthesis.",
+          "desc": "Share the Perfume GPT experience with a fellow connoisseur and unlock a 10ml rare decant once they complete their first synthesis.",
           "cta": "Invite Connoisseurs"
         }
       },
@@ -1794,14 +1771,14 @@
           "syncing": "Syncing Neural Data..."
         },
         "print": {
-          "title": "Shipping Label - AURA AI",
+          "title": "Shipping Label - PERFUME GPT AI",
           "recipient": "RECIPIENT",
           "content": "CONTENT",
           "payment": "Payment:",
           "method": "Method:",
           "paid": "Pre-paid",
           "cod": "C.O.D",
-          "footer": "Thank you for choosing Aura AI Atelier.",
+          "footer": "Thank you for choosing Perfume GPT Atelier.",
           "guest": "Guest Member"
         },
         "status": {
@@ -1900,7 +1877,7 @@
       },
       "stores_extra": {
         "placeholders": {
-          "name": "e.g. Aura Sanctuary Ho Chi Minh",
+          "name": "e.g. Perfume GPT Sanctuary Ho Chi Minh",
           "code": "BOUTIQUE-01",
           "address": "Primary coordination address"
         },
@@ -1971,7 +1948,7 @@
           "admin": "Administrator"
         },
         "user": {
-          "explorer": "Aura Explorer",
+          "explorer": "Perfume GPT Explorer",
           "guest": "House Guest",
           "admin": "Administrator",
           "staff": "Boutique Staff",
@@ -1979,7 +1956,7 @@
         },
         "customer": {
           "loyalty": {
-            "title": "Aura Credits",
+            "title": "GPT Credits",
             "subtitle": "Your olfactory resonance history and member privileges.",
             "credits_suffix": "Credits",
             "history_title": "Sync History",
@@ -2012,7 +1989,7 @@
           "home": {
             "title": "My Sanctuary",
             "subtitle": "Tailored for your unique essence.",
-            "credits_label": "Aura Credits",
+            "credits_label": "GPT Credits",
             "credits_suffix": "PTS",
             "analyzing": "Analyzing DNA...",
             "evolving_title": "Your Neural Signature is evolving",
@@ -2049,7 +2026,7 @@
             "fallback_desc": "Digital benefit for your next neural acquisition.",
             "referral": {
               "title": "Artisan Referral Program",
-              "desc": "Share the Aura experience with a fellow connoisseur and unlock a 10ml rare decant once they complete their first synthesis.",
+              "desc": "Share the Perfume GPT experience with a fellow connoisseur and unlock a 10ml rare decant once they complete their first synthesis.",
               "cta": "Invite Connoisseurs"
             }
           },
@@ -2264,8 +2241,8 @@
           "lookup_btn": "Look Up",
           "member": "MEMBER",
           "guest": "GUEST",
-          "guest_desc": "Register to earn Aura Credits.",
-          "points": "{count} Aura Credits",
+          "guest_desc": "Register to earn GPT Credits.",
+          "points": "{count} GPT Credits",
           "pending_points": "{count} pts (pending registration)",
           "no_items": "No items in the bill yet.",
           "subtotal": "Subtotal",
@@ -2289,7 +2266,7 @@
           "subtotal": "Subtotal",
           "discount": "Discount",
           "total": "Total",
-          "earned_points": "+{count} Aura Credits earned",
+          "earned_points": "+{count} GPT Credits earned",
           "reg_to_use": "(register to redeem)",
           "close_btn": "Close",
           "new_order_btn": "New Order"
@@ -2383,7 +2360,7 @@
     "view_order": "Monitor Acquisition Status",
     "back_home": "Return to Sanctum",
     "wait_quote": "\"The wait is the most exquisite part of the ceremony.\"",
-    "processed_by": "Securely processed by Aura AI Intelligence"
+    "processed_by": "Securely processed by Perfume GPT Intelligence"
   },
   "checkout": {
     "return_to_cart": "Return to Archive",
@@ -2411,7 +2388,7 @@
     "coupon_code": "Promotion Signature",
     "apply": "Apply",
     "coupon_applied": "Signature Verified (Benefit {amount})",
-    "loyalty_points": "Aura Credits",
+    "loyalty_points": "GPT Credits",
     "subtotal": "Scent Base Value",
     "total": "Total",
     "invalid_coupon": "Signature invalid or expired",
@@ -2435,7 +2412,7 @@
       "loading": "Loading olfactory dataset...",
       "cross_referencing": "Cross-referencing {intensity} profiles...",
       "finalizing": "Finalizing emotional anchors...",
-      "calculating": "Aura AI Neural Engine is calculating...",
+      "calculating": "Perfume GPT Neural Engine is calculating...",
       "complete": "Analysis Complete",
       "description": "Neural match verified with 98.4% precision across all olfactory dimensions.",
       "dna_blueprint": "Your DNA Blueprint.",
@@ -2537,22 +2514,22 @@
     }
   },
   "rewards_page": {
-    "title": "Aura {tiers}",
+    "title": "Perfume GPT {tiers}",
     "subtitle": "The more you explore, the deeper your connection to the House becomes.",
     "tiers": {
       "silver": {
         "name": "Silver Mist",
-        "req": "100 Aura Points",
+        "req": "100 Perfume GPT Points",
         "perk": "Access to Seasonal Releases • Priority Shipping"
       },
       "gold": {
         "name": "Golden Sillage",
-        "req": "500 Aura Points",
+        "req": "500 Perfume GPT Points",
         "perk": "Bespoke AI Retraining • Exclusive Archival Previews"
       },
       "platinum": {
         "name": "Platinum Essence",
-        "req": "1000 Aura Points",
+        "req": "1000 Perfume GPT Points",
         "perk": "Invitations to Grasse Guest House • Unlimited Consultations"
       },
       "obsidian": {
@@ -2624,5 +2601,138 @@
       "FAILED": "Failed / Cancelled",
       "RETURNED": "Returned"
     }
+  },
+  "story_page": {
+    "intro": {
+      "since": "Since 2026",
+      "title_line1": "The Intersection of",
+      "title_line2": "Nature & Intellect"
+    },
+    "philosophy": {
+      "badge": "Our Philosophy",
+      "quote": "\"Scent is the most intense form of memory.\"",
+      "p1": "PERFUME GPT was founded on a simple yet radical idea: that the ancient art of perfumery should be personal, precise, and profoundly intelligent.",
+      "p2": "We combined the sensitivity of world-class \"noses\" with the analytical power of advanced AI to bridge the gap between human emotion and chemical composition."
+    },
+    "method": {
+      "title": "The Perfume GPT Method",
+      "sourcing": {
+        "title": "Sourcing",
+        "desc": "We travel the globe to source the highest quality raw materials from sustainable estates."
+      },
+      "analysis": {
+        "title": "Analysis",
+        "desc": "Our AI engine analyzes millions of sensory data points to understand human olfactory resonance."
+      },
+      "crafting": {
+        "title": "Crafting",
+        "desc": "Each bottle is finished by hand in our atelier, ensuring the human touch remains at our core."
+      }
+    },
+    "location": {
+      "badge": "Store Location",
+      "title": "Visit our atelier",
+      "desc": "You can visit our boutique to experience the fragrances in person. The map below shows our current flagship location.",
+      "store_name": "NOXH An Phu Thinh",
+      "province": "Quy Nhon Dong, Gia Lai Province",
+      "map_link": "View on Google Maps"
+    },
+    "cta": {
+      "title_line1": "Experience the Future",
+      "title_line2": "of Fragrance.",
+      "button": "Discover My Scent"
+    }
+  },
+  "support_page": {
+    "badge": "Concierge Service",
+    "title": "How Can We Assist?",
+    "subtitle": "Our dedicated team is here to guide you through your olfactory journey",
+    "email_label": "Email",
+    "phone_label": "Phone",
+    "atelier_label": "Atelier",
+    "atelier_value": "District 1, Ho Chi Minh City",
+    "hours_label": "Hours",
+    "hours_value": "Mon-Sat: 10AM - 8PM",
+    "form_title": "Send Us a Message",
+    "form_name": "Your Name",
+    "form_name_placeholder": "Alexander Dupont",
+    "form_email": "Email Address",
+    "form_email_placeholder": "alexander@example.com",
+    "form_message": "Message",
+    "form_message_placeholder": "How can we help you today?",
+    "form_submit": "Send Message"
+  },
+  "privacy_page": {
+    "title": "Privacy Policy",
+    "last_updated": "Last updated: January 2026",
+    "key_points": {
+      "protection_title": "Data Protection",
+      "protection_desc": "Your data is encrypted and secure",
+      "storage_title": "Secure Storage",
+      "storage_desc": "Industry-standard encryption",
+      "transparency_title": "Transparency",
+      "transparency_desc": "Clear data usage policies",
+      "control_title": "Data Control",
+      "control_desc": "You own your data"
+    },
+    "sections": {
+      "collect_title": "Information We Collect",
+      "collect_desc": "We collect information you provide directly to us, including your name, email address, preferences, and AI consultation responses to provide personalized fragrance recommendations.",
+      "use_title": "How We Use Your Data",
+      "use_desc": "We use your data to improve our AI algorithms, provide personalized experiences, process orders, and send you relevant updates about products and services.",
+      "ai_title": "AI & Machine Learning",
+      "ai_desc": "Your consultation data helps train our AI models. All data is anonymized and aggregated for machine learning purposes.",
+      "security_title": "Data Security",
+      "security_desc": "We implement industry-standard security measures including encryption, secure servers, and regular security audits to protect your personal information.",
+      "rights_title": "Your Rights",
+      "rights_desc": "You have the right to access, update, or delete your personal data at any time. Contact our support team for assistance."
+    }
+  },
+  "terms_page": {
+    "title": "Terms of Service",
+    "last_updated": "Last updated: January 2026",
+    "sections": {
+      "acceptance_title": "1. Acceptance of Terms",
+      "acceptance_desc": "By accessing and using Perfume GPT AI services, you accept and agree to be bound by the terms and provision of this agreement.",
+      "license_title": "2. Use License",
+      "license_desc": "Permission is granted to temporarily access the materials on Perfume GPT AI's website for personal, non-commercial transitory viewing only.",
+      "ai_title": "3. AI-Generated Content",
+      "ai_desc": "Our AI consultation service provides personalized fragrance recommendations. Results are based on algorithmic analysis and should be considered as suggestions.",
+      "product_title": "4. Product Information",
+      "product_desc": "We strive to provide accurate product descriptions and pricing. However, we do not warrant that product descriptions or other content is accurate, complete, or error-free.",
+      "liability_title": "5. Limitation of Liability",
+      "liability_desc": "In no event shall Perfume GPT AI or its suppliers be liable for any damages arising out of the use or inability to use our services."
+    }
+  },
+  "ingredients_page": {
+    "title_line1": "The",
+    "title_line2": "Anthology",
+    "subtitle": "Explore the raw molecular heritage that defines our syntheses.",
+    "ethically_sourced": "Ethically Sourced",
+    "categories": {
+      "resins_title": "The Resins",
+      "resins_desc": "Omani Frankincense, Aged Labdanum, Somalian Myrrh",
+      "florals_title": "The Florals",
+      "florals_desc": "Grasse Jasmine Grandiflorum, Bulgarian Damask Rose, Florentine Iris",
+      "woods_title": "The Woods",
+      "woods_desc": "Mysore Sandalwood, Indonesian Oud, Caledonian Cedar",
+      "neutrals_title": "The Neutrals",
+      "neutrals_desc": "Ethical Ambergris, Molecular Musk, Clean Vetiver"
+    }
+  },
+  "gifting_page": {
+    "title_line1": "The Art of",
+    "title_line2": "Giving",
+    "subtitle": "Bestow the luxury of a personal olfactory journey upon another.",
+    "physical_category": "The Physical",
+    "physical_title_line1": "Discovery Set",
+    "physical_title_line2": "",
+    "physical_desc": "A hand-packaged selection of our permanent collection, allowing them to find their initial resonance before the AI synthesis.",
+    "physical_cta": "Buy Physical Set • 2.000.000đ",
+    "digital_category": "The Digital",
+    "digital_title_line1": "Atelier Pass",
+    "digital_title_line2": "",
+    "digital_desc": "An invitation to our AI-powered consultation. The gift of a bespoke molecular signature delivered instantly via the digital registry.",
+    "digital_cta": "Send Digital Pass • 5.500.000đ"
   }
 }

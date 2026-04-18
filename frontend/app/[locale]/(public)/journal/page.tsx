@@ -6,8 +6,10 @@ import { Link } from '@/lib/i18n';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function JournalPublicPage() {
+    const t = useTranslations('journal_page');
     const [journals, setJournals] = useState<Journal[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -23,14 +25,14 @@ export default function JournalPublicPage() {
 
     if (loading) return (
         <div className="min-h-screen bg-background flex items-center justify-center">
-            <span className="text-[10px] uppercase tracking-widest text-muted-foreground animate-pulse">Loading Editorial...</span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground animate-pulse">{t('loading')}</span>
         </div>
     );
 
     if (journals.length === 0) return (
         <div className="min-h-screen bg-background flex flex-col pt-32 items-center text-center">
-            <h1 className="text-4xl font-serif mb-4">The Aura Journal</h1>
-            <p className="text-muted-foreground">Hiện chưa có ấn bản nào được xuất bản.</p>
+            <h1 className="text-4xl font-serif mb-4">{t('empty_title')}</h1>
+            <p className="text-muted-foreground">{t('empty_desc')}</p>
         </div>
     );
 
@@ -41,10 +43,10 @@ export default function JournalPublicPage() {
         <div className="min-h-screen bg-background pb-32">
             {/* Magazine Header */}
             <div className="pt-32 pb-16 text-center border-b border-border/50">
-                <span className="text-[10px] uppercase tracking-[0.5em] text-gold font-bold">Editorial</span>
-                <h1 className="text-6xl md:text-8xl mt-4 font-serif text-foreground uppercase tracking-tighter">The Edition</h1>
+                <span className="text-[10px] uppercase tracking-[0.5em] text-gold font-bold">{t('header_badge')}</span>
+                <h1 className="text-6xl md:text-8xl mt-4 font-serif text-foreground uppercase tracking-tighter">{t('header_title')}</h1>
                 <p className="mt-6 text-muted-foreground max-w-xl mx-auto px-6 italic text-lg leading-relaxed">
-                    Khám phá nghệ thuật chế tác hương thơm, câu chuyện lịch sử và nguồn cảm hứng bất tận đằng sau mỗi giọt nước hoa.
+                    {t('header_desc')}
                 </p>
             </div>
 
@@ -62,7 +64,7 @@ export default function JournalPublicPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                         <div className="absolute bottom-0 left-0 w-full p-8 md:p-16 flex flex-col justify-end text-white text-center md:text-left">
-                            <span className="text-[10px] uppercase tracking-widest text-gold font-bold mb-4">Tiêu Điểm • {featured.category}</span>
+                            <span className="text-[10px] uppercase tracking-widest text-gold font-bold mb-4">{t('featured_badge')} • {featured.category}</span>
                             <h2 className="text-4xl md:text-6xl font-serif leading-tight mb-4 group-hover:text-gold transition-colors">{featured.title}</h2>
                             <p className="hidden md:block max-w-3xl text-white/80 text-lg leading-relaxed line-clamp-2 italic">{featured.excerpt}</p>
                         </div>
@@ -105,7 +107,7 @@ export default function JournalPublicPage() {
                                                 {j.excerpt}
                                             </p>
                                             <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-foreground group-hover:text-gold transition-colors mt-auto">
-                                                Đọc Ký Sự <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                {t('read_more')} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                             </span>
                                         </div>
                                     </Link>

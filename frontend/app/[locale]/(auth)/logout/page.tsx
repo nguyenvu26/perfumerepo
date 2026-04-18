@@ -72,7 +72,7 @@ export default function LogoutPage() {
 
             {/* Subtle Brand Watermark */}
             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-20">
-                <span className="font-heading text-xl tracking-[0.6em] uppercase text-cream">AURA & AI</span>
+                <span className="font-heading text-xl tracking-[0.6em] uppercase text-cream">PERFUME GPT & AI</span>
             </div>
         </div>
     );

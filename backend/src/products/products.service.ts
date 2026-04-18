@@ -70,56 +70,76 @@ export class ProductsService {
       categoryId,
       isFeatured,
       isBestseller,
+      notes,
+      occasion,
+      minPrice,
+      maxPrice,
     } = query;
 
     const where: any = {
       isActive: true,
     };
 
+    const orConditions: any[] = [];
+
     if (search) {
-      where.OR = [
+      orConditions.push(
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { scentFamily: { name: { contains: search, mode: 'insensitive' } } },
+      );
+    }
+
+    if (notes) {
+      orConditions.push(
         {
-          scentFamily: { name: { contains: search, mode: 'insensitive' } },
+          notes: {
+            some: {
+              note: { name: { contains: notes, mode: 'insensitive' } },
+            },
+          },
         },
-      ];
-    }
-    if (query.notes) {
-      where.notes = {
-        some: {
-          note: { name: { contains: query.notes, mode: 'insensitive' } },
+        {
+          scentFamily: { name: { contains: notes, mode: 'insensitive' } },
         },
-      };
+      );
     }
-    if (query.occasion) {
-      // Occasion often mentioned in description or name
-      where.OR = [
-        ...(where.OR || []),
-        { name: { contains: query.occasion, mode: 'insensitive' } },
-        { description: { contains: query.occasion, mode: 'insensitive' } },
-      ];
+
+    if (occasion) {
+      orConditions.push(
+        { name: { contains: occasion, mode: 'insensitive' } },
+        { description: { contains: occasion, mode: 'insensitive' } },
+      );
     }
-    if (query.minPrice !== undefined || query.maxPrice !== undefined) {
+
+    if (orConditions.length > 0) {
+      where.OR = orConditions;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
       where.variants = {
         some: {
           price: {
-            gte: query.minPrice ? Number(query.minPrice) : undefined,
-            lte: query.maxPrice ? Number(query.maxPrice) : undefined,
+            gte: minPrice ? Number(minPrice) : undefined,
+            lte: maxPrice ? Number(maxPrice) : undefined,
           },
           isActive: true,
         },
       };
     }
+
     if (brandId) {
       where.brandId = Number(brandId);
     }
+
     if (categoryId) {
       where.categoryId = Number(categoryId);
     }
+
     if (isFeatured === 'true' || isFeatured === true) {
       where.isFeatured = true;
     }
+
     if (isBestseller === 'true' || isBestseller === true) {
       where.isBestseller = true;
     }
@@ -133,13 +153,12 @@ export class ProductsService {
         where: { userId },
       });
       if (prefs) {
-        avoidedNotes = prefs.avoidedNotes;
-        preferredNotes = prefs.preferredNotes;
+        avoidedNotes = prefs.avoidedNotes || [];
+        preferredNotes = prefs.preferredNotes || [];
       }
     }
 
     if (avoidedNotes.length > 0) {
-      // Exclude products that have notes in the avoided list
       where.NOT = {
         notes: {
           some: {
@@ -154,12 +173,16 @@ export class ProductsService {
       };
     }
 
+    // If we have preferred notes, we need to fetch more items to sort them by relevance
+    // But for a basic implementation, we just fetch with pagination.
+    // If scoring is critical, we'd fetch all and paginate in memory, which is what the previous code tried.
+    // Let's improve it by only fetching everything if preferredNotes are actually present.
+
+    const shouldScoring = preferredNotes.length > 0;
+
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
         where,
-        // We might need to fetch all matching items to sort by "preferred" score in memory
-        // if the dataset is large, we should use raw SQL or a more complex query.
-        // For now, let's fetch with pagination and handle sorting.
         include: {
           brand: true,
           category: true,
@@ -173,38 +196,38 @@ export class ProductsService {
           notes: { include: { note: true } },
         },
         orderBy: { createdAt: 'desc' },
+        // Only skip/take in DB if we don't need to re-sort everything in memory
+        skip: shouldScoring ? undefined : Number(skip),
+        take: shouldScoring ? undefined : Number(take),
       }),
       this.prisma.product.count({ where }),
     ]);
 
-    let sortedItems = items;
-    if (preferredNotes.length > 0) {
-      // Simple scoring: count how many preferred notes are in the product
-      sortedItems = items.sort((a, b) => {
-        const scoreA = a.notes.filter((pn) =>
-          preferredNotes.some(
-            (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
-          ),
-        ).length;
-        const scoreB = b.notes.filter((pn) =>
-          preferredNotes.some(
-            (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
-          ),
-        ).length;
-        return scoreB - scoreA; // Descending score
-      });
+    let finalItems = items;
+
+    if (shouldScoring) {
+      finalItems = items
+        .sort((a, b) => {
+          const scoreA = a.notes.filter((pn) =>
+            preferredNotes.some(
+              (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
+            ),
+          ).length;
+          const scoreB = b.notes.filter((pn) =>
+            preferredNotes.some(
+              (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
+            ),
+          ).length;
+          return scoreB - scoreA;
+        })
+        .slice(Number(skip), Number(skip) + Number(take));
     }
-
-    // Apply manual pagination if we sorted in memory (currently we don't fetch all, so this is partial)
-    // To do it properly, we should fetch more or all, but let's stick to initial sorted set for now.
-
-    const finalItems = sortedItems.slice(skip, skip + take);
 
     return {
       items: finalItems,
       total,
-      skip,
-      take,
+      skip: Number(skip),
+      take: Number(take),
     };
   }
 
@@ -247,7 +270,7 @@ export class ProductsService {
 
   create(dto: CreateProductDto) {
     return this.prisma.$transaction(async (tx) => {
-      const { variants, ...productData } = dto;
+      const { variants, scentNotes, ...productData } = dto;
       const product = await tx.product.create({
         data: {
           ...productData,
@@ -261,18 +284,48 @@ export class ProductsService {
         },
       });
 
+      if (scentNotes && scentNotes.length > 0) {
+        for (const sn of scentNotes) {
+          const note = await tx.scentNote.upsert({
+            where: { name_type: { name: sn.name, type: sn.type } },
+            update: {},
+            create: { name: sn.name, type: sn.type },
+          });
+          await tx.productScentNote.create({
+            data: { productId: product.id, noteId: note.id },
+          });
+        }
+      }
+
       return product;
     });
   }
 
   update(id: string, dto: UpdateProductDto) {
     return this.prisma.$transaction(async (tx) => {
-      const { variants, ...productData } = dto;
+      const { variants, scentNotes, ...productData } = dto;
 
       const product = await tx.product.update({
         where: { id },
         data: productData,
       });
+
+      if (scentNotes) {
+        // Clear old ones
+        await tx.productScentNote.deleteMany({ where: { productId: id } });
+
+        // Add new ones
+        for (const sn of scentNotes) {
+          const note = await tx.scentNote.upsert({
+            where: { name_type: { name: sn.name, type: sn.type } },
+            update: {},
+            create: { name: sn.name, type: sn.type },
+          });
+          await tx.productScentNote.create({
+            data: { productId: id, noteId: note.id },
+          });
+        }
+      }
 
       if (variants) {
         const existingVariants = await tx.productVariant.findMany({

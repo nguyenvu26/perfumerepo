@@ -47,7 +47,7 @@ export default function StaffDashboard() {
                                     <Package className="w-5 h-5 text-gold/50" />
                                 </div>
                                 <p className="text-4xl font-heading text-foreground">{report?.totalOrders ?? 0}</p>
-                                <p className="text-[10px] text-muted-foreground mt-1">{report?.successfulOrders ?? 0} {t('completed_suffix')}</p>
+                                <p className="text-[10px] text-muted-foreground mt-1">{report?.completedOrders ?? 0} {t('completed_suffix')}</p>
                             </div>
                             <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all">
                                 <div className="flex justify-between items-start mb-4">

@@ -53,6 +53,7 @@ export default function AdminProducts() {
     concentration: '',
     isActive: true,
     variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }] as VariantForm[],
+    scentNotes: [] as { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[],
   });
 
   const fetchProducts = useCallback(async () => {
@@ -119,6 +120,7 @@ export default function AdminProducts() {
             variants: p.variants?.length
               ? p.variants.map(v => ({ id: v.id, name: v.name, price: v.price, stock: v.stock, sku: v.sku ?? '' }))
               : [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
+            scentNotes: p.notes?.map(n => ({ name: n.note.name, type: n.note.type })) ?? [],
           });
           setExistingImages((p.images ?? []) as ExistingImage[]);
         })
@@ -163,6 +165,7 @@ export default function AdminProducts() {
       concentration: '',
       isActive: true,
       variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
+      scentNotes: [],
     });
     setShowModal(true);
   };
@@ -198,6 +201,27 @@ export default function AdminProducts() {
     setForm(f => ({
       ...f,
       variants: f.variants.map((v, i) => i === index ? { ...v, ...data } : v)
+    }));
+  };
+
+  const addScentNote = () => {
+    setForm(f => ({
+      ...f,
+      scentNotes: [...f.scentNotes, { name: '', type: 'TOP' }]
+    }));
+  };
+
+  const removeScentNote = (index: number) => {
+    setForm(f => ({
+      ...f,
+      scentNotes: f.scentNotes.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateScentNote = (index: number, data: Partial<typeof form.scentNotes[0]>) => {
+    setForm(f => ({
+      ...f,
+      scentNotes: f.scentNotes.map((n, i) => i === index ? { ...n, ...data } : n)
     }));
   };
 
@@ -250,6 +274,10 @@ export default function AdminProducts() {
       price: v.price,
       stock: v.stock,
       sku: v.sku.trim() || undefined
+    })),
+    scentNotes: form.scentNotes.filter(n => n.name.trim()).map(n => ({
+      name: n.name.trim(),
+      type: n.type
     }))
   });
 
@@ -586,6 +614,60 @@ export default function AdminProducts() {
                       value={form.description}
                       onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                     />
+                  </div>
+
+                  {/* Scent Notes Section */}
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-[10px] uppercase tracking-widest text-gold font-bold">CẤU TRÚC KHỨU GIÁC (NOTES)</label>
+                      <button
+                        type="button"
+                        onClick={addScentNote}
+                        className="text-[10px] uppercase tracking-widest font-bold bg-gold/10 text-gold px-3 py-1 rounded-full hover:bg-gold/20"
+                      >
+                        + THÊM NỐT HƯƠNG
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {form.scentNotes.map((n, i) => (
+                        <div key={i} className="flex gap-2 items-end bg-secondary/10 p-4 rounded-2xl relative group transition-all hover:bg-secondary/20">
+                          <div className="flex-1">
+                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">Tên nốt hương</label>
+                            <input
+                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold"
+                              value={n.name}
+                              placeholder="Ví dụ: Hổ phách, Hoa nhài..."
+                              onChange={(e) => updateScentNote(i, { name: e.target.value })}
+                            />
+                          </div>
+                          <div className="w-40">
+                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">Vị trí tầng hương</label>
+                            <select
+                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold"
+                              value={n.type}
+                              onChange={(e) => updateScentNote(i, { type: e.target.value as 'TOP' | 'MIDDLE' | 'BASE' })}
+                            >
+                              <option value="TOP">Hương Đầu (Top)</option>
+                              <option value="MIDDLE">Hương Giữa (Middle)</option>
+                              <option value="BASE">Hương Cuối (Base)</option>
+                            </select>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeScentNote(i)}
+                            className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      {form.scentNotes.length === 0 && (
+                        <p className="text-[10px] text-muted-foreground italic text-center py-4 border border-dashed border-border rounded-2xl">
+                          Chưa có nốt hương nào được thiết lập.
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Variants Section */}

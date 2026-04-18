@@ -51,24 +51,25 @@ export default function StaffKPI() {
                 ) : report ? (
                     <>
                         {/* Summary cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                        {/* Summary cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
                             <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.revenue')}</h3>
                                     <DollarSign className="w-5 h-5 text-gold" />
                                 </div>
-                                <p className="text-3xl font-heading text-gold">{format.number(report.totalRevenue, { style: 'currency', currency: 'VND' })}</p>
+                                <p className="text-2xl font-heading text-gold">{format.number(report.totalRevenue, { style: 'currency', currency: 'VND' })}</p>
                             </div>
                             <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.total_orders')}</h3>
                                     <Package className="w-5 h-5 text-gold" />
                                 </div>
-                                <p className="text-3xl font-heading text-foreground">{report.totalOrders}</p>
+                                <p className="text-2xl font-heading text-foreground">{report.totalOrders}</p>
                                 <div className="grid grid-cols-3 gap-2 mt-3">
                                     <div className="flex flex-col">
                                         <span className="text-[8px] text-muted-foreground uppercase font-bold">{t('cards.successful')}</span>
-                                        <span className="text-xs font-heading text-success">{report.successfulOrders}</span>
+                                        <span className="text-xs font-heading text-success">{report.completedOrders}</span>
                                     </div>
                                     <div className="flex flex-col border-x border-border/30 px-2">
                                         <span className="text-[8px] text-muted-foreground uppercase font-bold">{t('cards.cancelled')}</span>
@@ -85,15 +86,33 @@ export default function StaffKPI() {
                                     <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.avg_order_value')}</h3>
                                     <TrendingUp className="w-5 h-5 text-gold" />
                                 </div>
-                                <p className="text-3xl font-heading text-foreground">{format.number(report.avgOrderValue, { style: 'currency', currency: 'VND' })}</p>
+                                <p className="text-2xl font-heading text-foreground">{format.number(report.avgOrderValue, { style: 'currency', currency: 'VND' })}</p>
                             </div>
-                            <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all bg-gold/5 group">
+                            <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-gold text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.completion_rate')}</h3>
+                                    <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.completion_rate')}</h3>
+                                    <Target className="w-5 h-5 text-gold" />
+                                </div>
+                                <p className="text-2xl font-heading text-foreground">
+                                    {report.completionRate}%
+                                </p>
+                            </div>
+                            <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.cancel_rate')}</h3>
                                     <Award className="w-5 h-5 text-gold" />
                                 </div>
-                                <p className="text-3xl font-heading text-foreground">
-                                    {report.completionRate}%
+                                <p className="text-2xl font-heading text-red-400">
+                                    {report.cancelRate}%
+                                </p>
+                            </div>
+                            <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">{t('cards.refund_amount')}</h3>
+                                    <TrendingUp className="w-5 h-5 text-gold" />
+                                </div>
+                                <p className="text-2xl font-heading text-amber-400">
+                                    {format.number(report.totalRefundedAmount, { style: 'currency', currency: 'VND' })}
                                 </p>
                             </div>
                         </div>
@@ -107,25 +126,36 @@ export default function StaffKPI() {
                             {report.topProducts.length === 0 ? (
                                 <p className="text-sm text-muted-foreground text-center py-8">{t('top_products.empty')}</p>
                             ) : (
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     {report.topProducts.map((p, i) => {
                                         const maxQty = report.topProducts[0].totalQuantity;
                                         const pct = maxQty > 0 ? (p.totalQuantity / maxQty) * 100 : 0;
                                         return (
-                                            <div key={i} className="space-y-2">
-                                                <div className="flex justify-between items-end">
-                                                    <div>
-                                                        <span className="font-heading text-sm uppercase tracking-wider">{p.productName}</span>
-                                                        <span className="text-[10px] text-muted-foreground ml-2">{p.variantName}</span>
+                                            <div key={i} className="space-y-4">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary/20 border border-border/50 shrink-0">
+                                                            {p.imageUrl ? (
+                                                                <img src={p.imageUrl} alt={p.productName} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                                                                    <Package className="w-5 h-5" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div>
+                                                            <span className="font-heading text-sm uppercase tracking-wider block leading-tight">{p.productName}</span>
+                                                            <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{p.variantName}</span>
+                                                        </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <span className="font-heading text-gold text-sm">{p.totalQuantity} {t('top_products.sold_suffix')}</span>
-                                                        <span className="text-[10px] text-muted-foreground ml-2">{format.number(p.totalRevenue, { style: 'currency', currency: 'VND' })}</span>
+                                                        <span className="font-heading text-gold text-lg block leading-tight">{p.totalQuantity} {t('top_products.sold_suffix')}</span>
+                                                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">{format.number(p.totalRevenue, { style: 'currency', currency: 'VND' })}</span>
                                                     </div>
                                                 </div>
-                                                <div className="h-2 w-full bg-secondary/30 rounded-full overflow-hidden">
+                                                <div className="h-1.5 w-full bg-secondary/20 rounded-full overflow-hidden">
                                                     <div
-                                                        className="h-full bg-gold rounded-full transition-all"
+                                                        className="h-full bg-gold rounded-full transition-all duration-1000 ease-out"
                                                         style={{ width: `${pct}%` }}
                                                     />
                                                 </div>

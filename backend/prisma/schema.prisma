@@ -11,6 +11,7 @@ model User {
   id            String                @id @default(cuid())
   email         String                @unique
   phone         String?               @unique
+  phoneVerified Boolean               @default(false)
   passwordHash  String?
   isActive      Boolean               @default(true)
   createdAt     DateTime              @default(now())
@@ -55,6 +56,7 @@ model User {
   staffReturnRequests ReturnRequest[]     @relation("StaffReturns")
   userPromotions            UserPromotion[]
   aiPreference              UserAiPreference?
+  phoneOtps                PhoneOtpVerification[]
 }
 
 model UserAddress {
@@ -589,6 +591,21 @@ model LoyaltyTransaction {
 
   @@index([phone])
   @@index([userId])
+}
+
+model PhoneOtpVerification {
+  id         String   @id @default(cuid())
+  userId     String
+  phone      String
+  otpHash    String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, phone, createdAt])
 }
 
 /// Chat & conversations

@@ -38,9 +38,9 @@ const mock: NotificationItem[] = [
     group: 'today',
     read: false,
     timeLabel: '2 phút',
-    actorLabel: 'AURA',
+    actorLabel: 'PERFUME GPT',
     title: 'Khuyến mãi mới: GIẢM 20% cho đơn từ 3.000.000đ',
-    targetLabel: 'AURA20',
+    targetLabel: 'PERFUME GPT20',
     href: '/collection',
   },
   {

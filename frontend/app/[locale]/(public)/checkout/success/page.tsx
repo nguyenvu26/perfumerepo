@@ -90,10 +90,10 @@ export default function OrderSuccessPage() {
                                 <span className="text-sm font-medium">
                                     {t('payment_method')}:{' '}
                                     <span className="text-luxury-black dark:text-white font-bold italic tracking-wide">
-                                        {order?.paymentStatus === 'PAID' 
-                                            ? t('status_paid') 
-                                            : order?.paymentStatus === 'PENDING' 
-                                                ? t('status_pending') 
+                                        {order?.paymentStatus === 'PAID'
+                                            ? t('status_paid')
+                                            : order?.paymentStatus === 'PENDING'
+                                                ? t('status_pending')
                                                 : t('status_cod')}
                                     </span>
                                 </span>
@@ -132,7 +132,7 @@ export default function OrderSuccessPage() {
                                 <div className="flex items-center gap-4">
                                     <div className="w-8 h-px bg-gold" />
                                     <span className="text-[10px] font-bold tracking-widest uppercase text-stone-300">
-                                        AURA ATELIER
+                                        PERFUME GPT
                                     </span>
                                 </div>
                             </div>

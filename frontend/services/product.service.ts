@@ -64,6 +64,7 @@ interface IProductService {
     concentration?: string;
     isActive?: boolean;
     variants: ProductVariantInput[];
+    scentNotes?: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[];
   }): Promise<Product>;
   adminUpdate(id: string, dto: Partial<Parameters<IProductService['adminCreate']>[0]>): Promise<Product>;
   adminDelete(id: string): Promise<{ success: boolean }>;
@@ -97,6 +98,7 @@ export const productService: IProductService = {
     concentration?: string;
     isActive?: boolean;
     variants: ProductVariantInput[];
+    scentNotes?: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[];
   }) {
     return api.post<Product>('/admin/products', dto).then((r) => r.data);
   },
