@@ -27,6 +27,12 @@ export class QueryProductsDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @Min(1)
+  scentFamilyId?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
   categoryId?: number;
 
   @IsOptional()

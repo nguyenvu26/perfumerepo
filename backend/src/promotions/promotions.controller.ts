@@ -38,8 +38,9 @@ export class PromotionsController {
   }
 
   @Get('public')
-  async findPublic() {
-    return this.promotionsService.findPublic();
+  @UseGuards(JwtAuthGuard)
+  async findPublic(@Request() req) {
+    return this.promotionsService.findPublic(req.user.userId);
   }
 
   @Get('redeemable')

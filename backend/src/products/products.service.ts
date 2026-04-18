@@ -68,6 +68,7 @@ export class ProductsService {
       take = 20,
       brandId,
       categoryId,
+      scentFamilyId,
       isFeatured,
       isBestseller,
       notes,
@@ -78,42 +79,47 @@ export class ProductsService {
 
     const where: any = {
       isActive: true,
+      AND: [],
     };
 
-    const orConditions: any[] = [];
-
     if (search) {
-      orConditions.push(
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { scentFamily: { name: { contains: search, mode: 'insensitive' } } },
-      );
+      where.AND.push({
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+          { scentFamily: { name: { contains: search, mode: 'insensitive' } } },
+        ],
+      });
     }
 
     if (notes) {
-      orConditions.push(
-        {
-          notes: {
-            some: {
-              note: { name: { contains: notes, mode: 'insensitive' } },
+      where.AND.push({
+        OR: [
+          {
+            notes: {
+              some: {
+                note: { name: { contains: notes, mode: 'insensitive' } },
+              },
             },
           },
-        },
-        {
-          scentFamily: { name: { contains: notes, mode: 'insensitive' } },
-        },
-      );
+          {
+            scentFamily: { name: { contains: notes, mode: 'insensitive' } },
+          },
+        ],
+      });
     }
 
     if (occasion) {
-      orConditions.push(
-        { name: { contains: occasion, mode: 'insensitive' } },
-        { description: { contains: occasion, mode: 'insensitive' } },
-      );
+      where.AND.push({
+        OR: [
+          { name: { contains: occasion, mode: 'insensitive' } },
+          { description: { contains: occasion, mode: 'insensitive' } },
+        ],
+      });
     }
 
-    if (orConditions.length > 0) {
-      where.OR = orConditions;
+    if (scentFamilyId) {
+      where.scentFamilyId = Number(scentFamilyId);
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {

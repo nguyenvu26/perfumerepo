@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { UserRoleEnum } from '@prisma/client';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   findMe(userId: string) {
     return this.prisma.user.findUnique({
@@ -32,7 +36,20 @@ export class UsersService {
     });
   }
 
-  updateMe(userId: string, dto: UpdateProfileDto) {
+  async updateMe(userId: string, dto: UpdateProfileDto) {
+    if (dto.phone) {
+      const existingUser = await this.prisma.user.findFirst({
+        where: {
+          phone: dto.phone,
+          NOT: { id: userId },
+        },
+      });
+
+      if (existingUser) {
+        throw new ConflictException('Số điện thoại này đã được sử dụng bởi tài khoản khác');
+      }
+    }
+
     return this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -64,6 +81,24 @@ export class UsersService {
         loyaltyPoints: true,
         createdAt: true,
         emailVerified: true,
+      },
+    });
+  }
+
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
+    const uploadResult = await this.cloudinaryService.uploadImage(
+      file.buffer,
+      'perfume-gpt/users/avatars',
+    );
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: uploadResult.url },
+      select: {
+        id: true,
+        email: true,
+        avatarUrl: true,
+        fullName: true,
       },
     });
   }

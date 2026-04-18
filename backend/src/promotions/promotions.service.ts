@@ -47,12 +47,10 @@ export class PromotionsService {
       });
       const ownedIds = ownedPromos.map((p) => p.promotionId);
 
-      where.OR = [
-        { isPublic: true },
-        { id: { in: ownedIds } },
-      ];
+      // Only show promotions that are active AND owned by the user
+      where.id = { in: ownedIds };
     } else {
-      // For anonymous, only public
+      // For anonymous, show nothing (or strictly public if you want them to see what they're missing)
       where.isPublic = true;
     }
 
@@ -62,17 +60,23 @@ export class PromotionsService {
     });
   }
 
-  async findPublic() {
+  async findPublic(userId: string) {
     const now = new Date();
+
+    // Get IDs of promotions already claimed by this user
+    const userPromos = await this.prisma.userPromotion.findMany({
+      where: { userId },
+      select: { promotionId: true },
+    });
+    const claimedIds = userPromos.map((p) => p.promotionId);
+
     return this.prisma.promotionCode.findMany({
       where: {
         isActive: true,
         isPublic: true,
         startDate: { lte: now },
         endDate: { gte: now },
-        usageLimit: {
-          gt: this.prisma.promotionCode.fields.usedCount as any, // Simple check
-        },
+        id: { notIn: claimedIds }, // Exclude claimed ones
       },
       orderBy: { endDate: 'asc' },
     });
