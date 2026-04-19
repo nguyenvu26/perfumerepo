@@ -114,7 +114,12 @@
     @apply bg-background text-foreground font-body;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading font-medium;
     text-rendering: optimizeLegibility;
   }
@@ -188,23 +193,59 @@ html[lang="vi"] .text-\[10px\] {
     width: 4px;
     height: 4px;
   }
+
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
     @apply bg-gold/20 rounded-full;
   }
+
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     @apply bg-gold/40;
+  }
+
+  /* Print Styles for Receipt */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .receipt-modal {
+      box-shadow: none !important;
+      border: none !important;
+      margin: 0 !important;
+      max-width: none !important;
+      width: 100% !important;
+      position: static !important;
+    }
+
+    body {
+      background: white !important;
+      color: black !important;
+    }
+
+    .receipt-modal * {
+      color: black !important;
+    }
+
+    /* Adjust layout for printing - remove sidebar padding */
+    .pl-72 {
+      padding-left: 0 !important;
+    }
   }
 
   /* Hide scrollbar utility */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 
   /* Luxury UI Utilities */
@@ -212,6 +253,7 @@ html[lang="vi"] .text-\[10px\] {
     position: relative;
     isolation: isolate;
   }
+
   .noise-panel::before {
     content: "";
     position: absolute;
@@ -223,12 +265,17 @@ html[lang="vi"] .text-\[10px\] {
   }
 
   @keyframes luxury-shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
   }
 
   .animate-luxury-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
     background-size: 200% 100%;
     animation: luxury-shimmer 3s infinite linear;
   }

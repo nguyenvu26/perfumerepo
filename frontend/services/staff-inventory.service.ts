@@ -7,6 +7,7 @@ export type StaffInventoryVariant = {
   variantName: string;
   stock: number;
   updatedAt: string;
+  barcode?: string | null;
 };
 
 export type StaffInventoryOverview = {
@@ -46,6 +47,7 @@ export type SystemVariant = {
   sku: string | null;
   price: number;
   imageUrl: string | null;
+  barcode?: string | null;
 };
 
 export type StaffInventoryLog = {

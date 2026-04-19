@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { staffPosService, type PosOrder } from '@/services/staff-pos.service';
 import { PosBarcodeCameraDialog } from '@/components/staff/pos-barcode-camera-dialog';
+import { ReceiptModal } from '@/components/staff/receipt-modal';
 import { storesService, type Store as StoreType } from '@/services/stores.service';
 import type { Product } from '@/services/product.service';
 import type { PayOSPaymentResponse } from '@/services/payment.service';
@@ -490,7 +491,10 @@ export default function PosPage() {
                                             </div>
                                             <h3 className="font-heading text-sm mb-1 line-clamp-1 uppercase tracking-tight">{p.name}</h3>
                                             <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-1">{p.brand?.name ?? '—'}</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-2">{v.name}</p>
+                                            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-1">
+                                                {v.name}
+                                                {v.barcode && <span className="ml-2 text-gold/40">• BC: {v.barcode}</span>}
+                                            </p>
                                             <div className="flex justify-between items-center mt-4">
                                                 <span className="font-heading text-gold text-lg">{formatVND(v.price)}</span>
                                                 <button
@@ -745,71 +749,13 @@ export default function PosPage() {
                 </div>
 
                 {/* ═══════════ Receipt Modal ═══════════ */}
-                <AnimatePresence>
-                    {showReceipt && completedOrder && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowReceipt(false)}>
-                            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} onClick={(e) => e.stopPropagation()} className="bg-background border border-border rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl relative">
-                                <button onClick={() => setShowReceipt(false)} className="absolute top-6 right-6 p-2 rounded-full hover:bg-secondary transition-colors"><X className="w-4 h-4 text-muted-foreground" /></button>
-                                <div className="text-center mb-8">
-                                    <div className="w-16 h-16 mx-auto bg-success/10 rounded-full flex items-center justify-center mb-4"><CheckCircle className="w-8 h-8 text-success" /></div>
-                                    <h2 className="font-heading text-2xl uppercase tracking-tighter mb-1">{t('receipt.complete')}</h2>
-                                    <p className="text-xs text-muted-foreground uppercase tracking-widest">{t('receipt.order')} {completedOrder.code}</p>
-                                </div>
-                                {/* Customer info on receipt */}
-                                {(completedOrder.user || loyaltyInfo) && (
-                                    <div className="glass rounded-xl p-3 border-border flex items-center gap-3 mb-4">
-                                        <User className={`w-4 h-4 ${completedOrder.user ? 'text-gold' : 'text-blue-500'}`} />
-                                        <div>
-                                            {completedOrder.user ? (
-                                                <>
-                                                    <p className="font-heading text-[10px] uppercase tracking-widest">{completedOrder.user.fullName ?? completedOrder.user.phone}</p>
-                                                    <div className="flex items-center gap-1">
-                                                        <Award className="w-3 h-3 text-gold" />
-                                                        <span className="text-[10px] text-gold font-heading">{t('receipt.earned_points', { count: Math.floor(completedOrder.finalAmount / 10000) })}</span>
-                                                    </div>
-                                                </>
-                                            ) : loyaltyInfo && !loyaltyInfo.registered ? (
-                                                <>
-                                                    <p className="font-heading text-[10px] uppercase tracking-widest">{t('cart.guest')} — {loyaltyInfo.phone}</p>
-                                                    <div className="flex items-center gap-1">
-                                                        <Award className="w-3 h-3 text-gold" />
-                                                        <span className="text-[10px] text-gold font-heading">{t('receipt.earned_points', { count: Math.floor(completedOrder.finalAmount / 10000) })} {t('receipt.reg_to_use')}</span>
-                                                    </div>
-                                                </>
-                                            ) : null}
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="space-y-3 mb-6 max-h-[200px] overflow-y-auto custom-scrollbar">
-                                    {completedOrder.items.map((item) => (
-                                        <div key={item.id} className="flex justify-between items-center text-sm border-b border-border/20 pb-2">
-                                            <div>
-                                                <span className="font-heading text-[10px] uppercase tracking-widest">{item.variant.product?.name}</span>
-                                                <span className="text-muted-foreground text-[10px]"> — {item.variant.name}</span>
-                                                <span className="text-muted-foreground text-[10px]"> x{item.quantity}</span>
-                                            </div>
-                                            <span className="font-heading text-gold text-sm">{formatVND(item.totalPrice)}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="border-t border-border pt-4 space-y-2">
-                                    <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground font-heading"><span>{t('receipt.subtotal')}</span><span>{formatVND(completedOrder.totalAmount)}</span></div>
-                                    {completedOrder.discountAmount > 0 && (
-                                        <div className="flex justify-between text-[10px] uppercase tracking-widest text-success font-heading"><span>{t('receipt.discount')}</span><span>-{formatVND(completedOrder.discountAmount)}</span></div>
-                                    )}
-                                    <div className="flex justify-between text-xl font-heading pt-2"><span className="uppercase tracking-tighter">{t('receipt.total')}</span><span className="text-gold">{formatVND(completedOrder.finalAmount)}</span></div>
-                                </div>
-                                <div className="mt-4 text-center text-[10px] text-muted-foreground uppercase tracking-widest font-heading">
-                                    {completedOrder.store?.name ?? 'POS'} • {format.dateTime(new Date(), { dateStyle: 'medium', timeStyle: 'short' })}
-                                </div>
-                                <div className="mt-8 grid grid-cols-2 gap-3">
-                                    <button onClick={() => setShowReceipt(false)} className="py-3 glass border-border rounded-2xl font-heading text-[9px] uppercase tracking-[0.2em] hover:border-gold/50 transition-all">{t('receipt.close_btn')}</button>
-                                    <button onClick={() => { setShowReceipt(false); handleNewOrder(); }} className="py-3 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20">{t('receipt.new_order_btn')}</button>
-                                </div>
-                            </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                <ReceiptModal
+                    isOpen={showReceipt}
+                    onClose={() => setShowReceipt(false)}
+                    order={completedOrder}
+                    loyaltyInfo={loyaltyInfo}
+                    onNewOrder={handleNewOrder}
+                />
 
                 <PosBarcodeCameraDialog
                     open={cameraScannerOpen}

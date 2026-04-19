@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Header } from '@/components/common/header';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/services/auth.service';
 
 export default function ResetPasswordPage() {
     const t = useTranslations('auth.reset_password');
     const tCommon = useTranslations('common');
+    const locale = useLocale();
     const searchParams = useSearchParams();
     const router = useRouter();
     const token = searchParams.get('token');
@@ -50,7 +51,7 @@ export default function ResetPasswordPage() {
             setStatus("success");
             // Automatically redirect after 3 seconds
             setTimeout(() => {
-                router.push('/login');
+                router.push(`/${locale}/login`);
             }, 3000);
         } catch (err: any) {
             setError(err.response?.data?.message || err.message || t('error_failed'));

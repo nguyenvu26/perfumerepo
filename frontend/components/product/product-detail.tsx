@@ -137,10 +137,10 @@ export default function ProductDetail({ product }: { product: Product }) {
                                 onClick={() => setActiveImageIndex(idx)}
                                 className={`flex-shrink-0 w-24 sm:w-28 aspect-square glass rounded-2xl border transition-all duration-500 overflow-hidden snap-center relative group/thumb ${activeImageIndex === idx ? 'border-gold shadow-lg shadow-gold/10 scale-105' : 'border-border/50 hover:border-gold/30'}`}
                             >
-                                <img 
-                                    src={img.url} 
-                                    alt="" 
-                                    className={`w-full h-full object-cover transition-transform duration-700 ${activeImageIndex === idx ? 'scale-110' : 'group-hover/thumb:scale-110'}`} 
+                                <img
+                                    src={img.url}
+                                    alt=""
+                                    className={`w-full h-full object-cover transition-transform duration-700 ${activeImageIndex === idx ? 'scale-110' : 'group-hover/thumb:scale-110'}`}
                                 />
                                 {activeImageIndex === idx && (
                                     <div className="absolute inset-0 bg-gold/5 pointer-events-none" />
@@ -148,10 +148,16 @@ export default function ProductDetail({ product }: { product: Product }) {
                             </button>
                         ))}
                     </div>
+                    {/* Product Description */}
+                    <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground font-body leading-relaxed max-w-xl">
+                            {product.description || t('fallback_description')}
+                        </p>
+                    </div>
                 </div>
 
                 {/* Intellectual Section */}
-                <div className="flex flex-col justify-center">
+                <div className="flex flex-col ">
                     <div className="space-y-2 mb-8">
                         <div className="flex items-center gap-3">
                             <span className="px-3 py-1 rounded-full glass border-gold/20 text-gold text-[8px] uppercase tracking-widest font-bold">
@@ -174,10 +180,6 @@ export default function ProductDetail({ product }: { product: Product }) {
                     </div>
 
                     <div className="space-y-8 mb-12">
-                        <p className="text-sm text-muted-foreground font-body leading-relaxed max-w-xl">
-                            {product.description || t('fallback_description')}
-                        </p>
-
                         <div className="space-y-6">
                             <h3 className="text-[10px] uppercase tracking-[0.3em] font-heading text-foreground border-b border-border/50 pb-4">
                                 {t('select_olfactory_volume')}
@@ -204,7 +206,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                         {product.notes && product.notes.length > 0 && (
                             <div className="space-y-6">
                                 <h3 className="text-[10px] uppercase tracking-[0.3em] font-heading text-foreground border-b border-border/50 pb-4">
-                                {t('olfactory_structure')}
+                                    {t('olfactory_structure')}
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                     {[

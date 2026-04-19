@@ -116,6 +116,7 @@ export class OrdersService {
                 create: {
                   promotionCodeId: promoData.promoId,
                   discountAmount: promoData.discountAmount,
+                  userPromotionId: promoData.userPromoId,
                 },
               }
             : undefined,
@@ -129,10 +130,22 @@ export class OrdersService {
       });
 
       if (promoData) {
+        // Increment general usage count
         await tx.promotionCode.update({
           where: { id: promoData.promoId },
           data: { usedCount: { increment: 1 } },
         });
+
+        // Mark user-specific promotion as USED
+        if (promoData.userPromoId) {
+          await tx.userPromotion.update({
+            where: { id: promoData.userPromoId },
+            data: { 
+              status: 'USED',
+              usedAt: new Date()
+            },
+          });
+        }
       }
 
       if (dto.redeemPoints) {
@@ -160,7 +173,12 @@ export class OrdersService {
           type: 'ORDER',
           title: 'Đặt hàng thành công',
           content: `Đơn hàng ${order.code} đã được tạo thành công.`,
-          data: { orderId: order.id, orderCode: order.code },
+          data: { 
+            orderId: order.id, 
+            orderCode: order.code,
+            totalAmount: order.finalAmount 
+          },
+          sendEmail: true,
         })
         .catch(() => {});
     }
@@ -423,7 +441,14 @@ export class OrdersService {
       },
     });
 
-    // GHN shipment creation is now triggered manually via admin interface
+    // GHN shipment creation for ONLINE orders when confirmed
+    if (status === 'CONFIRMED' && updated.channel === 'ONLINE') {
+      try {
+        await this.shippingService.createGhnShipment(id);
+      } catch (e) {
+        console.warn(`Auto GHN shipment creation failed for order ${id}:`, e.message);
+      }
+    }
 
     if (status === 'COMPLETED' && updated.userId) {
       await this.loyaltyService.earnPoints(
@@ -443,6 +468,7 @@ export class OrdersService {
           title: 'Cập nhật đơn hàng',
           content: `Đơn hàng ${updated.code} ${label}.`,
           data: { orderId: updated.id, orderCode: updated.code, status },
+          sendEmail: ['SHIPPED', 'CANCELLED', 'COMPLETED'].includes(status),
         })
         .catch(() => {});
 
@@ -482,11 +508,23 @@ export class OrdersService {
     const updated = await this.prisma.order.update({
       where: { id },
       data: { status: 'CANCELLED' },
+      include: { promotions: true },
     });
 
+    // Return promotions if any
+    if (updated.promotions.length > 0) {
+      for (const applied of updated.promotions) {
+        if (applied.userPromotionId) {
+          await this.prisma.userPromotion.update({
+            where: { id: applied.userPromotionId },
+            data: { status: 'UNUSED', usedAt: null },
+          });
+        }
+      }
+    }
+
     // Notify user
-    this.notificationsService
-      .create({
+    this.notificationsService.create({
         userId,
         type: 'ORDER',
         title: 'Đã hủy đơn hàng',
@@ -496,6 +534,7 @@ export class OrdersService {
           orderCode: updated.code,
           status: 'CANCELLED',
         },
+        sendEmail: true,
       })
       .catch(() => {});
 

@@ -84,4 +84,58 @@ export class MailService {
     `;
         return this.sendMail(email, 'Verify Your Email - Perfume Sales', html);
     }
+
+    async sendOrderConfirmationMail(email: string, userName: string, orderCode: string, totalAmount: number) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #333; text-align: center;">Xác nhận đơn hàng</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p>Cảm ơn bạn đã đặt hàng tại <strong>PerfumeGPT</strong>. Đơn hàng của bạn đã được tiếp nhận và đang trong quá trình xử lý.</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p style="margin: 5px 0;"><strong>Mã đơn hàng:</strong> ${orderCode}</p>
+          <p style="margin: 5px 0;"><strong>Tổng thanh toán:</strong> ${totalAmount.toLocaleString('vi-VN')} VND</p>
+        </div>
+        <p>Chúng tôi sẽ thông báo cho bạn ngay khi đơn hàng được gửi đi.</p>
+        <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với bộ phận chăm sóc khách hàng của chúng tôi.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Xác nhận đơn hàng ${orderCode} - PerfumeGPT`, html);
+    }
+
+    async sendOrderStatusUpdateMail(email: string, userName: string, orderCode: string, statusLabel: string) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #333 text-align: center;">Cập nhật trạng thái đơn hàng</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p>Đơn hàng <strong>${orderCode}</strong> của bạn vừa có cập nhật mới:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center;">
+          <p style="font-size: 18px; color: #000; margin: 0;">Trạng thái: <strong>${statusLabel.toUpperCase()}</strong></p>
+        </div>
+        <p>Bạn có thể theo dõi tiến độ đơn hàng tại trang cá nhân trên website của chúng tôi.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Cập nhật đơn hàng ${orderCode} - PerfumeGPT`, html);
+    }
+
+    async sendPromotionMail(email: string, userName: string, promoCode: string, description: string) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px; background-color: #fffaf0;">
+        <h2 style="color: #d4af37; text-align: center;">Quà tặng dành riêng cho bạn!</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p>Bạn vừa nhận được một mã giảm giá đặc biệt từ <strong>PerfumeGPT</strong>:</p>
+        <div style="border: 2px dashed #d4af37; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center; background-color: #fff;">
+          <p style="font-size: 24px; font-weight: bold; color: #d4af37; margin: 0;">${promoCode}</p>
+          <p style="font-size: 14px; color: #666; margin-top: 10px;">${description}</p>
+        </div>
+        <p>Hãy sử dụng mã này trong lần mua hàng tới để nhận ưu đãi nhé!</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Ưu đãi mới dành cho bạn: ${promoCode} - PerfumeGPT`, html);
+    }
 }

@@ -1220,6 +1220,7 @@
         "products": {
           "title": "Quản Lý Sản Phẩm",
           "subtitle": "Quản lý toàn bộ hương sắc trong Bộ Sưu Tập.",
+          "open_catalog": "Mở Danh Mục",
           "curate_btn": "Tạo Sản Phẩm Mới",
           "search_placeholder": "Tìm theo tên sản phẩm, thương hiệu...",
           "loading": "Đang tải...",
@@ -1907,6 +1908,7 @@
           "code": "VD: HN-01",
           "address": "Địa chỉ đầy đủ..."
         },
+        "stock_button": "Quản lý tồn kho",
         "unnamed_staff": "Nhân viên chưa đặt tên"
       },
       "staff": {

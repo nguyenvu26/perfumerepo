@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationGateway } from './notification.gateway';
 import { NotificationChannel } from '@prisma/client';
+import { MailService } from '../mail/mail.service';
 
 export interface CreateNotificationParams {
   userId: string;
@@ -9,6 +10,7 @@ export interface CreateNotificationParams {
   title: string;
   content: string;
   data?: Record<string, any>;
+  sendEmail?: boolean; // Optional flag to also send an email
 }
 
 @Injectable()
@@ -18,6 +20,7 @@ export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: NotificationGateway,
+    private readonly mailService: MailService,
   ) {}
 
   /** Create a notification, save to DB, and push real-time */
@@ -42,7 +45,89 @@ export class NotificationsService {
       this.logger.warn('Failed to push real-time notification', e);
     }
 
+    // Handle Email channel if requested
+    if (params.sendEmail) {
+      this.handleEmailNotification(params).catch((err) => {
+        this.logger.error(`Failed to send email notification to user ${params.userId}`, err);
+      });
+    }
+
     return notification;
+  }
+
+  /** Background task to send email notification */
+  private async handleEmailNotification(params: CreateNotificationParams) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: params.userId },
+      select: { email: true, fullName: true },
+    });
+
+    if (!user || !user.email) return;
+
+    // Use specific templates based on notification type
+    if (params.type === 'ORDER') {
+      const orderCode = params.data?.orderCode;
+      const totalAmount = params.data?.totalAmount;
+      const status = params.data?.status;
+
+      if (params.title.includes('thành công') && orderCode && totalAmount) {
+         return this.mailService.sendOrderConfirmationMail(
+           user.email,
+           user.fullName || 'bạn',
+           orderCode,
+           totalAmount
+         );
+      }
+
+      if (status && orderCode) {
+        const label = this.getFriendlyStatus(status);
+        return this.mailService.sendOrderStatusUpdateMail(
+          user.email,
+          user.fullName || 'bạn',
+          orderCode,
+          label
+        );
+      }
+    }
+
+    if (params.type === 'PROMOTION') {
+       const promoCode = params.data?.promoCode;
+       const description = params.data?.description || params.content;
+       if (promoCode) {
+         return this.mailService.sendPromotionMail(
+           user.email,
+           user.fullName || 'bạn',
+           promoCode,
+           description
+         );
+       }
+    }
+
+    // Default simple email fallback
+    await this.mailService.sendMail(
+      user.email,
+      params.title,
+      `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+        <h2 style="color: #333;">${params.title}</h2>
+        <p>Xin chào ${user.fullName || 'bạn'},</p>
+        <p>${params.content}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+      `,
+    );
+  }
+
+  private getFriendlyStatus(status: string): string {
+    const labels: Record<string, string> = {
+      CONFIRMED: 'đã được xác nhận',
+      PROCESSING: 'đang được xử lý',
+      SHIPPED: 'đã giao cho vận chuyển',
+      COMPLETED: 'đã hoàn thành',
+      CANCELLED: 'đã hủy',
+    };
+    return labels[status] || status;
   }
 
   /** List notifications for a user (paginated, optionally filtered by type) */

@@ -3,9 +3,10 @@
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { storesService, type StoreWithDetails } from '@/services/stores.service';
 import { userService } from '@/services/user.service';
-import { Plus, Pencil, Trash2, UserPlus, UserMinus, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserPlus, UserMinus, Loader2, Warehouse } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function AdminStoresPage() {
   const t = useTranslations('dashboard.admin.stores');
@@ -125,7 +126,13 @@ export default function AdminStoresPage() {
     setModal('edit');
   };
 
+  const locale = useLocale();
+  const router = useRouter();
   const tx = useTranslations('dashboard.admin.stores_extra');
+
+  const openStockManagement = () => {
+    router.push(`/${locale}/dashboard/admin/stores/stock`);
+  };
 
   return (
     <AuthGuard allowedRoles={['admin']}>
@@ -139,17 +146,26 @@ export default function AdminStoresPage() {
               {t('subtitle')}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setForm({ name: '', code: '', address: '', isActive: true });
-              setEditStore(null);
-              setModal('create');
-            }}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gold text-primary font-heading text-xs uppercase tracking-widest hover:opacity-90 shadow-lg shadow-gold/20 transition-all active:scale-95"
-          >
-            <Plus className="w-4 h-4" /> {t('add_new')}
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setForm({ name: '', code: '', address: '', isActive: true });
+                setEditStore(null);
+                setModal('create');
+              }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gold text-primary font-heading text-xs uppercase tracking-widest hover:opacity-90 shadow-lg shadow-gold/20 transition-all active:scale-95"
+            >
+              <Plus className="w-4 h-4" /> {t('add_new')}
+            </button>
+            <button
+              type="button"
+              onClick={openStockManagement}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-secondary text-foreground font-heading text-xs uppercase tracking-widest hover:bg-secondary/80 border border-border transition-all active:scale-95"
+            >
+              <Warehouse className="w-4 h-4" /> {tx('stock_button') || 'Quản lý tồn kho'}
+            </button>
+          </div>
         </header>
 
         {error && (

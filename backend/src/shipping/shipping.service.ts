@@ -119,11 +119,20 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       };
     }
 
-    const payosPayment = await this.prisma.payment.findFirst({
-      where: { orderId, provider: 'PAYOS' },
-      orderBy: { createdAt: 'desc' },
+    const paidOnlinePayment = await this.prisma.payment.findFirst({
+      where: {
+        orderId,
+        status: 'PAID',
+        provider: { not: 'COD' },
+      },
+      orderBy: { createdAt: 'asc' },
     });
-    if (payosPayment && payosPayment.status !== 'PAID') {
+
+    if (
+      order.channel === 'ONLINE' &&
+      order.paymentStatus !== 'PAID' &&
+      !paidOnlinePayment
+    ) {
       throw new BadRequestException(
         'Đơn online chưa thanh toán thành công, chưa thể tạo GHN',
       );
@@ -138,7 +147,10 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       weight: Math.ceil(weight / order.items.length),
     }));
 
-    const codAmount = payosPayment ? 0 : order.finalAmount;
+    const codAmount =
+      paidOnlinePayment || order.paymentStatus === 'PAID'
+        ? 0
+        : order.finalAmount;
 
     const result = await this.ghn.createOrder({
       toName: order.recipientName ?? 'Khách hàng',

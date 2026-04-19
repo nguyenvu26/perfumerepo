@@ -1,11 +1,12 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree } from 'lucide-react';
 import { productService, type Product } from '@/services/product.service';
 import { catalogService } from '@/services/catalog.service';
 import { useEffect, useState, useCallback } from 'react';
-import { useTranslations, useFormatter } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations, useFormatter } from 'next-intl';
 
 const MAX_IMAGES = 10;
 
@@ -24,6 +25,8 @@ export default function AdminProducts() {
   const t = useTranslations('dashboard.admin.products');
   const tFeatured = useTranslations('featured');
   const format = useFormatter();
+  const locale = useLocale();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
@@ -354,18 +357,29 @@ export default function AdminProducts() {
   return (
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-8">
-        <header className="mb-12 flex justify-between items-end">
+        <header className="mb-12 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-4xl font-heading gold-gradient mb-2 uppercase tracking-tighter">{t('title')}</h1>
             <p className="text-muted-foreground font-body text-sm uppercase tracking-widest">{t('subtitle')}</p>
           </div>
-          <button
-            onClick={openCreate}
-            className="bg-gold text-primary-foreground px-6 py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 hover:scale-105 transition-all"
-          >
-            <Plus className="w-4 h-4" />
-            {t('add_new')}
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={openCreate}
+              className="bg-gold text-primary-foreground px-6 py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 hover:scale-105 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              {t('add_new')}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/${locale}/dashboard/admin/catalog`)}
+              className="bg-secondary text-foreground px-6 py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 hover:bg-secondary/80 transition-all"
+            >
+              <FolderTree className="w-4 h-4" />
+              {"Quản Lí Danh Mục"}
+            </button>
+          </div>
         </header>
 
         <div className="flex gap-4 mb-8">
@@ -400,56 +414,56 @@ export default function AdminProducts() {
                   className={`glass rounded-[2rem] border-border overflow-hidden hover:border-gold/30 transition-all group ${!p.isActive ? 'opacity-60' : ''
                     }`}
                 >
-                <div className="aspect-square bg-secondary/30 relative overflow-hidden">
-                  {p.images?.length ? (
-                    <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Package className="w-12 h-12 text-gold/20" />
-                    </div>
-                  )}
-                  {!p.isActive && (
-                    <div className="absolute top-2 right-2 bg-red-500/80 text-white text-[8px] px-2 py-1 rounded-full uppercase tracking-widest font-bold">
-                      {t('status.hidden')}
-                    </div>
-                  )}
-                </div>
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="text-[10px] text-gold uppercase tracking-widest font-bold">{p.brand?.name ?? '—'}</p>
+                  <div className="aspect-square bg-secondary/30 relative overflow-hidden">
+                    {p.images?.length ? (
+                      <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Package className="w-12 h-12 text-gold/20" />
+                      </div>
+                    )}
                     {!p.isActive && (
-                      <span className="text-[8px] text-muted-foreground uppercase">{t('status.hidden')}</span>
+                      <div className="absolute top-2 right-2 bg-red-500/80 text-white text-[8px] px-2 py-1 rounded-full uppercase tracking-widest font-bold">
+                        {t('status.hidden')}
+                      </div>
                     )}
                   </div>
-                  <h3 className="font-heading text-foreground mb-4 line-clamp-1">{p.name}</h3>
-                  <div className="flex justify-between items-center">
-                    <span className="font-heading text-sm text-gold">
-                      {getPriceRange(p)}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                      {t('status.in_stock', { count: getTotalStock(p) })}
-                    </span>
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-1">
+                      <p className="text-[10px] text-gold uppercase tracking-widest font-bold">{p.brand?.name ?? '—'}</p>
+                      {!p.isActive && (
+                        <span className="text-[8px] text-muted-foreground uppercase">{t('status.hidden')}</span>
+                      )}
+                    </div>
+                    <h3 className="font-heading text-foreground mb-4 line-clamp-1">{p.name}</h3>
+                    <div className="flex justify-between items-center">
+                      <span className="font-heading text-sm text-gold">
+                        {getPriceRange(p)}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                        {t('status.in_stock', { count: getTotalStock(p) })}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => openEdit(p.id)}
+                        className="text-muted-foreground hover:text-gold transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleToggleVisibility(p.id, p.isActive)}
+                        className={`transition-colors ${p.isActive
+                          ? 'text-muted-foreground hover:text-orange-500'
+                          : 'text-muted-foreground hover:text-green-500'
+                          }`}
+                        title={p.isActive ? t('actions.hide') : t('actions.show')}
+                      >
+                        {p.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      onClick={() => openEdit(p.id)}
-                      className="text-muted-foreground hover:text-gold transition-colors"
-                      title="Edit"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleToggleVisibility(p.id, p.isActive)}
-                      className={`transition-colors ${p.isActive
-                        ? 'text-muted-foreground hover:text-orange-500'
-                        : 'text-muted-foreground hover:text-green-500'
-                        }`}
-                      title={p.isActive ? t('actions.hide') : t('actions.show')}
-                    >
-                      {p.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
                 </div>
               ))}
             </div>

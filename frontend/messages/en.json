@@ -1194,6 +1194,7 @@
         "products": {
           "title": "Inventory Console",
           "subtitle": "Fragrance Collection Management",
+          "open_catalog": "Open Catalog",
           "curate_btn": "Curate New",
           "search_placeholder": "Search by essence, brand or note...",
           "loading": "Loading...",
@@ -1881,6 +1882,7 @@
           "code": "BOUTIQUE-01",
           "address": "Primary coordination address"
         },
+        "stock_button": "Open Stock Management",
         "unnamed_staff": "Unnamed Entity"
       },
       "staff": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -12,16 +12,31 @@ interface AuthGuardProps {
 export const AuthGuard = ({ children, allowedRoles }: AuthGuardProps) => {
     const { user, isAuthenticated } = useAuth();
     const router = useRouter();
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isMounted) return;
+
+        const tokenInStorage = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!isAuthenticated && !tokenInStorage) {
             router.push('/login');
-        } else if (allowedRoles && user && !allowedRoles.includes(user.role.toLowerCase() as 'admin' | 'staff' | 'customer')) {
+            return;
+        }
+
+        if (isAuthenticated && allowedRoles && user && !allowedRoles.includes(user.role.toLowerCase() as 'admin' | 'staff' | 'customer')) {
             router.push('/');
         }
-    }, [isAuthenticated, user, allowedRoles, router]);
+    }, [isMounted, isAuthenticated, user, allowedRoles, router]);
 
-    if (!isAuthenticated || (allowedRoles && user && !allowedRoles.includes(user.role.toLowerCase() as 'admin' | 'staff' | 'customer'))) {
+    const hasPersistedToken = typeof window !== 'undefined' && localStorage.getItem('token') !== null;
+    const isUnauthorized = isMounted && !isAuthenticated && !hasPersistedToken;
+    const isForbidden = isAuthenticated && allowedRoles && user && !allowedRoles.includes(user.role.toLowerCase() as 'admin' | 'staff' | 'customer');
+
+    if (!isMounted || isUnauthorized || isForbidden) {
         return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
     }
 

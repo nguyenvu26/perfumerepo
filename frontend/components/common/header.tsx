@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/use-auth';
 import { cartService } from '@/services/cart.service';
+import { notificationService } from '@/services/notification.service';
+import { getNotificationSocket } from '@/lib/socket';
 
 export const Header = () => {
     const t = useTranslations('common');
@@ -27,6 +29,7 @@ export const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [cartCount, setCartCount] = useState(0);
+    const [unreadCount, setUnreadCount] = useState(0);
     const { isAuthenticated, user, logout } = useAuth();
     const pathname = usePathname();
 
@@ -41,6 +44,7 @@ export const Header = () => {
     useEffect(() => {
         if (!isAuthenticated) {
             setCartCount(0);
+            setUnreadCount(0);
             return;
         }
 
@@ -56,12 +60,38 @@ export const Header = () => {
             }
         };
 
+        const syncUnreadCount = async () => {
+            try {
+                const count = await notificationService.getUnreadCount();
+                if (mounted) setUnreadCount(count);
+            } catch {
+                if (mounted) setUnreadCount(0);
+            }
+        };
+
         void syncCartCount();
+        void syncUnreadCount();
+
+        // Socket logic for real-time notifications
+        const socket = getNotificationSocket();
+        const notificationHandler = () => {
+            void syncUnreadCount();
+        };
+        socket.on('notification', notificationHandler);
+        socket.on('unread-count', (count: number) => {
+           if (mounted) setUnreadCount(count);
+        });
 
         window.addEventListener(cartService.eventName, syncCartCount);
+        // We'll trigger this custom event when a new notification arrives via socket
+        window.addEventListener('notification-update', syncUnreadCount);
+
         return () => {
             mounted = false;
+            socket.off('notification', notificationHandler);
+            socket.off('unread-count');
             window.removeEventListener(cartService.eventName, syncCartCount);
+            window.removeEventListener('notification-update', syncUnreadCount);
         };
     }, [isAuthenticated]);
 
@@ -86,7 +116,7 @@ export const Header = () => {
         <>
             <nav
                 className={cn(
-                    "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+                    "fixed top-0 left-0 right-0 z-50 transition-all duration-300 no-print",
                     "py-4 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
                 )}
             >
@@ -151,10 +181,19 @@ export const Header = () => {
                             <div className="flex items-center gap-1 md:gap-2">
                                 <Link
                                     href={isAuthenticated ? '/notifications' : '/login'}
-                                    className="p-2 text-foreground hover:text-gold transition-colors cursor-pointer"
+                                    className="p-2 text-foreground hover:text-gold transition-colors cursor-pointer relative"
                                     title={('notifications')}
                                 >
                                     <Bell size={20} strokeWidth={1.5} />
+                                    {unreadCount > 0 && (
+                                        <motion.span
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            className="absolute top-0 right-0 w-4 h-4 bg-gold text-white text-[8px] flex items-center justify-center rounded-full shadow-lg font-bold"
+                                        >
+                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                        </motion.span>
+                                    )}
                                 </Link>
 
                                 <ThemeToggle />

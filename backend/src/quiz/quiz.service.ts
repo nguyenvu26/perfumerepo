@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 export interface QuizAnswers {
     gender?: 'MALE' | 'FEMALE' | 'UNISEX';
@@ -29,6 +30,7 @@ export class QuizService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly aiService: AiService,
+        private readonly notificationsService: NotificationsService,
     ) { }
 
     async submitQuiz(
@@ -61,6 +63,17 @@ export class QuizService {
             where: { id: quizResult.id },
             data: { recommendation: JSON.stringify(enriched) },
         });
+
+        // 5. Notify user if logged in
+        if (userId) {
+            this.notificationsService.create({
+                userId,
+                type: 'SYSTEM',
+                title: 'Kết hợp mùi hương hoàn hảo cho bạn!',
+                content: 'Kết quả phân tích mùi hương dựa trên Quiz của bạn đã sẵn sàng. Xem ngay các gợi ý dành riêng cho bạn!',
+                data: { quizId: quizResult.id },
+            }).catch(() => {});
+        }
 
         return { quizId: quizResult.id, recommendations: enriched };
     }

@@ -1,15 +1,23 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function DashboardPage() {
     const { user, isAuthenticated } = useAuth();
     const router = useRouter();
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        if (!isAuthenticated) {
+        setIsMounted(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isMounted) return;
+
+        const tokenInStorage = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (!isAuthenticated && !tokenInStorage) {
             router.push('/login');
             return;
         }
@@ -18,7 +26,7 @@ export default function DashboardPage() {
             const role = user.role.toLowerCase();
             router.push(`/dashboard/${role}`);
         }
-    }, [user, isAuthenticated, router]);
+    }, [isMounted, user, isAuthenticated, router]);
 
     return (
         <div className="flex items-center justify-center min-h-screen">

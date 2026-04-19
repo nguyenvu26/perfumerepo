@@ -353,6 +353,11 @@ export default function StaffInventory() {
                             <h4 className="font-heading uppercase text-xs tracking-wider">
                               {row.name} ({row.variantName})
                             </h4>
+                            {row.barcode && (
+                              <p className="text-[9px] text-muted-foreground font-mono mt-0.5">
+                                BC: {row.barcode}
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center gap-8">
                             <div className="text-right">
@@ -641,6 +646,7 @@ export default function StaffInventory() {
                           </p>
                           <p className="text-[11px] text-muted-foreground truncate">
                             {v.variantName} • {v.sku}
+                            {v.barcode && ` • ${v.barcode}`}
                           </p>
                         </div>
                         <div className="text-right text-xs text-muted-foreground">

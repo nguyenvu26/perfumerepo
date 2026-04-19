@@ -57,9 +57,9 @@ export const Sidebar = () => {
             { icon: Users, label: navT('admin.users'), href: '/dashboard/admin/users' },
             // { icon: ShieldCheck, label: navT('admin.rbac'), href: '/dashboard/admin/rbac' },
             { icon: Store, label: navT('admin.stores'), href: '/dashboard/admin/stores' },
-            { icon: Warehouse, label: navT('admin.stock'), href: '/dashboard/admin/stores/stock' },
+            // { icon: Warehouse, label: navT('admin.stock'), href: '/dashboard/admin/stores/stock' },
             { icon: Package, label: navT('admin.products'), href: '/dashboard/admin/products' },
-            { icon: FolderTree, label: navT('admin.catalog'), href: '/dashboard/admin/catalog' },
+            // { icon: FolderTree, label: navT('admin.catalog'), href: '/dashboard/admin/catalog' },
             { icon: MessageSquare, label: navT('admin.reviews'), href: '/dashboard/admin/reviews' },
             { icon: BookOpen, label: navT('admin.manage_journal'), href: '/dashboard/admin/manage-journal' },
             { icon: Tag, label: navT('admin.promotions'), href: '/dashboard/admin/marketing/promotions' },
@@ -79,7 +79,7 @@ export const Sidebar = () => {
     const items = getMenuItems();
 
     return (
-        <aside className="w-72 h-screen glass border-r border-border flex flex-col px-4 py-8 fixed left-0 top-0 z-50 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <aside className="w-72 h-screen glass border-r border-border flex flex-col px-4 py-8 fixed left-0 top-0 z-50 overflow-y-auto overflow-x-hidden custom-scrollbar no-print">
             <Link href="/" className="flex items-center justify-center mb-10 px-4 group cursor-pointer">
                 <img src="/logo-dark.png" className="h-14 w-14 object-contain rounded-full border border-gold/10 shadow-lg group-hover:scale-110 transition-transform" alt="Perfume GPT" />
             </Link>
