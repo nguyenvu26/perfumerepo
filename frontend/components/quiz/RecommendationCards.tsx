@@ -42,24 +42,24 @@ export function RecommendationCards({ recommendations, onRetake }: Recommendatio
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-center mb-12"
+                className="text-center mb-10 lg:mb-12"
             >
-                <div className="flex items-center justify-center gap-2 text-gold mb-4">
+                <div className="flex items-center justify-center gap-2 text-gold mb-3 lg:mb-4">
                     <Sparkles size={18} />
                     <span className="text-[10px] font-bold tracking-[.4em] uppercase">
                         {t('results.ai_picked')}
                     </span>
                 </div>
-                <h2 className="text-3xl md:text-5xl font-serif text-luxury-black dark:text-white mb-3">
+                <h2 className="text-fluid-3xl font-serif text-luxury-black dark:text-white mb-2 lg:mb-3">
                     {t('results.title')}
                 </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400 max-w-lg mx-auto">
+                <p className="text-xs lg:text-sm text-stone-500 dark:text-stone-400 max-w-lg mx-auto leading-relaxed px-4">
                     {t('results.subtitle')}
                 </p>
             </motion.div>
 
             {/* Recommendation Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recommendations.map((rec, index) => (
                     <motion.a
                         key={rec.productId}
@@ -98,31 +98,31 @@ export function RecommendationCards({ recommendations, onRetake }: Recommendatio
                         </div>
 
                         {/* Content */}
-                        <div className="p-5 flex flex-col flex-1">
+                        <div className="p-4 lg:p-5 flex flex-col flex-1">
                             {/* Brand */}
                             {rec.brand && (
-                                <span className="text-[10px] font-bold tracking-[.3em] uppercase text-gold mb-1">
+                                <span className="text-[9px] lg:text-[10px] font-bold tracking-[.3em] uppercase text-gold mb-1">
                                     {rec.brand}
                                 </span>
                             )}
 
                             {/* Name */}
-                            <h3 className="font-serif text-lg text-luxury-black dark:text-white group-hover:text-gold transition-colors line-clamp-2 mb-2">
+                            <h3 className="font-serif text-base lg:text-lg text-luxury-black dark:text-white group-hover:text-gold transition-colors line-clamp-2 mb-2 lg:mb-3">
                                 {rec.name}
                             </h3>
 
                             {/* AI Reason */}
-                            <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed flex-1 mb-4 line-clamp-3">
+                            <p className="text-[11px] lg:text-xs text-stone-500 dark:text-stone-400 leading-relaxed flex-1 mb-4 line-clamp-3">
                                 {rec.reason}
                             </p>
 
                             {/* Tags */}
                             {rec.tags && rec.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mb-4">
+                                <div className="flex flex-wrap gap-1.5 mb-4 lg:mb-5">
                                     {rec.tags.map((tag) => (
                                         <span
                                             key={tag}
-                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-stone-100 dark:bg-white/5 text-stone-500 dark:text-stone-400 border border-stone-200 dark:border-white/10"
+                                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] lg:text-[10px] font-medium bg-stone-100 dark:bg-white/5 text-stone-500 dark:text-stone-400 border border-stone-200 dark:border-white/10"
                                         >
                                             <Tag size={8} />
                                             {tag}
@@ -132,11 +132,11 @@ export function RecommendationCards({ recommendations, onRetake }: Recommendatio
                             )}
 
                             {/* Price */}
-                            <div className="pt-3 border-t border-stone-100 dark:border-white/5 flex items-center justify-between">
-                                <span className="text-lg font-bold text-gold">
+                            <div className="pt-3 lg:pt-4 border-t border-stone-100 dark:border-white/5 flex items-center justify-between">
+                                <span className="text-base lg:text-lg font-bold text-gold">
                                     {Number(rec.price).toLocaleString()}₫
                                 </span>
-                                <span className="text-[10px] font-bold tracking-widest uppercase text-stone-400 dark:text-stone-500 group-hover:text-gold transition-colors flex items-center gap-1">
+                                <span className="text-[9px] lg:text-[10px] font-bold tracking-widest uppercase text-stone-400 dark:text-stone-500 group-hover:text-gold transition-colors flex items-center gap-1">
                                     {t('results.view_detail')} <ExternalLink size={10} />
                                 </span>
                             </div>

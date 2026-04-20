@@ -107,26 +107,26 @@ export default function CustomerOrdersPage() {
     return (
         <AuthGuard allowedRoles={['customer', 'staff', 'admin']}>
             <div className="flex flex-col gap-10 py-10 px-8">
-                <header className="mb-2">
-                    <h1 className="text-4xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter transition-colors">
+                <header className="mb-4 md:mb-8">
+                    <h1 className="text-3xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
                         {t('title')}
                     </h1>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold">
+                    <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">
                         {t('subtitle')}
                     </p>
                 </header>
 
-                <div className="space-y-8">
+                <div className="space-y-6 md:space-y-8">
                     {loading ? (
                         <div className="py-20 flex justify-center">
-                            <Loader2 className="animate-spin text-gold" size={40} />
+                            <Loader2 className="animate-spin text-gold" size={32} />
                         </div>
                     ) : orders.length === 0 ? (
-                        <div className="py-20 text-center space-y-6 glass rounded-[3rem] border border-border bg-background/40">
-                            <Receipt className="mx-auto text-muted-foreground/20" size={80} strokeWidth={1} />
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-heading text-foreground uppercase tracking-widest">{t('empty_title')}</h3>
-                                <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">{t('empty_desc')}</p>
+                        <div className="py-16 md:py-20 text-center space-y-6 glass rounded-[2.5rem] md:rounded-[3rem] border border-border bg-background/40">
+                            <Receipt className="mx-auto text-muted-foreground/20 w-[60px] h-[60px] md:w-[80px] md:h-[80px]" strokeWidth={1} />
+                            <div className="space-y-2 px-6">
+                                <h3 className="text-lg md:text-xl font-heading text-foreground uppercase tracking-widest">{t('empty_title')}</h3>
+                                <p className="text-[9px] md:text-[10px] font-bold tracking-widest uppercase text-muted-foreground">{t('empty_desc')}</p>
                             </div>
                         </div>
                     ) : (
@@ -137,71 +137,69 @@ export default function CustomerOrdersPage() {
                             return (
                                 <motion.div
                                     key={order.id}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 15 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    className="glass bg-background/40 rounded-[3rem] p-8 border border-border shadow-sm hover:shadow-xl transition-all"
+                                    transition={{ delay: i * 0.05 }}
+                                    className="glass bg-background/40 rounded-[2rem] md:rounded-[3rem] p-5 md:p-8 border border-border shadow-sm hover:shadow-xl transition-all"
                                 >
-                                    <div className="flex flex-col lg:flex-row gap-8">
+                                    <div className="flex flex-col gap-6">
                                         {/* Order Brief */}
                                         <div className="flex-1">
-                                            <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
-                                                <div>
-                                                    <span className="text-[9px] font-bold text-gold uppercase tracking-[.4em] mb-2 block">
+                                            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-5 md:mb-6">
+                                                <div className="w-full sm:w-auto">
+                                                    <span className="text-[8px] font-bold text-gold uppercase tracking-[.3em] mb-1.5 block">
                                                         {t('order_label')} {order.code}
                                                     </span>
-                                                    <h2 className="text-2xl font-heading text-foreground mb-1 transition-colors uppercase tracking-widest">
+                                                    <h2 className="text-xl md:text-2xl font-heading text-foreground mb-1 uppercase tracking-widest leading-snug">
                                                         {order.items?.[0]?.product?.name || t('fragrance_acquisition')}
-                                                        {order.items && order.items.length > 1 && <span className="text-sm italic text-muted-foreground ml-2"> {t('more_suffix', { count: order.items.length - 1 })}</span>}
+                                                        {order.items && order.items.length > 1 && <span className="text-[10px] md:text-sm italic text-muted-foreground ml-2"> {t('more_suffix', { count: order.items.length - 1 })}</span>}
                                                     </h2>
-                                                    <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
-                                                        <Calendar size={12} />
-                                                        {new Date(order.createdAt!).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                    <p className="text-[8px] md:text-[9px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
+                                                        <Calendar size={10} />
+                                                        {new Date(order.createdAt!).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <span className="text-xl font-heading text-foreground block mb-2">
+                                                <div className="flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto border-t sm:border-t-0 border-border/10 pt-3 sm:pt-0">
+                                                    <span className="text-lg md:text-xl font-heading text-foreground block sm:mb-2">
                                                         {formatCurrency(order.finalAmount)}
                                                     </span>
                                                     <div className={cn(
-                                                        "inline-flex items-center gap-2 text-[8px] px-4 py-1.5 rounded-full font-bold uppercase tracking-widest border",
+                                                        "inline-flex items-center gap-1.5 text-[7px] md:text-[8px] px-3 md:px-4 py-1 rounded-full font-bold uppercase tracking-widest border transition-all",
                                                         style.color
                                                     )}>
-                                                        <StatusIcon size={12} />
+                                                        <StatusIcon size={10} />
                                                         {style.label}
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <div className="grid md:grid-cols-2 gap-6 border-t border-border pt-6">
-                                                <div className="flex items-start gap-4">
-                                                    <div className="p-2.5 bg-secondary/50 rounded-2xl text-muted-foreground border border-border">
-                                                        <MapPin size={16} />
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-t border-border/50 pt-5 mt-2">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="p-2 sm:p-2.5 bg-secondary/50 rounded-xl md:rounded-2xl text-muted-foreground border border-border shrink-0">
+                                                        <MapPin size={14} />
                                                     </div>
                                                     <div>
-                                                        <h4 className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t('destination')}</h4>
-                                                        <p className="text-[10px] text-foreground font-medium leading-relaxed uppercase tracking-tight line-clamp-2">
+                                                        <h4 className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t('destination')}</h4>
+                                                        <p className="text-[9px] md:text-[10px] text-foreground font-medium uppercase tracking-tight line-clamp-1 md:line-clamp-2 italic">
                                                             {order.shippingAddress}
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-end justify-end">
-                                                    <div className="flex items-center gap-3">
-                                                        {order.status === 'CANCELLED' && order.paymentStatus === 'PAID' && (
-                                                            <button
-                                                                onClick={() => openRefundModal(order.id)}
-                                                                className="text-[10px] font-bold uppercase tracking-widest text-red-600 border border-red-500/20 px-3 py-1.5 rounded-full hover:bg-red-500/5 transition-all"
-                                                            >
-                                                                Nhập TK hoàn tiền
-                                                            </button>
-                                                        )}
-                                                        <Link
-                                                            href={`/dashboard/customer/orders/${order.id}`}
-                                                            className="text-[10px] font-bold uppercase tracking-widest text-foreground flex items-center gap-2 hover:text-gold transition-colors group"
+                                                <div className="flex items-center justify-end gap-3 shrink-0">
+                                                    {order.status === 'CANCELLED' && order.paymentStatus === 'PAID' && (
+                                                        <button
+                                                            onClick={() => openRefundModal(order.id)}
+                                                            className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-red-600 border border-red-500/20 px-4 py-2 rounded-full hover:bg-red-500/5 transition-all text-center"
                                                         >
-                                                            {t('view_details')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                                        </Link>
-                                                    </div>
+                                                            TK hoàn tiền
+                                                        </button>
+                                                    )}
+                                                    <Link
+                                                        href={`/dashboard/customer/orders/${order.id}`}
+                                                        className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-foreground flex items-center gap-2 hover:text-gold transition-colors group min-h-[32px]"
+                                                    >
+                                                        {t('view_details')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>
@@ -213,11 +211,11 @@ export default function CustomerOrdersPage() {
                 </div>
 
                 {!loading && total > 0 && (
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mt-10">
+                        <p className="text-[9px] md:text-[10px] uppercase tracking-widest font-bold text-muted-foreground text-center md:text-left">
                             {`${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
                         </p>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center gap-2">
                             <select
                                 value={take}
                                 onChange={(e) => {
@@ -225,31 +223,33 @@ export default function CustomerOrdersPage() {
                                     setTake(nextTake);
                                     setSkip(0);
                                 }}
-                                className="bg-background/60 border border-border rounded-full px-3 py-2 text-[10px] uppercase tracking-widest font-bold"
+                                className="bg-background/60 border border-border rounded-full px-3 py-2 text-[9px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-colors"
                             >
                                 <option value={5}>5 / trang</option>
                                 <option value={10}>10 / trang</option>
                                 <option value={20}>20 / trang</option>
                             </select>
-                            <button
-                                type="button"
-                                onClick={() => setSkip((s) => Math.max(0, s - take))}
-                                disabled={skip === 0}
-                                className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
-                            >
-                                Trước
-                            </button>
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground min-w-24 text-center">
-                                {currentPage}/{totalPages}
-                            </span>
-                            <button
-                                type="button"
-                                onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
-                                disabled={skip + take >= total}
-                                className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
-                            >
-                                Sau
-                            </button>
+                            <div className="flex items-center gap-1.5 ml-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setSkip((s) => Math.max(0, s - take))}
+                                    disabled={skip === 0}
+                                    className="w-10 h-10 flex items-center justify-center rounded-full border border-border text-[9px] font-bold uppercase disabled:opacity-30 hover:bg-gold/5 transition-all active:scale-90"
+                                >
+                                    <ChevronRight className="rotate-180" size={14} />
+                                </button>
+                                <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground w-12 text-center">
+                                    {currentPage}/{totalPages}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                                    disabled={skip + take >= total}
+                                    className="w-10 h-10 flex items-center justify-center rounded-full border border-border text-[9px] font-bold uppercase disabled:opacity-30 hover:bg-gold/5 transition-all active:scale-90"
+                                >
+                                    <ChevronRight size={14} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

@@ -84,30 +84,30 @@ export default function AddressesPage() {
     }
 
     return (
-        <div className="p-4 sm:p-10">
-            <div className="flex items-center justify-between mb-10">
+        <div className="flex flex-col gap-6 md:gap-10 p-4 sm:p-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                 <div className="flex flex-col">
-                    <h1 className="text-3xl font-heading gold-gradient uppercase tracking-tighter flex items-center gap-4">
-                        <MapPinned className="text-gold" />
+                    <h1 className="text-3xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter flex items-center gap-3">
+                        <MapPinned className="text-gold w-8 h-8 md:w-10 md:h-10" />
                         {t('title')}
                     </h1>
-                    <p className="text-muted-foreground font-body text-[10px] uppercase tracking-widest mt-1">
+                    <p className="text-muted-foreground font-body text-[10px] md:text-xs uppercase tracking-widest mt-1">
                         {t('subtitle')}
                     </p>
                 </div>
                 <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                     <DialogTrigger asChild>
-                        <Button onClick={() => setSelectedAddress(null)} className="rounded-full bg-luxury-black dark:bg-gold hover:scale-105 transition-transform">
+                        <Button onClick={() => setSelectedAddress(null)} className="rounded-full bg-luxury-black dark:bg-gold hover:scale-105 transition-transform w-full md:w-auto min-h-[44px] md:min-h-0 text-[10px] font-bold uppercase tracking-widest px-8">
                             <Plus className="mr-2 h-4 w-4" /> {t('add_new')}
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="rounded-[2.5rem] border-gold/10 glass max-w-2xl">
+                    <DialogContent className="rounded-[2.5rem] border-gold/10 glass max-w-2xl p-6 md:p-10">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-serif text-gold uppercase tracking-widest">
+                            <DialogTitle className="text-xl md:text-2xl font-serif text-gold uppercase tracking-widest">
                                 {selectedAddress ? t('edit') : t('add_new')}
                             </DialogTitle>
                         </DialogHeader>
-                        <div className="py-4">
+                        <div className="py-2 md:py-4">
                             <AddressForm
                                 onSubmit={handleFormSubmit}
                                 initialData={selectedAddress || {}}
@@ -118,26 +118,26 @@ export default function AddressesPage() {
                 </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                 {addresses.map((address) => (
                     <div key={address.id} className="relative group">
                         <AddressCard address={address} />
-                        <div className="absolute top-6 right-6 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute top-4 right-4 md:top-6 md:right-6 flex items-center gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                             {!address.isDefault && (
                                 <Button
                                     size="icon"
                                     variant="outline"
-                                    className="rounded-full bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-gold/20 hover:border-gold hover:text-gold"
+                                    className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-background/80 md:bg-white/50 backdrop-blur-sm border-gold/20 hover:border-gold hover:text-gold shadow-lg"
                                     onClick={() => handleSetDefault(address.id)}
                                     title={t('set_default')}
                                 >
-                                    <Star className="h-4 w-4" />
+                                    <Star className="h-4 w-4 text-gold" />
                                 </Button>
                             )}
                             <Button
                                 size="icon"
                                 variant="outline"
-                                className="rounded-full bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm border-gold/20 hover:border-gold hover:text-gold"
+                                className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-background/80 md:bg-white/50 backdrop-blur-sm border-gold/20 hover:border-gold hover:text-gold shadow-lg"
                                 onClick={() => {
                                     setSelectedAddress(address);
                                     setIsFormOpen(true);
@@ -149,7 +149,7 @@ export default function AddressesPage() {
                             <Button
                                 size="icon"
                                 variant="destructive"
-                                className="rounded-full bg-red-500/80 backdrop-blur-sm"
+                                className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-red-500 shadow-lg"
                                 onClick={() => handleDelete(address.id)}
                             >
                                 <Trash className="h-4 w-4" />

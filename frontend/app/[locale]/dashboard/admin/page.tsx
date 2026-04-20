@@ -218,60 +218,60 @@ export default function AdminDashboard() {
 
     return (
         <AuthGuard allowedRoles={['admin']}>
-            <div className="flex flex-col gap-8 py-10 px-6 md:px-10 max-w-[1600px] mx-auto">
+            <div className="flex flex-col gap-6 md:gap-8 py-6 md:py-10 px-4 sm:px-6 md:px-10 max-w-[1600px] mx-auto">
 
                 {/* ── Header ─────────────────────────────────────────────── */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <header>
-                        <h1 className="text-4xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-4">
+                    <header className="space-y-1">
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter leading-none">
                             {t('home.title')}
                         </h1>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold mt-1">
+                        <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[.3em] sm:tracking-[.4em] font-bold">
                             {t('home.subtitle')}
                         </p>
                     </header>
-                    <div className="flex items-center gap-3">
-                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest hidden sm:block">
-                            Last updated: {lastRefreshed.toLocaleTimeString()}
+                    <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
+                        <span className="text-[9px] text-muted-foreground uppercase tracking-widest block opacity-70">
+                            Cập nhật: {lastRefreshed.toLocaleTimeString('vi-VN')}
                         </span>
                         <button
                             onClick={refreshAll}
-                            className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest border border-border rounded-full px-4 py-2 hover:border-gold/40 hover:text-gold transition-all"
+                            className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-widest border border-gold/20 bg-gold/5 text-gold rounded-full px-5 py-2.5 hover:bg-gold hover:text-black transition-all active:scale-95"
                         >
                             <RefreshCw className="w-3 h-3" />
-                            Refresh
+                            Làm mới
                         </button>
                     </div>
                 </div>
 
                 {/* ── KPI Stats ──────────────────────────────────────────── */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                     {overviewLoading
                         ? Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="glass bg-background/40 rounded-[2.5rem] border border-border p-8 animate-pulse h-40" />
+                            <div key={i} className="glass bg-background/40 rounded-[2rem] border border-border p-8 animate-pulse h-40" />
                         ))
                         : statCards.map((card, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.08 }}
-                                className="glass bg-background/40 rounded-[2.5rem] border border-border p-7 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5 transition-all group"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="glass bg-background/40 rounded-[2rem] md:rounded-[2.5rem] border border-border p-6 sm:p-7 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5 transition-all group"
                             >
-                                <div className="flex justify-between items-start mb-5">
-                                    <div className={`p-3.5 rounded-2xl ${card.color} group-hover:scale-110 transition-transform`}>
-                                        <card.icon className="w-5 h-5" />
+                                <div className="flex justify-between items-start mb-4 sm:mb-5">
+                                    <div className={`p-3 rounded-2xl sm:p-3.5 ${card.color} group-hover:scale-110 transition-transform`}>
+                                        <card.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                                     </div>
                                     {card.change !== null && card.change !== undefined && (
                                         <ChangeChip value={card.change} />
                                     )}
                                 </div>
-                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 opacity-80">
                                     {card.label}
                                 </p>
-                                <p className="text-2xl font-heading text-foreground tracking-tighter">{card.value}</p>
+                                <p className="text-xl sm:text-2xl font-heading text-foreground tracking-tighter leading-tight">{card.value}</p>
                                 {card.subtext && (
-                                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-1">{card.subtext}</p>
+                                    <p className="text-[8px] sm:text-[9px] text-muted-foreground uppercase tracking-widest mt-1 opacity-60">{card.subtext}</p>
                                 )}
                             </motion.div>
                         ))

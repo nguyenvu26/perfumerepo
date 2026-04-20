@@ -1,12 +1,14 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2 } from 'lucide-react';
 import { productService, type Product } from '@/services/product.service';
 import { catalogService } from '@/services/catalog.service';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useLocale, useTranslations, useFormatter } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 const MAX_IMAGES = 10;
 
@@ -30,13 +32,24 @@ export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
+  const [brandFilter, setBrandFilter] = useState<number | ''>('');
+  const [categoryFilter, setCategoryFilter] = useState<number | ''>('');
   const [skip, setSkip] = useState(0);
   const [take, setTake] = useState(20);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('identity');
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const isFiltered = search !== '' || brandFilter !== '' || categoryFilter !== '';
+  const clearFilters = () => {
+    setSearch('');
+    setBrandFilter('');
+    setCategoryFilter('');
+    setSkip(0);
+  };
   const [loadingProduct, setLoadingProduct] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<Array<{ file: File; url: string }>>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
@@ -65,6 +78,8 @@ export default function AdminProducts() {
     try {
       const res = await productService.adminList({
         search: search || undefined,
+        brandId: brandFilter || undefined,
+        categoryId: categoryFilter || undefined,
         skip,
         take,
       });
@@ -102,7 +117,7 @@ export default function AdminProducts() {
 
   useEffect(() => {
     setSkip(0);
-  }, [search, take]);
+  }, [search, brandFilter, categoryFilter, take]);
 
   useEffect(() => {
     if (showModal && editId) {
@@ -356,42 +371,80 @@ export default function AdminProducts() {
 
   return (
     <AuthGuard allowedRoles={['admin']}>
-      <main className="p-8">
-        <header className="mb-12 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-heading gold-gradient mb-2 uppercase tracking-tighter">{t('title')}</h1>
-            <p className="text-muted-foreground font-body text-sm uppercase tracking-widest">{t('subtitle')}</p>
+      <main className="p-4 sm:p-6 md:p-10 max-w-[1600px] mx-auto min-h-screen">
+        <header className="mb-10 md:mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-[1px] bg-gold/50" />
+              <span className="text-[10px] uppercase tracking-[.4em] font-bold text-gold/80">{t('subtitle')}</span>
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading tracking-tighter leading-none uppercase">
+              <span className="gold-gradient">{t('title').split(' ')[0]}</span>
+              <span className="text-foreground/90 block sm:inline ml-0 sm:ml-4">{t('title').split(' ').slice(1).join(' ')}</span>
+            </h1>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full lg:w-auto">
             <button
               type="button"
               onClick={openCreate}
-              className="bg-gold text-primary-foreground px-6 py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 hover:scale-105 transition-all"
+              className="flex-1 lg:flex-none bg-gold text-primary-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-extrabold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-gold/20 group"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
               {t('add_new')}
             </button>
             <button
               type="button"
               onClick={() => router.push(`/${locale}/dashboard/admin/catalog`)}
-              className="bg-secondary text-foreground px-6 py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 hover:bg-secondary/80 transition-all"
+              className="flex-1 lg:flex-none bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-secondary transition-all"
             >
-              <FolderTree className="w-4 h-4" />
-              {"Quản Lí Danh Mục"}
+              <FolderTree className="w-5 h-5 opacity-60" />
+              {"Danh mục"}
             </button>
           </div>
         </header>
 
-        <div className="flex gap-4 mb-8">
-          <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <div className="flex flex-col md:flex-row gap-4 mb-10 bg-secondary/5 dark:bg-white/[0.02] p-4 rounded-[2rem] border border-border/50 backdrop-blur-sm">
+          <div className="flex-1 relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-gold transition-colors" />
             <input
               type="text"
               placeholder={t('search_placeholder')}
-              className="w-full bg-secondary/20 border border-border rounded-full py-3 pl-12 pr-4 text-sm outline-none focus:border-gold/50 transition-all font-body"
+              className="w-full bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl py-4 pl-14 pr-4 text-sm outline-none focus:border-gold/50 transition-all font-bold uppercase tracking-widest placeholder:text-muted-foreground/30"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <select
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value === '' ? '' : Number(e.target.value))}
+              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px]"
+            >
+              <option value="">{t('form.brand')} - ALL</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value === '' ? '' : Number(e.target.value))}
+              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px]"
+            >
+              <option value="">{t('form.category')} - ALL</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+
+            {isFiltered && (
+              <button
+                onClick={clearFilters}
+                className="bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-muted-foreground px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 group"
+              >
+                <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
+                Reset
+              </button>
+            )}
           </div>
         </div>
 
@@ -402,422 +455,584 @@ export default function AdminProducts() {
         )}
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <span className="text-muted-foreground">{t('loading')}</span>
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
+            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t('loading')}</span>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products.map((p) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+              {products.map((p, index) => (
                 <div
                   key={p.id}
-                  className={`glass rounded-[2rem] border-border overflow-hidden hover:border-gold/30 transition-all group ${!p.isActive ? 'opacity-60' : ''
-                    }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  className={cn(
+                    "group relative glass bg-white dark:bg-zinc-900/40 rounded-[3rem] border border-white/10 overflow-hidden hover:border-gold/30 transition-all duration-700 animate-in fade-in zoom-in-95 fill-mode-both",
+                    !p.isActive && "opacity-75 grayscale-[0.5]"
+                  )}
                 >
-                  <div className="aspect-square bg-secondary/30 relative overflow-hidden">
+                  {/* Visual Container */}
+                  <div className="aspect-[4/5] relative overflow-hidden bg-zinc-100 dark:bg-zinc-950">
                     {p.images?.length ? (
-                      <img src={p.images[0].url} alt={p.name} className="w-full h-full object-cover" />
+                      <Image
+                        src={p.images[0].url}
+                        alt={p.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, (max-width: 1536px) 33vw, 25vw"
+                      />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <Package className="w-12 h-12 text-gold/20" />
+                        <Package className="w-16 h-16 text-gold/10" />
                       </div>
                     )}
-                    {!p.isActive && (
-                      <div className="absolute top-2 right-2 bg-red-500/80 text-white text-[8px] px-2 py-1 rounded-full uppercase tracking-widest font-bold">
-                        {t('status.hidden')}
+
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    {/* Status Badges */}
+                    <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+                      <div className="flex flex-col gap-2">
+                        {!p.isActive && (
+                          <div className="bg-zinc-900/80 backdrop-blur-md text-zinc-400 text-[8px] px-3 py-1.5 rounded-full uppercase tracking-widest font-black border border-white/5">
+                            {t('status.hidden')}
+                          </div>
+                        )}
+                        {getTotalStock(p) <= 5 && p.isActive && (
+                          <div className="bg-amber-500/90 backdrop-blur-md text-white text-[8px] px-3 py-1.5 rounded-full uppercase tracking-[.2em] font-black border border-amber-400/20 shadow-lg animate-pulse">
+                            {"Low Stock"}
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <div className="bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+                        <span className="text-[8px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
+                      </div>
+                    </div>
+
+                    {/* Quick Actions Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(p.id);
+                        }}
+                        className="w-12 h-12 bg-white text-zinc-950 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleVisibility(p.id, p.isActive);
+                        }}
+                        className="w-12 h-12 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform border border-white/10"
+                      >
+                        {p.isActive ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className="text-[10px] text-gold uppercase tracking-widest font-bold">{p.brand?.name ?? '—'}</p>
-                      {!p.isActive && (
-                        <span className="text-[8px] text-muted-foreground uppercase">{t('status.hidden')}</span>
-                      )}
+
+                  {/* Metadata Container */}
+                  <div className="p-8">
+                    <div className="mb-4">
+                      <p className="text-[10px] text-gold uppercase tracking-[.4em] font-black mb-2 opacity-60">{p.brand?.name ?? 'Anonymous House'}</p>
+                      <h3 className="font-heading text-xl md:text-2xl text-foreground line-clamp-1 leading-tight">{p.name}</h3>
                     </div>
-                    <h3 className="font-heading text-foreground mb-4 line-clamp-1">{p.name}</h3>
-                    <div className="flex justify-between items-center">
-                      <span className="font-heading text-sm text-gold">
-                        {getPriceRange(p)}
+
+                    <div className="flex items-center gap-4 mb-6">
+                      <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground bg-secondary/30 px-2 py-1 rounded">
+                        {p.concentration || "Parfum"}
                       </span>
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
-                        {t('status.in_stock', { count: getTotalStock(p) })}
+                      <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground bg-secondary/30 px-2 py-1 rounded">
+                        {p.scentFamily?.name || "Floral"}
                       </span>
                     </div>
-                    <div className="mt-3 flex gap-2">
-                      <button
-                        onClick={() => openEdit(p.id)}
-                        className="text-muted-foreground hover:text-gold transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleToggleVisibility(p.id, p.isActive)}
-                        className={`transition-colors ${p.isActive
-                          ? 'text-muted-foreground hover:text-orange-500'
-                          : 'text-muted-foreground hover:text-green-500'
-                          }`}
-                        title={p.isActive ? t('actions.hide') : t('actions.show')}
-                      >
-                        {p.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
+
+                    <div className="flex justify-between items-end pt-6 border-t border-white/5">
+                      <div className="space-y-1">
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Valuation</p>
+                        <span className="text-lg font-serif italic text-gold">
+                          {getPriceRange(p)}
+                        </span>
+                      </div>
+                      <div className="text-right space-y-1">
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Resonance</p>
+                        <div className="flex items-center gap-2 justify-end">
+                           <div className={cn("w-1.5 h-1.5 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
+                           <span className={cn("text-[10px] font-black tracking-widest uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
+                             {p.isActive ? "Active" : "Hidden"}
+                           </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+            <div className="mt-12 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-20">
+              <p className="text-[10px] uppercase tracking-[.3em] text-muted-foreground font-extrabold text-center md:text-left">
                 {total === 0
                   ? '0'
                   : `${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
                 <select
                   value={take}
                   onChange={(e) => setTake(Number(e.target.value))}
-                  className="bg-secondary/20 border border-border rounded-full px-3 py-2 text-[10px] uppercase tracking-widest font-bold"
+                  className="bg-white dark:bg-zinc-900 border border-border rounded-full px-4 py-2 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold shadow-sm"
                 >
-                  <option value={10}>10 / trang</option>
-                  <option value={20}>20 / trang</option>
-                  <option value={40}>40 / trang</option>
+                  <option value={10}>10 / p</option>
+                  <option value={20}>20 / p</option>
+                  <option value={40}>40 / p</option>
                 </select>
-                <button
-                  type="button"
-                  onClick={() => setSkip((s) => Math.max(0, s - take))}
-                  disabled={skip === 0}
-                  className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
-                >
-                  Trước
-                </button>
-                <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground min-w-24 text-center">
-                  {currentPage}/{totalPages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
-                  disabled={skip + take >= total}
-                  className="px-4 py-2 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold disabled:opacity-50"
-                >
-                  Sau
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSkip((s) => Math.max(0, s - take))}
+                    disabled={skip === 0}
+                    className="px-6 py-3.5 md:py-2 rounded-full border border-border text-base md:text-[10px] font-extrabold uppercase tracking-widest disabled:opacity-30 bg-white dark:bg-zinc-900 active:scale-95 transition-all shadow-sm"
+                  >
+                    Trước
+                  </button>
+                  <span className="text-[10px] uppercase tracking-[.3em] font-extrabold text-muted-foreground min-w-16 text-center">
+                    {currentPage}/{totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                    disabled={skip + take >= total}
+                    className="px-6 py-3.5 md:py-2 rounded-full border border-border text-base md:text-[10px] font-extrabold uppercase tracking-widest disabled:opacity-30 bg-white dark:bg-zinc-900 active:scale-95 transition-all shadow-sm"
+                  >
+                    Sau
+                  </button>
+                </div>
               </div>
             </div>
           </>
         )}
 
         {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={closeModal}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-4 bg-black/70 backdrop-blur-md" onClick={closeModal}>
             <div
-              className="bg-background border border-border rounded-[2rem] max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8"
+              className="bg-background border-t sm:border border-border rounded-t-[2.5rem] sm:rounded-[2.5rem] max-w-5xl w-full h-[100vh] sm:h-[90vh] overflow-hidden flex flex-col shadow-2xl relative mt-auto sm:mt-0 transition-all animate-in slide-in-from-bottom sm:zoom-in duration-300"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-heading">{editId ? t('form.title_edit') : t('form.title_create')}</h2>
-                <button onClick={closeModal} className="p-2 hover:bg-secondary rounded-full">
-                  <X className="w-5 h-5" />
+              {/* Modal Header */}
+              <div className="h-20 shrink-0 flex justify-between items-center px-10 border-b border-border sticky top-0 bg-background/90 backdrop-blur-xl z-20">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-[1px] bg-gold" />
+                    <span className="text-[10px] uppercase tracking-[.4em] font-black text-gold/80">{editId ? "Curating Artifact" : "System Curation"}</span>
+                  </div>
+                  <h2 className="text-2xl font-heading tracking-tighter leading-none uppercase">
+                    {editId ? form.name || t('form.title_edit') : t('form.title_create')}
+                  </h2>
+                </div>
+                <button onClick={closeModal} className="w-12 h-12 flex items-center justify-center bg-secondary/20 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-all active:scale-90">
+                  <X className="w-6 h-6" />
                 </button>
               </div>
-              {loadingProduct ? (
-                <div className="py-12 text-center text-muted-foreground">{t('form.loading_product')}</div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.name')}</label>
-                        <input
-                          className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                          value={form.name}
-                          onChange={(e) => onNameChange(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.slug')}</label>
-                        <input
-                          className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                          value={form.slug}
-                          onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                          required
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.brand')}</label>
-                          <select
-                            className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                            value={form.brandId || ''}
-                            onChange={(e) => setForm((f) => ({ ...f, brandId: Number(e.target.value) }))}
-                            required
-                          >
-                            <option value="">—</option>
-                            {brands.map((b) => (
-                              <option key={b.id} value={b.id}>{b.name}</option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.category')}</label>
-                          <select
-                            className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                            value={form.categoryId === '' ? '' : form.categoryId}
-                            onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value === '' ? '' : Number(e.target.value) }))}
-                          >
-                            <option value="">—</option>
-                            {categories.map((c) => (
-                              <option key={c.id} value={c.id}>{c.name}</option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.scent_family')}</label>
-                        <select
-                          className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                          value={form.scentFamilyId === '' ? '' : form.scentFamilyId}
-                          onChange={(e) => setForm((f) => ({ ...f, scentFamilyId: e.target.value === '' ? '' : Number(e.target.value) }))}
-                        >
-                          <option value="">—</option>
-                          {scentFamilies.map((s) => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.gender')}</label>
-                        <select
-                          className="w-full bg-black text-white border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                          value={form.gender}
-                          onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
-                        >
-                          <option value="">—</option>
-                          <option value="female">female</option>
-                          <option value="male">male</option>
-                          <option value="unisex">unisex</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.longevity')}</label>
-                        <input
-                          className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                          value={form.longevity}
-                          onChange={(e) => setForm((f) => ({ ...f, longevity: e.target.value }))}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.concentration')}</label>
-                        <input
-                          className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                          value={form.concentration}
-                          onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{t('form.description')}</label>
-                    <textarea
-                      className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold min-h-[80px]"
-                      value={form.description}
-                      onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                    />
-                  </div>
-
-                  {/* Scent Notes Section */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-[10px] uppercase tracking-widest text-gold font-bold">CẤU TRÚC KHỨU GIÁC (NOTES)</label>
+              <div className="flex-1 flex overflow-hidden">
+                {/* Sidebar Navigation */}
+                <aside className="w-72 border-r border-border bg-zinc-50 dark:bg-black/20 overflow-y-auto hidden md:block">
+                  <nav className="p-8 space-y-2">
+                    {[
+                      { id: 'identity', icon: Package, label: 'Asset Identity' },
+                      { id: 'essence', icon: FlaskConical, label: 'Olfactory Essence' },
+                      { id: 'composition', icon: Flower2, label: 'Note Composition' },
+                      { id: 'inventory', icon: Database, label: 'Volume Variants' },
+                      { id: 'gallery', icon: ImagePlus, label: 'Visual Gallery' },
+                    ].map((tab) => (
                       <button
-                        type="button"
-                        onClick={addScentNote}
-                        className="text-[10px] uppercase tracking-widest font-bold bg-gold/10 text-gold px-3 py-1 rounded-full hover:bg-gold/20"
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={cn(
+                          "w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold uppercase tracking-widest text-[10px]",
+                          activeTab === tab.id
+                            ? "bg-gold text-white shadow-lg shadow-gold/20"
+                            : "text-muted-foreground hover:bg-secondary/50"
+                        )}
                       >
-                        + THÊM NỐT HƯƠNG
+                        <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-white" : "text-gold/50")} />
+                        {tab.label}
                       </button>
-                    </div>
+                    ))}
+                  </nav>
+                </aside>
 
-                    <div className="space-y-3">
-                      {form.scentNotes.map((n, i) => (
-                        <div key={i} className="flex gap-2 items-end bg-secondary/10 p-4 rounded-2xl relative group transition-all hover:bg-secondary/20">
-                          <div className="flex-1">
-                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">Tên nốt hương</label>
-                            <input
-                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold"
-                              value={n.name}
-                              placeholder="Ví dụ: Hổ phách, Hoa nhài..."
-                              onChange={(e) => updateScentNote(i, { name: e.target.value })}
-                            />
-                          </div>
-                          <div className="w-40">
-                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">Vị trí tầng hương</label>
-                            <select
-                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold"
-                              value={n.type}
-                              onChange={(e) => updateScentNote(i, { type: e.target.value as 'TOP' | 'MIDDLE' | 'BASE' })}
-                            >
-                              <option value="TOP">Hương Đầu (Top)</option>
-                              <option value="MIDDLE">Hương Giữa (Middle)</option>
-                              <option value="BASE">Hương Cuối (Base)</option>
-                            </select>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeScentNote(i)}
-                            className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                      {form.scentNotes.length === 0 && (
-                        <p className="text-[10px] text-muted-foreground italic text-center py-4 border border-dashed border-border rounded-2xl">
-                          Chưa có nốt hương nào được thiết lập.
-                        </p>
-                      )}
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
+                  {loadingProduct ? (
+                    <div className="h-full flex flex-col items-center justify-center gap-6">
+                      <div className="w-16 h-16 border-4 border-gold/10 border-t-gold rounded-full animate-spin" />
+                      <p className="text-[10px] uppercase font-black tracking-[.4em] text-muted-foreground animate-pulse">Synchronizing Neural Data...</p>
                     </div>
-                  </div>
+                  ) : (
+                    <form id="productForm" onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-16 pb-20">
+                      {activeTab === 'identity' && (
+                        <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-10">
+                          <div className="space-y-2 border-l-4 border-gold pl-6">
+                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Core Identity</h3>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Define the primary identifiers for this asset.</p>
+                          </div>
 
-                  {/* Variants Section */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <label className="block text-[10px] uppercase tracking-widest text-gold font-bold">{t('form.variants.title')}</label>
-                      <button
-                        type="button"
-                        onClick={addVariant}
-                        className="text-[10px] uppercase tracking-widest font-bold bg-gold/10 text-gold px-3 py-1 rounded-full hover:bg-gold/20"
-                      >
-                        {t('form.variants.add')}
-                      </button>
-                    </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Asset Name *</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-sm font-bold placeholder:text-muted-foreground/30"
+                                value={form.name}
+                                onChange={(e) => onNameChange(e.target.value)}
+                                required
+                                placeholder="E.g. NIGHTSHADE NOIR"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Neural Slug *</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-mono placeholder:text-muted-foreground/30"
+                                value={form.slug}
+                                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                                required
+                                placeholder="nightshade-noir"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Curating House *</label>
+                              <select
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                value={form.brandId || ''}
+                                onChange={(e) => setForm((f) => ({ ...f, brandId: Number(e.target.value) }))}
+                                required
+                              >
+                                <option value="">— SELECT HOUSE —</option>
+                                {brands.map((b) => (
+                                  <option key={b.id} value={b.id}>{b.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Asset Classification</label>
+                              <select
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                value={form.categoryId === '' ? '' : form.categoryId}
+                                onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value === '' ? '' : Number(e.target.value) }))}
+                              >
+                                <option value="">— SELECT CLASS —</option>
+                                {categories.map((c) => (
+                                  <option key={c.id} value={c.id}>{c.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
 
-                    <div className="space-y-3">
-                      {form.variants.map((v, i) => (
-                        <div key={i} className="flex gap-2 items-end bg-secondary/10 p-4 rounded-2xl relative group">
-                          <div className="flex-1">
-                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">{t('form.variants.name')}</label>
-                            <input
-                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold"
-                              value={v.name}
-                              onChange={(e) => updateVariant(i, { name: e.target.value })}
-                            />
-                          </div>
-                          <div className="w-24">
-                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">{t('form.variants.price')}</label>
-                            <input
-                              type="number"
-                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              value={v.price === 0 && !editId ? '' : v.price}
-                              onChange={(e) => updateVariant(i, { price: e.target.value === '' ? 0 : Number(e.target.value) })}
-                            />
-                          </div>
-                          <div className="w-20">
-                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground mb-1 block">{t('form.variants.stock')}</label>
-                            <input
-                              type="number"
-                              className="w-full bg-background border border-border rounded-lg py-1.5 px-3 text-xs outline-none focus:border-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              value={v.stock === 0 && !editId ? '' : v.stock}
-                              onChange={(e) => updateVariant(i, { stock: e.target.value === '' ? 0 : Number(e.target.value) })}
-                            />
-                          </div>
-                          {form.variants.length > 1 && (
+                          <div className="p-10 bg-zinc-50 dark:bg-zinc-900/50 rounded-[3rem] border border-border/50 flex items-center justify-between">
+                            <div className="space-y-1">
+                              <p className="text-[12px] uppercase tracking-[.2em] font-black">Public Resonance</p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Toggle visibility for guest members.</p>
+                            </div>
                             <button
                               type="button"
-                              onClick={() => removeVariant(i)}
-                              className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                              onClick={() => setForm(f => ({ ...f, isActive: !f.isActive }))}
+                              className={cn(
+                                "relative w-16 h-9 rounded-full transition-all duration-500",
+                                form.isActive ? "bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "bg-zinc-300 dark:bg-zinc-800"
+                              )}
                             >
-                              <X className="w-4 h-4" />
+                              <div className={cn(
+                                "absolute top-1 w-7 h-7 bg-white rounded-full transition-all duration-500 shadow-md",
+                                form.isActive ? "left-8" : "left-1"
+                              )} />
                             </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Images */}
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-                      {t('modal.labels.images', { max: MAX_IMAGES })}
-                    </label>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {existingImages.map((img) => (
-                        <div key={img.id} className="relative group">
-                          <img src={img.url} alt="" className="w-16 h-16 object-cover rounded-lg border border-border" />
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteImage(img)}
-                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 shadow-lg transition-all"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                      {imageFiles.map((item, i) => (
-                        <div key={i} className="relative group">
-                          <img
-                            src={item.url}
-                            alt=""
-                            className="w-16 h-16 object-cover rounded-lg border border-gold/30 border-dashed"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImageFile(i)}
-                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 shadow-lg transition-all"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                      {canAddMoreImages && (
-                        <label className="w-16 h-16 flex flex-col items-center justify-center bg-secondary/10 border border-border border-dashed rounded-lg cursor-pointer hover:border-gold/50 transition-colors">
-                          <ImagePlus className="w-4 h-4 text-muted-foreground" />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            className="sr-only"
-                            onChange={(e) => { addImageFiles(e.target.files); e.target.value = ''; }}
-                          />
-                        </label>
+                          </div>
+                        </section>
                       )}
+
+                      {activeTab === 'essence' && (
+                        <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-10">
+                          <div className="space-y-2 border-l-4 border-gold pl-6">
+                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Olfactory Essence</h3>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Configure the sensory parameters of the asset.</p>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Molecular Family</label>
+                              <select
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                value={form.scentFamilyId === '' ? '' : form.scentFamilyId}
+                                onChange={(e) => setForm((f) => ({ ...f, scentFamilyId: e.target.value === '' ? '' : Number(e.target.value) }))}
+                              >
+                                <option value="">— SELECT FAMILY —</option>
+                                {scentFamilies.map((s) => (
+                                  <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Gender Resonance</label>
+                              <select
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                value={form.gender}
+                                onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+                              >
+                                <option value="">— SELECT GENDER —</option>
+                                <option value="female">Feminine</option>
+                                <option value="male">Masculine</option>
+                                <option value="unisex">Unisex / Equilibrium</option>
+                              </select>
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Temporal Persistence</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.longevity}
+                                onChange={(e) => setForm((f) => ({ ...f, longevity: e.target.value }))}
+                                placeholder="E.g. 12H+ OVERWHELMING"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Molecular Concentration</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.concentration}
+                                onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value }))}
+                                placeholder="E.g. EXTRAIT DE PARFUM"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-3">
+                            <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Asset Manifesto</label>
+                            <textarea
+                              className="w-full bg-secondary/10 border border-border rounded-[2.5rem] py-8 px-10 outline-none focus:border-gold min-h-[250px] transition-all text-sm font-medium leading-relaxed resize-none shadow-inner"
+                              value={form.description}
+                              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                              placeholder="Describe the cinematic experience of this olfactory journey..."
+                            />
+                          </div>
+                        </section>
+                      )}
+
+                      {activeTab === 'composition' && (
+                        <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
+                          <div className="flex justify-between items-end border-l-4 border-gold pl-6">
+                            <div className="space-y-2">
+                              <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Note Composition</h3>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">The digital DNA of the olfactory structure.</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={addScentNote}
+                              className="bg-gold text-primary-foreground text-[10px] uppercase tracking-[.2em] font-black px-8 py-4 rounded-full shadow-xl shadow-gold/20 hover:scale-105 active:scale-95 transition-all"
+                            >
+                              + INFUSE NOTE
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-6">
+                            {form.scentNotes.map((n, i) => (
+                              <div key={i} className="flex items-center gap-8 bg-zinc-50 dark:bg-white/[0.02] p-10 rounded-[3rem] border border-border relative group hover:border-gold/30 transition-all">
+                                <div className="w-14 h-14 bg-white dark:bg-zinc-900 rounded-full flex items-center justify-center shrink-0 border border-border shadow-sm">
+                                  <span className="text-xs font-black text-gold">{i + 1}</span>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
+                                  <div className="space-y-3">
+                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Molecular Note</label>
+                                    <input
+                                      className="w-full bg-secondary/5 border border-border rounded-xl py-4 px-6 text-sm font-bold outline-none focus:border-gold transition-all"
+                                      value={n.name}
+                                      placeholder="E.g. BLACK OPIUM"
+                                      onChange={(e) => updateScentNote(i, { name: e.target.value })}
+                                    />
+                                  </div>
+                                  <div className="space-y-3">
+                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Olfactory Node (Tier)</label>
+                                    <select
+                                      className="w-full bg-secondary/5 border border-border rounded-xl py-4 px-6 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer"
+                                      value={n.type}
+                                      onChange={(e) => updateScentNote(i, { type: e.target.value as 'TOP' | 'MIDDLE' | 'BASE' })}
+                                    >
+                                      <option value="TOP">TOP NOTE (Ascendance)</option>
+                                      <option value="MIDDLE">HEART NOTE (Resonance)</option>
+                                      <option value="BASE">BASE NOTE (Permanence)</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeScentNote(i)}
+                                  className="w-12 h-12 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 shadow-xl"
+                                >
+                                  <X className="w-6 h-6" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      )}
+
+                      {activeTab === 'inventory' && (
+                        <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
+                          <div className="flex justify-between items-end border-l-4 border-gold pl-6">
+                            <div className="space-y-2">
+                              <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Volume Variants</h3>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Commercial configurations and inventory tracking.</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={addVariant}
+                              className="bg-gold text-primary-foreground text-[10px] uppercase tracking-[.2em] font-black px-8 py-4 rounded-full shadow-xl shadow-gold/20 hover:scale-105 active:scale-95 transition-all"
+                            >
+                              + INTEGRATE VARIANT
+                            </button>
+                          </div>
+
+                          <div className="bg-zinc-50 dark:bg-zinc-900/40 rounded-[3rem] border border-border overflow-hidden shadow-2xl">
+                            <table className="w-full text-left">
+                              <thead className="bg-zinc-100/50 dark:bg-white/5">
+                                <tr className="border-b border-border">
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Volume Descriptor</th>
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Valuation</th>
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Quantum</th>
+                                  <th className="px-10 py-6 text-right"></th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-border/50">
+                                {form.variants.map((v, i) => (
+                                  <tr key={i} className="group hover:bg-gold/5 transition-colors">
+                                    <td className="px-10 py-8">
+                                      <input
+                                        className="w-full bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-bold uppercase tracking-widest py-1 transition-all"
+                                        value={v.name}
+                                        placeholder="E.G. 100ML ATOMISEUR"
+                                        onChange={(e) => updateVariant(i, { name: e.target.value })}
+                                      />
+                                    </td>
+                                    <td className="px-10 py-8">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-muted-foreground text-sm font-serif italic">$</span>
+                                        <input
+                                          type="number"
+                                          className="w-32 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all"
+                                          value={v.price === 0 && !editId ? '' : v.price}
+                                          onChange={(e) => updateVariant(i, { price: e.target.value === '' ? 0 : Number(e.target.value) })}
+                                        />
+                                      </div>
+                                    </td>
+                                    <td className="px-10 py-8">
+                                      <input
+                                        type="number"
+                                        className="w-24 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all text-center"
+                                        value={v.stock === 0 && !editId ? '' : v.stock}
+                                        onChange={(e) => updateVariant(i, { stock: e.target.value === '' ? 0 : Number(e.target.value) })}
+                                      />
+                                    </td>
+                                    <td className="px-10 py-8 text-right">
+                                      {form.variants.length > 1 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => removeVariant(i)}
+                                          className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                          <X className="w-5 h-5" />
+                                        </button>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </section>
+                      )}
+
+                      {activeTab === 'gallery' && (
+                        <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
+                          <div className="space-y-2 border-l-4 border-gold pl-6">
+                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Visual Gallery</h3>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">High-fidelity imagery for the olfactory experience.</p>
+                          </div>
+
+                          <div className="bg-zinc-50 dark:bg-zinc-900/60 p-12 rounded-[4rem] border border-border shadow-2xl">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+                              {existingImages.map((img) => (
+                                <div key={img.id} className="relative aspect-[3/4] group shadow-2xl rounded-3xl overflow-hidden border border-border transition-all hover:scale-[1.02]">
+                                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteImage(img)}
+                                      className="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-red-500/40"
+                                    >
+                                      <X className="w-7 h-7" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              {imageFiles.map((item, i) => (
+                                <div key={i} className="relative aspect-[3/4] group shadow-2xl rounded-3xl overflow-hidden border-4 border-dashed border-gold/30 bg-gold/5 transition-all hover:scale-[1.02]">
+                                  <img src={item.url} alt="" className="w-full h-full object-cover opacity-60" />
+                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm flex items-center justify-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => removeImageFile(i)}
+                                      className="w-14 h-14 bg-red-500 text-white rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-red-500/40"
+                                    >
+                                      <X className="w-7 h-7" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                              {canAddMoreImages && (
+                                <label className="aspect-[3/4] flex flex-col items-center justify-center bg-white dark:bg-zinc-950 border-4 border-dashed border-gold/20 rounded-3xl cursor-pointer hover:border-gold/60 hover:bg-gold/5 transition-all active:scale-95 shadow-xl group">
+                                  <div className="w-16 h-16 bg-gold/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-gold/20 transition-colors">
+                                    <ImagePlus className="w-8 h-8 text-gold" />
+                                  </div>
+                                  <span className="text-[12px] uppercase tracking-[.4em] font-black text-gold">{totalImages} / {MAX_IMAGES}</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="sr-only"
+                                    onChange={(e) => { addImageFiles(e.target.files); e.target.value = ''; }}
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                        </section>
+                      )}
+                    </form>
+                  )}
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="shrink-0 h-24 border-t border-border px-12 flex items-center justify-end gap-6 bg-zinc-50 dark:bg-black/20 backdrop-blur-xl z-20">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-8 py-3.5 rounded-full text-[10px] uppercase tracking-widest font-black text-muted-foreground hover:text-foreground transition-all"
+                >
+                  {t('form.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  form="productForm"
+                  disabled={saving || loadingProduct}
+                  className="px-12 py-4 rounded-full bg-gold text-primary-foreground font-heading text-[11px] uppercase tracking-[.2em] font-black disabled:opacity-50 shadow-2xl shadow-gold/20 hover:scale-[1.05] active:scale-[0.98] transition-all"
+                >
+                  {saving ? (
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin" />
+                      {t('form.processing')}
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="isActive"
-                      checked={form.isActive}
-                      onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))}
-                      className="rounded border-border"
-                    />
-                    <label htmlFor="isActive" className="text-sm font-body">{t('form.isActive')}</label>
-                  </div>
-
-                  <div className="flex gap-4 pt-4">
-                    <button
-                      type="button"
-                      onClick={closeModal}
-                      className="flex-1 py-3 rounded-full border border-border text-muted-foreground hover:bg-secondary/50 font-heading text-[10px] uppercase tracking-widest"
-                    >
-                      {t('form.cancel')}
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={saving}
-                      className="flex-1 py-3 rounded-full bg-gold text-primary-foreground font-heading uppercase tracking-widest disabled:opacity-50 text-[10px] font-bold shadow-lg shadow-gold/20"
-                    >
-                      {saving ? t('form.processing') : (editId ? t('form.submit_edit') : t('form.submit_create'))}
-                    </button>
-                  </div>
-                </form>
-              )}
+                  ) : editId ? t('form.submit_edit') : t('form.submit_create')}
+                </button>
+              </div>
             </div>
           </div>
         )}

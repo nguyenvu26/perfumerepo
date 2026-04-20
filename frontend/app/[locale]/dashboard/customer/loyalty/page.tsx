@@ -68,38 +68,38 @@ export default function LoyaltyDashboard() {
 
     return (
         <AuthGuard allowedRoles={['customer']}>
-            <main className="p-8 max-w-7xl mx-auto">
-                <header className="mb-12">
-                    <h1 className="text-4xl font-heading gold-gradient mb-2 uppercase tracking-tighter">{t('title')}</h1>
-                    <p className="text-muted-foreground font-body text-sm uppercase tracking-widest">{t('subtitle')}</p>
+            <main className="p-4 sm:p-8 max-w-7xl mx-auto">
+                <header className="mb-8 md:mb-12">
+                    <h1 className="text-3xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">{t('title')}</h1>
+                    <p className="text-muted-foreground font-body text-[10px] md:text-sm uppercase tracking-widest">{t('subtitle')}</p>
                 </header>
  
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="flex flex-col gap-6 md:gap-8">
                     {/* Points Card */}
-                    <div className="lg:col-span-3 space-y-8">
+                    <div className="space-y-6 md:space-y-8">
                         <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="glass p-1 bg-gradient-to-br from-gold/30 via-transparent to-gold/5 rounded-[3rem]"
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="glass p-1 bg-gradient-to-br from-gold/30 via-transparent to-gold/5 rounded-[2.5rem] md:rounded-[3rem]"
                         >
-                            <div className="bg-background/60 backdrop-blur-3xl p-10 rounded-[2.9rem] flex flex-col md:flex-row items-center gap-10">
-                                <div className="relative">
-                                    <div className="w-32 h-32 rounded-full border-4 border-gold/20 flex items-center justify-center relative">
-                                        <Coins size={48} className="text-gold animate-pulse" />
+                            <div className="bg-background/60 backdrop-blur-3xl p-6 md:p-10 rounded-[2.4rem] md:rounded-[2.9rem] flex flex-col md:flex-row items-center gap-6 md:gap-10 text-center md:text-left">
+                                <div className="relative shrink-0">
+                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-gold/20 flex items-center justify-center relative">
+                                        <Coins className="text-gold animate-pulse w-9 h-9 md:w-12 md:h-12" />
                                     </div>
                                 </div>
-                                <div className="flex-1 text-center md:text-left">
-                                    <h2 className="text-5xl font-heading text-foreground mb-2">
-                                        {data.points} <span className="text-sm font-body text-muted-foreground tracking-[0.3em] uppercase">{t('credits_suffix')}</span>
+                                <div className="flex-1">
+                                    <h2 className="text-3xl md:text-5xl font-heading text-foreground mb-2">
+                                        {data.points} <span className="text-[10px] md:text-sm font-body text-muted-foreground tracking-[0.3em] uppercase">{t('credits_suffix')}</span>
                                     </h2>
                                     <div>
-                                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed">
+                                        <p className="text-[9px] md:text-[10px] text-muted-foreground uppercase tracking-widest leading-relaxed max-w-xl">
                                             {t('ai_insight_desc')}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex gap-4">
-                                     <Link href="/dashboard/customer/promotions" className="px-8 py-4 rounded-full glass border-gold/20 text-gold font-heading text-[10px] uppercase tracking-widest hover:bg-gold hover:text-black transition-all">
+                                <div className="flex w-full md:w-auto">
+                                     <Link href="/dashboard/customer/promotions" className="w-full md:w-auto px-8 py-3.5 md:py-4 rounded-full glass border-gold/20 text-gold font-heading text-[10px] uppercase tracking-widest hover:bg-gold hover:text-black transition-all text-center">
                                         {t('discover_market')}
                                     </Link>
                                 </div>
@@ -179,25 +179,25 @@ export default function LoyaltyDashboard() {
 
 
                         {/* History */}
-                        <div className="glass bg-white/5 rounded-[2.5rem] border-border overflow-hidden">
-                            <div className="p-8 border-b border-border flex justify-between items-center">
+                        <div className="glass bg-white/5 rounded-[2rem] md:rounded-[2.5rem] border-border overflow-hidden">
+                            <div className="p-6 md:p-8 border-b border-border flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <History size={18} className="text-gold" />
-                                    <h3 className="font-heading uppercase tracking-widest">{t('history_title')}</h3>
+                                    <h3 className="font-heading text-base md:text-lg uppercase tracking-widest">{t('history_title')}</h3>
                                 </div>
                             </div>
-                            <div className="divide-y divide-border">
+                            <div className="divide-y divide-border/50">
                                 {loading ? (
-                                    <div className="p-10 text-center text-muted-foreground uppercase text-[10px] tracking-widest">{t('syncing')}</div>
+                                    <div className="p-10 text-center text-muted-foreground uppercase text-[9px] md:text-[10px] tracking-widest">{t('syncing')}</div>
                                 ) : data.history.length > 0 ? (
                                     data.history.map((tx, i) => (
-                                        <div key={tx.id} className="p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`p-3 rounded-xl ${tx.points > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                                                    {tx.points > 0 ? <Zap size={16} /> : <Gift size={16} />}
+                                        <div key={tx.id} className="p-5 md:p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors group">
+                                            <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                                                <div className={`p-2.5 md:p-3 rounded-lg md:rounded-xl shrink-0 ${tx.points > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                                                    {tx.points > 0 ? <Zap className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Gift className="w-3.5 h-3.5 md:w-4 md:h-4" />}
                                                 </div>
-                                                <div>
-                                                    <p className="text-xs font-bold uppercase tracking-widest text-foreground">
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] md:text-xs font-bold uppercase tracking-tight text-foreground truncate">
                                                         {(() => {
                                                             const r = tx.reason.toLowerCase();
                                                             if (r.startsWith('earned_from_order')) {
@@ -215,19 +215,20 @@ export default function LoyaltyDashboard() {
                                                             }
                                                         })()}
                                                     </p>
-                                                    <p className="text-[10px] text-muted-foreground uppercase mt-0.5">
+                                                    <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase mt-1 font-bold tracking-widest">
                                                         {format(new Date(tx.createdAt), 'MMM dd, yyyy • HH:mm', { locale: dateLocale })}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span className={`font-heading ${tx.points > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                            <span className={`font-heading text-lg md:text-xl ml-4 ${tx.points > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
                                                 {tx.points > 0 ? '+' : ''}{tx.points}
                                             </span>
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="p-20 text-center">
-                                        <p className="text-muted-foreground uppercase text-[10px] tracking-widest">{t('empty')}</p>
+                                    <div className="p-16 md:p-20 text-center opacity-50">
+                                        <History className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-4 text-muted-foreground/30" strokeWidth={1} />
+                                        <p className="text-muted-foreground uppercase text-[9px] md:text-[10px] tracking-widest font-bold">{t('empty')}</p>
                                     </div>
                                 )}
                             </div>

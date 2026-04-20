@@ -120,7 +120,7 @@ export const Header = () => {
                     "py-4 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
                 )}
             >
-                <div className="container mx-auto px-6">
+                <div className="container-responsive">
                     <div className="grid grid-cols-[1fr_auto_1fr] items-center">
                         {/* Left */}
                         <div className="hidden lg:flex items-center gap-10 justify-start">
@@ -247,10 +247,36 @@ export const Header = () => {
                                 )}
 
                                 <button
-                                    className="lg:hidden p-2 text-foreground cursor-pointer ml-2"
+                                    className="lg:hidden p-3 text-foreground cursor-pointer ml-1 -mr-2 flex items-center justify-center min-w-[44px] min-h-[44px]"
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                    aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
                                 >
-                                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                                    <motion.div
+                                        animate={isMobileMenuOpen ? "open" : "closed"}
+                                        className="relative w-6 h-6 flex items-center justify-center"
+                                    >
+                                        <motion.span
+                                            variants={{
+                                                closed: { rotate: 0, y: -6 },
+                                                open: { rotate: 45, y: 0 }
+                                            }}
+                                            className="absolute w-6 h-0.5 bg-current rounded-full"
+                                        />
+                                        <motion.span
+                                            variants={{
+                                                closed: { opacity: 1 },
+                                                open: { opacity: 0 }
+                                            }}
+                                            className="absolute w-6 h-0.5 bg-current rounded-full"
+                                        />
+                                        <motion.span
+                                            variants={{
+                                                closed: { rotate: 0, y: 6 },
+                                                open: { rotate: -45, y: 0 }
+                                            }}
+                                            className="absolute w-6 h-0.5 bg-current rounded-full"
+                                        />
+                                    </motion.div>
                                 </button>
                             </div>
                         </div>
@@ -270,11 +296,11 @@ export const Header = () => {
                                 <Link
                                     key={item.href!}
                                     href={item.href!}
-                                    className="text-xs font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group"
+                                    className="text-[10px] font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-5 px-2 border-b border-border/10 min-h-[48px]"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {item.name}
-                                    <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                                    <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 text-gold" />
                                 </Link>
                             ))}
                             {!isAuthenticated && (

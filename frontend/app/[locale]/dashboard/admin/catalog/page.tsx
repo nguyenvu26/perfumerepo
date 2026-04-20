@@ -167,40 +167,42 @@ export default function AdminCatalog() {
 
   return (
     <AuthGuard allowedRoles={['admin']}>
-      <main className="p-8">
-        <header className="mb-12 flex justify-between items-end">
-          <div>
-            <h1 className="text-4xl font-heading gold-gradient mb-2 uppercase tracking-tighter">{t('title')}</h1>
-            <p className="text-muted-foreground font-body text-sm uppercase tracking-widest">{t('subtitle')}</p>
+      <main className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto">
+        <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div className="space-y-1">
+            <h1 className="text-3xl sm:text-4xl font-heading gold-gradient mb-1 uppercase tracking-tighter leading-none">{t('title')}</h1>
+            <p className="text-muted-foreground font-body text-[10px] sm:text-xs uppercase tracking-[.3em] font-bold">{t('subtitle')}</p>
           </div>
           <button
             onClick={openCreate}
-            className="bg-gold text-primary-foreground px-6 py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 hover:scale-105 transition-all"
+            className="w-full md:w-auto bg-gold text-primary-foreground px-8 py-4 md:py-3 rounded-full font-heading text-[10px] uppercase tracking-widest font-extrabold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-gold/20"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-5 h-5 md:w-4 md:h-4" />
             {t('add_new')}
           </button>
         </header>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-border">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 font-heading text-sm uppercase tracking-widest transition-all flex items-center gap-2 border-b-2 ${
-                  activeTab === tab.id
-                    ? 'border-gold text-gold'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            );
-          })}
+        <div className="flex overflow-x-auto pb-4 mb-8 border-b border-white/5 sm:border-border no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex gap-2 min-w-max">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 sm:px-6 py-3 font-heading text-[11px] sm:text-sm uppercase tracking-widest transition-all flex items-center gap-2 border-b-2 ${
+                    activeTab === tab.id
+                      ? 'border-gold text-gold bg-gold/5'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {error && (
@@ -210,29 +212,30 @@ export default function AdminCatalog() {
         )}
 
         {loading ? (
-          <div className="flex justify-center py-20">
-            <span className="text-muted-foreground">{t('loading')}</span>
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="w-10 h-10 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
+            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t('loading')}</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pb-20">
             {items.map((item) => (
               <div
                 key={item.id}
-                className="glass rounded-2xl border border-border p-6 hover:border-gold/30 transition-all group"
+                className="glass rounded-2xl md:rounded-[2rem] border border-stone-200 dark:border-white/5 p-6 hover:border-gold/30 transition-all group relative active:scale-[0.98] sm:active:scale-100"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-heading text-lg text-foreground">{item.name}</h3>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-start justify-between mb-3 gap-4">
+                  <h3 className="font-heading text-lg text-foreground leading-tight tracking-tight">{item.name}</h3>
+                  <div className="flex gap-1.5 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                     <button
                       onClick={() => openEdit(item.id)}
-                      className="text-muted-foreground hover:text-gold transition-colors"
+                      className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-gold transition-colors bg-secondary/10 sm:bg-transparent rounded-lg border border-border/5 sm:border-transparent"
                       title="Edit"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="text-muted-foreground hover:text-red-500 transition-colors"
+                      className="w-11 h-11 flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors bg-secondary/10 sm:bg-transparent rounded-lg border border-border/5 sm:border-transparent"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -240,13 +243,14 @@ export default function AdminCatalog() {
                   </div>
                 </div>
                 {item.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                  <p className="text-sm text-stone-500 dark:text-muted-foreground line-clamp-2 italic font-light leading-relaxed">{item.description}</p>
                 )}
               </div>
             ))}
             {items.length === 0 && (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                {t('no_items', { type: getTypeName().toLowerCase() })}
+              <div className="col-span-full text-center py-20 text-muted-foreground space-y-4">
+                <Layers className="w-12 h-12 mx-auto opacity-10" />
+                <p className="text-[10px] uppercase font-bold tracking-widest">{t('no_items', { type: getTypeName().toLowerCase() })}</p>
               </div>
             )}
           </div>
@@ -254,55 +258,62 @@ export default function AdminCatalog() {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={closeModal}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-4 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
             <div
-              className="bg-background border border-border rounded-[2rem] max-w-md w-full p-8"
+              className="bg-background border-t sm:border border-border rounded-t-[2.5rem] sm:rounded-[2.5rem] max-w-lg w-full h-[90vh] sm:h-auto flex flex-col p-6 sm:p-10 shadow-2xl relative mt-auto sm:mt-0"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-heading">
-                  {editId ? t('modal.edit_title', { type: getTypeName() }) : t('modal.create_title', { type: getTypeName() })}
-                </h2>
-                <button onClick={closeModal} className="p-2 hover:bg-secondary rounded-full">
+              <div className="flex justify-between items-center mb-8 shrink-0">
+                <div className="space-y-1">
+                  <h2 className="text-2xl sm:text-3xl font-heading tracking-tighter leading-none">
+                    {editId ? t('modal.edit_title', { type: getTypeName() }) : t('modal.create_title', { type: getTypeName() })}
+                  </h2>
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{t('subtitle')}</p>
+                </div>
+                <button onClick={closeModal} className="p-3 bg-secondary/20 hover:bg-red-500/10 hover:text-red-500 rounded-full transition-all active:scale-90">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-                    {t('modal.name_label')}
-                  </label>
-                  <input
-                    className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold"
-                    value={form.name}
-                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    required
-                    placeholder={t('modal.name_placeholder')}
-                  />
+              
+              <form onSubmit={handleSubmit} className="space-y-8 flex-1 overflow-y-auto pr-2 no-scrollbar">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] uppercase font-bold tracking-[.3em] text-gold/80 ml-1">
+                      {t('modal.name_label')}
+                    </label>
+                    <input
+                      className="w-full bg-secondary/10 border border-border rounded-2xl py-4 px-6 outline-none focus:border-gold shadow-inner transition-all text-base md:text-sm font-medium"
+                      value={form.name}
+                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                      required
+                      placeholder={t('modal.name_placeholder')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] uppercase font-bold tracking-[.3em] text-gold/80 ml-1">
+                      {t('modal.desc_label')}
+                    </label>
+                    <textarea
+                      className="w-full bg-secondary/10 border border-border rounded-2xl py-4 px-6 outline-none focus:border-gold min-h-[150px] shadow-inner transition-all text-base md:text-sm font-light leading-relaxed"
+                      value={form.description}
+                      onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                      placeholder={t('modal.desc_placeholder')}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
-                    {t('modal.desc_label')}
-                  </label>
-                  <textarea
-                    className="w-full bg-secondary/20 border border-border rounded-xl py-3 px-4 outline-none focus:border-gold min-h-[100px]"
-                    value={form.description}
-                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                    placeholder={t('modal.desc_placeholder')}
-                  />
-                </div>
-                <div className="flex gap-4 pt-4">
+
+                <div className="flex gap-4 pt-6 sticky bottom-0 bg-background pb-2">
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 py-3 rounded-full border border-border text-muted-foreground hover:bg-secondary/50"
+                    className="flex-1 py-4 rounded-full border border-border text-[10px] uppercase tracking-widest font-bold text-muted-foreground hover:bg-secondary/50 dark:hover:bg-white/5 transition-all"
                   >
                     {t('modal.cancel')}
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex-1 py-3 rounded-full bg-gold text-primary-foreground font-heading uppercase tracking-widest disabled:opacity-50"
+                    className="flex-1 py-4 rounded-full bg-gold text-primary-foreground font-heading text-[10px] uppercase tracking-widest font-extrabold disabled:opacity-50 shadow-lg shadow-gold/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     {saving ? t('modal.saving') : editId ? t('modal.save') : t('modal.create')}
                   </button>

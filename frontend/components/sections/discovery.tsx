@@ -15,14 +15,14 @@ export const Discovery = () => {
     ];
 
     return (
-        <section className="py-40 px-6 relative bg-background overflow-hidden">
+        <section className="section-py relative bg-background overflow-hidden">
             {/* Soft Neural Grid Background */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none grayscale">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
             </div>
 
-            <div className="max-w-7xl mx-auto relative z-10">
-                <div className="text-center space-y-4 mb-32">
+            <div className="container-responsive relative z-10">
+                <div className="text-center space-y-4 mb-20 lg:mb-32">
                     <motion.div
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
@@ -32,7 +32,7 @@ export const Discovery = () => {
                         <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-gold-dark">{t('methodology')}</span>
                         <div className="w-8 h-px bg-gold/30" />
                     </motion.div>
-                    <h2 className="text-5xl md:text-7xl font-heading text-foreground font-light">
+                    <h2 className="text-fluid-4xl font-heading text-foreground font-light px-4">
                         {t.rich('title', {
                             span: (chunks) => <span className="italic font-normal">{chunks}</span>
                         })}
@@ -43,7 +43,7 @@ export const Discovery = () => {
                     {/* Decorative Curved Path (SVG) */}
                     <div className="absolute top-1/2 left-0 w-full h-px border-t border-dashed border-gold/20 -translate-y-1/2 hidden md:block" />
 
-                    <div className="grid md:grid-cols-3 gap-16 lg:gap-24 relative">
+                    <div className="grid-responsive cols-3 relative gap-16 lg:gap-gutter">
                         {steps.map((step, i) => (
                             <motion.div
                                 key={i}
@@ -59,20 +59,20 @@ export const Discovery = () => {
                                 </div>
 
                                 {/* Icon Vessel */}
-                                <div className="w-32 h-32 rounded-full glass border-white/60 mb-10 flex items-center justify-center relative shadow-2xl group-hover:shadow-gold/10 transition-all duration-700 overflow-hidden bg-background/40">
+                                <div className="w-28 h-28 lg:w-32 lg:h-32 rounded-full glass border-white/60 mb-8 lg:mb-10 flex items-center justify-center relative shadow-2xl group-hover:shadow-gold/10 transition-all duration-700 overflow-hidden bg-background/40">
                                     <div className="absolute inset-0 bg-gradient-to-tr from-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    <step.icon className="w-10 h-10 text-foreground/80 group-hover:text-gold group-hover:scale-110 transition-all duration-500" />
+                                    <step.icon className="w-8 h-8 lg:w-10 lg:h-10 text-foreground/80 group-hover:text-gold group-hover:scale-110 transition-all duration-500" />
                                 </div>
 
                                 {/* Content */}
-                                <div className="space-y-4">
-                                    <span className="text-[10px] uppercase tracking-[0.4em] font-body font-bold text-secondary/40 block">
+                                <div className="space-y-3 lg:space-y-4">
+                                    <span className="text-[9px] lg:text-[10px] uppercase tracking-[0.4em] font-body font-bold text-secondary/40 block">
                                         {step.label}
                                     </span>
-                                    <h3 className="text-2xl font-heading text-foreground font-medium tracking-tight">
+                                    <h3 className="text-xl lg:text-2xl font-heading text-foreground font-medium tracking-tight">
                                         {step.title}
                                     </h3>
-                                    <p className="text-secondary/60 font-body text-[13px] leading-relaxed max-w-[250px] mx-auto uppercase tracking-wider">
+                                    <p className="text-secondary/60 font-body text-xs lg:text-[13px] leading-relaxed max-w-[250px] mx-auto uppercase tracking-wider">
                                         {step.desc}
                                     </p>
                                 </div>
@@ -90,10 +90,10 @@ export const Discovery = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.8 }}
-                    className="mt-24 text-center"
+                    className="mt-16 lg:mt-24 text-center"
                 >
                     <Link href="/quiz">
-                        <button className="px-10 py-4 glass border-foreground/10 text-foreground font-body font-bold text-[10px] uppercase tracking-[0.4em] rounded-full hover:bg-foreground hover:text-background transition-all">
+                        <button className="px-8 lg:px-10 py-4 glass border-foreground/10 text-foreground font-body font-bold text-[10px] uppercase tracking-[0.4em] rounded-full hover:bg-foreground hover:text-background transition-all w-full sm:w-auto">
                             {t('begin_profile')}
                         </button>
                     </Link>

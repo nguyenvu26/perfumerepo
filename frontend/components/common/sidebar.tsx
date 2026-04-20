@@ -6,7 +6,7 @@ import {
     MessageSquare, BrainCircuit, Heart, History, Coins, Tag,
     Monitor, Box, ClipboardList, BarChart3, ShieldCheck,
     Globe, Mail, FileText, Settings2, Smartphone, Receipt, FolderTree,
-    Sparkles, Zap, Store, Warehouse, BookOpen, RotateCcw
+    Sparkles, Zap, Store, Warehouse, BookOpen, RotateCcw, X
 } from 'lucide-react';
 import { Link, usePathname } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
@@ -14,8 +14,19 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from './theme-toggle';
 import { LanguageSwitch } from './language-switch';
+import { MoreHorizontal } from 'lucide-react';
 
-export const Sidebar = () => {
+export const Sidebar = ({ 
+    onClose, 
+    onOpenMore, 
+    variant = 'default',
+    isCollapsed = false
+}: { 
+    onClose?: () => void; 
+    onOpenMore?: () => void; 
+    variant?: 'default' | 'drawer'; 
+    isCollapsed?: boolean;
+}) => {
     const commonT = useTranslations('common');
     const navT = useTranslations('navigation');
     const tUser = useTranslations('dashboard.user');
@@ -23,6 +34,7 @@ export const Sidebar = () => {
     const pathname = usePathname();
 
     const role = user?.role || 'customer';
+    const isDrawer = variant === 'drawer';
 
     const getMenuItems = () => {
         const publicPages = [
@@ -79,86 +91,174 @@ export const Sidebar = () => {
     const items = getMenuItems();
 
     return (
-        <aside className="w-72 h-screen glass border-r border-border flex flex-col px-4 py-8 fixed left-0 top-0 z-50 overflow-y-auto overflow-x-hidden custom-scrollbar no-print">
-            <Link href="/" className="flex items-center justify-center mb-10 px-4 group cursor-pointer">
-                <img src="/logo-dark.png" className="h-14 w-14 object-contain rounded-full border border-gold/10 shadow-lg group-hover:scale-110 transition-transform" alt="Perfume GPT" />
-            </Link>
+        <>
+            {/* Desktop & Tablet Sidebar */}
+            <aside className={cn(
+                "h-screen glass border-r border-border flex flex-col transition-all duration-500 fixed left-0 top-0 z-50 overflow-y-auto custom-scrollbar no-print",
+                isDrawer ? "w-full border-none shadow-none" : "hidden md:flex", 
+                !isDrawer && (isCollapsed ? "w-20" : "w-20 lg:w-72")
+            )}>
+                <Link href="/" className={cn(
+                    "flex items-center mb-10 mt-8 px-4 group cursor-pointer shrink-0 transition-all duration-500",
+                    isDrawer || "justify-center lg:justify-start lg:px-8"
+                )}>
+                    <img src="/logo-dark.png" className="h-10 w-10 lg:h-12 lg:w-12 object-contain rounded-full border border-gold/10 shadow-lg group-hover:scale-110 transition-transform" alt="Perfume GPT" />
+                    {(isDrawer || !isCollapsed) && (
+                        <span className={cn(
+                            "ml-4 font-heading text-lg gold-gradient uppercase tracking-widest font-black transition-all duration-500",
+                            isDrawer ? "block" : "hidden lg:block whitespace-nowrap"
+                        )}>
+                            Perfume GPT
+                        </span>
+                    )}
+                </Link>
+                
+                {/* Close button for drawer variant */}
+                {isDrawer && (
+                    <button 
+                        onClick={onClose}
+                        className="absolute top-4 right-4 p-3 text-gold hover:bg-gold/10 rounded-full transition-all z-50 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        aria-label="Close Sidebar"
+                    >
+                        <X size={24} />
+                    </button>
+                )}
 
-            <nav className="flex-1 space-y-1.5 px-0">
-                {items.map((item, index) => {
-                    // Find all items that match the current pathname
-                    const matchingItems = items.filter(i =>
-                        pathname === i.href || pathname.startsWith(i.href + '/')
-                    );
+                <nav className="flex-1 space-y-2 px-3 lg:px-4">
+                    {items.map((item, index) => {
+                        const matchingItems = items.filter(i =>
+                            pathname === i.href || (i.href !== '/dashboard' && pathname.startsWith(i.href + '/'))
+                        );
 
-                    // Get the most specific match (longest href)
-                    const mostSpecificMatch = matchingItems.length > 0
-                        ? matchingItems.reduce((prev, current) =>
-                            current.href.length > prev.href.length ? current : prev
+                        const mostSpecificMatch = matchingItems.length > 0
+                            ? matchingItems.reduce((prev, current) =>
+                                current.href.length > prev.href.length ? current : prev
+                            )
+                            : null;
+
+                        const isActive = mostSpecificMatch?.href === item.href;
+
+                        return (
+                            <div key={item.href} className="relative group/item">
+                                <Link
+                                    href={item.href}
+                                    className={cn(
+                                        "group flex items-center gap-3 px-3 lg:px-4 py-4 lg:py-3 rounded-xl transition-all duration-300 relative overflow-hidden",
+                                        isActive
+                                            ? "bg-gold text-primary-foreground shadow-lg shadow-gold/20"
+                                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/40",
+                                        isDrawer ? "px-6" : ""
+                                    )}
+                                    onClick={() => {
+                                        if (onClose) onClose();
+                                    }}
+                                >
+                                    <item.icon className={cn(
+                                        "w-5 h-5 transition-transform duration-300 group-hover:scale-110 flex-shrink-0",
+                                        isActive ? "text-primary-foreground" : "text-gold"
+                                    )} />
+                                    <span className={cn(
+                                        "font-heading text-[10px] lg:text-[11px] uppercase tracking-[0.2em] font-medium truncate transition-all duration-300",
+                                        isDrawer ? "block text-sm sm:text-base" : (isCollapsed ? "hidden" : "hidden lg:block")
+                                    )}>
+                                        {item.label}
+                                    </span>
+                                    {isActive && !isDrawer && (
+                                        <motion.div
+                                            layoutId="sidebar-active"
+                                            className="absolute left-0 w-1 h-5 bg-primary-foreground rounded-full lg:hidden"
+                                        />
+                                    )}
+                                </Link>
+                                
+                                {/* Tooltip (collapsed state only) */}
+                                {!isDrawer && (
+                                    <div className={cn(
+                                        "absolute left-[calc(100%+8px)] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-black/90 text-white text-[10px] uppercase tracking-widest font-bold border border-white/10 rounded-lg whitespace-nowrap opacity-0 translate-x-[-10px] pointer-events-none group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-300 z-[100] shadow-xl backdrop-blur-md",
+                                        isCollapsed ? "block" : "lg:hidden"
+                                    )}>
+                                        {item.label}
+                                        <div className="absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-black/90 rotate-45 border-l border-b border-white/10" />
+                                    </div>
+                                )}
+                            </div>
                         )
-                        : null;
+                    })}
+                </nav>
 
-                    // Only this item is active if it's the most specific match
-                    const isActive = mostSpecificMatch?.href === item.href;
+                <div className="mt-auto px-3 lg:px-6 py-8 border-t border-border space-y-6 shrink-0">
+                    <div className="px-2 lg:px-4 py-3 rounded-2xl glass border-gold/10 flex items-center gap-3">
+                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-secondary flex items-center justify-center text-[10px] font-heading border border-white/5 uppercase shrink-0">
+                            {user?.name?.substring(0, 2) || 'AI'}
+                        </div>
+                        <div className={cn(
+                            "flex-1 overflow-hidden transition-all duration-300",
+                            isDrawer ? "block" : (isCollapsed ? "hidden" : "hidden lg:block")
+                        )}>
+                            <p className="text-xs font-heading text-foreground truncate uppercase tracking-tighter">
+                                {user?.name || tUser('explorer')}
+                            </p>
+                        </div>
+                    </div>
 
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={cn(
-                                "group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 relative overflow-hidden mx-1",
-                                isActive
-                                    ? "bg-gold text-primary-foreground shadow-lg shadow-gold/20"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-                            )}
+                    <div className={cn(
+                        "flex items-center justify-center gap-4",
+                        isDrawer ? "flex-row justify-between px-4" : "flex-col lg:flex-row"
+                    )}>
+                        {!isDrawer && <ThemeToggle />}
+                        <button
+                            onClick={logout}
+                            className="p-3 text-muted-foreground hover:text-gold hover:bg-gold/5 transition-all rounded-xl group"
+                            title={commonT('logout')}
                         >
-                            <item.icon className={cn(
-                                "w-5 h-5 transition-transform duration-300 group-hover:scale-110 flex-shrink-0",
-                                isActive ? "text-primary-foreground" : "text-gold"
-                            )} />
-                            <span className="font-heading text-[11px] uppercase tracking-[0.2em] font-medium truncate">
-                                {item.label}
-                            </span>
-                            {isActive && (
-                                <motion.div
-                                    layoutId="sidebar-active"
-                                    className="absolute left-0 w-1 h-5 bg-primary-foreground rounded-full"
-                                />
-                            )}
-                        </Link>
-                    )
-                })}
-            </nav>
-
-            <div className="mt-8 pt-6 border-t border-border space-y-4">
-                <div className="px-4 py-3 rounded-2xl glass border-gold/10 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xs font-heading border border-white/5 uppercase">
-                        {user?.name?.substring(0, 2) || 'AI'}
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                        <p className="text-xs font-heading text-foreground truncate uppercase tracking-tighter">
-                            {user?.name || tUser('explorer')}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest mt-0.5">
-                            {tUser(role.toLowerCase())}
-                        </p>
+                            <LogOut className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                        </button>
                     </div>
                 </div>
+            </aside>
 
-                {/* Theme and Language Controls */}
-                <div className="flex items-center justify-center gap-3 px-2">
-                    <ThemeToggle />
-                    {/* <LanguageSwitch /> */}
-                </div>
-
-                <button
-                    onClick={logout}
-                    className="flex items-center gap-4 px-4 py-3.5 w-full text-muted-foreground hover:text-gold hover:bg-gold/5 transition-all rounded-2xl font-heading text-[10px] uppercase tracking-[0.2em] group"
-                >
-                    <LogOut className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                    {commonT('logout')}
-                </button>
-            </div>
-        </aside>
+            {/* Mobile Bottom Navigation (For Customers only) */}
+            {role === 'CUSTOMER' && !isDrawer && (
+                <nav className="md:hidden fixed bottom-6 left-6 right-6 h-20 glass-dark backdrop-blur-2xl border border-white/10 rounded-[2.5rem] flex items-center justify-around px-2 z-[100] shadow-2xl">
+                    {items.slice(0, 4).map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className={cn(
+                                    "flex flex-col items-center justify-center gap-1 min-w-[50px] min-h-[64px] transition-all",
+                                    isActive ? "text-gold" : "text-white/40"
+                                )}
+                            >
+                                <item.icon className={cn(
+                                    "w-5 h-5 transition-transform",
+                                    isActive && "scale-110 shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+                                )} />
+                                <span className="text-[7px] font-bold uppercase tracking-[0.1em] truncate max-w-[60px]">
+                                    {item.label}
+                                </span>
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="mobile-nav-active"
+                                        className="w-1 h-1 rounded-full bg-gold mt-0.5"
+                                    />
+                                )}
+                            </Link>
+                        );
+                    })}
+                    {/* "More" Trigger for the rest of items */}
+                    <button
+                        onClick={onOpenMore}
+                        className="flex flex-col items-center justify-center gap-1 min-w-[50px] min-h-[64px] text-white/40 hover:text-gold transition-colors"
+                    >
+                        <MoreHorizontal className="w-5 h-5" />
+                        <span className="text-[7px] font-bold uppercase tracking-[0.1em]">
+                            {commonT('more') || 'More'}
+                        </span>
+                    </button>
+                </nav>
+            )}
+        </>
     );
 };

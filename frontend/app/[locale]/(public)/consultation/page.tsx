@@ -88,21 +88,21 @@ export default function ConsultationPage() {
         <div className="min-h-screen bg-stone-100 dark:bg-zinc-950 transition-colors flex flex-col">
             <Header />
 
-            <main className="flex-1 container mx-auto px-6 py-32 flex flex-col items-center justify-center">
+            <main className="flex-1 container-responsive py-24 lg:py-32 flex flex-col items-center justify-center">
                 <div className="max-w-4xl w-full">
                     {/* Progress Indicator */}
-                    <div className="flex items-center justify-center gap-4 mb-20">
+                    <div className="flex items-center justify-center gap-3 lg:gap-4 mb-10 lg:mb-20">
                         {[1, 2, 3, 4].map((s) => (
-                            <div key={s} className="flex items-center gap-4">
+                            <div key={s} className="flex items-center gap-2 lg:gap-4">
                                 <div
-                                    className={`w-3 h-3 rounded-full transition-all duration-500 ${step >= s
+                                    className={`w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full transition-all duration-500 ${step >= s
                                         ? 'bg-gold scale-125 shadow-[0_0_15px_rgba(197,160,89,0.5)]'
                                         : 'bg-stone-400 dark:bg-stone-800'
                                         }`}
                                 />
                                 {s < 4 && (
                                     <div
-                                        className={`w-12 h-px transition-colors ${step > s ? 'bg-gold' : 'bg-stone-400 dark:bg-stone-800'
+                                        className={`w-8 lg:w-12 h-px transition-colors ${step > s ? 'bg-gold' : 'bg-stone-400 dark:bg-stone-800'
                                             }`}
                                     />
                                 )}
@@ -121,36 +121,36 @@ export default function ConsultationPage() {
                         >
                             {step < 4 ? (
                                 <div>
-                                    <div className="flex items-center justify-center gap-2 text-gold mb-6">
+                                    <div className="flex items-center justify-center gap-2 text-gold mb-4 lg:mb-6">
                                         <Sparkles size={18} />
-                                        <span className="text-xs font-bold tracking-[.3em] uppercase italic">
+                                        <span className="text-[10px] lg:text-xs font-bold tracking-[.3em] uppercase italic">
                                             {t('section_prefix')} 0{step}
                                         </span>
                                     </div>
-                                    <h2 className="text-4xl md:text-5xl font-serif text-luxury-black dark:text-white mb-16">
+                                    <h2 className="text-fluid-3xl font-serif text-luxury-black dark:text-white mb-10 lg:mb-16 leading-tight">
                                         {currentStepData[step - 1].title}
                                     </h2>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                                         {currentStepData[step - 1].options.map((opt, i) => {
                                             const Icon = opt.icon;
                                             return (
                                                 <button
                                                     key={i}
                                                     onClick={() => handleNext(currentStepData[step - 1].key, opt.value)}
-                                                    className="group p-8 glass bg-white dark:bg-zinc-900 hover:bg-luxury-black dark:hover:bg-gold transition-all duration-500 rounded-3xl border border-stone-200 dark:border-white/10 hover:border-luxury-black dark:hover:border-gold flex flex-col items-center gap-6 cursor-pointer"
+                                                    className="group p-6 lg:p-8 glass bg-white dark:bg-zinc-900 hover:bg-luxury-black dark:hover:bg-gold transition-all duration-500 rounded-2xl lg:rounded-3xl border border-stone-200 dark:border-white/10 hover:border-luxury-black dark:hover:border-gold flex flex-col items-center gap-4 lg:gap-6 cursor-pointer"
                                                 >
                                                     {Icon && (
-                                                        <div className="p-4 rounded-2xl bg-stone-100 dark:bg-white/5 group-hover:bg-gold/10 transition-colors">
+                                                        <div className="p-3 lg:p-4 rounded-xl lg:rounded-2xl bg-stone-100 dark:bg-white/5 group-hover:bg-gold/10 transition-colors">
                                                             <Icon
-                                                                size={32}
+                                                                size={24}
                                                                 strokeWidth={1}
-                                                                className="text-stone-500 dark:text-stone-600 group-hover:text-gold transition-colors"
+                                                                className="lg:w-8 lg:h-8 text-stone-500 dark:text-stone-600 group-hover:text-gold transition-colors"
                                                             />
                                                         </div>
                                                     )}
-                                                    {!Icon && <div className="h-12" />}
-                                                    <span className="text-sm font-bold tracking-widest uppercase text-luxury-black dark:text-white group-hover:text-white transition-colors">
+                                                    {!Icon && <div className="h-8 lg:h-12" />}
+                                                    <span className="text-xs lg:text-sm font-bold tracking-widest uppercase text-luxury-black dark:text-white group-hover:text-white transition-colors">
                                                         {opt.label}
                                                     </span>
                                                 </button>
@@ -211,30 +211,30 @@ export default function ConsultationPage() {
                                             animate={{ opacity: 1, scale: 1 }}
                                             className="w-full"
                                         >
-                                            <div className="relative aspect-video w-full mb-12 rounded-[3.5rem] overflow-hidden shadow-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10">
+                                            <div className="relative aspect-auto lg:aspect-video w-full mb-8 lg:mb-12 rounded-[2rem] lg:rounded-[3.5rem] overflow-hidden shadow-2xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 min-h-[300px] lg:min-h-0">
                                                 <Image
                                                     src="/luxury_ai_scent_lab.png"
                                                     alt={t('analysis.complete')}
                                                     fill
                                                     className="object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-luxury-black/90 via-luxury-black/40 to-transparent flex flex-col justify-end p-12 text-left">
-                                                    <div className="flex items-center gap-3 text-gold mb-4">
+                                                <div className="absolute inset-0 bg-gradient-to-t from-luxury-black/90 via-luxury-black/40 to-transparent flex flex-col justify-end p-8 lg:p-12 text-left">
+                                                    <div className="flex items-center gap-3 text-gold mb-3 lg:mb-4">
                                                         <Sparkles size={24} />
-                                                        <h3 className="text-2xl font-serif text-white uppercase tracking-widest">
+                                                        <h3 className="text-xl lg:text-2xl font-serif text-white uppercase tracking-widest">
                                                             {t('analysis.complete')}
                                                         </h3>
                                                     </div>
-                                                    <p className="text-stone-300 text-sm font-light max-w-sm">
+                                                    <p className="text-stone-300 text-xs lg:text-sm font-light max-w-sm leading-relaxed">
                                                         {t('analysis.description')}
                                                     </p>
                                                 </div>
                                             </div>
 
-                                            <h2 className="text-4xl md:text-5xl font-serif text-luxury-black dark:text-white mb-8">
+                                            <h2 className="text-fluid-3xl font-serif text-luxury-black dark:text-white mb-6 lg:mb-8 leading-tight">
                                                 {t('analysis.dna_blueprint')}
                                             </h2>
-                                            <p className="text-stone-500 dark:text-stone-400 mb-12 leading-relaxed uppercase tracking-[.3em] text-[10px] font-bold">
+                                            <p className="text-stone-500 dark:text-stone-400 mb-10 lg:mb-12 leading-relaxed uppercase tracking-[.3em] text-[8px] lg:text-[10px] font-bold px-4">
                                                 {t('analysis.profile_label')}: {answers.intensity?.toUpperCase()} | {answers.environment?.toUpperCase()} |{' '}
                                                 {answers.emotion?.toUpperCase()}
                                             </p>

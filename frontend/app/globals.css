@@ -17,13 +17,34 @@
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  /* Font stack with solid Vietnamese diacritic support.
-     This avoids relying on Geist CSS variables that may be missing at runtime. */
+  
+  /* Font stack with solid Vietnamese diacritic support. */
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans Vietnamese", "Noto Sans", Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Cascadia Mono", "Liberation Mono", "Courier New", monospace;
   --font-heading: "Cormorant Garamond", "Noto Serif", "Times New Roman", serif;
   --font-serif: "Bodoni Moda", "Noto Serif", "Times New Roman", serif;
   --font-body: "Outfit", "Montserrat", "Segoe UI", "Noto Sans Vietnamese", Arial, sans-serif;
+
+  /* Responsive Breakpoints (Mobile: <768, Tablet: 768-1023, Desktop: 1024+) */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;    /* Tablet starts here */
+  --breakpoint-lg: 1024px;   /* Desktop starts here */
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Fluid Typography Scale (clamp-based) */
+  --font-size-fluid-base: clamp(0.9375rem, 0.22vw + 0.88rem, 1.0625rem);
+  --font-size-fluid-lg: clamp(1.125rem, 0.45vw + 1.01rem, 1.375rem);
+  --font-size-fluid-xl: clamp(1.375rem, 0.9vw + 1.15rem, 1.875rem);
+  --font-size-fluid-2xl: clamp(1.75rem, 1.8vw + 1.3rem, 2.75rem);
+  --font-size-fluid-3xl: clamp(2.25rem, 3.15vw + 1.46rem, 4rem);
+  --font-size-fluid-4xl: clamp(3rem, 5.4vw + 1.65rem, 6rem);
+
+  /* Responsive Spacing Tokens */
+  --spacing-layout-px: clamp(1rem, 5vw, 4rem);
+  --spacing-layout-py: clamp(2.5rem, 8vw, 6rem);
+  --spacing-gutter: clamp(1rem, 3vw, 2.5rem);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -278,5 +299,52 @@ html[lang="vi"] .text-\[10px\] {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
     background-size: 200% 100%;
     animation: luxury-shimmer 3s infinite linear;
+  }
+
+  /* Responsive Foundation Utilities */
+  .container-responsive {
+    width: 100%;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-layout-px);
+    padding-right: var(--spacing-layout-px);
+  }
+
+  .grid-responsive {
+    display: grid;
+    gap: var(--spacing-gutter);
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  @media (width >= 768px) {
+    .grid-responsive {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (width >= 1024px) {
+    .grid-responsive.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .grid-responsive.cols-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .grid-responsive:not(.cols-3):not(.cols-4) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* Fluid Typography Utilities */
+  .text-fluid-base { font-size: var(--font-size-fluid-base); }
+  .text-fluid-lg { font-size: var(--font-size-fluid-lg); }
+  .text-fluid-xl { font-size: var(--font-size-fluid-xl); }
+  .text-fluid-2xl { font-size: var(--font-size-fluid-2xl); }
+  .text-fluid-3xl { font-size: var(--font-size-fluid-3xl); }
+  .text-fluid-4xl { font-size: var(--font-size-fluid-4xl); }
+
+  .section-py {
+    padding-top: var(--spacing-layout-py);
+    padding-bottom: var(--spacing-layout-py);
   }
 }

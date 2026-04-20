@@ -242,41 +242,41 @@ export default function AdminOrders() {
 
     return (
         <AuthGuard allowedRoles={['admin', 'staff']}>
-            <div className="flex flex-col gap-10 py-10 px-8">
+            <div className="flex flex-col gap-6 md:gap-10 py-6 md:py-10 px-4 sm:px-6 md:px-10 max-w-[1600px] mx-auto">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-4xl font-serif text-luxury-black dark:text-white mb-2 transition-colors">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <header>
+                        <h1 className="text-3xl sm:text-4xl font-heading text-luxury-black dark:text-white mb-1 transition-colors uppercase tracking-tighter leading-tight">
                             {t('title')}
                         </h1>
-                        <p className="text-[10px] text-stone-500 uppercase tracking-[.4em] font-bold">
+                        <p className="text-[9px] sm:text-[10px] text-stone-500 uppercase tracking-[.3em] font-bold">
                             {t('subtitle')}
                         </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-hover:text-gold transition-colors" size={16} />
+                    </header>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
+                        <div className="relative group flex-1 md:flex-none">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-hover:text-gold transition-colors" size={14} />
                             <input
                                 type="text"
                                 placeholder={t('search_placeholder')}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl py-3 pl-12 pr-6 text-xs outline-none focus:border-gold transition-all w-80 shadow-sm"
+                                className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl py-3.5 sm:py-3 pl-11 pr-6 text-base md:text-xs outline-none focus:border-gold transition-all w-full md:w-80 shadow-sm"
                             />
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="relative group">
+                            <div className="relative group flex-1 sm:flex-none">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
                                 <input
                                     type="date"
                                     value={filterDate}
                                     onChange={(e) => setFilterDate(e.target.value)}
-                                    className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl py-3 pl-10 pr-4 text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm cursor-pointer invert dark:invert-0"
+                                    className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl py-3.5 sm:py-3 pl-10 pr-4 text-base md:text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm cursor-pointer invert dark:invert-0 w-full"
                                 />
                             </div>
                             <button 
                                 onClick={() => { setFilterDate(''); setSearch( ''); }}
-                                className="p-3 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl cursor-pointer hover:border-gold transition-all shadow-sm"
+                                className="p-3.5 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl cursor-pointer hover:border-gold transition-all shadow-sm shrink-0"
                                 title="Làm mới"
                             >
                                 <Filter size={18} className="text-stone-500" />
@@ -285,7 +285,7 @@ export default function AdminOrders() {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
                     {[
                         { id: 'ALL', label: 'Tất cả' },
                         { id: 'PENDING', label: 'Chờ xử lý' },
@@ -298,9 +298,9 @@ export default function AdminOrders() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as any)}
                             className={cn(
-                                "px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all",
+                                "px-5 py-3 lg:py-2 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest border transition-all whitespace-nowrap shrink-0",
                                 activeTab === tab.id
-                                    ? "bg-gold text-primary-foreground border-gold"
+                                    ? "bg-gold text-primary-foreground border-gold shadow-md shadow-gold/20 scale-105"
                                     : "bg-white dark:bg-zinc-900 border-stone-200 dark:border-white/10 text-stone-500 hover:border-gold/50"
                             )}
                         >
@@ -310,8 +310,9 @@ export default function AdminOrders() {
                 </div>
 
                 {/* Orders List */}
-                <div className="glass bg-white dark:bg-zinc-900 rounded-[3rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-xl transition-colors">
-                    <div className="overflow-x-auto">
+                <div className="glass bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-xl transition-colors">
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="border-b border-stone-100 dark:border-white/5 bg-stone-50/50 dark:bg-white/[0.02]">
@@ -392,8 +393,8 @@ export default function AdminOrders() {
                                                             <Truck size={14} /> Chuyển GHN
                                                         </button>
                                                     )}
-                                                    <button className="p-2.5 rounded-xl border border-stone-200 dark:border-white/10 hover:border-gold hover:text-gold transition-all">
-                                                        <Eye size={14} />
+                                                    <button className="p-3.5 rounded-xl border border-stone-200 dark:border-white/10 hover:border-gold hover:text-gold transition-all">
+                                                        <Eye size={16} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -402,60 +403,133 @@ export default function AdminOrders() {
                                 })}
                             </tbody>
                         </table>
-                        {!loading && filteredOrders.length === 0 && (
-                            <div className="py-20 text-center space-y-4">
-                                <Receipt className="mx-auto text-stone-200 dark:text-white/5" size={64} strokeWidth={1} />
-                                <p className="text-[10px] font-bold tracking-widest uppercase text-stone-400">{t('table.no_orders')}</p>
-                            </div>
-                        )}
                     </div>
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden p-4 space-y-4">
+                        {loading ? (
+                            Array(3).fill(0).map((_, i) => (
+                                <div key={i} className="bg-stone-50/50 dark:bg-white/[0.01] animate-pulse h-48 rounded-2xl" />
+                            ))
+                        ) : filteredOrders.map((order) => {
+                            const statusStyle = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.PENDING;
+                            const paymentStyle = PAYMENT_CONFIG[order.paymentStatus as keyof typeof PAYMENT_CONFIG] || PAYMENT_CONFIG.PENDING;
+
+                            return (
+                                <motion.div
+                                    key={order.id}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    onClick={() => setSelectedOrder(order)}
+                                    className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-2xl p-5 space-y-4 active:scale-[0.98] transition-all"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="space-y-1">
+                                            <span className="text-xs font-bold text-luxury-black dark:text-white block">{order.code}</span>
+                                            <span className="text-[10px] text-stone-400 font-medium">#{order.id.slice(-8).toUpperCase()}</span>
+                                        </div>
+                                        <div className={cn(
+                                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[8px] font-bold uppercase tracking-wider",
+                                            statusStyle.color
+                                        )}>
+                                            {statusStyle.label}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 py-3 border-y border-stone-100 dark:border-white/5">
+                                        <div className="flex justify-between items-center text-[11px]">
+                                            <span className="text-stone-400 uppercase font-bold tracking-tight">Khách hàng:</span>
+                                            <span className="text-foreground font-bold">{order.user?.name || t('print.guest')}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-[11px]">
+                                            <span className="text-stone-400 uppercase font-bold tracking-tight">Tổng tiền:</span>
+                                            <span className="text-gold font-bold font-serif">
+                                                {format.number(order.finalAmount, { style: 'currency', currency: 'VND' })}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className={cn("w-1.5 h-1.5 rounded-full", paymentStyle.color.replace('text', 'bg'))} />
+                                            <span className={cn("text-[9px] font-bold uppercase tracking-widest", paymentStyle.color)}>
+                                                {paymentStyle.label}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {order.status === 'PENDING' && (
+                                                <button 
+                                                    onClick={(e) => handleConfirmAndCreateGhn(e, order.id)}
+                                                    className="w-11 h-11 flex items-center justify-center bg-gold/10 text-gold border border-gold/20 rounded-xl"
+                                                >
+                                                    <Truck size={18} />
+                                                </button>
+                                            )}
+                                            <button className="w-11 h-11 flex items-center justify-center border border-stone-200 dark:border-white/10 rounded-xl">
+                                                <Eye size={18} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+
+                    {!loading && filteredOrders.length === 0 && (
+                        <div className="py-20 text-center space-y-4">
+                            <Receipt className="mx-auto text-stone-200 dark:text-white/5" size={64} strokeWidth={1} />
+                            <p className="text-[10px] font-bold tracking-widest uppercase text-stone-400">{t('table.no_orders')}</p>
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-10">
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-stone-400 text-center sm:text-left">
                         {total === 0 ? '0' : `${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
                     </p>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3">
                         <select
                             value={take}
                             onChange={(e) => setTake(Number(e.target.value))}
-                            className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-full px-3 py-2 text-[10px] uppercase tracking-widest font-bold"
+                            className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-full px-5 py-3 md:py-2 text-base md:text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold shadow-sm"
                         >
-                            <option value={10}>10 / page</option>
-                            <option value={20}>20 / page</option>
-                            <option value={50}>50 / page</option>
+                            <option value={10}>10 / p</option>
+                            <option value={20}>20 / p</option>
+                            <option value={50}>50 / p</option>
                         </select>
-                        <button
-                            type="button"
-                            onClick={() => setSkip((s) => Math.max(0, s - take))}
-                            disabled={skip === 0}
-                            className="px-4 py-2 rounded-full border border-stone-200 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
-                        >
-                            Prev
-                        </button>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400 min-w-24 text-center">
-                            {currentPage}/{totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
-                            disabled={skip + take >= total}
-                            className="px-4 py-2 rounded-full border border-stone-200 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest disabled:opacity-50"
-                        >
-                            Next
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setSkip((s) => Math.max(0, s - take))}
+                                disabled={skip === 0}
+                                className="px-6 py-3.5 md:py-2 rounded-full border border-stone-200 dark:border-white/10 text-base md:text-[10px] font-bold uppercase tracking-widest disabled:opacity-30 bg-white dark:bg-zinc-900 active:scale-95 transition-all shadow-sm"
+                            >
+                                Prev
+                            </button>
+                            <span className="text-[10px] font-bold tracking-[.3em] text-stone-400 min-w-16 text-center uppercase">
+                                {currentPage}/{totalPages}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                                disabled={skip + take >= total}
+                                className="px-5 py-2 rounded-full border border-stone-200 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest disabled:opacity-30 bg-white dark:bg-zinc-900 active:scale-95 transition-all shadow-sm"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 {/* Detail Modal */}
                 <AnimatePresence>
                     {selectedOrder && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-end p-4">
+                        <div className="fixed inset-0 z-[100] flex items-center justify-end">
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                                className="absolute inset-0 bg-black/60 backdrop-blur-md"
                                 onClick={() => setSelectedOrder(null)}
                             />
                             <motion.div
@@ -463,10 +537,10 @@ export default function AdminOrders() {
                                 animate={{ x: 0 }}
                                 exit={{ x: '100%' }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                                className="relative w-full max-w-2xl h-full bg-white dark:bg-zinc-950 shadow-2xl overflow-y-auto custom-scrollbar flex flex-col border-l border-border transition-colors"
+                                className="relative w-full sm:max-w-2xl h-[100vh] sm:h-full bg-white dark:bg-zinc-950 shadow-2xl overflow-y-auto custom-scrollbar flex flex-col sm:border-l border-border transition-colors no-scrollbar"
                             >
                                 {/* Modal Header */}
-                                <div className="h-20 flex items-center justify-between px-10 border-b border-border sticky top-0 bg-white dark:bg-zinc-950 z-10 transition-colors">
+                                <div className="h-20 shrink-0 flex items-center justify-between px-6 sm:px-10 border-b border-border sticky top-0 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-xl z-20 transition-colors">
                                     <button
                                         onClick={() => setSelectedOrder(null)}
                                         className="text-stone-400 hover:text-luxury-black dark:hover:text-white transition-colors p-2 -ml-2 rounded-full"
@@ -486,7 +560,7 @@ export default function AdminOrders() {
                                 </div>
 
                                 {/* Modal Content */}
-                                <div className="p-10 space-y-12">
+                                <div className="p-6 sm:p-10 space-y-8 sm:space-y-12">
                                     {/* Quick Actions / Status Update */}
                                     <section>
                                         <div className="flex items-center justify-between mb-6">
@@ -576,9 +650,9 @@ export default function AdminOrders() {
                                     </section>
 
                                     {/* Payment Ledger */}
-                                    <section className="bg-luxury-black rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
+                                    <section className="bg-luxury-black rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
                                         <div className="relative z-10">
-                                            <div className="flex justify-between items-center mb-8 pb-8 border-b border-white/10">
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 pb-8 border-b border-white/10">
                                                 <div className="flex items-center gap-3">
                                                     <CreditCard size={20} className="text-gold" />
                                                     <h3 className="text-[10px] font-bold uppercase tracking-[.3em]">{t('modal.financial_matrix')}</h3>
@@ -587,7 +661,7 @@ export default function AdminOrders() {
                                                     value={selectedOrder.paymentStatus}
                                                     onChange={(e) => handleUpdatePaymentStatus(selectedOrder.id, e.target.value)}
                                                     disabled={updating}
-                                                    className="bg-white/5 border border-white/10 rounded-xl text-[9px] uppercase font-bold tracking-widest px-4 py-2 outline-none focus:border-gold h-auto"
+                                                    className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-xl text-base md:text-[9px] uppercase font-bold tracking-widest px-6 py-4 md:px-4 md:py-2.5 outline-none focus:border-gold h-auto"
                                                 >
                                                     {Object.entries(PAYMENT_CONFIG).map(([k, v]) => (
                                                         <option key={k} value={k} className="bg-zinc-900">{v.label}</option>
@@ -604,9 +678,9 @@ export default function AdminOrders() {
                                                     <span>{t('modal.delivery_fee')}</span>
                                                     <span className="text-gold">{t('modal.complimentary')}</span>
                                                 </div>
-                                                <div className="pt-6 mt-6 border-t border-white/10 flex justify-between items-baseline">
+                                                <div className="pt-6 mt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-2">
                                                     <span className="text-[10px] font-bold uppercase tracking-[.5em] text-stone-400">{t('modal.liquid_settlement')}</span>
-                                                    <span className="text-3xl font-serif text-white italic">
+                                                    <span className="text-2xl sm:text-3xl font-serif text-white italic">
                                                         {format.number(selectedOrder.finalAmount, { style: 'currency', currency: 'VND' })}
                                                     </span>
                                                 </div>

@@ -425,49 +425,49 @@ export const AdminReturnManagement = ({
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-heading font-semibold text-foreground bg-gradient-to-r from-gold to-gold/50 bg-clip-text text-transparent inline-block">
-            Quản lý Đổi trả
-          </h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Hệ thống CRM theo dõi và xử lý các yêu cầu đổi trả hàng hóa, quy
-            trình hoàn tiền tinh gọn.
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="outline"
-            className="glass border-gold/20"
-            onClick={loadData}
-          >
-            <RefreshCcw className="w-4 h-4 mr-2 text-gold" /> Làm mới
-          </Button>
-          <div className="relative group">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
-            <Input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="pl-9 w-40 glass border-gold/20 text-[11px] font-medium h-10 focus:ring-1 focus:ring-gold/30 transition-all cursor-pointer invert dark:invert-0"
-            />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-heading font-semibold text-foreground bg-gradient-to-r from-gold to-gold/50 bg-clip-text text-transparent inline-block">
+              Quản lý Đổi trả
+            </h2>
+            <p className="text-muted-foreground mt-1 text-[10px] md:text-sm">
+              Hệ thống CRM theo dõi và xử lý các yêu cầu đổi trả hàng hóa, quy
+              trình hoàn tiền tinh gọn.
+            </p>
           </div>
-          {!isAdmin && (
+          <div className="flex flex-wrap items-center gap-3">
             <Button
-              className="bg-gold hover:bg-gold/90 text-primary-foreground shadow-lg shadow-gold/20"
-              onClick={() => {
-                setIsPosCreateOpen(true);
-                setPosOrder(null);
-                setPosSearchKey("");
-                setPosReason("");
-                setPosSelectedItems({});
-              }}
+              variant="outline"
+              className="glass border-gold/20 h-10 text-[10px] sm:text-xs"
+              onClick={loadData}
             >
-              <RotateCcw className="w-4 h-4 mr-2" /> Tạo hoàn trả POS
+              <RefreshCcw className="w-4 h-4 mr-2 text-gold" /> Làm mới
             </Button>
-          )}
+            <div className="relative group flex-1 sm:flex-none">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
+              <Input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="pl-9 w-full sm:w-40 glass border-gold/20 text-[11px] font-medium h-10 focus:ring-1 focus:ring-gold/30 transition-all cursor-pointer invert dark:invert-0"
+              />
+            </div>
+            {!isAdmin && (
+              <Button
+                className="bg-gold hover:bg-gold/90 text-primary-foreground shadow-lg shadow-gold/20 h-10 text-[10px] sm:text-xs flex-1 sm:flex-none"
+                onClick={() => {
+                  setIsPosCreateOpen(true);
+                  setPosOrder(null);
+                  setPosSearchKey("");
+                  setPosReason("");
+                  setPosSelectedItems({});
+                }}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" /> Tạo hoàn trả POS
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
       <Tabs
         value={activeTab}
@@ -475,42 +475,42 @@ export const AdminReturnManagement = ({
         className="w-full space-y-6"
       >
         {isAdmin && (
-          <TabsList className="bg-background/40 glass border border-gold/10 p-1 w-full max-w-[450px] mx-auto sm:mx-0 grid grid-cols-3">
+          <TabsList className="bg-background/40 glass border border-gold/10 p-1 w-full max-w-[450px] mx-auto md:mx-0 grid grid-cols-3">
             <TabsTrigger
               value="all"
-              className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold"
+              className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold text-[10px] sm:text-xs"
             >
-              <Box className="w-4 h-4 mr-2" />
+              <Box className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Tất cả
               <Badge
                 variant="secondary"
-                className="ml-2 bg-background/50 text-[10px] py-0"
+                className="ml-1 sm:ml-2 bg-background/50 text-[9px] sm:text-[10px] py-0 px-1"
               >
                 {counts.all}
               </Badge>
             </TabsTrigger>
             <TabsTrigger
               value="online"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400"
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-[10px] sm:text-xs"
             >
-              <Globe className="w-4 h-4 mr-2" />
-              Trực tuyến
+              <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              Online
               <Badge
                 variant="secondary"
-                className="ml-2 bg-background/50 text-[10px] py-0"
+                className="ml-1 sm:ml-2 bg-background/50 text-[9px] sm:text-[10px] py-0 px-1"
               >
                 {counts.online}
               </Badge>
             </TabsTrigger>
             <TabsTrigger
               value="pos"
-              className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-400"
+              className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-400 text-[10px] sm:text-xs"
             >
-              <Store className="w-4 h-4 mr-2" />
+              <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Tại Quầy
               <Badge
                 variant="secondary"
-                className="ml-2 bg-background/50 text-[10px] py-0"
+                className="ml-1 sm:ml-2 bg-background/50 text-[9px] sm:text-[10px] py-0 px-1"
               >
                 {counts.pos}
               </Badge>
@@ -518,251 +518,402 @@ export const AdminReturnManagement = ({
           </TabsList>
         )}
 
-        <Card className="glass border-gold/20 shadow-2xl overflow-hidden rounded-2xl bg-black/40 backdrop-blur-xl">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-gold/10 hover:bg-transparent bg-background/20 font-medium">
-                <TableHead className="w-[120px]">Nguồn</TableHead>
-                <TableHead className="w-[140px]">Mã Yêu Cầu</TableHead>
-                <TableHead className="w-[140px]">Mã Đơn</TableHead>
-                <TableHead className="w-[120px]">Ngày tạo</TableHead>
-                <TableHead>Lý do</TableHead>
-                {isAdmin && <TableHead className="w-[180px]">Vận chuyển</TableHead>}
-                <TableHead className="w-[180px]">Trạng thái</TableHead>
-                <TableHead className="text-right w-[160px]">
-                  Hành động
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-12">
-                    <div className="flex flex-col items-center justify-center space-y-3">
-                      <RefreshCcw className="w-8 h-8 animate-spin text-gold/50" />
-                      <p className="text-muted-foreground text-sm">
-                        Đang đồng bộ dữ liệu...
-                      </p>
-                    </div>
-                  </TableCell>
+        <div className="glass border-gold/20 shadow-2xl overflow-hidden rounded-2xl bg-black/40 backdrop-blur-xl">
+          {/* Desktop Table View */}
+          <div className="hidden lg:block">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-gold/10 hover:bg-transparent bg-background/20 font-medium">
+                  <TableHead className="w-[120px]">Nguồn</TableHead>
+                  <TableHead className="w-[140px]">Mã Yêu Cầu</TableHead>
+                  <TableHead className="w-[140px]">Mã Đơn</TableHead>
+                  <TableHead className="w-[120px]">Ngày tạo</TableHead>
+                  <TableHead>Lý do</TableHead>
+                  {isAdmin && <TableHead className="w-[180px]">Vận chuyển</TableHead>}
+                  <TableHead className="w-[180px]">Trạng thái</TableHead>
+                  <TableHead className="text-right w-[160px]">
+                    Hành động
+                  </TableHead>
                 </TableRow>
-              ) : filteredData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-16">
-                    <div className="flex flex-col items-center justify-center space-y-3">
-                      <Box className="w-12 h-12 text-muted-foreground/30" />
-                      <p className="text-muted-foreground">
-                        Không tìm thấy yêu cầu trả hàng nào trong mục này
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredData.map((req) => (
-                  <TableRow
-                    key={req.id}
-                    className="border-gold/5 hover:bg-gold/5 transition-colors group cursor-pointer"
-                  >
-                    <TableCell>
-                      {req.origin === "POS" ? (
-                        <Badge
-                          variant="outline"
-                          className="border-rose-500/30 text-rose-400 bg-rose-500/10"
-                        >
-                          <Store className="w-3 h-3 mr-1" /> POS
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10"
-                        >
-                          <Globe className="w-3 h-3 mr-1" /> Online
-                        </Badge>
-                      )}
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-12">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <RefreshCcw className="w-8 h-8 animate-spin text-gold/50" />
+                        <p className="text-muted-foreground text-sm">
+                          Đang đồng bộ dữ liệu...
+                        </p>
+                      </div>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground group-hover:text-gold transition-colors">
-                      {req.id.substring(0, 8).toUpperCase()}
+                  </TableRow>
+                ) : filteredData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-16">
+                      <div className="flex flex-col items-center justify-center space-y-3">
+                        <Box className="w-12 h-12 text-muted-foreground/30" />
+                        <p className="text-muted-foreground">
+                          Không tìm thấy yêu cầu trả hàng nào trong mục này
+                        </p>
+                      </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {req.orderId.substring(0, 8).toUpperCase()}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {new Date((req as any).createdAt).toLocaleDateString(
-                        "vi-VN",
-                      )}
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate text-sm">
-                      {req.reason || (
-                        <span className="text-muted-foreground/50 italic">
-                          Không có lý do
-                        </span>
-                      )}
-                    </TableCell>
-                    {isAdmin && (
+                  </TableRow>
+                ) : (
+                  filteredData.map((req) => (
+                    <TableRow
+                      key={req.id}
+                      className="border-gold/5 hover:bg-gold/5 transition-colors group cursor-pointer"
+                      onClick={() => {
+                        setSelectedReturn(req);
+                        setIsReviewOpen(true);
+                      }}
+                    >
                       <TableCell>
-                        {req.shipments && req.shipments.length > 0 ? (
-                          <div className="flex flex-col gap-1">
-                            {req.shipments.map((s, idx) => {
-                              const isAutomated = s.courier === "GHN";
-                              return (
-                                <div key={idx} className="flex flex-col gap-0.5">
-                                  <a
-                                    href={
-                                      isAutomated
-                                        ? `https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`
-                                        : "#"
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={cn(
-                                      "text-[10px] font-mono font-bold flex items-center gap-1 px-2 py-0.5 rounded border w-fit transition-colors",
-                                      isAutomated
-                                        ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20"
-                                        : "text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20",
-                                    )}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <Truck className="w-2.5 h-2.5" />
-                                    {s.trackingNumber}
-                                    {isAutomated && (
-                                      <Badge className="h-3 px-1 text-[7px] bg-cyan-500 text-black border-none ml-1">
-                                        GHN
-                                      </Badge>
-                                    )}
-                                  </a>
-                                  {s.receivedAt && (
-                                    <span className="text-[8px] text-green-500 ml-1 uppercase font-medium">
-                                      • Đã nhận
-                                    </span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
+                        {req.origin === "POS" ? (
+                          <Badge
+                            variant="outline"
+                            className="border-rose-500/30 text-rose-400 bg-rose-500/10"
+                          >
+                            <Store className="w-3 h-3 mr-1" /> POS
+                          </Badge>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground/40 italic">
-                            Chưa có vận đơn
+                          <Badge
+                            variant="outline"
+                            className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10"
+                          >
+                            <Globe className="w-3 h-3 mr-1" /> Online
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground group-hover:text-gold transition-colors">
+                        {req.id.substring(0, 8).toUpperCase()}
+                      </TableCell>
+                      <TableCell className="font-mono text-sm font-bold">
+                        {req.orderId.substring(0, 8).toUpperCase()}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {new Date((req as any).createdAt).toLocaleDateString(
+                          "vi-VN",
+                        )}
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate text-sm">
+                        {req.reason || (
+                          <span className="text-muted-foreground/50 italic">
+                            Không có lý do
                           </span>
                         )}
                       </TableCell>
-                    )}
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={`${getStatusColor(req.status)} text-[10px] px-2 py-0.5 tracking-wide`}
-                      >
-                        {getStatusLabel(req.status)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right space-x-2">
-                      {!isAdmin && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedReturn(req);
-                            setIsReviewOpen(true);
-                          }}
-                        >
-                          <Search className="w-3.5 h-3.5 mr-1" /> Chi tiết
-                        </Button>
+                      {isAdmin && (
+                        <TableCell>
+                          {req.shipments && req.shipments.length > 0 ? (
+                            <div className="flex flex-col gap-1">
+                              {req.shipments.map((s, idx) => {
+                                const isAutomated = s.courier === "GHN";
+                                return (
+                                  <div key={idx} className="flex flex-col gap-0.5">
+                                    <a
+                                      href={
+                                        isAutomated
+                                          ? `https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`
+                                          : "#"
+                                      }
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={cn(
+                                        "text-[10px] font-mono font-bold flex items-center gap-1 px-2 py-0.5 rounded border w-fit transition-colors",
+                                        isAutomated
+                                          ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20"
+                                          : "text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20",
+                                      )}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Truck className="w-2.5 h-2.5" />
+                                      {s.trackingNumber}
+                                      {isAutomated && (
+                                        <Badge className="h-3 px-1 text-[7px] bg-cyan-500 text-black border-none ml-1">
+                                          GHN
+                                        </Badge>
+                                      )}
+                                    </a>
+                                    {s.receivedAt && (
+                                      <span className="text-[8px] text-green-500 ml-1 uppercase font-medium">
+                                        • Đã nhận
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground/40 italic">
+                              Chưa có vận đơn
+                            </span>
+                          )}
+                        </TableCell>
                       )}
-
-                      {/* ADMIN ONLY ACTIONS */}
-                      {isAdmin &&
-                        [
-                          "REQUESTED",
-                          "REVIEWING",
-                          "AWAITING_CUSTOMER",
-                        ].includes(req.status) && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-8 glass border-gold/30 hover:bg-gold hover:text-black"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedReturn(req);
-                              setNote("");
-                              setIsReviewOpen(true);
-                            }}
-                          >
-                            <Check className="w-3.5 h-3.5 mr-1" /> Duyệt
-                          </Button>
-                        )}
-
-                      {/* CANCEL ACTION (FOR UNAPPROVED REQUESTS - STAFF ONLY) */}
-                      {!isAdmin &&
-                        ["REQUESTED", "REVIEWING"].includes(req.status) && (
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`${getStatusColor(req.status)} text-[10px] px-2 py-0.5 tracking-wide uppercase font-bold`}
+                        >
+                          {getStatusLabel(req.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        {!isAdmin && (
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-8 text-red-500/80 hover:text-red-500 hover:bg-red-500/10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (
-                                window.confirm(
-                                  "Bạn có chắc chắn muốn hủy yêu cầu trả hàng này?",
-                                )
-                              ) {
-                                handleCancel(req.id);
-                              }
-                            }}
-                          >
-                            <X className="w-3.5 h-3.5 mr-1" /> Hủy
-                          </Button>
-                        )}
-
-                      {/* GENERAL ACTIONS (HIDE RECEIVE FOR ADMIN IF POS) */}
-                      {["RETURNING", "APPROVED"].includes(req.status) &&
-                        !(isAdmin && req.origin === "POS") && (
-                          <Button
-                            size="sm"
+                            className="h-8 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedReturn(req);
-                              setNote("");
-                              setIsReceiveOpen(true);
+                              setIsReviewOpen(true);
                             }}
-                            className="h-8 bg-teal-600/90 hover:bg-teal-500 text-white shadow-md shadow-teal-900/20"
                           >
-                            <Box className="w-3.5 h-3.5 mr-1" />{" "}
-                            {req.origin === "POS" ? "Nhận Quầy" : "Nhận Kho"}
+                            <Search className="w-3.5 h-3.5 mr-1" /> Chi tiết
                           </Button>
                         )}
 
-                      {/* HIDE REFUND FOR ADMIN IF POS */}
-                      {["RECEIVED", "REFUND_FAILED"].includes(req.status) &&
-                        !(isAdmin && req.origin === "POS") && (
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedReturn(req);
-                              setNote("");
-                              setIsRefundOpen(true);
-                            }}
-                            className="h-8 bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-md shadow-indigo-900/20"
-                          >
-                            <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn
-                            tiền
-                          </Button>
+                        {/* ADMIN ONLY ACTIONS */}
+                        {isAdmin &&
+                          [
+                            "REQUESTED",
+                            "REVIEWING",
+                            "AWAITING_CUSTOMER",
+                          ].includes(req.status) && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 glass border-gold/30 hover:bg-gold hover:text-black"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedReturn(req);
+                                setNote("");
+                                setIsReviewOpen(true);
+                              }}
+                            >
+                              <Check className="w-3.5 h-3.5 mr-1" /> Duyệt
+                            </Button>
+                          )}
+
+                        {/* CANCEL ACTION (FOR UNAPPROVED REQUESTS - STAFF ONLY) */}
+                        {!isAdmin &&
+                          ["REQUESTED", "REVIEWING"].includes(req.status) && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 text-red-500/80 hover:text-red-500 hover:bg-red-500/10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (
+                                  window.confirm(
+                                    "Bạn có chắc chắn muốn hủy yêu cầu trả hàng này?",
+                                  )
+                                ) {
+                                  handleCancel(req.id);
+                                }
+                              }}
+                            >
+                              <X className="w-3.5 h-3.5 mr-1" /> Hủy
+                            </Button>
+                          )}
+
+                        {/* GENERAL ACTIONS (HIDE RECEIVE FOR ADMIN IF POS) */}
+                        {["RETURNING", "APPROVED"].includes(req.status) &&
+                          !(isAdmin && req.origin === "POS") && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedReturn(req);
+                                setNote("");
+                                setIsReceiveOpen(true);
+                              }}
+                              className="h-8 bg-teal-600/90 hover:bg-teal-500 text-white shadow-md shadow-teal-900/20"
+                            >
+                              <Box className="w-3.5 h-3.5 mr-1" />{" "}
+                              {req.origin === "POS" ? "Nhận Quầy" : "Nhận Kho"}
+                            </Button>
+                          )}
+
+                        {/* HIDE REFUND FOR ADMIN IF POS */}
+                        {["RECEIVED", "REFUND_FAILED"].includes(req.status) &&
+                          !(isAdmin && req.origin === "POS") && (
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedReturn(req);
+                                setNote("");
+                                setIsRefundOpen(true);
+                              }}
+                              className="h-8 bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-md shadow-indigo-900/20"
+                            >
+                              <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn
+                              tiền
+                            </Button>
+                          )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden p-4 space-y-4">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                <RefreshCcw className="w-8 h-8 animate-spin text-gold/50" />
+                <p className="text-muted-foreground text-sm font-medium tracking-wide">
+                  Đang đồng bộ dữ liệu...
+                </p>
+              </div>
+            ) : filteredData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 space-y-3">
+                <Box className="w-12 h-12 text-muted-foreground/30" />
+                <p className="text-muted-foreground text-sm text-center">
+                  Không tìm thấy yêu cầu trả hàng nào trong mục này
+                </p>
+              </div>
+            ) : (
+              filteredData.map((req) => (
+                <div
+                  key={req.id}
+                  className="bg-background/40 border border-gold/10 rounded-2xl p-5 space-y-4 relative group hover:border-gold/30 transition-all active:scale-[0.98]"
+                  onClick={() => {
+                    setSelectedReturn(req);
+                    setIsReviewOpen(true);
+                  }}
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold text-gold">#{req.id.substring(0, 8).toUpperCase()}</span>
+                        {req.origin === "POS" ? (
+                          <Badge variant="outline" className="border-rose-500/30 text-rose-400 bg-rose-500/10 text-[9px] h-4">
+                            POS
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10 text-[9px] h-4">
+                            Online
+                          </Badge>
                         )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </Card>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                        Đơn hàng: <span className="text-foreground">{req.orderId.substring(0, 8).toUpperCase()}</span>
+                      </p>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`${getStatusColor(req.status)} text-[9px] px-2 py-0.5 uppercase font-bold`}
+                    >
+                      {getStatusLabel(req.status)}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2 border-y border-gold/5 py-3">
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-muted-foreground uppercase font-bold tracking-tight">Ngày yêu cầu:</span>
+                      <span className="text-foreground font-medium">
+                        {new Date((req as any).createdAt).toLocaleDateString("vi-VN")}
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-tight block">Lý do:</span>
+                      <p className="text-[11px] text-foreground/80 bg-white/5 p-2 rounded-lg italic">
+                        {req.reason || "Không có lý do chi tiết"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-1 overflow-x-auto custom-scrollbar no-scrollbar">
+                    {!isAdmin && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-8 text-[10px] text-blue-400 font-bold uppercase tracking-tight"
+                      >
+                        <Search className="w-3 h-3 mr-1" /> Chi tiết
+                      </Button>
+                    )}
+
+                    {isAdmin && ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status) && (
+                      <Button
+                        size="sm"
+                        className="h-8 bg-gold/10 text-gold border border-gold/20 text-[10px] font-bold"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedReturn(req);
+                          setNote("");
+                          setIsReviewOpen(true);
+                        }}
+                      >
+                        <Check className="w-3 h-3 mr-1" /> Duyệt
+                      </Button>
+                    )}
+
+                    {["RETURNING", "APPROVED"].includes(req.status) && !(isAdmin && req.origin === "POS") && (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedReturn(req);
+                          setNote("");
+                          setIsReceiveOpen(true);
+                        }}
+                        className="h-8 bg-teal-600 text-white text-[10px] font-bold"
+                      >
+                        <Box className="w-3 h-3 mr-1" /> Nhận
+                      </Button>
+                    )}
+
+                    {["RECEIVED", "REFUND_FAILED"].includes(req.status) && !(isAdmin && req.origin === "POS") && (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedReturn(req);
+                          setNote("");
+                          setIsRefundOpen(true);
+                        }}
+                        className="h-8 bg-indigo-600 text-white text-[10px] font-bold"
+                      >
+                        <CreditCard className="w-3 h-3 mr-1" /> Hoàn tiền
+                      </Button>
+                    )}
+
+                    {!isAdmin && ["REQUESTED", "REVIEWING"].includes(req.status) && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Bạn có chắc chắn muốn hủy yêu cầu trả hàng này?")) {
+                            handleCancel(req.id);
+                          }
+                        }}
+                        className="h-8 text-red-500/80 text-[10px] font-bold"
+                      >
+                        <X className="w-3 h-3 mr-1" /> Hủy
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </Tabs>
 
       {/* Review Dialog */}
       <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-        <DialogContent className="glass border-gold/30 sm:max-w-3xl max-h-[90vh] flex flex-col shadow-2xl rounded-2xl overflow-hidden p-0">
-          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 bg-background/80 backdrop-blur-md">
-            <DialogTitle className="text-xl text-gold pb-1 border-b border-gold/10 inline-block">
+        <DialogContent className="glass border-gold/30 w-full sm:max-w-3xl h-[100vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-2xl sm:rounded-2xl overflow-hidden p-0">
+          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 bg-background/80 backdrop-blur-md shrink-0">
+            <DialogTitle className="text-xl text-gold pb-1 border-b border-gold/10 inline-block font-heading">
               Xét duyệt Yêu cầu Đổi Trả
             </DialogTitle>
           </DialogHeader>
@@ -989,13 +1140,13 @@ export const AdminReturnManagement = ({
 
       {/* Receive Dialog */}
       <Dialog open={isReceiveOpen} onOpenChange={setIsReceiveOpen}>
-        <DialogContent className="glass border-gold/30 sm:max-w-md shadow-2xl rounded-2xl">
-          <DialogHeader className="border-b border-border/50 pb-4">
-            <DialogTitle className="text-xl text-teal-400 font-semibold">
+        <DialogContent className="glass border-gold/30 w-full sm:max-w-md h-[100vh] sm:h-auto shadow-2xl sm:rounded-2xl flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 shrink-0">
+            <DialogTitle className="text-xl text-teal-400 font-semibold font-heading">
               Xác nhận Nhận Hàng
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-5 py-4">
+          <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
             <div className="bg-teal-500/10 p-4 rounded-xl border border-teal-500/20">
               <p className="text-sm text-teal-200/80 leading-relaxed">
                 Hệ thống sẽ cập nhật kho{" "}
@@ -1125,15 +1276,15 @@ export const AdminReturnManagement = ({
               />
             </div>
           </div>
-          <DialogFooter className="pt-2">
+          <DialogFooter className="px-6 py-4 border-t border-border/50 bg-background/80 flex flex-row justify-end gap-3 shrink-0">
             <Button variant="ghost" onClick={() => setIsReceiveOpen(false)}>
               Hủy
             </Button>
             <Button
               onClick={handleReceive}
-              className="bg-teal-600 hover:bg-teal-500 shadow-lg shadow-teal-900/30"
+              className="bg-teal-600 hover:bg-teal-500 shadow-lg shadow-teal-900/30 font-bold uppercase tracking-widest text-[10px]"
             >
-              <Box className="w-4 h-4 mr-2" /> Nhập Kho Thành Công
+              <Box className="w-4 h-4 mr-2" /> Nhập Kho
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1141,13 +1292,14 @@ export const AdminReturnManagement = ({
 
       {/* Refund Dialog */}
       <Dialog open={isRefundOpen} onOpenChange={setIsRefundOpen}>
-        <DialogContent className="glass border-indigo-500/30 sm:max-w-md shadow-2xl rounded-2xl">
-          <DialogHeader className="border-b border-border/50 pb-4">
-            <DialogTitle className="text-xl text-indigo-400">
+        <DialogContent className="glass border-indigo-500/30 w-full sm:max-w-md h-[100vh] sm:h-auto shadow-2xl sm:rounded-2xl flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 shrink-0">
+            <DialogTitle className="text-xl text-indigo-400 font-heading">
               Xác Nhận Hoàn Đơn Hàng
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4 px-1 max-h-[70vh] overflow-y-auto custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
+            <div className="space-y-4">
             <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl flex items-baseline justify-between">
               <p className="text-xs text-indigo-300">
                 Đơn hàng:{" "}
@@ -1274,6 +1426,7 @@ export const AdminReturnManagement = ({
                   </div>
                 </div>
               )}
+            </div>
 
             <div className="space-y-4">
               {refundMethod === "bank_transfer" && (

@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import {
     Search, ShoppingCart, CreditCard, Plus, Minus, Receipt, QrCode,
     Store, CheckCircle, AlertTriangle, X, Printer, Sparkles,
-    ChevronDown, ChevronUp, Loader2, Phone, User, Award, Camera
+    ChevronDown, ChevronUp, Loader2, Phone, User, Award, Camera, Package
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { staffPosService, type PosOrder } from '@/services/staff-pos.service';
@@ -79,6 +79,7 @@ export default function PosPage() {
     const [aiError, setAiError] = useState<string | null>(null);
     const [cameraScannerOpen, setCameraScannerOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const [activeTab, setActiveTab] = useState<'catalog' | 'cart'>('catalog');
 
 
     const subtotal = order?.items?.reduce((acc, item) => acc + item.totalPrice, 0) ?? 0;
@@ -378,7 +379,7 @@ export default function PosPage() {
 
     return (
         <AuthGuard allowedRoles={['staff', 'admin']}>
-            <div className="flex h-[calc(100vh-80px)] overflow-hidden relative">
+            <div className="flex flex-col lg:flex-row h-[calc(100vh-80px)] overflow-hidden relative bg-background">
                 {/* Stock Warning Toast */}
                 <AnimatePresence>
                     {stockWarning && (
@@ -386,7 +387,7 @@ export default function PosPage() {
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-heading uppercase tracking-widest shadow-xl backdrop-blur-md"
+                            className="absolute top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-heading uppercase tracking-widest shadow-xl backdrop-blur-md"
                         >
                             <AlertTriangle className="w-4 h-4 shrink-0" />
                             {stockWarning}
@@ -394,21 +395,44 @@ export default function PosPage() {
                     )}
                 </AnimatePresence>
 
+                {/* ═══════════ Mobile Tab Navigation ═══════════ */}
+                <div className="lg:hidden flex bg-secondary/20 border-b border-border p-1 mx-4 mt-4 rounded-2xl shrink-0 z-20">
+                    <button
+                        onClick={() => setActiveTab('catalog')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-heading text-[10px] uppercase tracking-widest ${activeTab === 'catalog' ? 'bg-background text-gold shadow-sm' : 'text-muted-foreground'}`}
+                    >
+                        <Store className="w-4 h-4" />
+                        {t('catalog_tab')}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('cart')}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-heading text-[10px] uppercase tracking-widest relative ${activeTab === 'cart' ? 'bg-background text-gold shadow-sm' : 'text-muted-foreground'}`}
+                    >
+                        <ShoppingCart className="w-4 h-4" />
+                        {t('cart.title')}
+                        {order?.items.length ? (
+                            <span className="absolute top-2 right-1/4 w-4 h-4 rounded-full bg-gold text-primary-foreground flex items-center justify-center text-[8px]">
+                                {order.items.length}
+                            </span>
+                        ) : null}
+                    </button>
+                </div>
+
                 {/* ═══════════ Catalog Area ═══════════ */}
-                <div className="flex-1 flex flex-col border-r border-border min-w-0">
-                    <header className="p-8 border-b border-border flex flex-col gap-2 bg-secondary/10 shrink-0">
+                <div className={`flex-1 flex flex-col border-r border-border min-w-0 ${activeTab !== 'catalog' ? 'hidden lg:flex' : 'flex'}`}>
+                    <header className="p-4 md:p-8 border-b border-border flex flex-col gap-2 bg-secondary/10 shrink-0">
                         <div className="flex flex-wrap justify-between items-center gap-4">
-                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 flex-1 min-w-0">
                                 <div className="flex items-center gap-2 shrink-0">
                                     <Store className="w-4 h-4 text-gold" />
-                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground">{t('store')}:</label>
+                                    <label className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground">{t('store')}:</label>
                                     <select
                                         value={order?.storeId ?? selectedStoreId}
                                         onChange={(e) => {
                                             if (!order) setSelectedStoreId(e.target.value);
                                         }}
                                         disabled={!!order}
-                                        className="rounded-lg border border-border bg-background px-3 py-2 text-xs font-heading uppercase tracking-wider focus:border-gold/60 disabled:opacity-70"
+                                        className="rounded-lg border border-border bg-background px-2 md:px-3 py-1.5 md:py-2 text-[10px] md:text-xs font-heading uppercase tracking-wider focus:border-gold/60 disabled:opacity-70"
                                     >
                                         <option value="">{t('select_store')}</option>
                                         {myStores.map((s) => (
@@ -434,7 +458,7 @@ export default function PosPage() {
                                             }}
                                             placeholder={t('search_placeholder')}
                                             autoComplete="off"
-                                            className="w-full bg-background border border-border rounded-full py-3.5 pl-12 pr-4 text-sm focus:border-gold/50 outline-none transition-all shadow-sm"
+                                            className="w-full bg-background border border-border rounded-full py-2.5 md:py-3.5 pl-10 md:pl-12 pr-4 text-xs md:text-sm focus:border-gold/50 outline-none transition-all shadow-sm"
                                         />
                                     </div>
                                     <button
@@ -443,7 +467,7 @@ export default function PosPage() {
                                         aria-label={t('scan_camera_btn')}
                                         onClick={() => setCameraScannerOpen(true)}
                                         disabled={!selectedStoreId || isOrderCompleted}
-                                        className="shrink-0 p-3 rounded-full border border-border bg-background text-gold hover:bg-gold/10 hover:border-gold/40 transition-all disabled:opacity-40 disabled:pointer-events-none"
+                                        className="shrink-0 p-2.5 md:p-3 rounded-full border border-border bg-background text-gold hover:bg-gold/10 hover:border-gold/40 transition-all disabled:opacity-40 disabled:pointer-events-none"
                                     >
                                         <Camera className="w-4 h-4" />
                                     </button>
@@ -456,7 +480,7 @@ export default function PosPage() {
                     </header>
 
                     {/* Product Grid */}
-                    <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-8 grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6 custom-scrollbar">
                         {loadingProducts ? (
                             <div className="col-span-full text-center text-muted-foreground text-sm">{t('loading_products')}</div>
                         ) : products.length === 0 ? (
@@ -473,9 +497,9 @@ export default function PosPage() {
                                         <motion.div
                                             key={v.id}
                                             whileHover={{ y: -5 }}
-                                            className={`glass p-5 rounded-[2rem] border-border cursor-pointer group transition-all ${isOut ? 'opacity-50 hover:border-red-500/30' : 'hover:border-gold/30'}`}
+                                            className={`glass p-3 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border-border cursor-pointer group transition-all ${isOut ? 'opacity-50 hover:border-red-500/30' : 'hover:border-gold/30'}`}
                                         >
-                                            <div className="aspect-square bg-secondary/50 rounded-2xl mb-4 overflow-hidden relative">
+                                            <div className="aspect-square bg-secondary/50 rounded-xl md:rounded-2xl mb-3 md:mb-4 overflow-hidden relative">
                                                 {imageUrl ? (
                                                     <img
                                                         src={imageUrl}
@@ -483,26 +507,26 @@ export default function PosPage() {
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="absolute inset-0 bg-gradient-to-tr from-gold/10 to-transparent flex items-center justify-center text-muted-foreground text-[10px] uppercase tracking-widest">No Image</div>
+                                                    <div className="absolute inset-0 bg-gradient-to-tr from-gold/10 to-transparent flex items-center justify-center text-muted-foreground text-[8px] md:text-[10px] uppercase tracking-widest">No Image</div>
                                                 )}
-                                                <div className={`absolute bottom-3 left-3 px-2 py-1 bg-background/80 backdrop-blur-md rounded-lg text-[9px] uppercase font-heading border ${isOut ? 'text-error border-error/20' : isLow ? 'text-warning border-warning/20' : 'text-gold border-gold/10'}`}>
+                                                <div className={`absolute bottom-2 left-2 md:bottom-3 md:left-3 px-1.5 md:px-2 py-0.5 md:py-1 bg-background/80 backdrop-blur-md rounded-lg text-[7px] md:text-[9px] uppercase font-heading border ${isOut ? 'text-error border-error/20' : isLow ? 'text-warning border-warning/20' : 'text-gold border-gold/10'}`}>
                                                     {isOut ? `⛔ ${t('out_of_stock')}` : isLow ? `⚠ ${t('low_stock_warning', { count: v.stock })}` : `Stock: ${v.stock}`}
                                                 </div>
                                             </div>
-                                            <h3 className="font-heading text-sm mb-1 line-clamp-1 uppercase tracking-tight">{p.name}</h3>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-1">{p.brand?.name ?? '—'}</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-1">
+                                            <h3 className="font-heading text-[10px] md:text-sm mb-0.5 line-clamp-1 uppercase tracking-tight">{p.name}</h3>
+                                            <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-0.5">{p.brand?.name ?? '—'}</p>
+                                            <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.2em] mb-0.5">
                                                 {v.name}
-                                                {v.barcode && <span className="ml-2 text-gold/40">• BC: {v.barcode}</span>}
+                                                {v.barcode && <span className="ml-1 text-gold/40 truncate inline-block max-w-[50%] align-bottom">BC: {v.barcode}</span>}
                                             </p>
-                                            <div className="flex justify-between items-center mt-4">
-                                                <span className="font-heading text-gold text-lg">{formatVND(v.price)}</span>
+                                            <div className="flex justify-between items-center mt-2 md:mt-4">
+                                                <span className="font-heading text-gold text-xs md:text-lg">{formatVND(v.price)}</span>
                                                 <button
                                                     onClick={() => handleAddVariant(v.id, v.stock)}
                                                     disabled={creatingOrder || isOrderCompleted || isOut}
-                                                    className={`p-3 rounded-xl transition-all disabled:opacity-50 ${isOut ? 'bg-error/10 text-error cursor-not-allowed' : 'bg-gold/10 text-gold group-hover:bg-gold group-hover:text-primary-foreground'}`}
+                                                    className={`p-1.5 md:p-3 rounded-lg md:rounded-xl transition-all disabled:opacity-50 ${isOut ? 'bg-error/10 text-error cursor-not-allowed' : 'bg-gold/10 text-gold group-hover:bg-gold group-hover:text-primary-foreground'}`}
                                                 >
-                                                    <Plus className="w-4 h-4" />
+                                                    <Plus className="w-3 h-3 md:w-4 h-4" />
                                                 </button>
                                             </div>
                                         </motion.div>
@@ -576,22 +600,22 @@ export default function PosPage() {
                 </div>
 
                 {/* ═══════════ Cart Area ═══════════ */}
-                <div className="w-[420px] flex flex-col bg-secondary/10 shrink-0 p-8 shadow-2xl z-10 transition-colors">
-                    <div className="flex items-center gap-3 mb-4">
-                        <ShoppingCart className="w-6 h-6 text-gold" />
-                        <h2 className="font-heading text-lg uppercase tracking-[0.2em]">{t('cart.title')}</h2>
+                <div className={`w-full lg:w-[420px] flex flex-col bg-secondary/10 shrink-0 p-4 md:p-8 shadow-2xl z-10 transition-all ${activeTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+                    <div className="flex items-center gap-3 mb-4 md:mb-6">
+                        <ShoppingCart className="w-5 h-5 md:w-6 h-6 text-gold" />
+                        <h2 className="font-heading text-sm md:text-lg uppercase tracking-[0.2em]">{t('cart.title')}</h2>
                         {isOrderCompleted && (
-                            <span className="ml-auto px-3 py-1 rounded-full bg-success/10 border border-success/30 text-success text-[9px] font-heading uppercase tracking-widest flex items-center gap-1">
+                            <span className="ml-auto px-2 md:px-3 py-1 rounded-full bg-success/10 border border-success/30 text-success text-[8px] md:text-[9px] font-heading uppercase tracking-widest flex items-center gap-1">
                                 <CheckCircle className="w-3 h-3" /> {t('cart.paid')}
                             </span>
                         )}
                     </div>
 
                     {/* Customer Phone / Loyalty Section */}
-                    <div className="mb-4 space-y-2">
+                    <div className="mb-4 md:mb-6 space-y-3">
                         <div className="flex items-center gap-2">
                             <Phone className="w-3.5 h-3.5 text-gold" />
-                            <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-heading">{t('cart.customer')}</span>
+                            <span className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground font-heading">{t('cart.customer')}</span>
                         </div>
                         {!isOrderCompleted && (
                             <div className="flex gap-2">
@@ -601,12 +625,12 @@ export default function PosPage() {
                                     onChange={e => { setCustomerPhone(e.target.value); setLoyaltyInfo(null); }}
                                     placeholder={t('cart.phone_placeholder')}
                                     disabled={isOrderCompleted}
-                                    className="flex-1 bg-background border border-border rounded-xl py-2 px-3 text-xs outline-none focus:border-gold/50 transition-all"
+                                    className="flex-1 bg-background border border-border rounded-xl py-2 md:py-2.5 px-3 md:px-4 text-[10px] md:text-xs outline-none focus:border-gold/50 transition-all font-body"
                                 />
                                 <button
                                     onClick={handleSetCustomer}
                                     disabled={!customerPhone.trim() || isOrderCompleted || lookingUpCustomer}
-                                    className="px-3 py-2 rounded-xl bg-gold/10 text-gold text-[9px] font-heading uppercase tracking-widest hover:bg-gold/20 disabled:opacity-50 transition-all flex items-center gap-1"
+                                    className="px-3 md:px-4 py-2 rounded-xl bg-gold/10 text-gold text-[8px] md:text-[9px] font-heading uppercase tracking-widest hover:bg-gold/20 disabled:opacity-50 transition-all flex items-center gap-1 shrink-0"
                                 >
                                     {lookingUpCustomer ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
                                     {t('cart.lookup_btn')}
@@ -656,7 +680,7 @@ export default function PosPage() {
                     )}
 
                     {/* Cart Items */}
-                    <div className="flex-1 space-y-4 overflow-y-auto custom-scrollbar mb-8 pr-2">
+                    <div className="flex-1 space-y-3 overflow-y-auto custom-scrollbar mb-6 md:mb-8 pr-1 md:pr-2">
                         <AnimatePresence>
                             {order?.items.map(item => (
                                 <motion.div
@@ -664,22 +688,25 @@ export default function PosPage() {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
-                                    className="glass p-5 rounded-2xl border-border flex gap-4 hover:border-gold/20 transition-colors"
+                                    className="glass p-3 md:p-5 rounded-xl md:rounded-2xl border-border flex gap-3 md:gap-4 hover:border-gold/20 transition-colors"
                                 >
-                                    <div className="w-16 h-16 rounded-xl bg-secondary border border-border shrink-0 overflow-hidden">
+                                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl bg-secondary border border-border shrink-0 overflow-hidden">
                                         {/* Item thumbnail — future: load from variant.product.images */}
+                                        <div className="w-full h-full flex items-center justify-center opacity-20">
+                                            <Package className="w-6 h-6" />
+                                        </div>
                                     </div>
                                     <div className="flex-1 overflow-hidden">
-                                        <p className="font-heading text-[10px] uppercase tracking-widest truncate">
+                                        <p className="font-heading text-[9px] md:text-[10px] uppercase tracking-widest truncate">
                                             {item.variant.product?.name ?? 'Product'} — {item.variant.name}
                                         </p>
-                                        <div className="flex justify-between items-center mt-4">
-                                            <div className="flex items-center gap-3 glass rounded-lg p-1 border-border">
-                                                <button onClick={() => handleChangeQuantity(item.variantId, -1)} disabled={isOrderCompleted} className="p-1 hover:text-gold transition-colors disabled:opacity-50"><Minus className="w-3 h-3" /></button>
-                                                <span className="text-xs font-heading w-4 text-center">{item.quantity}</span>
-                                                <button onClick={() => handleChangeQuantity(item.variantId, 1)} disabled={isOrderCompleted} className="p-1 hover:text-gold transition-colors disabled:opacity-50"><Plus className="w-3 h-3" /></button>
+                                        <div className="flex justify-between items-center mt-2 md:mt-4">
+                                            <div className="flex items-center gap-2 md:gap-3 glass rounded-lg p-1 border-border bg-background/40">
+                                                <button onClick={() => handleChangeQuantity(item.variantId, -1)} disabled={isOrderCompleted} className="p-1 hover:text-gold transition-colors disabled:opacity-50"><Minus className="w-2.5 h-2.5 md:w-3 h-3" /></button>
+                                                <span className="text-[10px] md:text-xs font-heading w-3 md:w-4 text-center">{item.quantity}</span>
+                                                <button onClick={() => handleChangeQuantity(item.variantId, 1)} disabled={isOrderCompleted} className="p-1 hover:text-gold transition-colors disabled:opacity-50"><Plus className="w-2.5 h-2.5 md:w-3 h-3" /></button>
                                             </div>
-                                            <span className="font-heading text-sm text-gold">{formatVND(item.totalPrice)}</span>
+                                            <span className="font-heading text-xs md:text-sm text-gold">{formatVND(item.totalPrice)}</span>
                                         </div>
                                     </div>
                                 </motion.div>

@@ -94,46 +94,46 @@ export default function StaffOrdersPage() {
 
     return (
         <AuthGuard allowedRoles={['staff', 'admin']}>
-            <div className="flex flex-col gap-10 py-10 px-8">
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="flex flex-col gap-6 md:gap-10 p-4 sm:p-10">
+                <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-heading uppercase tracking-tighter gold-gradient">{t('title')}</h1>
-                        <p className="text-sm text-muted-foreground uppercase tracking-widest">{t('subtitle')}</p>
+                        <h1 className="text-3xl md:text-4xl font-heading uppercase tracking-tighter gold-gradient">{t('title')}</h1>
+                        <p className="text-[10px] md:text-sm text-muted-foreground uppercase tracking-widest leading-loose">{t('subtitle')}</p>
                     </div>
                 </header>
 
                 {error && (
-                    <div className="text-xs text-red-500 bg-red-500/5 border border-red-500/20 rounded-xl px-3 py-2">
+                    <div className="mb-4 text-xs text-red-500 bg-red-500/5 border border-red-500/20 rounded-xl px-3 py-2">
                         {error}
                     </div>
                 )}
 
-                {/* Orders Table Section */}
-                <section className="glass rounded-[3rem] border border-border shadow-sm overflow-hidden transition-all">
-                    <div className="p-10 border-b border-border/50 flex gap-6 items-center">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                {/* Orders Section */}
+                <section className="glass rounded-[2rem] md:rounded-[3rem] border border-border shadow-sm overflow-hidden transition-all">
+                    <div className="p-6 md:p-10 border-b border-border/50 flex flex-col md:flex-row gap-4 md:gap-6 items-center">
+                        <div className="w-full md:flex-1 relative">
+                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                             <input
                                 type="text"
                                 value={searchTerm}
                                 onChange={handleSearchChange}
                                 placeholder={t('search_placeholder')}
-                                className="w-full pl-16 pr-8 py-4 bg-secondary/30 border border-border rounded-2xl text-xs outline-none focus:border-gold/50 transition-all font-heading"
+                                className="w-full pl-12 md:pl-16 pr-4 py-3 md:py-4 bg-secondary/30 border border-border rounded-xl md:rounded-2xl text-[10px] md:text-xs outline-none focus:border-gold/50 transition-all font-heading"
                             />
                         </div>
-                        <div className="flex gap-4 items-center">
-                            <div className="relative">
+                        <div className="flex w-full md:w-auto gap-3 items-center">
+                            <div className="relative flex-1">
                                 <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
                                 <input
                                     type="date"
                                     value={filterDate}
                                     onChange={(e) => setFilterDate(e.target.value)}
-                                    className="pl-11 pr-4 py-3 bg-secondary/30 border border-border rounded-xl text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer"
+                                    className="w-full pl-11 pr-4 py-3 md:py-3.5 bg-secondary/30 border border-border rounded-xl text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer"
                                 />
                             </div>
                             <button 
                                 onClick={() => { setFilterDate(''); setSearchTerm(''); loadOrders('', ''); }}
-                                className="p-3 text-muted-foreground hover:text-gold hover:bg-gold/5 rounded-xl transition-all border border-transparent hover:border-gold/20"
+                                className="p-3 text-muted-foreground hover:text-gold hover:bg-gold/5 rounded-xl transition-all border border-transparent hover:border-gold/20 shrink-0"
                                 title="Xóa bộ lọc"
                             >
                                 <RotateCcw size={16} />
@@ -141,7 +141,7 @@ export default function StaffOrdersPage() {
                         </div>
                     </div>
 
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto hidden md:block">
                         {loading ? (
                             <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('loading')}
@@ -247,7 +247,52 @@ export default function StaffOrdersPage() {
                         )}
                     </div>
 
-                    <footer className="p-10 pt-8 border-t border-border/50 flex justify-between items-center text-[10px] font-bold uppercase tracking-[.3em] text-muted-foreground">
+                    {/* Mobile Card List */}
+                    <div className="md:hidden divide-y divide-border/30">
+                        {orders.map((order) => {
+                            const badge = getStatusBadge(order, t);
+                            const BadgeIcon = badge.icon;
+                            return (
+                                <div key={order.id} className="p-6 space-y-4 bg-secondary/10" onClick={() => handleViewDetail(order.id)}>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-[10px] font-bold tracking-widest text-gold uppercase mb-1">POS Order</p>
+                                            <h3 className="font-heading text-sm uppercase tracking-wider">{order.code}</h3>
+                                        </div>
+                                        <span className={`inline-flex items-center gap-1 text-[8px] px-3 py-1 rounded-full font-bold uppercase border ${badge.color}`}>
+                                            <BadgeIcon size={10} />
+                                            {badge.label}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-muted-foreground font-bold">
+                                        <span>{format.dateTime(new Date(order.createdAt), { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                                        <span className="text-foreground">{format.number(order.finalAmount - (order.refundAmount || 0), { style: 'currency', currency: 'VND' })}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex -space-x-2 overflow-hidden flex-1">
+                                            {order.items.slice(0, 5).map((item, idx) => (
+                                                <div key={idx} className="relative w-8 h-8 rounded-full border border-background overflow-hidden glass bg-secondary/50">
+                                                    {item.variant?.product?.images?.[0]?.url ? (
+                                                        <img src={item.variant.product.images[0].url} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Package className="w-full h-full p-2 text-muted-foreground/30" />
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {order.items.length > 5 && (
+                                                <div className="w-8 h-8 rounded-full border border-background flex items-center justify-center bg-secondary/50 glass text-[8px] font-bold text-muted-foreground">
+                                                    +{order.items.length - 5}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <Eye className="text-gold opacity-50" size={14} />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <footer className="p-6 md:p-10 pt-6 md:pt-8 border-t border-border/50 flex justify-between items-center text-[9px] md:text-[10px] font-bold uppercase tracking-[.2em] md:tracking-[.3em] text-muted-foreground">
                         <span className="tracking-widest">
                             {t('stats.showing', { count: orders.length, total: total })}
                         </span>
@@ -265,11 +310,11 @@ export default function StaffOrdersPage() {
                             onClick={() => setSelectedOrder(null)}
                         >
                             <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.9, opacity: 0 }}
+                                initial={{ y: 50, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: 50, opacity: 0 }}
                                 onClick={(e) => e.stopPropagation()}
-                                className="bg-background border border-border rounded-[2.5rem] p-10 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
+                                className="bg-background border border-border rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 m-4 w-full max-w-lg shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar"
                             >
                                 <button
                                     onClick={() => setSelectedOrder(null)}

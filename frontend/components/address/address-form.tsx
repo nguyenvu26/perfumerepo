@@ -45,7 +45,7 @@ export function AddressForm({ onSubmit, initialData, loading }: AddressFormProps
         <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-400 pl-2">{t('recipient_name')}</Label>
+                    <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-500 dark:text-stone-400 pl-2">{t('recipient_name')}</Label>
                     <Input
                         value={formData.recipientName}
                         onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
@@ -55,7 +55,7 @@ export function AddressForm({ onSubmit, initialData, loading }: AddressFormProps
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-400 pl-2">{t('phone_number')}</Label>
+                    <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-500 dark:text-stone-400 pl-2">{t('phone_number')}</Label>
                     <Input
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -76,7 +76,7 @@ export function AddressForm({ onSubmit, initialData, loading }: AddressFormProps
             />
 
             <div className="space-y-2">
-                <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-400 pl-2">{t('street_name')}</Label>
+                <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-500 dark:text-stone-400 pl-2">{t('street_name')}</Label>
                 <Input
                     value={formData.detailAddress}
                     onChange={(e) => setFormData({ ...formData, detailAddress: e.target.value })}

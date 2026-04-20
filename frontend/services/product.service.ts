@@ -38,6 +38,7 @@ export type Product = {
   category?: { id: number; name: string } | null;
   images?: { id: number; url: string; order: number; publicId?: string }[];
   variants?: ProductVariant[];
+  scentFamily?: { id: number; name: string } | null;
   notes?: { note: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' } }[];
 };
 

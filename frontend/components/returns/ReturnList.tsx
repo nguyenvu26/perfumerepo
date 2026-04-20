@@ -107,36 +107,35 @@ export function ReturnList() {
   };
 
   return (
-    <div className="flex flex-col gap-10 py-10 px-8">
-      <header className="mb-2">
-        <h1 className="text-4xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+    <div className="flex flex-col gap-6 md:gap-10 p-4 sm:p-10">
+      <header className="mb-4 md:mb-8">
+        <h1 className="text-3xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
           {t("title")}
         </h1>
-        <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold">
+        <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.35em] font-bold">
           {t("subtitle")}
         </p>
       </header>
 
       {loading ? (
         <div className="py-20 flex justify-center">
-          <Loader2 className="animate-spin text-gold" size={40} />
+          <Loader2 className="animate-spin text-gold" size={32} />
         </div>
       ) : returns.length === 0 ? (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="py-20 text-center space-y-6 glass rounded-[3rem] border border-border bg-background/40"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="py-16 md:py-20 text-center space-y-6 glass rounded-[2.5rem] md:rounded-[3rem] border border-border bg-background/40"
         >
           <RotateCcw
-            className="mx-auto text-muted-foreground/20"
-            size={80}
+            className="mx-auto text-muted-foreground/20 w-[60px] h-[60px] md:w-[80px] md:h-[80px]"
             strokeWidth={1}
           />
-          <div className="space-y-2">
-            <h3 className="text-xl font-heading text-foreground uppercase tracking-widest">
+          <div className="space-y-2 px-6">
+            <h3 className="text-lg md:text-xl font-heading text-foreground uppercase tracking-widest">
               {t("empty_title")}
             </h3>
-            <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
+            <p className="text-[9px] md:text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
               {t("empty_desc")}
             </p>
           </div>
@@ -168,49 +167,49 @@ export function ReturnList() {
                 <div className="flex flex-col lg:flex-row gap-6">
                   {/* Left section */}
                   <div className="flex-1">
-                    <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
-                      <div>
-                        <span className="text-[9px] font-bold text-gold uppercase tracking-[.4em] mb-1 block">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-5 md:mb-6">
+                      <div className="w-full sm:w-auto">
+                        <span className="text-[8px] font-bold text-gold uppercase tracking-[.3em] mb-1 block">
                           {t("return_id")}
                         </span>
-                        <p className="font-mono font-bold text-foreground text-sm uppercase">
+                        <p className="font-mono font-bold text-foreground text-[10px] md:text-sm uppercase tracking-tighter">
                           #{ret.id.slice(-10).toUpperCase()}
                         </p>
                       </div>
                       <div
                         className={cn(
-                          "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
+                          "inline-flex items-center gap-1.5 px-3 md:px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border transition-all",
                           cfg.color
                         )}
                       >
-                        <StatusIcon size={12} />
+                        <StatusIcon className="w-2.5 h-2.5 md:w-3 md:h-3" />
                         {t(`status.${ret.status}` as any) || ret.status}
                       </div>
                     </div>
 
-                    <div className="grid sm:grid-cols-3 gap-6 border-t border-gold/10 pt-6 mt-2 relative z-10">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6 border-t border-gold/10 pt-5 mt-2 relative z-10">
                       <div>
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                        <p className="text-[8px] md:text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
                           {t("order_ref")}
                         </p>
-                        <p className="text-[11px] font-bold text-foreground uppercase truncate">
+                        <p className="text-[10px] md:text-[11px] font-bold text-foreground uppercase truncate">
                           {ret.orderId.slice(-10).toUpperCase()}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                        <p className="text-[8px] md:text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
                           {t("items_count", { count: ret.items.length })}
                         </p>
-                        <p className="text-[11px] font-bold text-foreground">
-                          {ret.items.length} sản phẩm
+                        <p className="text-[10px] md:text-[11px] font-bold text-foreground uppercase tracking-tighter">
+                          {ret.items.length} {t("items_label") || "sản phẩm"}
                         </p>
                       </div>
                       {ret.refundAmount != null && (
-                        <div>
-                          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
-                            Hoàn tiền
+                        <div className="col-span-2 sm:col-span-1 border-t sm:border-t-0 border-gold/5 pt-3 sm:pt-0">
+                          <p className="text-[8px] md:text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                            {t("refund_label") || "Hoàn tiền"}
                           </p>
-                          <p className="text-sm font-heading text-gold">
+                          <p className="text-base md:text-sm font-heading font-bold text-gold">
                             {formatCurrency(ret.refundAmount)}
                           </p>
                         </div>
@@ -219,13 +218,13 @@ export function ReturnList() {
                   </div>
 
                   {/* Action */}
-                  <div className="flex items-end lg:items-center relative z-10 shrink-0 border-t lg:border-t-0 border-gold/10 pt-4 lg:pt-0 mt-2 lg:mt-0 lg:pl-6 lg:border-l">
+                  <div className="flex items-end lg:items-center relative z-10 shrink-0 border-t lg:border-t-0 border-gold/10 pt-5 lg:pt-0 mt-4 lg:mt-0 lg:pl-6 lg:border-l">
                     <Link
                       href={`/dashboard/customer/returns/${ret.id}`}
-                      className="flex justify-center items-center gap-2 px-6 py-3 w-full lg:w-auto bg-gold/10 hover:bg-gold hover:text-black border border-gold/30 rounded-xl text-xs font-bold uppercase tracking-widest text-gold transition-all duration-300"
+                      className="flex justify-center items-center gap-2 px-6 py-3.5 w-full lg:w-auto bg-gold/10 hover:bg-gold hover:text-black border border-gold/30 rounded-2xl text-[9px] md:text-xs font-bold uppercase tracking-widest text-gold transition-all duration-300 min-h-[44px]"
                     >
                       {t("view_detail")}
-                      <ChevronRight size={16} className="ml-1" />
+                      <ChevronRight size={14} className="ml-1" />
                     </Link>
                   </div>
                 </div>

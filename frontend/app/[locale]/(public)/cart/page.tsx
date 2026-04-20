@@ -114,8 +114,8 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-background transition-colors">
-      <main className="container mx-auto px-6 py-40">
-        <header className="mb-24 space-y-4">
+      <main className="container-responsive py-24 lg:py-32">
+        <header className="mb-12 lg:mb-24 space-y-4">
           <motion.span
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -127,7 +127,7 @@ export default function CartPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-7xl md:text-9xl font-serif text-foreground italic tracking-tighter"
+            className="text-fluid-4xl font-serif text-foreground italic tracking-tighter"
           >
             {t('title')}
           </motion.h1>
@@ -142,17 +142,17 @@ export default function CartPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="py-40 text-center glass bg-foreground/[0.02] rounded-[4rem] border border-dashed border-border/50"
+            className="py-20 lg:py-40 text-center glass bg-foreground/[0.02] rounded-[3rem] lg:rounded-[4rem] border border-dashed border-border/50"
           >
-            <Sparkles className="mx-auto h-16 w-16 text-gold/20 mb-10" />
-            <p className="font-serif italic text-muted-foreground text-3xl mb-12 opacity-60">{t('empty')}</p>
-            <Link href="/collection" className="inline-flex items-center gap-4 border border-gold/30 text-gold px-12 py-5 rounded-full font-black tracking-[.3em] uppercase hover:bg-gold hover:text-white transition-all text-[10px] shadow-xl">
+            <Sparkles className="mx-auto h-12 w-12 lg:h-16 lg:w-16 text-gold/20 mb-8 lg:mb-10" />
+            <p className="font-serif italic text-muted-foreground text-2xl lg:text-3xl mb-10 lg:mb-12 opacity-60">{t('empty')}</p>
+            <Link href="/collection" className="inline-flex items-center gap-4 border border-gold/30 text-gold px-10 lg:px-12 py-4 lg:py-5 rounded-full font-black tracking-[.3em] uppercase hover:bg-gold hover:text-white transition-all text-[10px] shadow-xl w-full sm:w-auto justify-center">
               {t('continue_shopping')}
             </Link>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24">
-            <div className="lg:col-span-8 space-y-10">
+          <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
+            <div className="flex-1 space-y-8 lg:space-y-10 order-2 lg:order-1">
               {/* Select All Controls */}
               <motion.div
                 initial={{ opacity: 0 }}
@@ -179,23 +179,23 @@ export default function CartPage() {
                 {items.map((item, idx) => (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    className="flex flex-col sm:flex-row gap-10 p-10 glass bg-foreground/[0.02] rounded-[3.5rem] border border-border/50 items-center group hover:border-gold/30 hover:bg-gold/[0.02] transition-all duration-700 shadow-sm relative overflow-hidden"
+                    className="flex flex-col sm:flex-row gap-6 lg:gap-10 p-6 lg:p-10 glass bg-foreground/[0.02] rounded-[2.5rem] lg:rounded-[3.5rem] border border-border/50 items-center group hover:border-gold/30 hover:bg-gold/[0.02] transition-all duration-700 shadow-sm relative overflow-hidden"
                   >
                     {/* Item Selection Badge/Checkbox */}
                     <button
                       onClick={() => toggleSelect(item.id)}
-                      className="absolute top-8 left-8 z-10 sm:relative sm:top-0 sm:left-0"
+                      className="absolute top-6 left-6 z-10 sm:relative sm:top-0 sm:left-0"
                     >
-                      <div className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${selectedIds.includes(item.id) ? 'bg-gold border-gold shadow-lg shadow-gold/20' : 'border-gold/20 bg-background/50 group-hover:border-gold/50'}`}>
-                        {selectedIds.includes(item.id) && <Check size={16} className="text-white" strokeWidth={3} />}
+                      <div className={`w-6 h-6 lg:w-8 lg:h-8 rounded-full border-2 transition-all flex items-center justify-center ${selectedIds.includes(item.id) ? 'bg-gold border-gold shadow-lg shadow-gold/20' : 'border-gold/20 bg-background/50 group-hover:border-gold/50'}`}>
+                        {selectedIds.includes(item.id) && <Check size={14} className="text-white shrink-0" strokeWidth={3} />}
                       </div>
                     </button>
 
-                    <div className="relative w-40 h-40 rounded-[2.5rem] overflow-hidden bg-background/50 border border-border/30 flex-shrink-0 group-hover:scale-105 transition-transform duration-700">
+                    <div className="relative w-full sm:w-32 sm:h-32 lg:w-40 lg:h-40 aspect-square rounded-2xl lg:rounded-[2.5rem] overflow-hidden bg-background/50 border border-border/30 flex-shrink-0 group-hover:scale-105 transition-transform duration-700">
                       {item.variant.product.images?.[0]?.url ? (
                         <img src={item.variant.product.images[0].url} alt={item.variant.product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[2s]" />
                       ) : (
@@ -204,19 +204,19 @@ export default function CartPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex-1 text-center sm:text-left space-y-3">
-                      <h3 className="text-3xl font-serif text-foreground group-hover:text-gold transition-colors duration-500 tracking-tight">{item.variant.product.name}</h3>
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4">
-                        <span className="glass px-4 py-1.5 rounded-full text-[9px] text-gold uppercase tracking-[.2em] font-black border-gold/20 shadow-sm bg-gold/5">
+                    <div className="flex-1 text-center sm:text-left space-y-2 lg:space-y-3 w-full">
+                      <h3 className="text-xl lg:text-3xl font-serif text-foreground group-hover:text-gold transition-colors duration-500 tracking-tight">{item.variant.product.name}</h3>
+                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 lg:gap-4">
+                        <span className="glass px-3 py-1 lg:px-4 lg:py-1.5 rounded-full text-[8px] lg:text-[9px] text-gold uppercase tracking-[.2em] font-black border-gold/20 shadow-sm bg-gold/5">
                           {item.variant.name}
                         </span>
-                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-50">
+                        <p className="text-[9px] lg:text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-50">
                           {formatCurrency(item.variant.price)} {t('each')}
                         </p>
                       </div>
 
-                      <div className="pt-6 flex items-center justify-center sm:justify-start gap-10">
-                        <div className="flex items-center gap-6 glass px-6 py-3 rounded-full border border-border/50 shadow-inner group-hover:border-gold/20 transition-all">
+                      <div className="pt-4 lg:pt-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-6 glass px-5 py-2 lg:px-6 lg:py-3 rounded-full border border-border/50 shadow-inner group-hover:border-gold/20 transition-all">
                           <button
                             onClick={() => updateQty(item, -1)}
                             className="text-muted-foreground hover:text-gold transition-colors font-serif text-lg p-1"
@@ -231,22 +231,24 @@ export default function CartPage() {
                             +
                           </button>
                         </div>
-                        <button
-                          onClick={() => remove(item.id)}
-                          className="text-muted-foreground/30 hover:text-red-500 hover:rotate-12 transition-all duration-500"
-                        >
-                          <Trash2 size={22} strokeWidth={1.5} />
-                        </button>
+                        <div className="flex items-center gap-6">
+                          <div className="text-xl lg:text-3xl font-serif italic text-foreground tracking-tight group-hover:text-gold transition-colors duration-500">
+                            {formatCurrency(item.variant.price * item.quantity)}
+                          </div>
+                          <button
+                            onClick={() => remove(item.id)}
+                            className="text-muted-foreground/30 hover:text-red-500 hover:rotate-12 transition-all duration-500"
+                          >
+                            <Trash2 size={20} className="lg:w-[22px] lg:h-[22px]" strokeWidth={1.5} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-3xl font-serif italic text-foreground tracking-tight group-hover:text-gold transition-colors duration-500">
-                      {formatCurrency(item.variant.price * item.quantity)}
                     </div>
                   </motion.div>
                 ))}
               </AnimatePresence>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pt-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10 pt-12">
                 {[
                   { icon: Truck, title: t('perks.delivery_title'), desc: t('perks.delivery_desc') },
                   { icon: ShieldCheck, title: t('perks.auth_title'), desc: t('perks.auth_desc') },
@@ -258,57 +260,57 @@ export default function CartPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="flex flex-col items-center text-center p-8 glass bg-foreground/[0.01] rounded-[3rem] border border-border/30 hover:border-gold/20 transition-all duration-700 shadow-sm"
+                    className="flex flex-col items-center text-center p-8 lg:p-10 glass bg-foreground/[0.01] rounded-[2.5rem] lg:rounded-[3rem] border border-border/30 hover:border-gold/20 transition-all duration-700 shadow-sm"
                   >
-                    <div className="w-14 h-14 bg-gold/5 rounded-2xl flex items-center justify-center mb-6 border border-gold/10">
-                      <g.icon className="text-gold" size={24} strokeWidth={1} />
+                    <div className="w-12 h-12 lg:w-14 lg:h-14 bg-gold/5 rounded-2xl flex items-center justify-center mb-6 border border-gold/10">
+                      <g.icon className="text-gold lg:w-6 lg:h-6" size={20} strokeWidth={1} />
                     </div>
-                    <h5 className="text-[10px] font-black tracking-[.3em] uppercase mb-3 text-foreground">{g.title}</h5>
-                    <p className="text-[9px] text-muted-foreground leading-relaxed uppercase tracking-[.1em] font-medium opacity-60">{g.desc}</p>
+                    <h5 className="text-[9px] lg:text-[10px] font-black tracking-[.3em] uppercase mb-3 text-foreground">{g.title}</h5>
+                    <p className="text-[8px] lg:text-[9px] text-muted-foreground leading-relaxed uppercase tracking-[.1em] font-medium opacity-60">{g.desc}</p>
                   </motion.div>
                 ))}
               </div>
             </div>
 
-            <div className="lg:col-span-4">
-              <div className="glass bg-background/50 p-12 rounded-[4rem] border border-border/50 shadow-2xl sticky top-40 transition-all backdrop-blur-3xl overflow-hidden group/summary">
+            <div className="w-full lg:w-[400px] order-1 lg:order-2">
+              <div className="glass bg-background/50 p-8 lg:p-12 rounded-[3rem] lg:rounded-[4rem] border border-border/50 shadow-2xl sticky top-40 transition-all backdrop-blur-3xl overflow-hidden group/summary">
                 <div className="absolute top-0 right-0 p-8 opacity-5">
                   <ShoppingBag size={120} className="text-gold" />
                 </div>
 
-                <h2 className="text-4xl font-serif text-foreground italic mb-12 tracking-tight">{t('summary')}</h2>
+                <h2 className="text-3xl lg:text-4xl font-serif text-foreground italic mb-10 lg:mb-12 tracking-tight">{t('summary')}</h2>
 
-                <div className="space-y-6 mb-12 relative z-10">
+                <div className="space-y-6 mb-10 lg:mb-12 relative z-10">
                   <div className="flex justify-between items-center group/line">
-                    <span className="text-muted-foreground uppercase tracking-[.4em] text-[9px] font-black opacity-50">{t('subtotal')}</span>
-                    <span className="font-serif text-2xl text-foreground text-right">
+                    <span className="text-muted-foreground uppercase tracking-[.4em] text-[8px] lg:text-[9px] font-black opacity-50">{t('subtotal')}</span>
+                    <span className="font-serif text-xl lg:text-2xl text-foreground text-right">
                       {formatCurrency(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center group/line">
-                    <span className="text-muted-foreground uppercase tracking-[.4em] text-[9px] font-black opacity-50">{t('shipping')}</span>
-                    <span className="text-gold text-[9px] font-black uppercase tracking-[.3em] bg-gold/5 px-4 py-1.5 rounded-full border border-gold/10 animate-pulse">
+                    <span className="text-muted-foreground uppercase tracking-[.4em] text-[8px] lg:text-[9px] font-black opacity-50">{t('shipping')}</span>
+                    <span className="text-gold text-[8px] lg:text-[9px] font-black uppercase tracking-[.3em] bg-gold/5 px-4 py-1.5 rounded-full border border-gold/10 animate-pulse">
                       {t('complimentary')}
                     </span>
                   </div>
-                  <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent my-10" />
+                  <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent my-8 lg:my-10" />
                   <div className="flex justify-between items-baseline group/line">
-                    <span className="text-foreground font-black uppercase tracking-[.5em] text-[11px]">{t('total')}</span>
-                    <span className="text-5xl font-serif text-gold tracking-tighter">
+                    <span className="text-foreground font-black uppercase tracking-[.5em] text-[10px] lg:text-[11px]">{t('total')}</span>
+                    <span className="text-4xl lg:text-5xl font-serif text-gold tracking-tighter">
                       {formatCurrency(subtotal)}
                     </span>
                   </div>
                 </div>
 
-                <div className="space-y-6 relative z-10">
+                <div className="space-y-4 lg:space-y-6 relative z-10">
                   <Link
                     href={selectedIds.length > 0 ? `/checkout?items=${selectedIds.join(',')}` : '#'}
                     onClick={(e) => {
                       if (selectedIds.length === 0) e.preventDefault();
                     }}
-                    className={`block w-full py-6 rounded-full font-black tracking-[.4em] uppercase flex items-center justify-center gap-4 transition-all shadow-2xl text-[10px] ${
+                    className={`block w-full py-5 lg:py-6 rounded-full font-black tracking-[.4em] uppercase flex items-center justify-center gap-4 transition-all shadow-2xl text-[10px] ${
                       selectedIds.length > 0
-                        ? 'bg-gold text-primary-foreground hover:scale-[1.02] active:scale-95 shadow-gold/30'
+                        ? 'bg-luxury-black dark:bg-gold text-white hover:scale-[1.02] active:scale-95 shadow-luxury-black/20 dark:shadow-gold/20'
                         : 'bg-muted text-muted-foreground opacity-50 cursor-not-allowed'
                     }`}
                   >
@@ -316,13 +318,13 @@ export default function CartPage() {
                   </Link>
                   <Link
                     href="/collection"
-                    className="block w-full border border-border text-muted-foreground/60 py-6 rounded-full font-black tracking-[.4em] uppercase text-center text-[9px] hover:border-gold hover:text-gold transition-all"
+                    className="block w-full border border-border text-muted-foreground/60 py-5 lg:py-6 rounded-full font-black tracking-[.4em] uppercase text-center text-[8px] lg:text-[9px] hover:border-gold hover:text-gold transition-all"
                   >
                     {t('continue_shopping')}
                   </Link>
                 </div>
 
-                <div className="mt-12 text-center pt-8 border-t border-border/30 relative z-10">
+                <div className="mt-10 lg:mt-12 text-center pt-8 border-t border-border/30 relative z-10">
                   <p className="text-[8px] text-muted-foreground uppercase tracking-[.5em] font-medium leading-loose opacity-40">
                     {t('secure_checkout')} <br />
                     <span className="text-foreground font-black opacity-100">{t('intelligence')}</span>

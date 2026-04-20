@@ -61,18 +61,20 @@ export default function AnalyticsPage() {
                             <BarChart3 className="w-5 h-5 text-gold" />
                             {t('performance.title')}
                         </h3>
-                        <div className="h-[300px] w-full border-b border-l border-border relative flex items-end justify-between px-8">
-                            {[60, 45, 75, 50, 90, 65, 80, 55, 70, 40, 85, 95].map((h, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ height: 0 }}
-                                    animate={{ height: `${h}%` }}
-                                    transition={{ duration: 1.5, delay: i * 0.05, ease: "circOut" }}
-                                    className="w-8 sm:w-10 group/bar relative"
-                                >
-                                    <div className="h-full w-full bg-gradient-to-t from-gold/40 to-gold rounded-t-xl group-hover/bar:brightness-125 transition-all shadow-[0_0_15px_rgba(197,160,89,0.3)]" />
-                                </motion.div>
-                            ))}
+                        <div className="overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+                            <div className="h-[300px] min-w-[600px] w-full border-b border-l border-border relative flex items-end justify-between px-8">
+                                {[60, 45, 75, 50, 90, 65, 80, 55, 70, 40, 85, 95].map((h, i) => (
+                                    <motion.div
+                                        key={i}
+                                        initial={{ height: 0 }}
+                                        animate={{ height: `${h}%` }}
+                                        transition={{ duration: 1.5, delay: i * 0.05, ease: "circOut" }}
+                                        className="w-8 sm:w-10 group/bar relative"
+                                    >
+                                        <div className="h-full w-full bg-gradient-to-t from-gold/40 to-gold rounded-t-xl group-hover/bar:brightness-125 transition-all shadow-[0_0_15px_rgba(197,160,89,0.3)]" />
+                                    </motion.div>
+                                ))}
+                            </div>
                         </div>
                     </div>
  

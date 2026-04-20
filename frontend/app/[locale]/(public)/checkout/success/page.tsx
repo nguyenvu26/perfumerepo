@@ -27,31 +27,31 @@ export default function OrderSuccessPage() {
     };
 
     return (
-        <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 flex items-center justify-center p-6 py-24 transition-colors">
+        <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 flex items-center justify-center p-4 lg:p-6 py-20 lg:py-24 transition-colors">
             <div className="max-w-4xl w-full">
-                <div className="glass bg-white dark:bg-zinc-900 rounded-[3rem] border border-stone-200 dark:border-white/10 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+                <div className="glass bg-white dark:bg-zinc-900 rounded-[2.5rem] lg:rounded-[3rem] border border-stone-200 dark:border-white/10 shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
                     {/* Left Side - Content */}
-                    <div className="p-12 md:p-16 flex flex-col justify-center">
+                    <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-center">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ type: 'spring', damping: 12 }}
-                            className="w-16 h-16 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-10"
+                            className="w-12 h-12 lg:w-16 lg:h-16 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 rounded-xl lg:rounded-2xl flex items-center justify-center mb-6 lg:mb-10"
                         >
-                            <CheckCircle size={32} />
+                            <CheckCircle className="w-6 h-6 lg:w-8 lg:h-8" />
                         </motion.div>
 
-                        <h1 className="text-4xl font-serif text-luxury-black dark:text-white mb-6">
+                        <h1 className="text-fluid-3xl font-serif text-luxury-black dark:text-white mb-4 lg:mb-6">
                             {t('title')}
                         </h1>
-                        <p className="text-stone-500 dark:text-stone-400 text-lg font-light leading-relaxed mb-10">
+                        <p className="text-stone-500 dark:text-stone-400 text-base lg:text-lg font-light leading-relaxed mb-8 lg:mb-10 lg:pr-4">
                             {t('desc')}
                         </p>
 
-                        <div className="space-y-6 mb-12">
+                        <div className="space-y-4 lg:space-y-6 mb-10 lg:mb-12">
                             <div className="flex items-center gap-4 text-stone-600 dark:text-stone-400">
-                                <Package size={20} className="text-stone-300 dark:text-stone-600" />
-                                <span className="text-sm font-medium">
+                                <Package size={18} className="text-stone-300 dark:text-stone-600 shrink-0" />
+                                <span className="text-[12px] lg:text-sm font-medium">
                                     {t('order_code')}:{' '}
                                     <span className="text-luxury-black dark:text-white font-bold">
                                         {order?.code || '—'}
@@ -59,17 +59,17 @@ export default function OrderSuccessPage() {
                                 </span>
                             </div>
                             <div className="flex items-center gap-4 text-stone-600 dark:text-stone-400">
-                                <Mail size={20} className="text-stone-300 dark:text-stone-600" />
-                                <span className="text-sm font-medium">
+                                <Mail size={18} className="text-stone-300 dark:text-stone-600 shrink-0" />
+                                <span className="text-[12px] lg:text-sm font-medium">
                                     Email:{' '}
-                                    <span className="text-luxury-black dark:text-white font-bold">
+                                    <span className="text-luxury-black dark:text-white font-bold truncate block sm:inline">
                                         {order?.user?.email || '—'}
                                     </span>
                                 </span>
                             </div>
                             <div className="flex items-center gap-4 text-stone-600 dark:text-stone-400">
-                                <Phone size={20} className="text-stone-300 dark:text-stone-600" />
-                                <span className="text-sm font-medium">
+                                <Phone size={18} className="text-stone-300 dark:text-stone-600 shrink-0" />
+                                <span className="text-[12px] lg:text-sm font-medium">
                                     SĐT:{' '}
                                     <span className="text-luxury-black dark:text-white font-bold">
                                         {order?.phone || '—'}
@@ -77,8 +77,8 @@ export default function OrderSuccessPage() {
                                 </span>
                             </div>
                             <div className="flex items-center gap-4 text-stone-600 dark:text-stone-400">
-                                <Calendar size={20} className="text-stone-300 dark:text-stone-600" />
-                                <span className="text-sm font-medium">
+                                <Calendar size={18} className="text-stone-300 dark:text-stone-600 shrink-0" />
+                                <span className="text-[12px] lg:text-sm font-medium">
                                     {t('estimated_arrival')}:{' '}
                                     <span className="text-luxury-black dark:text-white font-bold">
                                         {getEstimatedDate(2)} - {getEstimatedDate(4)}
@@ -86,8 +86,8 @@ export default function OrderSuccessPage() {
                                 </span>
                             </div>
                             <div className="flex items-center gap-4 text-stone-600 dark:text-stone-400">
-                                <Truck size={20} className="text-stone-300 dark:text-stone-600" />
-                                <span className="text-sm font-medium">
+                                <Truck size={18} className="text-stone-300 dark:text-stone-600 shrink-0" />
+                                <span className="text-[12px] lg:text-sm font-medium">
                                     {t('payment_method')}:{' '}
                                     <span className="text-luxury-black dark:text-white font-bold italic tracking-wide">
                                         {order?.paymentStatus === 'PAID'

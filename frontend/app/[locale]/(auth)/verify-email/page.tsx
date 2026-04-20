@@ -44,8 +44,8 @@ export default function VerifyEmailPage() {
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors flex flex-col font-sans">
             <Header />
-            <main className="flex-1 flex items-center justify-center p-6 py-32">
-                <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-[3rem] p-12 shadow-2xl border border-stone-100 dark:border-white/5 relative overflow-hidden">
+            <main className="flex-1 flex items-center justify-center p-0 py-20 sm:p-6 sm:py-32 lg:p-8">
+                <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-none sm:rounded-[3rem] p-8 sm:p-12 shadow-2xl border-0 sm:border border-stone-100 dark:border-white/5 relative overflow-hidden transition-colors">
                     {/* Background Decorative Element */}
                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-gold/5 rounded-full blur-3xl" />
 
@@ -80,7 +80,7 @@ export default function VerifyEmailPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <h1 className="text-3xl font-serif text-luxury-black dark:text-white">
+                            <h1 className="text-fluid-2xl lg:text-3xl font-serif text-luxury-black dark:text-white leading-tight">
                                 {status === 'loading' ? 'Verification' : status === 'success' ? 'Identity Confirmed' : 'Verification Failed'}
                             </h1>
                             <p className="text-[10px] text-stone-400 font-bold tracking-[.4em] uppercase">
@@ -99,7 +99,7 @@ export default function VerifyEmailPage() {
                                 </p>
                                 <Link
                                     href="/login"
-                                    className="inline-flex items-center gap-2 py-3 px-8 bg-luxury-black dark:bg-gold text-white rounded-full text-[10px] font-bold tracking-widest uppercase hover:opacity-90 transition-all group"
+                                    className="inline-flex items-center gap-2 py-4 px-10 bg-luxury-black dark:bg-gold text-white rounded-full text-[10px] font-bold tracking-widest uppercase hover:opacity-90 transition-all group shadow-xl"
                                 >
                                     Login Now
                                     <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

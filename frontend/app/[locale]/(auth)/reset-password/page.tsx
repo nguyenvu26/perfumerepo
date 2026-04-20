@@ -64,16 +64,16 @@ export default function ResetPasswordPage() {
     return (
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors flex flex-col">
             <Header />
-            <main className="flex-1 flex items-center justify-center p-6 py-32">
-                <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-[3rem] p-12 shadow-2xl border border-stone-100 dark:border-white/5">
+            <main className="flex-1 flex items-center justify-center p-0 py-20 sm:p-6 sm:py-32 lg:p-8">
+                <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-none sm:rounded-[3rem] p-8 sm:p-12 shadow-2xl border-0 sm:border border-stone-100 dark:border-white/5 transition-colors">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
-                        <h1 className="text-3xl font-serif text-luxury-black dark:text-white mb-2 text-center">
+                        <h1 className="text-fluid-2xl lg:text-3xl font-serif text-luxury-black dark:text-white mb-2 text-center leading-tight">
                             {t('page_title')}
                         </h1>
-                        <p className="text-[10px] text-stone-400 font-bold tracking-[.4em] uppercase mb-12 text-center">
+                        <p className="text-[10px] text-stone-400 font-bold tracking-[.4em] uppercase mb-8 lg:mb-12 text-center px-4">
                             {t('subtitle')}
                         </p>
 
@@ -142,7 +142,7 @@ export default function ResetPasswordPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-5 bg-luxury-black dark:bg-gold text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] shadow-2xl hover:bg-stone-800 dark:hover:bg-gold/80 transition-all flex items-center justify-center gap-4 group disabled:opacity-50 cursor-pointer"
+                                    className="w-full py-4 lg:py-5 bg-luxury-black dark:bg-gold text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] shadow-2xl hover:bg-stone-800 dark:hover:bg-gold/80 transition-all flex items-center justify-center gap-4 group disabled:opacity-50 cursor-pointer"
                                 >
                                     {isLoading ? tCommon('processing').toUpperCase() : t('update_security')}
                                     {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />}

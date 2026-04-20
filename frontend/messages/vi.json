@@ -58,6 +58,7 @@
     "forgot_password": "Quên Mật Khẩu?",
     "reset_password": "Cài Lại Mật Khẩu",
     "back_to_login": "Quay Lại Đăng Nhập",
+    "more": "Thêm",
     "send_reset_link": "Gửi Link Khôi Phục Mật Khẩu",
     "send_link": "Gửi Link Khôi Phục",
     "search": "Tìm kiếm...",
@@ -73,7 +74,7 @@
     "view_profile": "Xem Hồ Sơ Của Bạn",
     "my_profile": "Hồ Sơ Của Tôi",
     "member": "Thành viên",
-    "all": "Tất cả đánh giá",
+    "all": "Tất cả thương hiệu",
     "loading": "Đang tải...",
     "processing": "ĐANG CHUẨN BỊ",
     "view_options": "Xem Chi Tiết",
@@ -319,6 +320,17 @@
       "quote": "\"Mỗi lần ghé thăm là một trải nghiệm mới.\"",
       "home": "Trang Chủ",
       "return_portal": "Quay Lại Trang Chủ"
+    },
+    "callback": {
+      "authenticating": "Đang xác thực",
+      "processing": "Đang xử lý thông tin đăng nhập...",
+      "fetching_profile": "Đang lấy thông tin hồ sơ...",
+      "success_title": "Thành công!",
+      "success_msg": "Đăng nhập thành công! Đang chuyển hướng...",
+      "error_title": "Đăng nhập thất bại",
+      "error_no_token": "Xác thực thất bại. Không nhận được thông báo ủy quyền.",
+      "error_fetch_profile": "Không thể lấy thông tin hồ sơ người dùng.",
+      "back_to_login": "Quay Lại Đăng Nhập"
     }
   },
   "quiz": {
@@ -579,7 +591,7 @@
     "recipient_name": "Tên người nhận *",
     "phone_number": "Số điện thoại",
     "street_name": "Số nhà, tên đường *",
-    "set_default": "Không thể đặt làm mặc định.",
+    "set_default": "Đặt làm địa chỉ mặc định",
     "save_address": "Lưu địa chỉ",
     "recipient_placeholder": "Nguyễn Văn A",
     "phone_placeholder": "Nhập số điện thoại...",
@@ -741,9 +753,10 @@
       "subtitle": "Quản lý các địa chỉ giao hàng của bạn.",
       "add_new": "Thêm Địa Chỉ Mới",
       "edit": "Sửa",
+      "delete": "Xóa",
       "delete_confirm": "Xóa địa chỉ này? Hành động này không thể hoàn tác.",
       "no_addresses": "Bạn chưa có địa chỉ nào được lưu.",
-      "set_default": "Không thể đặt làm mặc định.",
+      "set_default": "Đặt làm mặc định",
       "default_label": "Mặc định",
       "success": {
         "added": "Thêm địa chỉ mới thành công!",
@@ -843,6 +856,7 @@
     },
     "pos": {
       "title": "Bán Hàng Tại Quầy (POS)",
+      "catalog_tab": "Sản Phẩm",
       "scan_camera_btn": "Quét bằng Camera",
       "barcode_hint": "Quét mã vạch sản phẩm để thêm vào đơn",
       "scan_camera_title": "Máy Quét Mã Vạch",
@@ -1042,6 +1056,7 @@
         "subtitle": "Những sản phẩm đã chạm đến trái tim và khứu giác của bạn.",
         "loading": "Đang tải...",
         "empty_title": "Chưa có sản phẩm yêu thích nào",
+        "empty_subtitle": "Hãy lưu giữ những mùi hương bạn yêu thích tại đây.",
         "view_collection": "Khám phá bộ sưu tập",
         "details": "Xem chi tiết",
         "remove": "Loại bỏ",
@@ -2721,5 +2736,46 @@
     "digital_title_line2": "Atelier Pass",
     "digital_desc": "Tấm vé danh giá tham gia chuyến hành trình tinh xảo AI. Món quà trao gửi một dấu ấn phân tử độc bản, được thiết lập ngay tức thì qua cổng điện tử hoàng gia.",
     "digital_cta": "Gửi Tặng Thẻ Đặc Quyền • 5.500.000đ"
+  },
+  "story_page": {
+    "intro": {
+      "since": "Từ năm 2026",
+      "title_line1": "Sự Giao Thoa Giữa",
+      "title_line2": "Thiên Nhiên & Trí Tuệ"
+    },
+    "philosophy": {
+      "badge": "Triết Lý Của Chúng Tôi",
+      "quote": "\"Mùi hương là hình thái mãnh liệt nhất của ký ức.\"",
+      "p1": "PERFUME GPT được thành lập dựa trên một ý tưởng đơn giản nhưng cấp tiến: rằng nghệ thuật chế tác nước hoa cổ xưa nên mang tính cá nhân, chính xác và thông thái vượt bậc.",
+      "p2": "Chúng tôi kết hợp sự nhạy cảm của những chuyên gia khứu giác hàng đầu thế giới với sức mạnh phân tích của AI tiên tiến để thu hẹp khoảng cách giữa cảm xúc con người và cấu trúc hóa học."
+    },
+    "method": {
+      "title": "Phương Pháp Perfume GPT",
+      "sourcing": {
+        "title": "Nguồn Nguyên Liệu",
+        "desc": "Chúng tôi đi khắp thế giới để tìm nguồn nguyên liệu thô chất lượng cao nhất từ các vùng canh tác bền vững."
+      },
+      "analysis": {
+        "title": "Phân Tích",
+        "desc": "Động cơ AI của chúng tôi phân tích hàng triệu điểm dữ liệu giác quan để thấu hiểu sự cộng hưởng khứu giác của con người."
+      },
+      "crafting": {
+        "title": "Chế Tác",
+        "desc": "Mỗi chai nước hoa đều được hoàn thiện thủ công tại xưởng, đảm bảo rằng dấu ấn con người vẫn luôn là giá trị cốt lõi."
+      }
+    },
+    "location": {
+      "badge": "Vị Trí Cửa Hàng",
+      "title": "Ghé thăm cửa hàng của chúng tôi",
+      "desc": "Bạn có thể ghé thăm cửa hàng của chúng tôi để trải nghiệm trực tiếp các mùi hương. Bản đồ dưới đây cho thấy vị trí flagship hiện tại của chúng tôi.",
+      "store_name": "NOXH An Phú Thịnh",
+      "province": "Quận Quy Nhơn Đông, Tỉnh Gia Lai",
+      "map_link": "Xem trên Google Maps"
+    },
+    "cta": {
+      "title_line1": "Trải Nghiệm Tương Lai",
+      "title_line2": "Của Nước Hoa.",
+      "button": "Khám Phá Mùi Hương Của Tôi"
+    }
   }
 }

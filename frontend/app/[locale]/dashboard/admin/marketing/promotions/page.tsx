@@ -78,21 +78,21 @@ export default function PromotionsAdmin() {
 
   return (
     <AuthGuard allowedRoles={['admin']}>
-      <main className="p-8 pb-20 max-w-7xl mx-auto">
-        <header className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div>
-            <div className="flex items-center gap-3 text-gold mb-4">
-              <Zap size={18} />
-              <span className="text-[10px] font-bold tracking-[.4em] uppercase italic">{t('title')}</span>
+      <main className="p-4 sm:p-6 md:p-8 pb-20 max-w-[1600px] mx-auto">
+        <header className="mb-8 md:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-gold mb-2">
+              <Zap size={14} className="animate-pulse" />
+              <span className="text-[10px] font-bold tracking-[.4em] uppercase italic leading-none">{t('title')}</span>
             </div>
-            <h1 className="text-5xl font-heading gold-gradient uppercase tracking-tighter mb-2">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading gold-gradient uppercase tracking-tighter mb-1 leading-none">
               {t('subtitle')}
             </h1>
           </div>
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-4 bg-foreground dark:bg-gold text-background dark:text-foreground px-10 py-5 rounded-full font-heading text-[10px] uppercase tracking-[.3em] font-bold hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-gold/20"
+            className="w-full md:w-auto flex items-center justify-center gap-4 bg-gold text-primary-foreground px-8 py-4 sm:px-10 sm:py-5 rounded-full font-heading text-[10px] uppercase tracking-[.3em] font-bold hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-gold/20"
           >
             <Plus size={16} strokeWidth={3} />
             {t('modals.create_title', { type: t('promotion_singular') })}
@@ -100,26 +100,26 @@ export default function PromotionsAdmin() {
         </header>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-8 mb-8 md:mb-16">
           {[
             { label: t('stats.total'), value: promos.length, icon: Tag, color: 'text-stone-400' },
             { label: t('stats.active'), value: promos.filter(p => !isExpired(p.endDate)).length, icon: ShieldCheck, color: 'text-emerald-500' },
             { label: t('stats.redemptions'), value: promos.reduce((acc, p) => acc + (p.redemptionsCount || 0), 0), icon: TrendingUp, color: 'text-gold' },
           ].map((stat, i) => (
-             <div key={i} className="glass p-10 rounded-[3rem] border-border relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 blur-[60px] pointer-events-none" />
+             <div key={i} className={`glass p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-stone-200 dark:border-white/5 relative overflow-hidden group shadow-sm ${i === 2 ? 'col-span-2 md:col-span-1' : ''}`}>
+                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gold/5 blur-[40px] sm:blur-[60px] pointer-events-none" />
                 <div className="flex items-center justify-between mb-4">
-                  <stat.icon size={20} className={stat.color} />
-                  <span className="text-3xl font-serif text-foreground">{stat.value}</span>
+                  <stat.icon size={18} className={`${stat.color} sm:w-5 sm:h-5`} />
+                  <span className="text-xl sm:text-3xl font-serif text-foreground italic">{stat.value}</span>
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                <p className="text-[8px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">{stat.label}</p>
              </div>
           ))}
         </div>
 
-        <div className="glass rounded-[3.5rem] border-border overflow-hidden shadow-2xl bg-background/30">
+        <div className="hidden md:block glass rounded-[3.5rem] border border-stone-200 dark:border-white/5 overflow-hidden shadow-2xl bg-background/30">
           <table className="w-full text-left font-body text-sm border-collapse">
-            <thead className="bg-secondary/30 text-muted-foreground border-b border-border">
+            <thead className="bg-secondary/10 text-muted-foreground border-b border-border">
               <tr>
                 <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.code')}</th>
                 <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.discount')}</th>
@@ -134,12 +134,12 @@ export default function PromotionsAdmin() {
               {loading ? (
                 <tr>
                   <td colSpan={7} className="px-10 py-24 text-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-gold mx-auto" />
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-4">Syncing Ledger...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-gold mx-auto" strokeWidth={1} />
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-4 italic opacity-40">Syncing Ledger...</p>
                   </td>
                 </tr>
               ) : promos.map((p) => (
-                <tr key={p.id} className="hover:bg-white/2 transition-colors group">
+                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
                   <td className="px-10 py-10">
                     <span className="font-heading text-lg tracking-wider text-foreground group-hover:text-gold transition-colors">{p.code}</span>
                     <div className="flex items-center gap-2 mt-1">
@@ -147,22 +147,22 @@ export default function PromotionsAdmin() {
                         {p.isPublic ? 'Public' : `Private (${p.pointsCost} pts)`}
                       </span>
                     </div>
-                    <p className="text-[9px] text-muted-foreground font-mono mt-2 opacity-60 truncate max-w-[150px]">{p.description}</p>
+                    <p className="text-[9px] text-muted-foreground font-mono mt-2 opacity-60 truncate max-w-[150px] italic">{p.description}</p>
                   </td>
                   <td className="px-10 py-10">
-                    <span className="text-xl font-serif text-gold">
-                      {p.discountType === 'PERCENTAGE' ? `${p.discountValue}%` : `-${format.number(p.discountValue, { style: 'currency', currency: tFeatured('currency_code') || 'VND' })}`}
+                    <span className="text-xl font-serif text-gold italic">
+                      {p.discountType === 'PERCENTAGE' ? `${p.discountValue}%` : `-${format.number(p.discountValue, { style: 'currency', currency: tFeatured('currency_code') || 'VND', maximumFractionDigits: 0 })}`}
                     </span>
                   </td>
                   <td className="px-10 py-10">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
                        {p.usedCount} / {p.usageLimit ?? '∞'}
                     </span>
                   </td>
                   <td className="px-10 py-10">
-                    <div className="w-full max-w-[80px] h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className="w-full max-w-[80px] h-1.5 bg-secondary/50 rounded-full overflow-hidden shadow-inner">
                        <div 
-                         className="h-full bg-gold transition-all duration-1000 ease-out" 
+                         className="h-full bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-1000 ease-out" 
                          style={{
                            width: `${p.usageLimit ? Math.min((p.usedCount / p.usageLimit) * 100, 100) : 0}%`,
                          }}
@@ -171,17 +171,17 @@ export default function PromotionsAdmin() {
                   </td>
                   <td className="px-10 py-10">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-foreground">
-                        {format.dateTime(new Date(p.startDate))}
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-foreground font-mono">
+                        {format.dateTime(new Date(p.startDate), { dateStyle: 'medium' })}
                       </span>
-                      <span className="text-[9px] text-muted-foreground">→ {format.dateTime(new Date(p.endDate))}</span>
+                      <span className="text-[9px] text-muted-foreground font-mono opacity-60">→ {format.dateTime(new Date(p.endDate), { dateStyle: 'medium' })}</span>
                     </div>
                   </td>
                   <td className="px-10 py-10">
                     <span className={`px-4 py-1.5 rounded-full text-[8px] uppercase tracking-[.2em] font-bold border transition-colors ${
                       isExpired(p.endDate) 
                         ? 'bg-stone-500/10 text-stone-500 border-border' 
-                        : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                        : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
                     }`}>
                       {isExpired(p.endDate) ? t('status.expired') : t('status.active')}
                     </span>
@@ -189,7 +189,7 @@ export default function PromotionsAdmin() {
                   <td className="px-10 py-10 text-right">
                     <button
                       onClick={() => handleDelete(p.id)}
-                      className="p-3 text-muted-foreground hover:text-red-500 hover:glass rounded-xl transition-all opacity-0 group-hover:opacity-100"
+                      className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100 active:scale-90"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -198,6 +198,74 @@ export default function PromotionsAdmin() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* MOBILE CARD LIST */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+             <div className="py-20 flex flex-col items-center gap-4">
+               <Loader2 className="w-10 h-10 animate-spin text-gold opacity-40" strokeWidth={1} />
+               <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Syncing Ledger...</p>
+             </div>
+          ) : promos.map((p) => (
+             <div key={p.id} className="glass p-6 rounded-[2.5rem] border border-stone-200 dark:border-white/5 space-y-6 relative overflow-hidden group active:scale-[0.98] transition-all">
+                <div className="flex justify-between items-start">
+                   <div>
+                      <span className="font-heading text-xl text-gold group-hover:tracking-wider transition-all">{p.code}</span>
+                      <div className="flex gap-2 mt-1">
+                        <span className={`text-[7px] uppercase tracking-widest font-extrabold px-2 py-0.5 rounded border ${p.isPublic ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-gold/10 text-gold border-gold/20'}`}>
+                          {p.isPublic ? 'Public' : `Private (${p.pointsCost} pts)`}
+                        </span>
+                        <span className={`text-[7px] uppercase tracking-widest font-extrabold px-2 py-0.5 rounded border ${
+                            isExpired(p.endDate) 
+                              ? 'bg-stone-500/10 text-stone-500 border-border' 
+                              : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                          }`}>
+                            {isExpired(p.endDate) ? 'Expired' : 'Active'}
+                        </span>
+                      </div>
+                   </div>
+                   <button
+                      onClick={() => handleDelete(p.id)}
+                      className="p-3 text-muted-foreground hover:text-red-500 bg-secondary/10 rounded-full transition-all"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
+                   <div className="space-y-1">
+                      <p className="text-[8px] uppercase tracking-widest text-muted-foreground font-bold">Giảm giá</p>
+                      <p className="text-lg font-serif italic text-foreground">
+                        {p.discountType === 'PERCENTAGE' ? `${p.discountValue}%` : `-${format.number(p.discountValue, { style: 'currency', currency: tFeatured('currency_code') || 'VND', maximumFractionDigits: 0 })}`}
+                      </p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[8px] uppercase tracking-widest text-muted-foreground font-bold">Lượt dùng</p>
+                      <p className="text-[10px] font-bold text-foreground">{p.usedCount} / {p.usageLimit ?? '∞'}</p>
+                      <div className="w-full h-1 bg-secondary rounded-full overflow-hidden mt-1 shadow-inner">
+                        <div 
+                          className="h-full bg-gold opacity-80" 
+                          style={{ width: `${p.usageLimit ? Math.min((p.usedCount / p.usageLimit) * 100, 100) : 0}%` }}
+                        />
+                      </div>
+                   </div>
+                </div>
+
+                <div className="pt-2">
+                   <p className="text-[8px] uppercase tracking-widest text-muted-foreground font-bold mb-1">Thời hạn</p>
+                   <p className="text-[9px] font-mono opacity-80">
+                      {format.dateTime(new Date(p.startDate), { dateStyle: 'medium' })} → {format.dateTime(new Date(p.endDate), { dateStyle: 'medium' })}
+                   </p>
+                </div>
+
+                {p.description && (
+                  <p className="text-[9px] italic text-muted-foreground opacity-60 line-clamp-1 border-t border-white/5 pt-4">
+                    {p.description}
+                  </p>
+                )}
+             </div>
+          ))}
         </div>
 
         {/* CREATE MODAL */}
@@ -209,149 +277,155 @@ export default function PromotionsAdmin() {
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-6"
             >
-              <motion.div
+            <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
-                className="glass rounded-[2rem] md:rounded-[3rem] border border-white/10 w-full max-w-3xl bg-background/50 relative flex flex-col max-h-[90vh] overflow-hidden shadow-2xl"
+                className="glass rounded-t-[2.5rem] sm:rounded-[3rem] border border-stone-200 dark:border-white/10 w-full max-w-3xl bg-background sm:bg-background/50 relative flex flex-col h-[100vh] sm:h-auto sm:max-h-[90vh] overflow-hidden shadow-2xl mt-auto sm:mt-0"
               >
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 blur-[120px] pointer-events-none" />
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[120px] pointer-events-none" />
                  
                  {/* MODAL HEADER - FIXED */}
-                 <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/5 bg-background/20 backdrop-blur-md z-10 shrink-0">
+                 <div className="px-6 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-stone-100 dark:border-white/5 bg-background/20 backdrop-blur-md z-10 shrink-0">
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+                      <h2 className="text-2xl md:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none mb-1">
                         {t('modals.create_title', { type: t('promotion_singular') })}
                       </h2>
-                      <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold mt-2">{t('modals.create_subtitle')}</p>
+                      <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">{t('modals.create_subtitle')}</p>
                     </div>
                     <button 
                       onClick={() => setIsModalOpen(false)} 
-                      className="p-2 md:p-3 hover:bg-white/10 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-white/5"
+                      className="p-3 bg-secondary/10 hover:bg-white/20 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-border"
                     >
-                        <X size={20} className="md:w-6 md:h-6" />
+                        <X size={20} />
                     </button>
                  </div>
 
                  {/* MODAL BODY - SCROLLABLE */}
                  <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar">
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.code')}</label>
-                          <input
-                            required
-                            value={form.code}
-                            onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all font-mono"
-                            placeholder="e.g. PERFUME GPT20"
-                          />
-                        </div>
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.type')}</label>
-                          <select
-                            value={form.discountType}
-                            onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all appearance-none"
-                          >
-                            <option value="PERCENTAGE">{t('types.percentage')}</option>
-                            <option value="FIXED_AMOUNT">{t('types.fixed')}</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.value')}</label>
-                          <input
-                            type="number"
-                            required
-                            value={form.discountValue}
-                            onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
-                          />
-                        </div>
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.limit')}</label>
-                          <input
-                            type="number"
-                            required
-                            value={form.usageLimit}
-                            onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
-                          />
-                        </div>
-
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.start')}</label>
-                          <input
-                            type="date"
-                            required
-                            value={form.startDate}
-                            onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all invert dark:invert-0"
-                          />
-                        </div>
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.end')}</label>
-                          <input
-                            type="date"
-                            required
-                            value={form.endDate}
-                            onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all invert dark:invert-0"
-                          />
-                        </div>
-
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.is_public')}</label>
-                          <div className="flex items-center gap-3 h-14">
-                            <button
-                              type="button"
-                              onClick={() => setForm({ ...form, isPublic: true })}
-                              className={`flex-1 h-full rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${form.isPublic ? 'bg-gold text-black border-gold' : 'border-white/5 text-muted-foreground hover:border-gold/30'}`}
-                            >
-                              {t('types.public')}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setForm({ ...form, isPublic: false })}
-                              className={`flex-1 h-full rounded-xl border transition-all text-[10px] font-bold uppercase tracking-widest ${!form.isPublic ? 'bg-gold text-black border-gold' : 'border-white/5 text-muted-foreground hover:border-gold/30'}`}
-                            >
-                              {t('types.private')}
-                            </button>
+                       <form onSubmit={handleSubmit} className="space-y-8 pb-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.code')}</label>
+                            <input
+                              required
+                              value={form.code}
+                              onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
+                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all font-mono"
+                              placeholder="e.g. VIP20"
+                            />
                           </div>
-                        </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.type')}</label>
+                            <select
+                              value={form.discountType}
+                              onChange={(e) => setForm({ ...form, discountType: e.target.value })}
+                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all cursor-pointer appearance-none"
+                            >
+                              <option value="PERCENTAGE">{t('types.percentage')}</option>
+                              <option value="FIXED_AMOUNT">{t('types.fixed')}</option>
+                            </select>
+                          </div>
 
-                        {!form.isPublic && (
-                          <div className="space-y-3">
-                            <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.points_cost')}</label>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.value')}</label>
                             <input
                               type="number"
                               required
-                              value={form.pointsCost}
-                              onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
-                              className="w-full h-14 bg-white/5 border border-white/5 rounded-[1.2rem] px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all"
+                              value={form.discountValue}
+                              onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
+                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
                             />
                           </div>
-                        )}
-                      </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.limit')}</label>
+                            <input
+                              type="number"
+                              required
+                              value={form.usageLimit}
+                              onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
+                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                            />
+                          </div>
 
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground ml-1">{t('modals.desc')}</label>
-                        <textarea
-                          value={form.description}
-                          onChange={(e) => setForm({ ...form, description: e.target.value })}
-                          className="w-full h-28 bg-white/5 border border-white/5 rounded-[1.2rem] p-6 text-xs font-medium outline-none focus:border-gold/50 transition-all resize-none"
-                        />
-                      </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.start')}</label>
+                            <input
+                              type="date"
+                              required
+                              value={form.startDate}
+                              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.end')}</label>
+                            <input
+                              type="date"
+                              required
+                              value={form.endDate}
+                              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                            />
+                          </div>
 
-                      <button
-                        type="submit"
-                        disabled={submitting}
-                        className="w-full h-16 md:h-20 rounded-[1.5rem] md:rounded-[2rem] bg-gold text-black font-heading text-[11px] uppercase tracking-[.4em] font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-gold/20 disabled:opacity-50"
-                      >
-                        {submitting ? t('modals.submitting') : t('modals.submit')}
-                      </button>
-                    </form>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.is_public')}</label>
+                            <div className="flex items-center gap-3 h-14">
+                              <button
+                                type="button"
+                                onClick={() => setForm({ ...form, isPublic: true })}
+                                className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${form.isPublic ? 'bg-gold text-black border-gold' : 'border-stone-100 dark:border-white/5 text-muted-foreground hover:border-gold/30'}`}
+                              >
+                                {t('types.public')}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setForm({ ...form, isPublic: false })}
+                                className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${!form.isPublic ? 'bg-gold text-black border-gold' : 'border-stone-100 dark:border-white/5 text-muted-foreground hover:border-gold/30'}`}
+                              >
+                                {t('types.private')}
+                              </button>
+                            </div>
+                          </div>
+
+                          {!form.isPublic && (
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.points_cost')}</label>
+                              <input
+                                type="number"
+                                required
+                                value={form.pointsCost}
+                                onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
+                                className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground ml-1">{t('modals.desc')}</label>
+                          <textarea
+                            value={form.description}
+                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                            className="w-full h-28 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl p-6 text-sm font-light leading-relaxed outline-none focus:border-gold/50 transition-all resize-none"
+                            placeholder="Nhập mô tả cho chương trình ưu đãi này..."
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="w-full h-16 sm:h-20 rounded-[2rem] bg-gold text-black font-heading text-[11px] uppercase tracking-[.4em] font-extrabold hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 disabled:opacity-50 mt-4"
+                        >
+                          {submitting ? (
+                            <div className="flex items-center justify-center gap-3">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              {t('modals.submitting')}
+                            </div>
+                          ) : t('modals.submit')}
+                        </button>
+                      </form>
                  </div>
               </motion.div>
             </motion.div>

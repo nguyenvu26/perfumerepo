@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 type BatchItem = {
   variantId: string;
@@ -289,45 +290,48 @@ export default function AdminStockRedesignPage() {
   return (
     <AuthGuard allowedRoles={["admin"]}>
       <main className="p-8 max-w-[1800px] mx-auto">
-        <header className="mb-10 flex justify-between items-end">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gold/10 rounded-3xl">
-              <LayoutGrid className="w-8 h-8 text-gold" />
+        <header className="mb-8 sm:mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="p-4 sm:p-5 bg-gold/10 rounded-[2rem] sm:rounded-[2.5rem] shadow-inner">
+              <LayoutGrid className="w-6 h-6 sm:w-10 sm:h-10 text-gold" />
             </div>
             <div>
-              <h1 className="text-5xl font-heading gold-gradient uppercase tracking-tighter leading-none">
-                Inventory Matrix
+              <h1 className="text-3xl sm:text-6xl font-heading gold-gradient uppercase tracking-tighter leading-none italic">
+                Inventory Suite
               </h1>
-              <p className="text-muted-foreground font-body text-[10px] uppercase tracking-[0.4em] mt-2">
-                Professional Stock Management Suite
+              <p className="text-muted-foreground font-body text-[8px] sm:text-[10px] uppercase tracking-[0.4em] mt-2 font-black opacity-50 italic">
+                Global Stock Intelligence & Logistics
               </p>
             </div>
           </div>
-          <div className="flex gap-2 bg-secondary/20 p-1.5 rounded-2xl border border-border">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-heading uppercase tracking-widest transition-all ${activeTab === "overview" ? "bg-background shadow-xl text-gold" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <LayoutGrid className="w-4 h-4" /> Global View
-            </button>
-            <button
-              onClick={() => setActiveTab("batch-import")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-heading uppercase tracking-widest transition-all ${activeTab === "batch-import" ? "bg-background shadow-xl text-gold" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <FileInput className="w-4 h-4" /> Batch Import
-            </button>
-            <button
-              onClick={() => setActiveTab("transfer")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-heading uppercase tracking-widest transition-all ${activeTab === "transfer" ? "bg-background shadow-xl text-gold" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <ArrowRightLeft className="w-4 h-4" /> Stock Transfer
-            </button>
-            <button
-              onClick={() => setActiveTab("requests")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-heading uppercase tracking-widest transition-all relative ${activeTab === "requests" ? "bg-background shadow-xl text-gold" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <ClipboardCheck className="w-4 h-4" /> Approval Queue
-            </button>
+          
+          <div className="w-full lg:w-auto overflow-x-auto no-scrollbar">
+            <div className="flex gap-2 bg-secondary/10 dark:bg-white/5 p-1.5 rounded-2xl sm:rounded-[2rem] border border-stone-200 dark:border-white/5 min-w-max">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "overview" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Global View
+              </button>
+              <button
+                onClick={() => setActiveTab("batch-import")}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "batch-import" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+              >
+                <FileInput className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Batch Import
+              </button>
+              <button
+                onClick={() => setActiveTab("transfer")}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "transfer" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+              >
+                <ArrowRightLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Transfer
+              </button>
+              <button
+                onClick={() => setActiveTab("requests")}
+                className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all relative ${activeTab === "requests" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
+              >
+                <ClipboardCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Approval
+              </button>
+            </div>
           </div>
         </header>
 
@@ -358,11 +362,11 @@ export default function AdminStockRedesignPage() {
         <div className="min-h-[700px]">
           {/* --- TAB 1: OVERVIEW GRID --- */}
           {activeTab === "overview" && (
-            <div className="grid grid-cols-1 gap-10">
+            <div className="grid grid-cols-1 gap-8 sm:gap-12">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-32 gap-6">
-                  <Loader2 className="w-12 h-12 animate-spin text-gold/50" />
-                  <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse">
+                <div className="flex flex-col items-center justify-center py-40 gap-6">
+                  <Loader2 className="w-12 h-12 animate-spin text-gold/40" />
+                  <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse italic">
                     Syncing Global Assets...
                   </p>
                 </div>
@@ -370,92 +374,85 @@ export default function AdminStockRedesignPage() {
                 overview?.stores.map((storeData) => (
                   <section
                     key={storeData.store.id}
-                    className="glass rounded-[3.5rem] border border-border overflow-hidden"
+                    className="glass rounded-[2.5rem] sm:rounded-[4rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-2xl backdrop-blur-3xl animate-in fade-in slide-in-from-bottom-4 duration-700"
                   >
-                    <div className="px-10 py-8 bg-secondary/30 border-b border-border flex justify-between items-center">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <Tag className="w-4 h-4 text-gold" />
-                          <h3 className="font-heading text-xl uppercase tracking-widest text-foreground">
+                    <div className="px-8 sm:px-12 py-8 sm:py-10 bg-secondary/10 dark:bg-white/[0.03] border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-4">
+                          <Tag className="w-4 h-4 text-gold opacity-50" />
+                          <h3 className="font-heading text-xl sm:text-3xl uppercase tracking-tighter text-foreground italic">
                             {storeData.store.name}
                           </h3>
                         </div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] pl-7">
+                        <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[0.3em] pl-8 font-black opacity-40">
                           Boutique ID: {storeData.store.code || "SYS-DEFAULT"}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-heading text-3xl text-gold leading-none">
-                          {storeData.totalUnits}
-                        </p>
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest mt-2">
-                          Total SKU Units
-                        </p>
+                      <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-10 bg-black/5 dark:bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-2xl sm:rounded-none">
+                        <div className="text-right">
+                          <p className="font-heading text-3xl sm:text-4xl text-gold leading-none italic">
+                            {storeData.totalUnits}
+                          </p>
+                          <p className="text-[8px] sm:text-[9px] text-muted-foreground uppercase tracking-widest mt-2 font-black opacity-30">
+                            Total SKU Units
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div className="overflow-x-auto">
+
+                    {/* DESKTOP TABLE */}
+                    <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="border-b border-border/50 text-muted-foreground">
-                            <th className="pl-10 pr-4 py-5 text-[10px] uppercase tracking-widest font-heading w-16"></th>
-                            <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">
-                              Olfactory Asset / Identifier
-                            </th>
-                            <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
-                              Edition / Size
-                            </th>
-                            <th className="px-10 py-5 text-[10px] uppercase tracking-widest font-heading text-right">
-                              Available Inventory
-                            </th>
+                          <tr className="border-b border-border/20 text-muted-foreground bg-foreground/[0.01]">
+                            <th className="pl-12 pr-4 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 w-24">Media</th>
+                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40"> Olfactory Asset / Identifier</th>
+                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-center">Edition / Size</th>
+                            <th className="px-12 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-right">Available Inventory</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-border/20">
+                        <tbody className="divide-y divide-border/10">
                           {storeData.variants.length === 0 ? (
                             <tr>
-                              <td
-                                colSpan={4}
-                                className="px-10 py-20 text-center text-muted-foreground italic font-body text-sm opacity-50"
-                              >
-                                Empty Boutique. No inventory records
-                                established.
+                              <td colSpan={4} className="px-12 py-32 text-center text-muted-foreground italic font-serif text-2xl opacity-20">
+                                Empty Boutique. No inventory records established.
                               </td>
                             </tr>
                           ) : (
                             storeData.variants.map((v) => (
-                              <tr
-                                key={v.variantId}
-                                className="group hover:bg-gold/5 transition-all"
-                              >
-                                <td className="pl-10 pr-4 py-4">
+                              <tr key={v.variantId} className="group hover:bg-gold/[0.03] transition-all duration-500">
+                                <td className="pl-12 pr-4 py-5">
                                   {v.imageUrl ? (
-                                    <img
-                                      src={v.imageUrl}
-                                      alt={v.productName}
-                                      className="w-12 h-12 rounded-xl object-cover border border-border group-hover:border-gold/30 transition-all"
-                                    />
+                                    <div className="w-16 h-16 rounded-2xl overflow-hidden border border-stone-200 dark:border-white/10 group-hover:scale-105 transition-all duration-700 shadow-md relative">
+                                        <Image 
+                                            src={v.imageUrl} 
+                                            alt="" 
+                                            fill
+                                            sizes="64px"
+                                            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" 
+                                        />
+                                    </div>
                                   ) : (
-                                    <div className="w-12 h-12 rounded-xl bg-secondary/50 border border-border flex items-center justify-center">
-                                      <PackageSearch className="w-5 h-5 text-muted-foreground/30" />
+                                    <div className="w-16 h-16 rounded-2xl bg-secondary/30 flex items-center justify-center border border-border/10">
+                                      <PackageSearch className="w-6 h-6 text-muted-foreground/20" />
                                     </div>
                                   )}
                                 </td>
-                                <td className="px-6 py-6">
-                                  <p className="font-heading text-sm uppercase tracking-tight group-hover:text-gold transition-colors">
+                                <td className="px-6 py-5">
+                                  <p className="font-heading text-base uppercase tracking-tight group-hover:text-gold transition-colors leading-tight italic">
                                     {v.productName}
                                   </p>
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1 font-black opacity-40 italic">
                                     {v.brandName}
                                   </p>
                                 </td>
-                                <td className="px-10 py-6 text-center">
-                                  <span className="px-4 py-1.5 rounded-full bg-secondary text-[10px] uppercase tracking-widest font-heading border border-border group-hover:border-gold/30 group-hover:bg-gold/5 transition-all">
+                                <td className="px-6 py-5 text-center">
+                                  <span className="px-5 py-2 rounded-full bg-secondary/50 dark:bg-white/[0.03] text-[9px] uppercase tracking-widest font-black border border-border/10 group-hover:border-gold/30 transition-all">
                                     {v.variantName}
                                   </span>
                                 </td>
-                                <td className="px-10 py-6 text-right">
-                                  <span
-                                    className={`font-heading text-lg ${v.quantity === 0 ? "text-destructive" : v.quantity <= 5 ? "text-amber-500" : "text-foreground"}`}
-                                  >
+                                <td className="px-12 py-5 text-right">
+                                  <span className={`font-heading text-2xl italic ${v.quantity === 0 ? "text-destructive" : v.quantity <= 5 ? "text-amber-500" : "text-foreground"}`}>
                                     {v.quantity}
                                   </span>
                                 </td>
@@ -465,6 +462,28 @@ export default function AdminStockRedesignPage() {
                         </tbody>
                       </table>
                     </div>
+
+                    {/* MOBILE CARD VIEW */}
+                    <div className="md:hidden p-6 space-y-4">
+                        {storeData.variants.length === 0 ? (
+                            <div className="py-20 text-center opacity-20 italic font-serif">Empty Boutique</div>
+                        ) : (
+                            storeData.variants.map((v) => (
+                                <div key={v.variantId} className="flex items-center gap-5 p-5 rounded-[2rem] bg-secondary/10 dark:bg-white/[0.02] border border-border/5">
+                                     <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-border/10 shadow-sm">
+                                         {v.imageUrl ? <img src={v.imageUrl} className="w-full h-full object-cover grayscale" /> : <PackageSearch size={24} className="m-auto opacity-10" />}
+                                     </div>
+                                     <div className="flex-1 min-w-0 space-y-1">
+                                         <p className="text-[10px] font-heading uppercase text-foreground leading-tight truncate italic">{v.productName}</p>
+                                         <div className="flex items-center gap-3">
+                                            <span className="text-[8px] bg-secondary px-3 py-1 rounded-full uppercase font-black tracking-widest">{v.variantName}</span>
+                                            <span className={`text-sm font-heading ${v.quantity <= 5 ? 'text-gold' : 'text-foreground'} italic`}>{v.quantity}</span>
+                                         </div>
+                                     </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                   </section>
                 ))
               )}
@@ -473,17 +492,17 @@ export default function AdminStockRedesignPage() {
 
           {/* --- TAB 2: BATCH IMPORT --- */}
           {activeTab === "batch-import" && (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 sm:gap-12 animate-in fade-in duration-700">
               {/* Configuration Header */}
-              <div className="glass p-10 rounded-[3rem] border-border flex flex-wrap gap-10 items-center">
-                <div className="flex-1 min-w-[300px]">
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-3 font-heading">
+              <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border-stone-200 dark:border-white/10 flex flex-col lg:flex-row gap-8 sm:gap-12 items-stretch lg:items-center shadow-xl">
+                <div className="flex-1">
+                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
                     Destination Boutique
                   </label>
                   <select
                     value={importStoreId}
                     onChange={(e) => setImportStoreId(e.target.value)}
-                    className="w-full bg-secondary/30 border border-border rounded-2xl px-6 py-4 text-sm font-heading uppercase tracking-widest outline-none focus:border-gold transition-all"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer hover:bg-gold/[0.03]"
                   >
                     <option value="">-- Choose Target Store --</option>
                     {storeList.map((s) => (
@@ -493,21 +512,21 @@ export default function AdminStockRedesignPage() {
                     ))}
                   </select>
                 </div>
-                <div className="flex-[2] min-w-[400px]">
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-3 font-heading">
-                    Import Metadata
+                <div className="flex-[2]">
+                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
+                    Import Metadata / Reason
                   </label>
                   <input
                     type="text"
                     value={importReason}
                     onChange={(e) => setImportReason(e.target.value)}
                     placeholder="e.g. Q1 Seasonal Restock"
-                    className="w-full bg-secondary/30 border border-border rounded-2xl px-6 py-4 text-sm font-body outline-none focus:border-gold transition-all"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-8 py-4 sm:py-5 text-sm font-serif italic outline-none focus:border-gold transition-all shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="grid lg:grid-cols-5 gap-8 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-12 items-start">
                 {/* Product Selector */}
                 <div className="lg:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border bg-secondary/10">
@@ -707,17 +726,17 @@ export default function AdminStockRedesignPage() {
 
           {/* --- TAB 3: TRANSFER --- */}
           {activeTab === "transfer" && (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 sm:gap-12 animate-in fade-in duration-700">
               {/* Transfer Matrix Header */}
-              <div className="glass p-10 rounded-[3rem] border-border grid md:grid-cols-3 gap-10 items-center">
-                <div>
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-3 font-heading">
+              <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] border-stone-200 dark:border-white/10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 sm:gap-12 items-center shadow-xl">
+                <div className="space-y-4">
+                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block font-black opacity-50 ml-2 leading-none">
                     Source Boutique
                   </label>
                   <select
                     value={transferFromId}
                     onChange={(e) => setTransferFromId(e.target.value)}
-                    className="w-full bg-secondary/30 border border-border rounded-2xl px-6 py-4 text-sm font-heading uppercase tracking-widest outline-none focus:border-gold transition-all"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
                   >
                     <option value="">-- Choose Origin --</option>
                     {storeList.map((s) => (
@@ -727,20 +746,21 @@ export default function AdminStockRedesignPage() {
                     ))}
                   </select>
                 </div>
-                <div className="flex justify-center relative">
-                  <div className="p-5 bg-background border border-border rounded-full shadow-2xl text-gold z-10">
+                <div className="flex justify-center relative py-4 md:py-0">
+                  <div className="p-5 bg-background dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-full shadow-2xl text-gold z-10 rotate-90 md:rotate-0">
                     <ArrowRightLeft className="w-6 h-6" />
                   </div>
-                  <div className="absolute top-1/2 left-0 w-full h-[1px] bg-border -z-0"></div>
+                  <div className="absolute top-1/2 left-0 w-full h-[1px] bg-border/20 -z-0 hidden md:block"></div>
+                  <div className="absolute top-0 left-1/2 w-[1px] h-full bg-border/20 -z-0 md:hidden"></div>
                 </div>
-                <div>
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-3 font-heading">
+                <div className="space-y-4">
+                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block font-black opacity-50 ml-2 leading-none">
                     Target Boutique
                   </label>
                   <select
                     value={transferToId}
                     onChange={(e) => setTransferToId(e.target.value)}
-                    className="w-full bg-secondary/30 border border-border rounded-2xl px-6 py-4 text-sm font-heading uppercase tracking-widest outline-none focus:border-gold transition-all"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
                   >
                     <option value="">-- Choose Destination --</option>
                     {storeList.map((s) => (
@@ -752,7 +772,7 @@ export default function AdminStockRedesignPage() {
                 </div>
               </div>
 
-              <div className="grid lg:grid-cols-5 gap-8 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-12 items-start">
                 {/* Asset Finder */}
                 <div className="lg:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border bg-secondary/10">

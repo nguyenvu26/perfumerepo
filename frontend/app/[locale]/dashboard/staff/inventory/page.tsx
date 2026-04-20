@@ -197,13 +197,13 @@ export default function StaffInventory() {
 
   return (
     <AuthGuard allowedRoles={["staff", "admin"]}>
-      <main className="p-8 space-y-8">
-        <header className="mb-4 flex items-start justify-between">
+      <main className="p-4 sm:p-8 space-y-6 md:space-y-8">
+        <header className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+            <h1 className="text-3xl md:text-4xl font-heading gold-gradient mb-1 uppercase tracking-tighter">
               {t("title")}
             </h1>
-            <p className="text-muted-foreground font-body text-sm uppercase tracking-widest">
+            <p className="text-[10px] md:text-xs text-muted-foreground font-body uppercase tracking-[0.2em]">
               {t("subtitle")}
             </p>
           </div>
@@ -211,7 +211,7 @@ export default function StaffInventory() {
             <button
               type="button"
               onClick={openImportModal}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-foreground font-heading text-xs uppercase tracking-widest hover:bg-gold/90 transition-colors shadow-lg"
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-foreground font-heading text-[10px] uppercase tracking-widest hover:bg-gold/90 transition-colors shadow-lg w-full sm:w-auto justify-center"
             >
               <PackagePlus className="w-4 h-4" />
               {t("operations.import_btn")}
@@ -225,15 +225,17 @@ export default function StaffInventory() {
           </div>
         )}
 
-        <div className="mb-6 flex items-center gap-4">
-          <Store className="w-5 h-5 text-gold" />
-          <label className="text-[10px] uppercase tracking-widest text-muted-foreground">
-            {t("store")}:
-          </label>
+        <div className="mb-6 flex flex-wrap items-center gap-3 md:gap-4 bg-secondary/10 p-4 rounded-3xl border border-border/40">
+          <div className="flex items-center gap-2">
+            <Store className="w-4 h-4 text-gold" />
+            <label className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+              {t("store")}:
+            </label>
+          </div>
           <select
             value={selectedStoreId}
             onChange={(e) => setSelectedStoreId(e.target.value)}
-            className="rounded-xl border border-border bg-background px-4 py-2 text-sm font-heading uppercase tracking-wider focus:border-gold/60"
+            className="flex-1 sm:flex-initial rounded-xl border border-border bg-background px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-sm font-heading uppercase tracking-wider focus:border-gold/60"
           >
             <option value="">{t("select_store")}</option>
             {myStores.map((s) => (
@@ -243,49 +245,49 @@ export default function StaffInventory() {
             ))}
           </select>
           {!myStores.length && !loading && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[10px] text-muted-foreground">
               {t("no_store_assigned")}
             </span>
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-4">
           {loading ? (
             <div className="col-span-full flex items-center justify-center py-10 text-muted-foreground text-sm">
               <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t("loading")}
             </div>
           ) : (
             <>
-              <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">
+              <div className="glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
+                <div className="flex justify-between items-start mb-3 md:mb-4">
+                  <h3 className="text-muted-foreground text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-heading">
                     {t("total_units")}
                   </h3>
-                  <Box className="w-5 h-5 text-gold" />
+                  <Box className="w-4 h-4 md:w-5 md:h-5 text-gold" />
                 </div>
-                <p className="text-4xl font-heading text-foreground">
+                <p className="text-3xl md:text-4xl font-heading text-foreground">
                   {stats?.totalUnits.toLocaleString("vi-VN") ?? "0"}
                 </p>
               </div>
-              <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">
+              <div className="glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
+                <div className="flex justify-between items-start mb-3 md:mb-4">
+                  <h3 className="text-muted-foreground text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-heading">
                     {t("low_stock")}
                   </h3>
-                  <AlertTriangle className="w-5 h-5 text-warning" />
+                  <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-warning" />
                 </div>
-                <p className="text-4xl font-heading text-foreground">
+                <p className="text-3xl md:text-4xl font-heading text-foreground">
                   {stats?.lowStockCount ?? 0}
                 </p>
               </div>
-              <div className="glass p-8 rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading">
+              <div className="glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-border hover:border-gold/30 transition-all group">
+                <div className="flex justify-between items-start mb-3 md:mb-4">
+                  <h3 className="text-muted-foreground text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-heading">
                     {t("recent_refill")}
                   </h3>
-                  <RefreshCw className="w-5 h-5 text-gold" />
+                  <RefreshCw className="w-4 h-4 md:w-5 md:h-5 text-gold" />
                 </div>
-                <p className="text-sm font-heading text-foreground">
+                <p className="text-xs md:text-sm font-heading text-foreground">
                   {stats?.latestImportAt
                     ? new Date(stats.latestImportAt).toLocaleString("vi-VN")
                     : t("no_imports_yet")}

@@ -156,12 +156,12 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
     return (
         <div className="w-full max-w-5xl mx-auto">
             {/* Progress Bar */}
-            <div className="flex items-center justify-center gap-3 mb-16">
+            <div className="flex items-center justify-center gap-2 lg:gap-3 mb-10 lg:mb-16">
                 {steps.map((s, i) => (
-                    <div key={s.id} className="flex items-center gap-3">
+                    <div key={s.id} className="flex items-center gap-2 lg:gap-3">
                         <div className="relative">
                             <div
-                                className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold tracking-widest transition-all duration-500 ${
+                                className={`w-8 h-8 lg:w-10 lg:h-10 rounded-full flex items-center justify-center text-[10px] lg:text-xs font-bold tracking-widest transition-all duration-500 ${
                                     step > i
                                         ? 'bg-gold text-white shadow-[0_0_20px_rgba(197,160,89,0.4)]'
                                         : step === i
@@ -174,7 +174,7 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
                         </div>
                         {i < steps.length - 1 && (
                             <div
-                                className={`w-8 lg:w-14 h-px transition-colors duration-500 ${
+                                className={`w-4 lg:w-14 h-px transition-colors duration-500 ${
                                     step > i ? 'bg-gold' : 'bg-stone-300 dark:bg-white/10'
                                 }`}
                             />
@@ -202,23 +202,23 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
                     </div>
 
                     {/* Title */}
-                    <h2 className="text-3xl md:text-5xl font-serif text-luxury-black dark:text-white mb-3">
+                    <h2 className="text-fluid-3xl font-serif text-luxury-black dark:text-white mb-2 lg:mb-3">
                         {t(currentStep.titleKey)}
                     </h2>
 
                     {/* Subtitle */}
-                    <p className="text-sm text-stone-500 dark:text-stone-400 mb-12 max-w-lg mx-auto">
+                    <p className="text-xs lg:text-sm text-stone-500 dark:text-stone-400 mb-8 lg:mb-12 max-w-lg mx-auto leading-relaxed">
                         {t(currentStep.subtitleKey)}
                     </p>
 
                     {/* Options Grid */}
                     <div
-                        className={`grid gap-4 ${
+                        className={`grid gap-3 lg:gap-4 ${
                             currentStep.options.length <= 3
-                                ? 'grid-cols-1 md:grid-cols-3'
+                                ? 'grid-cols-1 sm:grid-cols-3'
                                 : currentStep.options.length <= 4
-                                  ? 'grid-cols-2 md:grid-cols-4'
-                                  : 'grid-cols-2 md:grid-cols-5'
+                                  ? 'grid-cols-2 sm:grid-cols-4'
+                                  : 'grid-cols-2 lg:grid-cols-5'
                         }`}
                     >
                         {currentStep.options.map((opt, i) => {

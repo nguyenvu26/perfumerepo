@@ -91,7 +91,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
             </motion.div>
 
             {/* Content Context */}
-            <div className="container mx-auto px-6 relative z-10 w-full flex flex-col justify-center h-full">
+            <div className="container-responsive relative z-10 w-full flex flex-col justify-center h-full">
                 <motion.div
                     style={{ opacity: heroOpacity }}
                     initial={{ opacity: 0, x: -50 }}
@@ -118,12 +118,12 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                             transition={{ duration: 0.8 }}
                         >
                             {/* Headline */}
-                            <h1 className="text-4xl md:text-5xl lg:text-7xl font-serif mb-8 leading-[1.15] tracking-tight drop-shadow-2xl whitespace-pre-line">
+                            <h1 className="text-fluid-4xl font-serif mb-8 leading-[1.15] tracking-tight drop-shadow-2xl whitespace-pre-line">
                                 {currentBanner?.title || t('title')}
                             </h1>
 
                             {/* Subtitle */}
-                            <p className="text-xl md:text-2xl text-white/90 mb-12 font-light leading-relaxed max-w-lg italic drop-shadow-md">
+                            <p className="text-fluid-lg text-white/90 mb-12 font-light leading-relaxed max-w-lg italic drop-shadow-md">
                                 {currentBanner?.subtitle || t('subtitle')}
                             </p>
                         </motion.div>

@@ -118,7 +118,7 @@ export function AddressManager({ className }: AddressManagerProps) {
           <DialogTrigger asChild>
             <Button
               onClick={() => setSelectedAddress(null)}
-              className="rounded-full bg-luxury-black dark:bg-gold hover:scale-105 transition-transform"
+              className="rounded-full bg-luxury-black dark:bg-gold text-white hover:scale-105 transition-transform"
             >
               <Plus className="mr-2 h-4 w-4" /> {t('add_new')}
             </Button>

@@ -12,28 +12,28 @@ export default function RewardsPage() {
         <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 transition-colors">
             <Header />
 
-            <main className="container mx-auto px-6 py-32 lg:py-40">
-                <div className="max-w-4xl mx-auto text-center mb-20">
+            <main className="container mx-auto px-4 sm:px-6 py-16 md:py-32 lg:py-40">
+                <div className="max-w-4xl mx-auto text-center mb-12 md:mb-20">
                     <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-6xl font-serif text-luxury-black dark:text-white mb-6 uppercase tracking-widest"
+                        className="text-3xl md:text-6xl font-heading text-luxury-black dark:text-white mb-4 md:mb-6 uppercase tracking-tighter md:tracking-widest"
                     >
                         {t.rich('title', {
                             tiers: (chunks) => <span className="italic">{chunks}</span>
                         })}
                     </motion.h1>
                     <motion.p
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-stone-500 dark:text-stone-400 text-[10px] uppercase font-bold tracking-[.3em] max-w-2xl mx-auto"
+                        transition={{ delay: 0.1 }}
+                        className="text-stone-500 dark:text-stone-400 text-[8px] md:text-[10px] uppercase font-bold tracking-[.3em] max-w-xl mx-auto px-4"
                     >
                         {t('subtitle')}
                     </motion.p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-12 max-w-6xl mx-auto">
                     {[
                         {
                             tier: t('tiers.silver.name'),
@@ -58,24 +58,24 @@ export default function RewardsPage() {
                     ].map((tier, i) => (
                         <motion.div
                             key={i}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
                             viewport={{ once: true }}
-                            className="p-10 bg-white dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-[2.5rem] space-y-4 hover:border-gold transition-all group shadow-sm hover:shadow-xl"
+                            className="p-8 md:p-10 bg-white dark:bg-white/5 border border-border rounded-[2rem] md:rounded-[2.5rem] space-y-4 hover:border-gold/50 transition-all group shadow-sm hover:shadow-xl"
                         >
                             <div className="flex justify-between items-start">
-                                <h3 className="text-2xl font-serif text-luxury-black dark:text-white transition-colors group-hover:italic uppercase tracking-widest">
+                                <h3 className="text-xl md:text-2xl font-heading text-luxury-black dark:text-white transition-colors group-hover:italic uppercase tracking-widest leading-tight">
                                     {tier.tier}
                                 </h3>
-                                <div className="p-3 bg-stone-50 dark:bg-zinc-800 rounded-2xl group-hover:bg-gold/10 transition-colors">
-                                    <Trophy size={20} className="text-stone-300 group-hover:text-gold transition-colors" />
+                                <div className="p-2.5 md:p-3 bg-stone-50 dark:bg-zinc-800 rounded-xl md:rounded-2xl group-hover:bg-gold/10 transition-colors">
+                                    <Trophy className="text-stone-300 group-hover:text-gold transition-colors w-4.5 h-4.5 md:w-5 md:h-5" />
                                 </div>
                             </div>
-                            <p className="text-[10px] font-bold tracking-widest uppercase text-gold">
+                            <p className="text-[9px] md:text-[10px] font-black tracking-widest uppercase text-gold">
                                 {tier.req}
                             </p>
-                            <p className="text-[10px] text-stone-400 dark:text-stone-500 italic leading-relaxed uppercase tracking-tighter">
+                            <p className="text-[10px] text-stone-400 dark:text-stone-500 italic leading-relaxed uppercase tracking-widest mt-4">
                                 {tier.perk}
                             </p>
                         </motion.div>

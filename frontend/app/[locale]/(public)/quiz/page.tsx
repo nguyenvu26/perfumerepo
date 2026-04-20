@@ -58,7 +58,7 @@ export default function QuizPage() {
                 <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-gold/[0.03] rounded-full blur-[120px]" />
             </div>
 
-            <main className="flex-1 container mx-auto px-4 sm:px-6 py-24 md:py-32 flex flex-col items-center justify-center relative z-10">
+            <main className="flex-1 container-responsive py-24 lg:py-32 flex flex-col items-center justify-center relative z-10">
                 <AnimatePresence mode="wait">
                     {/* ══════════════════════════════════════ */}
                     {/* INTRO STATE */}
@@ -96,7 +96,7 @@ export default function QuizPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 }}
-                                className="text-4xl md:text-6xl font-serif text-luxury-black dark:text-white mt-4 mb-6"
+                                className="text-fluid-4xl font-serif text-luxury-black dark:text-white mt-4 mb-6 leading-tight"
                             >
                                 {t('intro.title')}
                             </motion.h1>

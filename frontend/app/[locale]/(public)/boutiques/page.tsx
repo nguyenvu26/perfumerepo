@@ -3,9 +3,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { catalogService, CatalogItem } from '@/services/catalog.service';
 import { Link } from '@/lib/i18n';
-import { Search } from 'lucide-react';
+import { Search, MapPin } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Breadcrumb } from '@/components/common/breadcrumb';
+import { motion } from 'framer-motion';
 
 export default function BrandsIndexPage() {
+    const tCommon = useTranslations('common');
     const [brands, setBrands] = useState<CatalogItem[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
@@ -32,7 +36,6 @@ export default function BrandsIndexPage() {
         return result.sort((a, b) => a.name.localeCompare(b.name));
     }, [brands, searchQuery, selectedLetter]);
 
-    // Group by first letter
     const groupedBrands = useMemo(() => {
         const groups: Record<string, CatalogItem[]> = {};
         filteredBrands.forEach(b => {
@@ -40,81 +43,116 @@ export default function BrandsIndexPage() {
             if (!groups[letter]) groups[letter] = [];
             groups[letter].push(b);
         });
-        return groups;
+        return groups; groupByLetter(groupedBrands);
     }, [filteredBrands]);
 
-    return (
-        <div className="bg-stone-50 dark:bg-zinc-950 transition-colors">
-            <main className="pt-40 pb-32 min-h-[80vh]">
-                <div className="container mx-auto px-6">
-                    <h1 className="text-4xl md:text-5xl font-serif text-center mb-16 text-foreground tracking-wide">Thương hiệu</h1>
+    function groupByLetter(groups: Record<string, CatalogItem[]>) {
+        return Object.keys(groups).sort().reduce((acc: Record<string, CatalogItem[]>, key) => {
+            acc[key] = groups[key];
+            return acc;
+        }, {});
+    }
 
-                    {/* Filter Bar */}
-                    <div className="flex flex-col md:flex-row items-center justify-between border-y border-border py-6 mb-20 gap-8">
-                        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 flex-1 text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground w-full">
+    const breadcrumbItems = [
+        { label: tCommon('boutiques'), active: true }
+    ];
+
+    return (
+        <div className="bg-stone-50 dark:bg-zinc-950 transition-colors min-h-screen pt-32 pb-32">
+            <div className="container-responsive">
+                <Breadcrumb items={breadcrumbItems} className="mb-12" />
+                
+                <header className="text-center mb-16">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gold/10 text-gold mb-6"
+                    >
+                        <MapPin size={32} />
+                    </motion.div>
+                    <h1 className="text-fluid-4xl font-serif text-foreground tracking-tighter uppercase italic gold-gradient">Thương hiệu</h1>
+                    <p className="mt-4 text-[10px] md:text-xs uppercase tracking-[0.4em] text-muted-foreground font-black">Archive of the world's finest perfume houses</p>
+                </header>
+
+                {/* Filter Bar */}
+                <div className="flex flex-col lg:flex-row items-center justify-between border-y border-border/50 py-10 mb-20 gap-10">
+                    <div className="w-full lg:flex-1 overflow-x-auto no-scrollbar lg:overflow-visible">
+                        <div className="flex items-center gap-x-6 min-w-max px-4 lg:px-0 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
                             <button
                                 onClick={() => setSelectedLetter(null)}
-                                className={`hover:text-foreground transition-all duration-300 ${!selectedLetter ? 'text-foreground' : ''}`}
+                                className={`hover:text-gold transition-all duration-300 px-2 py-1 ${!selectedLetter ? 'text-gold' : ''}`}
                             >
                                 ALL BRANDS
                             </button>
+                            <div className="w-px h-4 bg-border mx-2 hidden md:block" />
                             {letters.map(l => (
                                 <button
                                     key={l}
                                     onClick={() => setSelectedLetter(l)}
-                                    className={`hover:text-foreground transition-all duration-300 ${selectedLetter === l ? 'text-foreground scale-125' : ''}`}
+                                    className={`hover:text-gold transition-all duration-300 px-2 py-1 ${selectedLetter === l ? 'text-gold scale-150' : ''}`}
                                 >
                                     {l}
                                 </button>
                             ))}
                         </div>
-
-                        <div className="relative w-full md:w-72">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                            <input
-                                type="text"
-                                placeholder="Tên thương hiệu..."
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3 border border-border rounded-full bg-background text-sm focus:outline-none focus:border-foreground transition-all shadow-sm"
-                            />
-                        </div>
                     </div>
 
-                    {/* Grid */}
-                    {loading ? (
-                        <div className="flex justify-center items-center py-20">
-                            <span className="text-[10px] tracking-[0.3em] font-bold uppercase text-muted-foreground animate-pulse">
-                                Đang tải danh bạ...
-                            </span>
-                        </div>
-                    ) : Object.keys(groupedBrands).length === 0 ? (
-                        <div className="text-center text-muted-foreground py-20 font-serif text-xl italic">
-                            Không tìm thấy thương hiệu phù hợp với yêu cầu.
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-12 gap-y-24">
-                            {Object.keys(groupedBrands).sort().map(letter => (
-                                <div key={letter} className="flex flex-col">
-                                    <h2 className="text-3xl font-serif text-foreground pb-6 mb-8 border-b border-border">{letter}</h2>
-                                    <ul className="flex flex-col gap-4">
+                    <div className="relative w-full lg:w-96 group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search by brand name..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full pl-16 pr-6 py-4 border border-border rounded-2xl bg-background/50 text-sm focus:outline-none focus:border-gold transition-all shadow-sm focus:shadow-gold/5"
+                        />
+                    </div>
+                </div>
+
+                {/* Grid */}
+                {loading ? (
+                    <div className="flex flex-col justify-center items-center py-40 gap-6">
+                        <div className="w-12 h-12 border-4 border-gold/20 border-t-gold rounded-full animate-spin" />
+                        <span className="text-[10px] tracking-[0.4em] font-black uppercase text-muted-foreground animate-pulse">
+                            Scanning directories...
+                        </span>
+                    </div>
+                ) : Object.keys(groupedBrands).length === 0 ? (
+                    <div className="text-center text-muted-foreground py-40 font-serif text-2xl italic opacity-50">
+                        No scent houses found matching your criteria.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 gap-y-24">
+                        {Object.keys(groupedBrands).map(letter => (
+                                <motion.div 
+                                    key={letter} 
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    className="flex flex-col"
+                                >
+                                    <h2 className="text-4xl font-serif text-foreground pb-6 mb-10 border-b border-border/50 relative overflow-hidden group">
+                                        {letter}
+                                        <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-gold translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
+                                    </h2>
+                                    <ul className="flex flex-col gap-6">
                                         {groupedBrands[letter].map(brand => (
                                             <li key={brand.id}>
                                                 <Link
                                                     href={`/collection?brand=${encodeURIComponent(brand.name)}`}
-                                                    className="group flex items-center text-[15px] text-muted-foreground hover:text-foreground transition-colors font-medium font-serif"
+                                                    className="group flex items-center text-[15px] text-muted-foreground hover:text-gold transition-all duration-300 font-serif"
                                                 >
+                                                    <span className="w-0 group-hover:w-4 h-px bg-gold mr-0 group-hover:mr-3 transition-all duration-500" />
                                                     {brand.name}
                                                 </Link>
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </main>
+                                </motion.div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

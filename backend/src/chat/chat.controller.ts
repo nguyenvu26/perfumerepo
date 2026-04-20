@@ -8,11 +8,15 @@ import {
   Query,
   UseGuards,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ChatService } from './services/chat.service';
 import { ConversationService } from './services/conversation.service';
 import { MessageService } from './services/message.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConversationType, MessageType } from '@prisma/client';
 
@@ -23,6 +27,7 @@ export class ChatController {
     private readonly chatService: ChatService,
     private readonly conversationService: ConversationService,
     private readonly messageService: MessageService,
+    private readonly cloudinaryService: CloudinaryService,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -115,6 +120,29 @@ export class ChatController {
       conversationId,
       type,
       content,
+    );
+  }
+
+  // ───── POST /chat/messages/image ─────
+  @Post('messages/image')
+  @UseInterceptors(FileInterceptor('file'))
+  async sendImageMessage(
+    @Req() req: any,
+    @Body('conversationId') conversationId: string,
+    @UploadedFile() file: any,
+  ) {
+    // 1. Upload to Cloudinary
+    const uploadResult = await this.cloudinaryService.uploadImage(file.buffer, 'chats');
+
+    // 2. Process message as IMAGE type
+    return this.chatService.processMessage(
+      req.user.userId,
+      conversationId,
+      MessageType.IMAGE,
+      {
+        text: '',
+        imageUrl: uploadResult.url,
+      },
     );
   }
 }

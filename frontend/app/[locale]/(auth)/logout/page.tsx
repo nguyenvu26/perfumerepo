@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 
 export default function LogoutPage() {
+    const t = useTranslations('auth.logout');
     const commonT = useTranslations('common');
 
     return (
@@ -34,18 +35,18 @@ export default function LogoutPage() {
                     </motion.div>
 
                     <div className="space-y-4">
-                        <h1 className="text-5xl md:text-7xl font-heading text-cream font-light italic leading-tight">
-                            Until the next <br /> Inspiration
+                        <h1 className="text-fluid-4xl font-heading text-cream font-light italic leading-tight">
+                            {t('title').split(' ')[0]} <br className="md:hidden" /> {t('title').split(' ').slice(1).join(' ')}
                         </h1>
-                        <p className="text-[10px] uppercase tracking-[0.5em] text-gold/60 font-bold">
-                            You have been safely disconnected from the House
+                        <p className="text-[10px] uppercase tracking-[0.5em] text-gold/60 font-bold px-4">
+                            {t('subtitle')}
                         </p>
                     </div>
                 </div>
 
                 <div className="p-8 rounded-[3rem] bg-white/[0.02] border border-white/5 space-y-6 max-w-sm mx-auto">
                     <p className="text-cream/50 font-body text-sm leading-relaxed uppercase tracking-widest italic">
-                        "A journey of a thousand scents ends with a single memory."
+                        "{t('quote')}"
                     </p>
                 </div>
 
@@ -56,7 +57,7 @@ export default function LogoutPage() {
                             whileTap={{ scale: 0.95 }}
                             className="px-10 py-5 bg-gold text-ebony font-body font-bold uppercase tracking-[0.3em] text-[10px] rounded-full shadow-[0_10px_40px_rgba(212,175,55,0.2)] hover:shadow-gold/40 transition-all flex items-center gap-3"
                         >
-                            The Home <ArrowRight className="w-4 h-4" />
+                            {t('home')} <ArrowRight className="w-4 h-4" />
                         </motion.button>
                     </Link>
                     <Link href="/login">
@@ -64,7 +65,7 @@ export default function LogoutPage() {
                             whileHover={{ scale: 1.05 }}
                             className="px-10 py-5 border border-white/10 text-cream font-body font-bold uppercase tracking-[0.3em] text-[10px] rounded-full glass-dark hover:border-gold/30 transition-all"
                         >
-                            Return to Portal
+                            {t('return_portal')}
                         </motion.button>
                     </Link>
                 </div>

@@ -61,8 +61,8 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 flex items-center justify-center p-6 transition-colors">
-            <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 bg-white dark:bg-zinc-900 rounded-[4rem] overflow-hidden shadow-2xl border border-stone-100 dark:border-white/5 transition-colors">
+        <div className="min-h-screen bg-stone-50 dark:bg-zinc-950 flex items-center justify-center p-0 sm:p-6 lg:p-8 transition-colors">
+            <div className="max-w-6xl w-full grid md:grid-cols-2 gap-0 md:gap-12 bg-white dark:bg-zinc-900 rounded-none sm:rounded-[3rem] lg:rounded-[4rem] overflow-hidden shadow-2xl border-0 sm:border border-stone-100 dark:border-white/5 transition-colors">
                 {/* Visual Side */}
                 <div className="relative hidden md:block overflow-hidden min-h-[600px]">
                     <Image
@@ -94,7 +94,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form Side */}
-                <form onSubmit={handleSubmit} className="p-12 md:p-20 flex flex-col justify-center">
+                <form onSubmit={handleSubmit} className="p-8 sm:p-12 lg:p-20 flex flex-col justify-center min-h-[100dvh] md:min-h-0">
                     <AnimatePresence mode="wait">
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
@@ -102,7 +102,7 @@ export default function LoginPage() {
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.5 }}
                         >
-                            <h1 className="text-4xl font-serif text-luxury-black dark:text-white mb-2 transition-colors">
+                            <h1 className="text-fluid-3xl font-serif text-luxury-black dark:text-white mb-2 transition-colors">
                                 {t('welcome_back')}
                             </h1>
                             <p className="text-[10px] text-stone-400 font-bold tracking-[.4em] uppercase mb-8">
@@ -173,7 +173,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full py-5 bg-luxury-black dark:bg-gold text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] shadow-2xl hover:bg-stone-800 dark:hover:bg-gold/80 transition-all flex items-center justify-center gap-4 group mb-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-4 lg:py-5 bg-luxury-black dark:bg-gold text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] shadow-2xl hover:bg-stone-800 dark:hover:bg-gold/80 transition-all flex items-center justify-center gap-4 group mb-10 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? tCommon('processing').toUpperCase() : t('sign_in')}
                                 {!isLoading && <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />}
@@ -185,7 +185,7 @@ export default function LoginPage() {
                                     <div className="relative flex justify-center"><span className="bg-white dark:bg-zinc-900 px-4 text-[10px] font-bold text-stone-300 uppercase tracking-widest">{t('or_continue')}</span></div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
                                     <button
                                         type="button"
                                         onClick={() => handleOAuthLogin('Google')}
