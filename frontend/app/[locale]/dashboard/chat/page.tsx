@@ -31,6 +31,7 @@ type Tab = "conversations" | "contacts";
 
 export default function DashboardChatPage() {
   const t = useTranslations("dashboard.profile.chat");
+  const tRoles = useTranslations("dashboard.profile.roles");
   const tFeatured = useTranslations("featured");
   const format = useFormatter();
   const { user } = useAuth();
@@ -191,10 +192,14 @@ export default function DashboardChatPage() {
   }, [selected, newMessage]);
 
   // ── Helpers ──
+  const getOtherParticipant = (conv: Conversation) => {
+    return conv.participants?.find((p) => p.userId !== user?.id);
+  };
+
   const getConversationLabel = (conv: Conversation) => {
     if (conv.type === "CUSTOMER_AI") return t("ai_labels.perfume");
     if (conv.type === "ADMIN_AI") return t("ai_labels.marketing");
-    const other = conv.participants?.find((p) => p.userId !== user?.id);
+    const other = getOtherParticipant(conv);
     return other?.user?.fullName || other?.user?.email || conv.type;
   };
 
@@ -218,11 +223,14 @@ export default function DashboardChatPage() {
   const formatTime = (d: string) =>
     new Date(d).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  const filteredConversations = conversations.filter((c) => {
-    if (!searchTerm) return true;
-    const label = getConversationLabel(c).toLowerCase();
-    return label.includes(searchTerm.toLowerCase());
-  });
+  const filteredConversations = filteredConversationsFn();
+  function filteredConversationsFn() {
+    return conversations.filter((c) => {
+      if (!searchTerm) return true;
+      const label = getConversationLabel(c).toLowerCase();
+      return label.includes(searchTerm.toLowerCase());
+    });
+  }
 
   const filteredContacts = contacts.filter((c) => {
     if (!searchTerm) return true;
@@ -302,31 +310,52 @@ export default function DashboardChatPage() {
                 {t("fallbacks.no_conversations")}
               </p>
             ) : (
-              filteredConversations.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => setSelected(conv)}
-                  className={cn(
-                    "w-full text-left px-4 py-3 border-b border-border/30 transition-colors hover:bg-secondary/30",
-                    selected?.id === conv.id &&
-                      "bg-gold/10 border-l-2 border-l-gold",
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center shrink-0">
-                      {getConversationIcon(conv.type)}
+              filteredConversations.map((conv) => {
+                const other = getOtherParticipant(conv);
+                const role = other?.role;
+
+                return (
+                  <button
+                    key={conv.id}
+                    onClick={() => setSelected(conv)}
+                    className={cn(
+                      "w-full text-left px-4 py-3 border-b border-border/30 transition-colors hover:bg-secondary/30",
+                      selected?.id === conv.id &&
+                        "bg-gold/10 border-l-2 border-l-gold",
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                        {getConversationIcon(conv.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-medium truncate">
+                            {getConversationLabel(conv)}
+                          </p>
+                          {user?.role === "ADMIN" && role && (
+                            <span
+                              className={cn(
+                                "text-[8px] px-1.5 py-0.5 rounded-full uppercase tracking-tighter border",
+                                role === "STAFF"
+                                  ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
+                                  : "border-gold/30 bg-gold/10 text-gold",
+                              )}
+                            >
+                              {role === "STAFF"
+                                ? tRoles("staff")
+                                : tRoles("customer")}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                          {getLastMessage(conv)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">
-                        {getConversationLabel(conv)}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                        {getLastMessage(conv)}
-                      </p>
-                    </div>
-                  </div>
-                </button>
-              ))
+                  </button>
+                );
+              })
             )
           ) : filteredContacts.length === 0 ? (
             <p className="text-center text-xs text-muted-foreground py-8">
@@ -366,10 +395,26 @@ export default function DashboardChatPage() {
               <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
                 {getConversationIcon(selected.type)}
               </div>
-              <div>
-                <p className="text-sm font-medium">
-                  {getConversationLabel(selected)}
-                </p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium truncate">
+                    {getConversationLabel(selected)}
+                  </p>
+                  {user?.role === "ADMIN" && getOtherParticipant(selected)?.role && (
+                    <span
+                      className={cn(
+                        "text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest border font-semibold",
+                        getOtherParticipant(selected)?.role === "STAFF"
+                          ? "border-blue-500/30 bg-blue-500/10 text-blue-400"
+                          : "border-gold/30 bg-gold/10 text-gold",
+                      )}
+                    >
+                      {getOtherParticipant(selected)?.role === "STAFF"
+                        ? tRoles("staff")
+                        : tRoles("customer")}
+                    </span>
+                  )}
+                </div>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest">
                   {selected.type.replace("_", " · ")}
                 </p>
@@ -378,71 +423,74 @@ export default function DashboardChatPage() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map((msg) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={cn(
-                    "flex",
-                    msg.senderType === "USER" ? "justify-end" : "justify-start",
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "max-w-[65%] px-4 py-3 text-sm",
-                      msg.senderType === "USER"
-                        ? "bg-gold text-white rounded-2xl rounded-tr-md"
-                        : "glass rounded-2xl rounded-tl-md",
-                    )}
+              {messages.map((msg) => {
+                const isMe =
+                  msg.senderType === "USER" &&
+                  msg.senderId === user?.id;
+
+                return (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn("flex", isMe ? "justify-end" : "justify-start")}
                   >
-                    {(msg.type === "TEXT" ||
-                      msg.type === "AI_RECOMMENDATION") && (
-                      <p className="whitespace-pre-wrap leading-relaxed">
-                        {(msg.content as any)?.text}
-                      </p>
-                    )}
-                    {msg.type === "AI_RECOMMENDATION" &&
-                      (msg.content as any)?.recommendations?.map(
-                        (rec: any, idx: number) => (
-                          <Link
-                            key={idx}
-                            href={`/products/${rec.productId}`}
-                            className="mt-2 p-3 rounded-xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-sm group-hover:text-gold transition-colors">
-                                  {rec.name}
-                                </p>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                  {rec.reason}
-                                </p>
-                                {rec.price && (
-                                  <p className="text-xs font-semibold text-gold mt-1">
-                                    {format.number(Number(rec.price), {
-                                      style: "currency",
-                                      currency:
-                                        tFeatured("currency_code") || "VND",
-                                      maximumFractionDigits: 0,
-                                    })}
-                                  </p>
-                                )}
-                              </div>
-                              <ExternalLink
-                                size={12}
-                                className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-1"
-                              />
-                            </div>
-                          </Link>
-                        ),
+                    <div
+                      className={cn(
+                        "max-w-[65%] px-4 py-3 text-sm",
+                        isMe
+                          ? "bg-gold text-white rounded-2xl rounded-tr-md"
+                          : "glass rounded-2xl rounded-tl-md",
                       )}
-                    <p className="text-[10px] opacity-50 mt-1.5 text-right">
-                      {formatTime(msg.createdAt)}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+                    >
+                      {(msg.type === "TEXT" ||
+                        msg.type === "AI_RECOMMENDATION") && (
+                        <p className="whitespace-pre-wrap leading-relaxed">
+                          {(msg.content as any)?.text}
+                        </p>
+                      )}
+                      {msg.type === "AI_RECOMMENDATION" &&
+                        (msg.content as any)?.recommendations?.map(
+                          (rec: any, idx: number) => (
+                            <Link
+                              key={idx}
+                              href={`/products/${rec.productId}`}
+                              className="mt-2 p-3 rounded-xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-sm group-hover:text-gold transition-colors">
+                                    {rec.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {rec.reason}
+                                  </p>
+                                  {rec.price && (
+                                    <p className="text-xs font-semibold text-gold mt-1">
+                                      {format.number(Number(rec.price), {
+                                        style: "currency",
+                                        currency:
+                                          tFeatured("currency_code") || "VND",
+                                        maximumFractionDigits: 0,
+                                      })}
+                                    </p>
+                                  )}
+                                </div>
+                                <ExternalLink
+                                  size={12}
+                                  className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-1"
+                                />
+                              </div>
+                            </Link>
+                          ),
+                        )}
+                      <p className="text-[10px] opacity-50 mt-1.5 text-right">
+                        {formatTime(msg.createdAt)}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
 
               {loading && (
                 <div className="flex justify-start">

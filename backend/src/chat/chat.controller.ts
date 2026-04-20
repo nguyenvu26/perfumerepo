@@ -123,8 +123,8 @@ export class ChatController {
     );
   }
 
-  // ───── POST /chat/messages/image ─────
-  @Post('messages/image')
+  // ───── POST /chat/messages/image-upload ─────
+  @Post('messages/image-upload')
   @UseInterceptors(FileInterceptor('file'))
   async sendImageMessage(
     @Req() req: any,
@@ -132,7 +132,10 @@ export class ChatController {
     @UploadedFile() file: any,
   ) {
     // 1. Upload to Cloudinary
-    const uploadResult = await this.cloudinaryService.uploadImage(file.buffer, 'chats');
+    const uploadResult = await this.cloudinaryService.uploadImage(
+      file.buffer,
+      'chats',
+    );
 
     // 2. Process message as IMAGE type
     return this.chatService.processMessage(

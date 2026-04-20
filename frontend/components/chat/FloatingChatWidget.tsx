@@ -18,7 +18,7 @@ export function FloatingChatWidget() {
     const [initializing, setInitializing] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
     // Quick action suggestions
     const quickActions = [
@@ -233,60 +233,63 @@ export function FloatingChatWidget() {
                                         </div>
                                     )}
 
-                                    {messages.map((msg) => (
-                                        <div
-                                            key={msg.id}
-                                            className={cn(
-                                                'flex',
-                                                msg.senderType === 'USER' ? 'justify-end' : 'justify-start'
-                                            )}
-                                        >
+                                    {messages.map((msg) => {
+                                        const isMe = msg.senderType === 'USER' && msg.senderId === user?.id;
+                                        return (
                                             <div
+                                                key={msg.id}
                                                 className={cn(
-                                                    'max-w-[80%] px-4 py-2.5 text-sm',
-                                                    msg.senderType === 'USER'
-                                                        ? 'bg-gold text-white rounded-2xl rounded-tr-md'
-                                                        : 'glass rounded-2xl rounded-tl-md'
+                                                    'flex',
+                                                    isMe ? 'justify-end' : 'justify-start'
                                                 )}
                                             >
-                                                {(msg.type === 'TEXT' || msg.type === 'AI_RECOMMENDATION') && (
-                                                    <p className="whitespace-pre-wrap leading-relaxed">
-                                                        {(msg.content as any)?.text}
-                                                    </p>
-                                                )}
-                                                {msg.type === 'AI_RECOMMENDATION' &&
-                                                    (msg.content as any)?.recommendations?.map(
-                                                        (rec: any, idx: number) => (
-                                                            <Link
-                                                                key={idx}
-                                                                href={`/products/${rec.productId}`}
-                                                                className="mt-2 p-3 rounded-xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
-                                                            >
-                                                                <div className="flex items-start justify-between gap-2">
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <p className="font-medium text-sm group-hover:text-gold transition-colors">
-                                                                            {rec.name}
-                                                                        </p>
-                                                                        <p className="text-xs text-muted-foreground mt-1">
-                                                                            {rec.reason}
-                                                                        </p>
-                                                                        {rec.price && (
-                                                                            <p className="text-xs font-semibold text-gold mt-1">
-                                                                                {Number(rec.price).toLocaleString()}₫
-                                                                            </p>
-                                                                        )}
-                                                                    </div>
-                                                                    <ExternalLink size={12} className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-1" />
-                                                                </div>
-                                                            </Link>
-                                                        )
+                                                <div
+                                                    className={cn(
+                                                        'max-w-[80%] px-4 py-2.5 text-sm',
+                                                        isMe
+                                                            ? 'bg-gold text-white rounded-2xl rounded-tr-md'
+                                                            : 'glass rounded-2xl rounded-tl-md'
                                                     )}
-                                                <p className="text-[10px] opacity-50 mt-1 text-right">
-                                                    {formatTime(msg.createdAt)}
-                                                </p>
+                                                >
+                                                    {(msg.type === 'TEXT' || msg.type === 'AI_RECOMMENDATION') && (
+                                                        <p className="whitespace-pre-wrap leading-relaxed">
+                                                            {(msg.content as any)?.text}
+                                                        </p>
+                                                    )}
+                                                    {msg.type === 'AI_RECOMMENDATION' &&
+                                                        (msg.content as any)?.recommendations?.map(
+                                                            (rec: any, idx: number) => (
+                                                                <Link
+                                                                    key={idx}
+                                                                    href={`/products/${rec.productId}`}
+                                                                    className="mt-2 p-3 rounded-xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
+                                                                >
+                                                                    <div className="flex items-start justify-between gap-2">
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <p className="font-medium text-sm group-hover:text-gold transition-colors">
+                                                                                {rec.name}
+                                                                            </p>
+                                                                            <p className="text-xs text-muted-foreground mt-1">
+                                                                                {rec.reason}
+                                                                            </p>
+                                                                            {rec.price && (
+                                                                                <p className="text-xs font-semibold text-gold mt-1">
+                                                                                    {Number(rec.price).toLocaleString()}₫
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                        <ExternalLink size={12} className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-1" />
+                                                                    </div>
+                                                                </Link>
+                                                            )
+                                                        )}
+                                                    <p className="text-[10px] opacity-50 mt-1 text-right">
+                                                        {formatTime(msg.createdAt)}
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
 
                                     {loading && (
                                         <div className="flex justify-start">
