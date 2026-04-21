@@ -81,11 +81,13 @@ export default function ManageBannerPage() {
 
     return (
         <div className="p-4 sm:p-6 md:p-8 pb-20 max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-500">
-            <header className="mb-8 md:mb-10 space-y-1">
-                <h1 className="text-3xl sm:text-4xl font-heading gold-gradient mb-1 uppercase tracking-tighter leading-none">{t('title')}</h1>
-                <p className="text-muted-foreground font-body text-[10px] sm:text-xs uppercase tracking-[.3em] font-extrabold opacity-70">
-                   Quản lý không gian quảng cáo thương hiệu
-                </p>
+            <header className="mb-8 md:mb-12">
+                <div className="space-y-4">
+                    <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+                       {t('subtitle')}
+                    </p>
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-8 md:gap-12">

@@ -192,7 +192,7 @@ export default function CustomerOrderDetailPage() {
             <ArrowLeft size={16} />
             {tDetail("back")}
           </Link>
-          <h1 className="text-4xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+          <h1 className="text-2xl md:text-3xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
             {tDetail("order_number", { code: order.code })}
           </h1>
           <p className="text-[10px] text-stone-500 uppercase tracking-[.4em] font-bold">

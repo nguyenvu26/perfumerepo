@@ -104,7 +104,16 @@ export class StaffInventoryService {
         reason,
       },
       include: {
-        variant: { include: { product: { include: { brand: true } } } },
+        variant: {
+          include: {
+            product: {
+              include: {
+                brand: true,
+                images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } },
+              },
+            },
+          },
+        },
         store: true,
         staff: { select: { id: true, fullName: true, email: true } },
       },
@@ -137,7 +146,16 @@ export class StaffInventoryService {
         reason: reason || 'Adjustment',
       },
       include: {
-        variant: { include: { product: { include: { brand: true } } } },
+        variant: {
+          include: {
+            product: {
+              include: {
+                brand: true,
+                images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } },
+              },
+            },
+          },
+        },
         store: true,
         staff: { select: { id: true, fullName: true, email: true } },
       },
@@ -159,7 +177,16 @@ export class StaffInventoryService {
       orderBy: { createdAt: 'desc' },
       take: 100,
       include: {
-        variant: { include: { product: { include: { brand: true } } } },
+        variant: {
+          include: {
+            product: {
+              include: {
+                brand: true,
+                images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } },
+              },
+            },
+          },
+        },
         store: true,
         staff: { select: { id: true, fullName: true, email: true } },
         reviewer: { select: { id: true, fullName: true, email: true } },
@@ -453,7 +480,15 @@ export class StaffInventoryService {
       orderBy: { createdAt: 'desc' },
       take: 200,
       include: {
-        variant: { include: { product: true } },
+        variant: {
+          include: {
+            product: {
+              include: {
+                images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } },
+              },
+            },
+          },
+        },
         staff: true,
         store: true,
       },

@@ -742,6 +742,7 @@ enum InventoryLogType {
   IMPORT
   ADJUST
   SALE_POS
+  SALE_ONLINE
   RETURN
 }
 

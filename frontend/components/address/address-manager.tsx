@@ -10,6 +10,7 @@ import { AddressCard } from '@/components/address/address-card';
 import { AddressForm } from '@/components/address/address-form';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useUIStore } from '@/store/ui.store';
 
 type AddressManagerProps = {
   className?: string;
@@ -23,6 +24,11 @@ export function AddressManager({ className }: AddressManagerProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<UserAddress | null>(null);
+  const { setModalOpen } = useUIStore();
+
+  useEffect(() => {
+    setModalOpen(isFormOpen);
+  }, [isFormOpen, setModalOpen]);
 
   const defaultAddress = useMemo(
     () => addresses.find((a) => a.isDefault) ?? addresses[0] ?? null,

@@ -38,11 +38,11 @@ export const FeaturedProducts = () => {
                         href="/collection"
                         className="group text-[10px] font-bold tracking-[.4em] uppercase border-b-2 border-gold pb-2 text-luxury-black dark:text-white transition-colors flex items-center gap-4 w-fit"
                     >
-                        {t('cta') || 'Explore'}
+                    {t('cta') || 'Explore'}
                         <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                     </Link>
                 </div>
-                <div className="grid-responsive cols-3">
+                <div className="flex overflow-x-auto lg:grid grid-cols-3 gap-6 lg:gap-gutter no-scrollbar px-4 -mx-4 lg:px-0 lg:mx-0 pb-8 lg:pb-0 scroll-smooth snap-x snap-mandatory">
                     {products.map((perfume, i) => (
                         <motion.div
                             key={perfume.id}
@@ -50,10 +50,10 @@ export const FeaturedProducts = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8, delay: i * 0.2 }}
-                            className="group cursor-pointer"
+                            className="group cursor-pointer min-w-[280px] sm:min-w-[320px] lg:min-w-0 snap-start"
                         >
                             <Link href={`/collection/${perfume.id}`}>
-                                <div className="relative aspect-[3/4] bg-stone-50 dark:bg-zinc-900 mb-6 lg:mb-10 overflow-hidden rounded-[2.5rem] lg:rounded-[3.5rem] transition-all border border-stone-100 dark:border-white/5 shadow-sm group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] group-hover:-translate-y-2 lg:group-hover:-translate-y-4">
+                                <div className="relative aspect-[3/4] bg-stone-50 dark:bg-zinc-900 mb-6 lg:mb-10 overflow-hidden rounded-[2.5rem] lg:rounded-[3rem] transition-all border border-stone-100 dark:border-white/5 shadow-sm group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] group-hover:-translate-y-2 lg:group-hover:-translate-y-4">
                                     {perfume.images?.[0] && (
                                         <Image
                                             src={perfume.images[0].url}
@@ -75,7 +75,7 @@ export const FeaturedProducts = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-center text-center px-2">
-                                    <p className="text-[8px] lg:text-[9px] text-stone-500 dark:text-stone-400 font-bold tracking-[.4em] uppercase mb-1 lg:mb-2 transition-colors">
+                                    <p className="text-[9px] lg:text-[10px] text-stone-500 dark:text-stone-400 font-bold tracking-[.4em] uppercase mb-1 lg:mb-2 transition-colors">
                                         {perfume.brand?.name || 'Perfume'}
                                     </p>
                                     <h4 className="text-xl lg:text-3xl font-serif text-luxury-black dark:text-white mb-2 lg:mb-4 group-hover:italic transition-all duration-500 line-clamp-1">
@@ -101,7 +101,7 @@ export const FeaturedProducts = () => {
                     <p className="text-[10px] lg:text-[12px] text-stone-500 dark:text-stone-400 font-bold tracking-[.4em] uppercase mb-4 lg:mb-6 transition-colors font-serif italic">
                         {t('badge')}
                     </p>
-                    <h2 className="text-fluid-4xl font-serif text-luxury-black dark:text-white transition-colors leading-[1.1] tracking-tight">
+                    <h2 className="text-fluid-3xl font-serif text-luxury-black dark:text-white transition-colors leading-[1.1] tracking-tight">
                         {t('title')}
                     </h2>
                 </div>

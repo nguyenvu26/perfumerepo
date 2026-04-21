@@ -153,6 +153,7 @@ export class ProductsService {
     // AI DNA Filtering
     let avoidedNotes: string[] = [];
     let preferredNotes: string[] = [];
+    let riskLevel = 0.3; // Default
 
     if (userId) {
       const prefs = await this.prisma.userAiPreference.findUnique({
@@ -161,30 +162,51 @@ export class ProductsService {
       if (prefs) {
         avoidedNotes = prefs.avoidedNotes || [];
         preferredNotes = prefs.preferredNotes || [];
+        riskLevel = prefs.riskLevel ?? 0.3;
       }
     }
 
     if (avoidedNotes.length > 0) {
-      where.NOT = {
+      where.AND.push({
+        NOT: {
+          notes: {
+            some: {
+              note: {
+                name: {
+                  in: avoidedNotes,
+                  mode: 'insensitive',
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // Strict Filter for "Classic" mode (Low Risk Level < 0.35)
+    // If user has preferred notes and riskLevel is low, ONLY show matching products
+    if (riskLevel < 0.35 && preferredNotes.length > 0) {
+      where.AND.push({
         notes: {
           some: {
             note: {
               name: {
-                in: avoidedNotes,
+                in: preferredNotes,
                 mode: 'insensitive',
               },
             },
           },
         },
-      };
+      });
     }
 
     // If we have preferred notes, we need to fetch more items to sort them by relevance
     // But for a basic implementation, we just fetch with pagination.
     // If scoring is critical, we'd fetch all and paginate in memory, which is what the previous code tried.
     // Let's improve it by only fetching everything if preferredNotes are actually present.
-
-    const shouldScoring = preferredNotes.length > 0;
+    
+    // We only need to fetch all and re-sort if we're NOT in strict mode and HAVE preferred notes
+    const shouldScoring = riskLevel >= 0.35 && preferredNotes.length > 0;
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({

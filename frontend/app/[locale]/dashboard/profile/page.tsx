@@ -181,7 +181,7 @@ export default function ProfilePage() {
     <AuthGuard>
       <main className="p-4 sm:p-8 max-w-5xl mx-auto">
         <header className="mb-8 md:mb-12">
-          <h1 className="text-3xl md:text-4xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+          <h1 className="text-2xl md:text-3xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
             {t('title')}
           </h1>
           <p className="text-muted-foreground font-body text-[10px] md:text-sm uppercase tracking-widest">
@@ -354,12 +354,12 @@ export default function ProfilePage() {
                       <select
                         value={form.gender}
                         onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
-                        className="w-full px-4 py-3.5 rounded-2xl border border-border bg-background/50 text-[10px] uppercase tracking-widest focus:border-gold outline-none transition-all appearance-none cursor-pointer"
+                        className="w-full px-4 py-3.5 rounded-2xl border border-border/50 bg-zinc-50 dark:bg-white/5 text-[10px] uppercase tracking-widest focus:border-gold outline-none transition-all appearance-none cursor-pointer"
                       >
-                        <option value="">{t('fallback.empty')}</option>
-                        <option value="MALE">{t('gender_options.male')}</option>
-                        <option value="FEMALE">{t('gender_options.female')}</option>
-                        <option value="OTHER">{t('gender_options.other')}</option>
+                        <option value="" className="bg-white dark:bg-zinc-900">{t('fallback.empty')}</option>
+                        <option value="MALE" className="bg-white dark:bg-zinc-900">{t('gender_options.male')}</option>
+                        <option value="FEMALE" className="bg-white dark:bg-zinc-900">{t('gender_options.female')}</option>
+                        <option value="OTHER" className="bg-white dark:bg-zinc-900">{t('gender_options.other')}</option>
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
                         <User size={12} />

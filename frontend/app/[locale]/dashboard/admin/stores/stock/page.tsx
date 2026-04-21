@@ -24,13 +24,14 @@ import {
   CheckCircle2,
   Loader2,
   AlertCircle,
-  PackageSearch,
-  Tag,
-  ClipboardCheck,
   Check,
   X,
+  ClipboardCheck,
+  Tag,
+  PackageSearch
 } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -45,6 +46,7 @@ type BatchItem = {
 type TabType = "overview" | "batch-import" | "transfer" | "requests";
 
 export default function AdminStockRedesignPage() {
+  const t = useTranslations("dashboard.admin.stock");
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [overview, setOverview] = useState<StockOverview | null>(null);
   const [storeList, setStoreList] = useState<Store[]>([]);
@@ -290,19 +292,12 @@ export default function AdminStockRedesignPage() {
   return (
     <AuthGuard allowedRoles={["admin"]}>
       <main className="p-8 max-w-[1800px] mx-auto">
-        <header className="mb-8 sm:mb-12 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="p-4 sm:p-5 bg-gold/10 rounded-[2rem] sm:rounded-[2.5rem] shadow-inner">
-              <LayoutGrid className="w-6 h-6 sm:w-10 sm:h-10 text-gold" />
-            </div>
-            <div>
-              <h1 className="text-3xl sm:text-6xl font-heading gold-gradient uppercase tracking-tighter leading-none italic">
-                Inventory Suite
-              </h1>
-              <p className="text-muted-foreground font-body text-[8px] sm:text-[10px] uppercase tracking-[0.4em] mt-2 font-black opacity-50 italic">
-                Global Stock Intelligence & Logistics
-              </p>
-            </div>
+        <header className="mb-8 md:mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+              {t('subtitle')}
+            </p>
           </div>
           
           <div className="w-full lg:w-auto overflow-x-auto no-scrollbar">
@@ -1209,7 +1204,7 @@ export default function AdminStockRedesignPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                    className="fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4 backdrop-blur-md"
                     onClick={() => setShowRejectModal(null)}
                   >
                     <motion.div
@@ -1217,7 +1212,7 @@ export default function AdminStockRedesignPage() {
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0.95, opacity: 0 }}
                       onClick={(e) => e.stopPropagation()}
-                      className="glass p-10 rounded-[2rem] border border-border max-w-lg w-full"
+                      className="bg-background/98 dark:bg-zinc-900 rounded-[2rem] border border-border max-w-lg w-full p-10 shadow-2xl"
                     >
                       <h3 className="font-heading text-lg uppercase tracking-widest mb-2 text-destructive">
                         Reject Request

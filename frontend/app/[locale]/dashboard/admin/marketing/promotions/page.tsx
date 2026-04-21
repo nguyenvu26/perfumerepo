@@ -4,16 +4,25 @@ import { AuthGuard } from '@/components/auth/auth-guard';
 import { promotionService } from '@/services/promotion.service';
 import { Tag, Plus, Loader2, Trash2, ShieldCheck, Zap, TrendingUp, X } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useFormatter } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useUIStore } from '@/store/ui.store';
 
 export default function PromotionsAdmin() {
   const t = useTranslations('dashboard.admin.promotions');
+  const { isSidebarCollapsed: isCollapsed, setModalOpen } = useUIStore();
   const tFeatured = useTranslations('featured');
   const format = useFormatter();
   const [promos, setPromos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpenState] = useState(false);
+
+  const setIsModalOpen = (open: boolean) => {
+    setIsModalOpenState(open);
+    setModalOpen(open);
+  };
+
   const [form, setForm] = useState({
     code: '',
     description: '',
@@ -80,14 +89,11 @@ export default function PromotionsAdmin() {
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-4 sm:p-6 md:p-8 pb-20 max-w-[1600px] mx-auto">
         <header className="mb-8 md:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-gold mb-2">
-              <Zap size={14} className="animate-pulse" />
-              <span className="text-[10px] font-bold tracking-[.4em] uppercase italic leading-none">{t('title')}</span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading gold-gradient uppercase tracking-tighter mb-1 leading-none">
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
               {t('subtitle')}
-            </h1>
+            </p>
           </div>
 
           <button
@@ -268,25 +274,24 @@ export default function PromotionsAdmin() {
           ))}
         </div>
 
-        {/* CREATE MODAL */}
         <AnimatePresence>
           {isModalOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-6"
-            >
-            <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="glass rounded-t-[2.5rem] sm:rounded-[3rem] border border-stone-200 dark:border-white/10 w-full max-w-3xl bg-background sm:bg-background/50 relative flex flex-col h-[100vh] sm:h-auto sm:max-h-[90vh] overflow-hidden shadow-2xl mt-auto sm:mt-0"
-              >
+            <div className={cn(
+                "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl",
+                "left-0 md:left-20",
+                !isCollapsed && "lg:left-72"
+            )} onClick={() => setIsModalOpen(false)}>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                    className="relative w-full max-w-3xl h-full sm:h-auto sm:max-h-[85vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+                    onClick={(e) => e.stopPropagation()}
+                >
                  <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[120px] pointer-events-none" />
                  
                  {/* MODAL HEADER - FIXED */}
-                 <div className="px-6 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-stone-100 dark:border-white/5 bg-background/20 backdrop-blur-md z-10 shrink-0">
+                 <div className="px-8 py-8 md:px-12 md:py-10 flex justify-between items-center border-b border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20 shrink-0">
                     <div>
                       <h2 className="text-2xl md:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none mb-1">
                         {t('modals.create_title', { type: t('promotion_singular') })}
@@ -311,7 +316,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.code}
                               onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all font-mono"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all font-mono"
                               placeholder="e.g. VIP20"
                             />
                           </div>
@@ -320,7 +325,7 @@ export default function PromotionsAdmin() {
                             <select
                               value={form.discountType}
                               onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all cursor-pointer appearance-none"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-xs font-bold uppercase tracking-widest outline-none focus:border-gold/50 transition-all cursor-pointer appearance-none"
                             >
                               <option value="PERCENTAGE">{t('types.percentage')}</option>
                               <option value="FIXED_AMOUNT">{t('types.fixed')}</option>
@@ -334,7 +339,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.discountValue}
                               onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
-                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
                             />
                           </div>
                           <div className="space-y-2">
@@ -344,7 +349,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.usageLimit}
                               onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
-                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
                             />
                           </div>
 
@@ -355,7 +360,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.startDate}
                               onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
                             />
                           </div>
                           <div className="space-y-2">
@@ -365,7 +370,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.endDate}
                               onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                              className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
                             />
                           </div>
 
@@ -375,14 +380,14 @@ export default function PromotionsAdmin() {
                               <button
                                 type="button"
                                 onClick={() => setForm({ ...form, isPublic: true })}
-                                className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${form.isPublic ? 'bg-gold text-black border-gold' : 'border-stone-100 dark:border-white/5 text-muted-foreground hover:border-gold/30'}`}
+                                className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${form.isPublic ? 'bg-gold text-black border-gold' : 'border-border/50 dark:border-white/5 text-muted-foreground hover:border-gold/30'}`}
                               >
                                 {t('types.public')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setForm({ ...form, isPublic: false })}
-                                className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${!form.isPublic ? 'bg-gold text-black border-gold' : 'border-stone-100 dark:border-white/5 text-muted-foreground hover:border-gold/30'}`}
+                                className={`flex-1 h-full rounded-2xl border transition-all text-[10px] font-bold uppercase tracking-widest ${!form.isPublic ? 'bg-gold text-black border-gold' : 'border-border/50 dark:border-white/5 text-muted-foreground hover:border-gold/30'}`}
                               >
                                 {t('types.private')}
                               </button>
@@ -397,7 +402,7 @@ export default function PromotionsAdmin() {
                                 required
                                 value={form.pointsCost}
                                 onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
-                                className="w-full h-14 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                                className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
                               />
                             </div>
                           )}
@@ -408,7 +413,7 @@ export default function PromotionsAdmin() {
                           <textarea
                             value={form.description}
                             onChange={(e) => setForm({ ...form, description: e.target.value })}
-                            className="w-full h-28 bg-secondary/10 dark:bg-white/5 border border-stone-100 dark:border-white/5 rounded-2xl p-6 text-sm font-light leading-relaxed outline-none focus:border-gold/50 transition-all resize-none"
+                            className="w-full h-28 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl p-6 text-sm font-light leading-relaxed outline-none focus:border-gold/50 transition-all resize-none"
                             placeholder="Nhập mô tả cho chương trình ưu đãi này..."
                           />
                         </div>
@@ -427,8 +432,8 @@ export default function PromotionsAdmin() {
                         </button>
                       </form>
                  </div>
-              </motion.div>
-            </motion.div>
+                </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </main>

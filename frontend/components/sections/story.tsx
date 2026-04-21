@@ -28,9 +28,9 @@ export const Story = () => {
     ];
 
     return (
-        <section className="section-py bg-muted/30 overflow-hidden transition-colors" id="ai-story">
+        <section className="section-py bg-[var(--section-alt)] overflow-hidden transition-colors" id="ai-story">
             <div className="container-responsive">
-                <div className="grid-responsive gap-16 lg:gap-24 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-[1.25fr_0.75fr] gap-16 lg:gap-32 items-center">
                     {/* Left: Content */}
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
@@ -48,12 +48,12 @@ export const Story = () => {
                         </div>
 
                         {/* Heading */}
-                        <h2 className="text-fluid-4xl font-heading mb-6 lg:mb-10 leading-[1.1] text-foreground transition-colors">
+                        <h2 className="text-fluid-xl lg:text-fluid-2xl font-heading mb-6 lg:mb-10 leading-[1.05] text-foreground transition-colors max-w-2xl">
                             {t('title')}
                         </h2>
 
                         {/* Description */}
-                        <p className="text-fluid-lg text-muted-foreground mb-10 lg:mb-14 leading-relaxed font-light transition-colors">
+                        <p className="text-fluid-md text-muted-foreground mb-10 lg:mb-14 leading-relaxed font-light transition-colors">
                             {t('subtitle')}
                         </p>
 

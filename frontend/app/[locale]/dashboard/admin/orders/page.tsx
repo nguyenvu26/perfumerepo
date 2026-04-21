@@ -245,14 +245,12 @@ export default function AdminOrders() {
             <div className="flex flex-col gap-6 md:gap-10 py-6 md:py-10 px-4 sm:px-6 md:px-10 max-w-[1600px] mx-auto">
                 {/* Header */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <header>
-                        <h1 className="text-3xl sm:text-4xl font-heading text-luxury-black dark:text-white mb-1 transition-colors uppercase tracking-tighter leading-tight">
-                            {t('title')}
-                        </h1>
-                        <p className="text-[9px] sm:text-[10px] text-stone-500 uppercase tracking-[.3em] font-bold">
-                            {t('subtitle')}
+                    <div className="space-y-4">
+                        <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+                        <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+                           {t('subtitle')}
                         </p>
-                    </header>
+                    </div>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
                         <div className="relative group flex-1 md:flex-none">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 group-hover:text-gold transition-colors" size={14} />

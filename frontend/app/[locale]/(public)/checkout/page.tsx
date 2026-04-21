@@ -24,6 +24,7 @@ import {
 import { AddressSelector } from '@/components/address/address-selector';
 import { UserAddress } from '@/services/address.service';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 type PaymentMethod = 'COD' | 'ONLINE' | null;
 const PAYMENT_TTL_SECONDS = 10 * 60;
@@ -253,7 +254,7 @@ export default function CheckoutPage() {
     const handleCreateOrderIfNeeded = async (method: PaymentMethod): Promise<string | null> => {
         if (orderId) return orderId;
         if (!selectedAddress) {
-            alert(t('error_missing_address'));
+            toast.error(t('error_missing_address'));
             return null;
         }
 
@@ -279,7 +280,7 @@ export default function CheckoutPage() {
             setOrderId(order.id);
             return order.id;
         } catch (e: any) {
-            alert(e.response?.data?.message || e.message || t('error_create_order'));
+            toast.error(e.response?.data?.message || e.message || t('error_create_order'));
             return null;
         } finally {
             setSubmitting(false);
@@ -303,7 +304,7 @@ export default function CheckoutPage() {
                 setSecondsLeft(PAYMENT_TTL_SECONDS);
                 setStep(3);
             } catch (e: any) {
-                alert(e.message || t('error_create_payment'));
+                toast.error(e.message || t('error_create_payment'));
             } finally {
                 setSubmitting(false);
             }

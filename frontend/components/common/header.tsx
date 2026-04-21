@@ -11,7 +11,8 @@ import {
     LogOut,
     Globe,
     LayoutDashboard,
-    ShieldCheck
+    ShieldCheck,
+    UserCircle
 } from 'lucide-react';
 import { Link, usePathname } from '@/lib/i18n';
 import { ThemeToggle } from './theme-toggle';
@@ -116,8 +117,10 @@ export const Header = () => {
         <>
             <nav
                 className={cn(
-                    "fixed top-0 left-0 right-0 z-50 transition-all duration-300 no-print",
-                    "py-4 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
+                    "fixed top-0 left-0 right-0 z-50 transition-all duration-500 no-print",
+                    isScrolled 
+                        ? "py-3 bg-background/90 backdrop-blur-2xl border-b border-border shadow-lg" 
+                        : "py-6 bg-transparent border-b border-white/5"
                 )}
             >
                 <div className="container-responsive">
@@ -181,7 +184,7 @@ export const Header = () => {
                             <div className="flex items-center gap-1 md:gap-2">
                                 <Link
                                     href={isAuthenticated ? '/notifications' : '/login'}
-                                    className="p-2 text-foreground hover:text-gold transition-colors cursor-pointer relative"
+                                    className="hidden md:flex p-2 text-foreground hover:text-gold transition-colors cursor-pointer relative"
                                     title={('notifications')}
                                 >
                                     <Bell size={20} strokeWidth={1.5} />
@@ -196,7 +199,9 @@ export const Header = () => {
                                     )}
                                 </Link>
 
-                                <ThemeToggle />
+                                <div className="hidden md:block">
+                                    <ThemeToggle />
+                                </div>
                                 {/* <LanguageSwitch /> */}
 
                                 <Link
@@ -216,8 +221,7 @@ export const Header = () => {
                                 </Link>
 
                                 {isAuthenticated ? (
-                                    <div className="flex items-center gap-2 md:gap-4 pl-2 md:pl-4 border-l border-border transition-colors ml-2">
-
+                                    <div className="flex items-center gap-1 md:gap-4 pl-1 md:pl-4 border-l border-border transition-colors ml-1 md:ml-2">
                                         <Link
                                             href="/dashboard/profile"
                                             className="hidden md:flex flex-col items-end group"
@@ -240,9 +244,10 @@ export const Header = () => {
                                 ) : (
                                     <Link
                                         href="/login"
-                                        className="ml-2 md:ml-4 px-4 md:px-6 py-2 md:py-2.5 border border-border rounded-full text-[9px] font-bold tracking-[.2em] uppercase text-foreground hover:bg-foreground hover:text-background dark:hover:bg-foreground dark:hover:text-background transition-all shadow-sm"
+                                        className="ml-1 md:ml-4 px-3 md:px-5 py-1.5 md:py-1.5 border border-border rounded-full text-[10px] md:text-[11px] font-bold tracking-[.1em] md:tracking-[.2em] uppercase text-foreground hover:bg-foreground hover:text-background dark:hover:bg-foreground dark:hover:text-background transition-all shadow-sm flex items-center justify-center min-w-[32px]"
                                     >
-                                        {t('login')}
+                                        <span className="hidden sm:inline">{t('login')}</span>
+                                        <UserCircle className="sm:hidden" size={20} strokeWidth={1.5} />
                                     </Link>
                                 )}
 
@@ -292,6 +297,24 @@ export const Header = () => {
                             exit={{ opacity: 0, y: -20 }}
                             className="absolute top-full left-0 right-0 bg-background border-b border-border p-8 flex flex-col gap-6 lg:hidden shadow-2xl transition-colors"
                         >
+                            {isAuthenticated && (
+                                <Link
+                                    href="/notifications"
+                                    className="text-[10px] font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-5 px-2 border-b border-border/10 min-h-[48px]"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {t('notifications')}
+                                        {unreadCount > 0 && (
+                                            <span className="w-5 h-5 bg-gold text-white text-[8px] flex items-center justify-center rounded-full font-bold">
+                                                {unreadCount}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0 text-gold" />
+                                </Link>
+                            )}
+
                             {[...menuLeft, ...menuRight].filter(item => item.href).map((item) => (
                                 <Link
                                     key={item.href!}

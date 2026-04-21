@@ -182,7 +182,7 @@ export default function CollectionPage() {
                         className="w-full pl-10 pr-3 py-3 rounded-2xl border border-border bg-background/60 text-sm outline-none focus:border-gold transition-colors"
                     />
                 </div>
-                <div className="max-h-64 overflow-auto pr-2 space-y-1 no-scrollbar lg:custom-scrollbar">
+                <div className="space-y-1">
                     <button
                         type="button"
                         onClick={() => setSelectedBrand(null)}
@@ -326,7 +326,7 @@ export default function CollectionPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-12">
                     {/* Desktop Sidebar */}
-                    <aside className="hidden lg:block bg-background/70 border border-border rounded-[3rem] p-8 h-fit sticky top-32 overflow-hidden relative group">
+                    <aside className="hidden lg:block bg-background/70 border border-border rounded-[3rem] p-8 h-fit max-h-[calc(100vh-160px)] overflow-y-auto custom-scrollbar sticky top-32 relative group">
                         <div className="absolute inset-0 bg-linear-to-b from-gold/5 via-transparent to-transparent opacity-50 pointer-events-none" />
                         <FiltersContent />
                     </aside>
@@ -382,7 +382,7 @@ export default function CollectionPage() {
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-responsive">
+                                <div className="grid grid-responsive cols-4">
                                     {pagedProducts.map((p) => {
                                         const price = getMinPrice(p);
                                         return (

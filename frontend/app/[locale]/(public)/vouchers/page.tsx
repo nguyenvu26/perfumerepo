@@ -230,14 +230,14 @@ function VoucherCard({ promo, type, onAction, loading, t, tDashboard, tFeatured,
         </div>
 
         <div className="flex-1">
-          <h3 className="text-3xl md:text-4xl font-serif uppercase tracking-tighter mb-4 group-hover:text-gold transition-colors leading-none italic">{promo.code}</h3>
+          <h3 className="text-2xl md:text-3xl font-serif uppercase tracking-tighter mb-4 group-hover:text-gold transition-colors leading-none italic">{promo.code}</h3>
           <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-[0.2em] font-medium italic mb-10 leading-relaxed opacity-80">{promo.description || tDashboard('fallback_desc')}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-end justify-between pt-10 border-t border-white/10 mt-auto gap-10">
           <div>
             <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-widest font-black mb-3">{tDashboard('benefit_label')}</p>
-            <p className="text-3xl md:text-5xl font-serif text-gold leading-none italic">
+            <p className="text-2xl md:text-4xl font-serif text-gold leading-none italic">
                {promo.discountType === 'PERCENTAGE' 
                   ? tDashboard('discount_off', { value: promo.discountValue }) 
                   : `-${format.number(promo.discountValue)} ${tFeatured('currency_symbol') || 'đ'}`}

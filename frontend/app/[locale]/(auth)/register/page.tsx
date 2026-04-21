@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/use-auth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Mail, Lock, User, Globe, Facebook, Eye, EyeOff, Sparkles, Phone } from 'lucide-react';
+import { ArrowRight, Mail, Lock, User, Globe, Eye, EyeOff, Sparkles, Phone } from 'lucide-react';
 import { Link } from '@/lib/i18n';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -93,7 +93,7 @@ export default function RegisterPage() {
                                     {t('join_badge')}
                                 </span>
                             </div>
-                            <h2 className="text-5xl font-serif text-white mb-6 leading-tight italic">
+                            <h2 className="text-fluid-4xl font-serif text-white mb-6 leading-tight italic">
                                 {t('page_title')}
                             </h2>
                             <p className="text-stone-300 text-sm font-light leading-relaxed max-w-sm">
@@ -291,7 +291,7 @@ export default function RegisterPage() {
                                             <div className="relative flex justify-center"><span className="bg-white dark:bg-zinc-900 px-4 text-[10px] font-bold text-stone-300 uppercase tracking-widest">{t('or_register')}</span></div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 xs:grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4">
                                             <button
                                                 type="button"
                                                 onClick={() => handleOAuthLogin('Google')}
@@ -300,15 +300,6 @@ export default function RegisterPage() {
                                             >
                                                 <Globe size={18} className="text-stone-400" />
                                                 <span className="text-[10px] font-bold tracking-widest uppercase text-stone-500">{t('google')}</span>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOAuthLogin('Facebook')}
-                                                disabled={isLoading}
-                                                className="flex items-center justify-center gap-3 py-4 border border-stone-100 dark:border-white/10 rounded-2xl hover:bg-stone-50 dark:hover:bg-white/5 transition-all cursor-pointer disabled:opacity-50"
-                                            >
-                                                <Facebook size={18} className="text-stone-400" />
-                                                <span className="text-[10px] font-bold tracking-widest uppercase text-stone-500">{t('facebook')}</span>
                                             </button>
                                         </div>
                                     </div>

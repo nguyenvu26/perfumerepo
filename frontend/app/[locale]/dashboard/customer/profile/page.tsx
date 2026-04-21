@@ -294,16 +294,21 @@ export default function ProfilePage() {
                                         {t('labels.gender')}
                                     </label>
                                     {editing ? (
-                                        <select
-                                            value={form.gender}
-                                            onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
-                                            className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
-                                        >
-                                            <option value="">—</option>
-                                            <option value="MALE">{t('gender_options.male')}</option>
-                                            <option value="FEMALE">{t('gender_options.female')}</option>
-                                            <option value="OTHER">{t('gender_options.other')}</option>
-                                        </select>
+                                        <div className="relative">
+                                            <select
+                                                value={form.gender}
+                                                onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+                                                className="w-full px-4 py-3.5 rounded-2xl border border-border/50 bg-zinc-50 dark:bg-white/5 text-[10px] uppercase tracking-widest focus:border-gold outline-none transition-all appearance-none cursor-pointer"
+                                            >
+                                                <option value="" className="bg-white dark:bg-zinc-900">—</option>
+                                                <option value="MALE" className="bg-white dark:bg-zinc-900">{t('gender_options.male')}</option>
+                                                <option value="FEMALE" className="bg-white dark:bg-zinc-900">{t('gender_options.female')}</option>
+                                                <option value="OTHER" className="bg-white dark:bg-zinc-900">{t('gender_options.other')}</option>
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                                                <User size={12} />
+                                            </div>
+                                        </div>
                                     ) : (
                                         <p className="font-body text-sm border-b border-border/50 pb-2">
                                             {data?.gender ? t(`gender_options.${data.gender.toLowerCase()}`) : t('fallback.empty')}

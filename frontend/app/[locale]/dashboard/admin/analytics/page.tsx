@@ -24,8 +24,12 @@ export default function AnalyticsPage() {
         <AuthGuard allowedRoles= {['admin']}>
             <main className="p-8 pb-20">
                 <header className="mb-12">
-                    <h1 className="text-4xl font-heading gold-gradient uppercase tracking-tighter">{navT('admin.analytics')}</h1>
-                    <p className="text-muted-foreground font-body text-xs uppercase tracking-[0.3em] mt-2">{t('title')}</p>
+                    <div className="space-y-4">
+                        <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+                        <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+                            {t('subtitle')}
+                        </p>
+                    </div>
                 </header>
  
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

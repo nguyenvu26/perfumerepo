@@ -3,21 +3,35 @@
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { userService, type AdminUser } from '@/services/user.service';
 import { storesService } from '@/services/stores.service';
-import { Users, Loader2, Pencil, Store, UserPlus, UserMinus, XCircle } from 'lucide-react';
+import { Users, Loader2, Pencil, Store, UserPlus, UserMinus, XCircle, X, ShieldCheck, Lock, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useUIStore } from '@/store/ui.store';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
  
 export default function UsersAdmin() {
   const t = useTranslations('dashboard.admin.users');
+  const { isSidebarCollapsed: isCollapsed, setModalOpen } = useUIStore();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [stores, setStores] = useState<{ id: string; name: string; code?: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState<string>('');
-  const [editModal, setEditModal] = useState<AdminUser | null>(null);
-  const [storeModal, setStoreModal] = useState<AdminUser | null>(null);
   const [editForm, setEditForm] = useState({ role: '', isActive: true });
   const [saving, setSaving] = useState(false);
+  const [editModal, setEditModal] = useState<AdminUser | null>(null);
+  const [storeModal, setStoreModal] = useState<AdminUser | null>(null);
+
+  const handleSetEditModal = (u: AdminUser | null) => {
+    setEditModal(u);
+    setModalOpen(!!u);
+  };
+
+  const handleSetStoreModal = (u: AdminUser | null) => {
+    setStoreModal(u);
+    setModalOpen(!!u);
+  };
  
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -58,7 +72,7 @@ export default function UsersAdmin() {
         role: editForm.role || undefined,
         isActive: editForm.isActive,
       });
-      setEditModal(null);
+      handleSetEditModal(null);
       fetchUsers();
     } catch (e) {
       setError((e as Error).message);
@@ -70,7 +84,7 @@ export default function UsersAdmin() {
   const handleAssignStore = async (storeId: string, userId: string) => {
     try {
       await storesService.assignStaff(storeId, userId);
-      setStoreModal(null);
+      handleSetStoreModal(null);
       fetchUsers();
     } catch (e) {
       setError((e as Error).message);
@@ -87,7 +101,7 @@ export default function UsersAdmin() {
   };
  
   const openEdit = (u: AdminUser) => {
-    setEditModal(u);
+    handleSetEditModal(u);
     setEditForm({ role: u.role, isActive: u.isActive });
   };
  
@@ -97,13 +111,13 @@ export default function UsersAdmin() {
   return (
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-4 sm:p-6 md:p-8 pb-20 max-w-[1600px] mx-auto">
-        <header className="mb-8 md:mb-12 space-y-1">
-          <h1 className="text-3xl sm:text-4xl font-heading gold-gradient mb-1 uppercase tracking-tighter leading-none">
-            {t('title')}
-          </h1>
-          <p className="text-muted-foreground font-body text-[10px] sm:text-xs uppercase tracking-[.3em] font-bold">
-            {t('subtitle')}
-          </p>
+        <header className="mb-8 md:mb-12">
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+              {t('subtitle')}
+            </p>
+          </div>
         </header>
  
         {error && (
@@ -201,7 +215,7 @@ export default function UsersAdmin() {
                           ))}
                           <button
                             type="button"
-                            onClick={() => setStoreModal(u)}
+                            onClick={() => handleSetStoreModal(u)}
                             className="text-[9px] text-gold uppercase tracking-[.2em] font-bold hover:scale-105 active:scale-95 transition-all flex items-center gap-2 px-4 py-2 border border-gold/20 rounded-full hover:bg-gold/5 shadow-sm"
                           >
                             <UserPlus className="w-3 h-3" /> {t('actions.assign_store')}
@@ -294,7 +308,8 @@ export default function UsersAdmin() {
                             </div>
                           ))}
                           <button
-                            onClick={() => setStoreModal(u)}
+                            type="button"
+                            onClick={() => handleSetStoreModal(u)}
                             className="bg-gold/10 text-gold p-3 min-w-[44px] min-h-[44px] rounded-xl border border-gold/20 flex items-center justify-center active:scale-95 transition-all"
                           >
                             <Store size={14} />
@@ -308,158 +323,225 @@ export default function UsersAdmin() {
         </div>
  
         {/* Edit role modal */}
-        {editModal && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md sm:p-6" 
-            onClick={() => setEditModal(null)}
-          >
-            <div 
-              className="glass rounded-t-[2.5rem] sm:rounded-[3rem] border border-stone-200 dark:border-white/10 p-8 sm:p-12 w-full max-w-xl bg-background sm:bg-background/50 relative overflow-hidden mt-auto sm:mt-0 shadow-2xl transition-all animate-in slide-in-from-bottom sm:zoom-in duration-300"
-              onClick={(e) => e.stopPropagation()}
-            >
-               <div className="absolute top-0 right-0 w-48 h-48 bg-gold/5 blur-[100px] pointer-events-none" />
- 
-              <div className="mb-10">
-                <h2 className="text-2xl sm:text-3xl font-heading uppercase tracking-tighter italic leading-none mb-2">
-                  {t('modals.edit_title', { name: editModal.fullName || editModal.email.split('@')[0] })}
-                </h2>
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[.3em] font-extrabold opacity-60">{editModal.email}</p>
-              </div>
-              
-              <div className="space-y-8">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[.4em] text-muted-foreground font-extrabold mb-3 ml-1 italic">
-                    {t('table.role')}
-                  </label>
-                  <select
-                    value={editForm.role}
-                    onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
-                    className="w-full h-14 sm:h-16 px-6 rounded-2xl border border-stone-200 dark:border-white/10 bg-secondary/5 dark:bg-white/5 text-[16px] sm:text-xs font-bold uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer appearance-none shadow-sm"
-                  >
-                    <option value="CUSTOMER">{t('roles.customer')}</option>
-                    <option value="STAFF">{t('roles.staff')}</option>
-                    <option value="ADMIN">{t('roles.admin')}</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-center gap-4 bg-secondary/10 dark:bg-white/[0.02] p-5 rounded-2xl border border-border shadow-inner">
-                  <div className="w-12 h-6 relative shrink-0">
-                    <input
-                      type="checkbox"
-                      id="isActive"
-                      checked={editForm.isActive}
-                      onChange={(e) => setEditForm((f) => ({ ...f, isActive: e.target.checked }))}
-                      className="sr-only peer"
-                    />
-                    <label 
-                      htmlFor="isActive" 
-                      className="w-full h-full bg-stone-300 dark:bg-zinc-800 rounded-full block cursor-pointer transition-colors peer-checked:bg-emerald-500 shadow-inner group"
-                    >
-                      <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-6" />
-                    </label>
-                  </div>
-                  <div>
-                    <label htmlFor="isActive" className="text-[10px] font-extrabold uppercase tracking-widest block cursor-pointer leading-none mb-1">
-                      {t('table.status')} ({t('status.active')})
-                    </label>
-                    <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold opacity-60">Cho phép người dùng truy cập hệ thống</p>
-                  </div>
-                </div>
-              </div>
- 
-              <div className="flex gap-4 mt-12 pb-4 sm:pb-0">
-                <button
-                  type="button"
-                  onClick={handleUpdateRole}
-                  disabled={saving}
-                  className="flex-1 h-14 sm:h-16 rounded-2xl bg-gold text-black font-heading text-[10px] uppercase tracking-[.3em] font-extrabold hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 disabled:opacity-50"
-                >
-                  {saving ? (
-                    <div className="flex items-center justify-center gap-2">
-                       <Loader2 className="w-4 h-4 animate-spin" />
-                       {t('modals.saving')}
+        <AnimatePresence>
+          {editModal && (
+            <div className={cn(
+                "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/40 dark:bg-zinc-950/80 backdrop-blur-2xl",
+                "left-0 md:left-20",
+                !isCollapsed && "lg:left-72"
+            )} onClick={() => handleSetEditModal(null)}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                className="relative w-full max-w-5xl h-full sm:h-auto sm:max-h-[85vh] bg-background border-t sm:border border-white/20 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+                onClick={(e) => e.stopPropagation()}
+              >
+                 {/* Header */}
+                 <div className="shrink-0 p-8 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-center bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                    <div className="flex items-center gap-10">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-px bg-gold" />
+                                <span className="text-[9px] uppercase tracking-[.4em] font-black text-gold/80">Quản Trị Nhân Sự</span>
+                            </div>
+                            <h2 className="text-2xl sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+                              {t('modals.edit_title', { name: editModal.fullName || editModal.email.split('@')[0] })}
+                            </h2>
+                        </div>
                     </div>
-                  ) : t('modals.save')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditModal(null)}
-                  className="px-8 sm:px-10 h-14 sm:h-16 rounded-2xl border border-stone-200 dark:border-white/10 font-bold text-[10px] uppercase tracking-[.3em] text-muted-foreground hover:bg-secondary/20 dark:hover:bg-white/5 transition-all shadow-sm active:scale-95"
-                >
-                  {t('modals.cancel')}
-                </button>
-              </div>
+                    <button
+                        onClick={() => setEditModal(null)}
+                        className="w-12 h-12 rounded-full bg-secondary/10 border border-white/10 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                    >
+                        <X size={22} />
+                    </button>
+                </div>
+
+                <div className="flex-1 flex overflow-hidden">
+                    {/* Sidebar */}
+                    <aside className="w-72 border-r border-white/10 bg-white/80 dark:bg-zinc-900/60 overflow-y-auto hidden md:block">
+                        <nav className="p-10 space-y-3">
+                            <button className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl bg-gold text-primary shadow-lg shadow-gold/20 font-black uppercase tracking-widest text-[10px] relative overflow-hidden">
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/30" />
+                                <ShieldCheck className="w-4 h-4" />
+                                Phân Quyền
+                            </button>
+                            <button className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-muted-foreground hover:bg-secondary/50 font-black uppercase tracking-widest text-[10px] opacity-40 cursor-not-allowed">
+                                <Lock className="w-4 h-4 text-gold/60" />
+                                Bảo Mật
+                            </button>
+                        </nav>
+                    </aside>
+
+                    {/* Content Area */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-8 sm:p-14 pb-32 sm:pb-14">
+                        <div className="max-w-2xl space-y-12">
+                            <div className="space-y-2 border-l-4 border-gold pl-6 mb-10">
+                                <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Cấu Hình Quyền Hạn</h3>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black italic">Xác định vai trò và phạm vi hoạt động của người dùng.</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">{t('table.role')} *</label>
+                                <div className="relative group">
+                                    <select
+                                        value={editForm.role}
+                                        onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
+                                        className="w-full h-16 bg-secondary/5 border border-border rounded-2xl px-8 text-sm font-bold outline-none focus:border-gold transition-all appearance-none cursor-pointer uppercase tracking-widest"
+                                    >
+                                        <option value="CUSTOMER">{t('roles.customer')}</option>
+                                        <option value="STAFF">{t('roles.staff')}</option>
+                                        <option value="ADMIN">{t('roles.admin')}</option>
+                                    </select>
+                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                                        <ChevronDown size={18} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-10 bg-zinc-50 dark:bg-white/[0.02] rounded-[3rem] border border-border/50 flex items-center justify-between shadow-inner">
+                                <div className="space-y-1">
+                                    <p className="text-[12px] uppercase tracking-[.2em] font-black">{t('table.status')}</p>
+                                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{editForm.isActive ? 'Người dùng đang hoạt động' : 'Tài khoản đang bị khóa'}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setEditForm(f => ({ ...f, isActive: !f.isActive }))}
+                                    className={cn(
+                                        "relative w-16 h-9 rounded-full transition-all duration-500",
+                                        editForm.isActive ? "bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]" : "bg-zinc-300 dark:bg-zinc-800"
+                                    )}
+                                >
+                                    <div className={cn(
+                                        "absolute top-1 w-7 h-7 bg-white rounded-full transition-all duration-500 shadow-md",
+                                        editForm.isActive ? "left-8" : "left-1"
+                                    )} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="shrink-0 h-28 border-t border-white/10 px-12 flex items-center justify-end gap-6 bg-zinc-50 dark:bg-black/20 backdrop-blur-xl z-20">
+                    <button
+                        type="button"
+                        onClick={() => setEditModal(null)}
+                        className="px-10 py-4 rounded-full text-[10px] uppercase tracking-widest font-black text-muted-foreground hover:text-foreground transition-all active:scale-95 font-heading"
+                    >
+                        {t('modals.cancel')}
+                    </button>
+                    <button
+                        onClick={handleUpdateRole}
+                        disabled={saving}
+                        className="px-16 py-5 rounded-full bg-gold text-primary-foreground font-heading text-[11px] uppercase tracking-[.3em] font-black disabled:opacity-50 shadow-2xl shadow-gold/30 hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center gap-3"
+                    >
+                        {saving ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin" />
+                                {t('modals.saving')}
+                            </>
+                        ) : t('modals.save')}
+                    </button>
+                </div>
+              </motion.div>
             </div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
  
         {/* Assign store modal (for Staff) */}
-        {storeModal && isStaff(storeModal) && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md sm:p-6"
-            onClick={() => setStoreModal(null)}
-          >
-            <div 
-              className="glass rounded-t-[2.5rem] sm:rounded-[3rem] border border-stone-200 dark:border-white/10 p-8 sm:p-12 w-full max-w-xl bg-background sm:bg-background/50 flex flex-col h-[80vh] sm:h-auto sm:max-h-[85vh] mt-auto sm:mt-0 shadow-2xl transition-all animate-in slide-in-from-bottom sm:zoom-in duration-300"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mb-8">
-                <h2 className="text-2xl sm:text-3xl font-heading uppercase tracking-tighter mb-2 italic leading-none">
-                  {t('modals.assign_title', { name: storeModal.fullName || storeModal.email.split('@')[0] })}
-                </h2>
-                <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[.3em] font-extrabold opacity-60 leading-relaxed">{t('modals.assign_desc')}</p>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                <ul className="space-y-4">
-                  {stores
-                    .filter(
-                      (s) =>
-                        !userStores(storeModal).some((us) => us.store.id === s.id),
-                    )
-                    .map((s) => (
-                      <li
-                        key={s.id}
-                        className="flex items-center justify-between p-5 rounded-2xl border border-stone-100 dark:border-white/5 bg-secondary/5 dark:bg-white/[0.02] hover:bg-stone-50 dark:hover:bg-white/5 hover:border-gold/30 transition-all group shadow-sm"
-                      >
-                        <div className="space-y-0.5">
-                          <span className="text-[11px] font-extrabold uppercase tracking-widest block">{s.name}</span>
-                          <span className="text-[8px] font-mono text-muted-foreground opacity-60">{s.code || 'NO_CODE'}</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleAssignStore(s.id, storeModal.id)
-                          }
-                          className="text-[9px] text-gold uppercase tracking-[.3em] font-extrabold p-3 px-6 border border-gold/20 rounded-xl hover:bg-gold hover:text-black transition-all shadow-sm active:scale-95"
-                        >
-                           {t('actions.assign_store')}
-                        </button>
-                      </li>
-                    ))}
-                  {stores.filter(
-                    (s) =>
-                      !userStores(storeModal).some((us) => us.store.id === s.id),
-                  ).length === 0 && (
-                    <li className="py-20 text-center glass rounded-2xl border border-dashed border-border/30 opacity-40">
-                       <Store size={32} className="mx-auto mb-4 text-gold opacity-50" strokeWidth={1} />
-                       <span className="text-[10px] uppercase tracking-[.4em] font-extrabold italic">
-                         {t('modals.no_stores')}
-                       </span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-              <button
-                type="button"
-                onClick={() => setStoreModal(null)}
-                className="mt-8 w-full h-14 sm:h-16 rounded-2xl border border-stone-200 dark:border-white/10 font-extrabold text-[10px] uppercase tracking-[.3em] text-muted-foreground hover:bg-secondary/20 transition-all shadow-sm active:scale-95"
+        <AnimatePresence>
+          {storeModal && isStaff(storeModal) && (
+            <div className={cn(
+                "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/40 dark:bg-zinc-950/80 backdrop-blur-2xl",
+                "left-0 md:left-20",
+                !isCollapsed && "lg:left-72"
+            )} onClick={() => handleSetStoreModal(null)}>
+               <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                className="relative w-full max-w-[800px] h-full sm:h-auto sm:max-h-[70vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+                onClick={(e) => e.stopPropagation()}
               >
-                {t('modals.close')}
-              </button>
+                {/* Header */}
+                <div className="shrink-0 p-8 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-center bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                    <div className="flex items-center gap-6">
+                        <div className="space-y-1">
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-6 h-px bg-gold" />
+                                <span className="text-[9px] uppercase tracking-[.4em] font-black text-gold/80">Quản Trị Điều Phối</span>
+                            </div>
+                            <h2 className="text-2xl sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+                              {t('modals.assign_title', { name: storeModal.fullName || storeModal.email.split('@')[0] })}
+                            </h2>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setStoreModal(null)}
+                        className="w-12 h-12 rounded-full bg-secondary/10 border border-white/10 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                    >
+                        <X size={22} />
+                    </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 sm:p-14 pb-32 sm:pb-14">
+                    <div className="space-y-6">
+                      {stores
+                        .filter((s) => !userStores(storeModal).some((us) => us.store.id === s.id))
+                        .map((s) => (
+                          <div
+                            key={s.id}
+                            className="flex items-center justify-between p-6 sm:p-8 rounded-[2.5rem] border border-white/5 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-gold/5 hover:border-gold/30 transition-all group shadow-sm active:scale-[0.99] duration-500"
+                          >
+                            <div className="flex items-center gap-6">
+                              <div className="w-14 h-14 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center group-hover:bg-gold group-hover:text-primary transition-all duration-500 shadow-xl">
+                                <Store size={22} />
+                              </div>
+                              <div>
+                                <h4 className="text-base font-heading uppercase tracking-widest leading-none mb-1 group-hover:text-gold transition-colors">{s.name}</h4>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black opacity-40">{s.code || 'NO-CODE'}</p>
+                              </div>
+                            </div>
+                            
+                            <button
+                              type="button"
+                              onClick={() => handleAssignStore(s.id, storeModal.id)}
+                              disabled={saving}
+                              className="h-14 px-8 rounded-full bg-gold text-primary font-black uppercase tracking-widest text-[9px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center gap-2 group/btn"
+                            >
+                                <UserPlus size={16} />
+                                {t('actions.assign_store')}
+                            </button>
+                          </div>
+                      ))}
+                      
+                      {stores.filter((s) => !userStores(storeModal).some((us) => us.store.id === s.id)).length === 0 && (
+                        <div className="py-24 text-center glass rounded-[4rem] border border-dashed border-white/10 opacity-30">
+                           <Store size={48} className="mx-auto mb-6 text-gold/20" strokeWidth={0.5} />
+                           <span className="text-[10px] uppercase tracking-[.6em] font-black italic">
+                             {t('modals.no_stores')}
+                           </span>
+                        </div>
+                      )}
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="shrink-0 h-28 border-t border-white/10 px-12 flex items-center justify-end bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                    <button
+                        type="button"
+                        onClick={() => setStoreModal(null)}
+                        className="px-14 py-5 rounded-full bg-secondary/10 border border-white/10 font-heading text-[11px] uppercase tracking-[.3em] font-black hover:bg-white/5 transition-all active:scale-95"
+                    >
+                        {t('modals.close') || 'HOÀN TẤT'}
+                    </button>
+                </div>
+              </motion.div>
             </div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
       </main>
     </AuthGuard>
   );

@@ -109,7 +109,7 @@ export function ReturnList() {
   return (
     <div className="flex flex-col gap-6 md:gap-10 p-4 sm:p-10">
       <header className="mb-4 md:mb-8">
-        <h1 className="text-3xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+        <h1 className="text-2xl md:text-3xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
           {t("title")}
         </h1>
         <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.35em] font-bold">

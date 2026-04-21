@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2 } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box } from 'lucide-react';
 import { productService, type Product } from '@/services/product.service';
 import { catalogService } from '@/services/catalog.service';
 import { useEffect, useState, useCallback } from 'react';
@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useLocale, useTranslations, useFormatter } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { useUIStore } from '@/store/ui.store';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MAX_IMAGES = 10;
 
@@ -28,6 +30,7 @@ export default function AdminProducts() {
   const tFeatured = useTranslations('featured');
   const format = useFormatter();
   const locale = useLocale();
+  const { isSidebarCollapsed: isCollapsed, setModalOpen } = useUIStore();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
@@ -38,8 +41,13 @@ export default function AdminProducts() {
   const [take, setTake] = useState(20);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('identity');
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModalState] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const handleSetShowModal = (open: boolean) => {
+    setShowModalState(open);
+    setModalOpen(open);
+  };
 
   const isFiltered = search !== '' || brandFilter !== '' || categoryFilter !== '';
   const clearFilters = () => {
@@ -156,7 +164,7 @@ export default function AdminProducts() {
 
   const closeModal = () => {
     if (saving) return;
-    setShowModal(false);
+    handleSetShowModal(false);
     setEditId(null);
     setImageFiles((prev) => {
       prev.forEach((x) => URL.revokeObjectURL(x.url));
@@ -185,7 +193,7 @@ export default function AdminProducts() {
       variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
       scentNotes: [],
     });
-    setShowModal(true);
+    handleSetShowModal(true);
   };
 
   const openEdit = (id: string) => {
@@ -193,7 +201,7 @@ export default function AdminProducts() {
     setImageFiles([]);
     setExistingImages([]);
     setLoadingProduct(true);
-    setShowModal(true);
+    handleSetShowModal(true);
   };
 
   const onNameChange = (name: string) => {
@@ -374,14 +382,10 @@ export default function AdminProducts() {
       <main className="p-4 sm:p-6 md:p-10 max-w-[1600px] mx-auto min-h-screen">
         <header className="mb-10 md:mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-[1px] bg-gold/50" />
-              <span className="text-[10px] uppercase tracking-[.4em] font-bold text-gold/80">{t('subtitle')}</span>
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading tracking-tighter leading-none uppercase">
-              <span className="gold-gradient">{t('title').split(' ')[0]}</span>
-              <span className="text-foreground/90 block sm:inline ml-0 sm:ml-4">{t('title').split(' ').slice(1).join(' ')}</span>
-            </h1>
+            <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+              {t('subtitle')}
+            </p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full lg:w-auto">
             <button
@@ -418,21 +422,21 @@ export default function AdminProducts() {
             <select
               value={brandFilter}
               onChange={(e) => setBrandFilter(e.target.value === '' ? '' : Number(e.target.value))}
-              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px]"
+              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px] text-foreground"
             >
-              <option value="">{t('form.brand')} - ALL</option>
+              <option value="" className="bg-background">{t('form.brand')} - ALL</option>
               {brands.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
+                <option key={b.id} value={b.id} className="bg-background">{b.name}</option>
               ))}
             </select>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value === '' ? '' : Number(e.target.value))}
-              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px]"
+              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px] text-foreground"
             >
-              <option value="">{t('form.category')} - ALL</option>
+              <option value="" className="bg-background">{t('form.category')} - ALL</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id} className="bg-background">{c.name}</option>
               ))}
             </select>
 
@@ -500,7 +504,7 @@ export default function AdminProducts() {
                         )}
                         {getTotalStock(p) <= 5 && p.isActive && (
                           <div className="bg-amber-500/90 backdrop-blur-md text-white text-[8px] px-3 py-1.5 rounded-full uppercase tracking-[.2em] font-black border border-amber-400/20 shadow-lg animate-pulse">
-                            {"Low Stock"}
+                            {"Sắp Hết Hàng"}
                           </div>
                         )}
                       </div>
@@ -535,7 +539,7 @@ export default function AdminProducts() {
                   {/* Metadata Container */}
                   <div className="p-8">
                     <div className="mb-4">
-                      <p className="text-[10px] text-gold uppercase tracking-[.4em] font-black mb-2 opacity-60">{p.brand?.name ?? 'Anonymous House'}</p>
+                      <p className="text-[10px] text-gold uppercase tracking-[.4em] font-black mb-2 opacity-60">{p.brand?.name ?? 'Chưa Có Thương Hiệu'}</p>
                       <h3 className="font-heading text-xl md:text-2xl text-foreground line-clamp-1 leading-tight">{p.name}</h3>
                     </div>
 
@@ -550,17 +554,17 @@ export default function AdminProducts() {
 
                     <div className="flex justify-between items-end pt-6 border-t border-white/5">
                       <div className="space-y-1">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Valuation</p>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Giá Bán</p>
                         <span className="text-lg font-serif italic text-gold">
                           {getPriceRange(p)}
                         </span>
                       </div>
                       <div className="text-right space-y-1">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Resonance</p>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Trạng Thái</p>
                         <div className="flex items-center gap-2 justify-end">
                            <div className={cn("w-1.5 h-1.5 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
                            <span className={cn("text-[10px] font-black tracking-widest uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
-                             {p.isActive ? "Active" : "Hidden"}
+                             {p.isActive ? "Hoạt Động" : "Ẩn"}
                            </span>
                         </div>
                       </div>
@@ -580,11 +584,11 @@ export default function AdminProducts() {
                 <select
                   value={take}
                   onChange={(e) => setTake(Number(e.target.value))}
-                  className="bg-white dark:bg-zinc-900 border border-border rounded-full px-4 py-2 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold shadow-sm"
+                  className="bg-white dark:bg-zinc-900 border border-border rounded-full px-4 py-2 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold shadow-sm text-foreground"
                 >
-                  <option value={10}>10 / p</option>
-                  <option value={20}>20 / p</option>
-                  <option value={40}>40 / p</option>
+                  <option value={10} className="bg-background">10 / p</option>
+                  <option value={20} className="bg-background">20 / p</option>
+                  <option value={40} className="bg-background">40 / p</option>
                 </select>
                 <div className="flex items-center gap-2">
                   <button
@@ -612,18 +616,29 @@ export default function AdminProducts() {
           </>
         )}
 
-        {showModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-4 bg-black/70 backdrop-blur-md" onClick={closeModal}>
-            <div
-              className="bg-background border-t sm:border border-border rounded-t-[2.5rem] sm:rounded-[2.5rem] max-w-5xl w-full h-[100vh] sm:h-[90vh] overflow-hidden flex flex-col shadow-2xl relative mt-auto sm:mt-0 transition-all animate-in slide-in-from-bottom sm:zoom-in duration-300"
-              onClick={(e) => e.stopPropagation()}
+        <AnimatePresence>
+          {showModal && (
+            <div 
+              className={cn(
+                  "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 bg-white/40 dark:bg-zinc-950/80 backdrop-blur-2xl transition-all duration-500 font-body",
+                  "left-0 md:left-20",
+                  !isCollapsed && "lg:left-72"
+              )} 
+              onClick={closeModal}
             >
+              <motion.div
+                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                 animate={{ opacity: 1, scale: 1, y: 0 }}
+                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                 className="bg-background border-t sm:border border-white/20 rounded-t-[2.5rem] sm:rounded-[2.5rem] max-w-5xl w-full h-full sm:h-[90vh] overflow-hidden flex flex-col shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] relative"
+                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              >
               {/* Modal Header */}
               <div className="h-20 shrink-0 flex justify-between items-center px-10 border-b border-border sticky top-0 bg-background/90 backdrop-blur-xl z-20">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-[1px] bg-gold" />
-                    <span className="text-[10px] uppercase tracking-[.4em] font-black text-gold/80">{editId ? "Curating Artifact" : "System Curation"}</span>
+                    <span className="text-[10px] uppercase tracking-[.4em] font-black text-gold/80">{editId ? "Chỉnh Sửa Sản Phẩm" : "Thêm Sản Phẩm Mới"}</span>
                   </div>
                   <h2 className="text-2xl font-heading tracking-tighter leading-none uppercase">
                     {editId ? form.name || t('form.title_edit') : t('form.title_create')}
@@ -636,14 +651,14 @@ export default function AdminProducts() {
 
               <div className="flex-1 flex overflow-hidden">
                 {/* Sidebar Navigation */}
-                <aside className="w-72 border-r border-border bg-zinc-50 dark:bg-black/20 overflow-y-auto hidden md:block">
+                <aside className="w-64 border-r border-white/10 bg-white/80 dark:bg-zinc-900/60 overflow-y-auto hidden md:block">
                   <nav className="p-8 space-y-2">
                     {[
-                      { id: 'identity', icon: Package, label: 'Asset Identity' },
-                      { id: 'essence', icon: FlaskConical, label: 'Olfactory Essence' },
-                      { id: 'composition', icon: Flower2, label: 'Note Composition' },
-                      { id: 'inventory', icon: Database, label: 'Volume Variants' },
-                      { id: 'gallery', icon: ImagePlus, label: 'Visual Gallery' },
+                      { id: 'identity', icon: Package, label: 'Thông Tin Chính' },
+                      { id: 'essence', icon: FlaskConical, label: 'Đặc Tính Hương' },
+                      { id: 'composition', icon: Flower2, label: 'Cấu Trúc Nốt Hương' },
+                      { id: 'inventory', icon: Database, label: 'Biến Thể & Kho' },
+                      { id: 'gallery', icon: ImagePlus, label: 'Bộ Sưu Tập Ảnh' },
                     ].map((tab) => (
                       <button
                         key={tab.id}
@@ -663,66 +678,66 @@ export default function AdminProducts() {
                 </aside>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12 pb-32 sm:pb-12">
                   {loadingProduct ? (
                     <div className="h-full flex flex-col items-center justify-center gap-6">
                       <div className="w-16 h-16 border-4 border-gold/10 border-t-gold rounded-full animate-spin" />
-                      <p className="text-[10px] uppercase font-black tracking-[.4em] text-muted-foreground animate-pulse">Synchronizing Neural Data...</p>
+                      <p className="text-[10px] uppercase font-black tracking-[.4em] text-muted-foreground animate-pulse">Đang Tải Dữ Liệu...</p>
                     </div>
                   ) : (
                     <form id="productForm" onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-16 pb-20">
                       {activeTab === 'identity' && (
                         <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-10">
                           <div className="space-y-2 border-l-4 border-gold pl-6">
-                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Core Identity</h3>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Define the primary identifiers for this asset.</p>
+                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Thông Tin Cơ Bản</h3>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Định danh và phân loại sản phẩm.</p>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Asset Name *</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Tên Sản Phẩm *</label>
                               <input
                                 className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-sm font-bold placeholder:text-muted-foreground/30"
                                 value={form.name}
                                 onChange={(e) => onNameChange(e.target.value)}
                                 required
-                                placeholder="E.g. NIGHTSHADE NOIR"
+                                placeholder="Ví dụ: BACCARAT ROUGE 540"
                               />
                             </div>
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Neural Slug *</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Đường Dẫn (Slug) *</label>
                               <input
                                 className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-mono placeholder:text-muted-foreground/30"
                                 value={form.slug}
                                 onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
                                 required
-                                placeholder="nightshade-noir"
+                                placeholder="baccarat-rouge-540"
                               />
                             </div>
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Curating House *</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Thương Hiệu *</label>
                               <select
-                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                className="w-full bg-background border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer text-foreground"
                                 value={form.brandId || ''}
                                 onChange={(e) => setForm((f) => ({ ...f, brandId: Number(e.target.value) }))}
                                 required
                               >
-                                <option value="">— SELECT HOUSE —</option>
+                                <option value="" className="bg-background text-foreground">— Chọn Thương Hiệu —</option>
                                 {brands.map((b) => (
-                                  <option key={b.id} value={b.id}>{b.name}</option>
+                                  <option key={b.id} value={b.id} className="bg-background text-foreground">{b.name}</option>
                                 ))}
                               </select>
                             </div>
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Asset Classification</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Phân Loại</label>
                               <select
-                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                className="w-full bg-background border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer text-foreground"
                                 value={form.categoryId === '' ? '' : form.categoryId}
                                 onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value === '' ? '' : Number(e.target.value) }))}
                               >
-                                <option value="">— SELECT CLASS —</option>
+                                <option value="" className="bg-background text-foreground">— Chọn Danh Mục —</option>
                                 {categories.map((c) => (
-                                  <option key={c.id} value={c.id}>{c.name}</option>
+                                  <option key={c.id} value={c.id} className="bg-background text-foreground">{c.name}</option>
                                 ))}
                               </select>
                             </div>
@@ -730,8 +745,8 @@ export default function AdminProducts() {
 
                           <div className="p-10 bg-zinc-50 dark:bg-zinc-900/50 rounded-[3rem] border border-border/50 flex items-center justify-between">
                             <div className="space-y-1">
-                              <p className="text-[12px] uppercase tracking-[.2em] font-black">Public Resonance</p>
-                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Toggle visibility for guest members.</p>
+                              <p className="text-[12px] uppercase tracking-[.2em] font-black">Hiển Thị Công Khai</p>
+                              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Bật/tắt hiển thị sản phẩm cho khách hàng.</p>
                             </div>
                             <button
                               type="button"
@@ -753,64 +768,64 @@ export default function AdminProducts() {
                       {activeTab === 'essence' && (
                         <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-10">
                           <div className="space-y-2 border-l-4 border-gold pl-6">
-                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Olfactory Essence</h3>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Configure the sensory parameters of the asset.</p>
+                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Đặc Tính Mùi Hương</h3>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Cấu hình các thông số cảm quan của sản phẩm.</p>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Molecular Family</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Nhóm Hương</label>
                               <select
-                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                className="w-full bg-background border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer text-foreground"
                                 value={form.scentFamilyId === '' ? '' : form.scentFamilyId}
                                 onChange={(e) => setForm((f) => ({ ...f, scentFamilyId: e.target.value === '' ? '' : Number(e.target.value) }))}
                               >
-                                <option value="">— SELECT FAMILY —</option>
+                                <option value="">— Chọn Nhóm Hương —</option>
                                 {scentFamilies.map((s) => (
                                   <option key={s.id} value={s.id}>{s.name}</option>
                                 ))}
                               </select>
                             </div>
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Gender Resonance</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Giới Tính</label>
                               <select
-                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer"
+                                className="w-full bg-background border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold uppercase tracking-widest appearance-none cursor-pointer text-foreground"
                                 value={form.gender}
                                 onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
                               >
-                                <option value="">— SELECT GENDER —</option>
-                                <option value="female">Feminine</option>
-                                <option value="male">Masculine</option>
-                                <option value="unisex">Unisex / Equilibrium</option>
+                                <option value="">— Chọn Giới Tính —</option>
+                                <option value="female">Nữ (Feminine)</option>
+                                <option value="male">Nam (Masculine)</option>
+                                <option value="unisex">Unisex</option>
                               </select>
                             </div>
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Temporal Persistence</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Độ Lưu Hương</label>
                               <input
                                 className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
                                 value={form.longevity}
                                 onChange={(e) => setForm((f) => ({ ...f, longevity: e.target.value }))}
-                                placeholder="E.g. 12H+ OVERWHELMING"
+                                placeholder="Ví dụ: 12H+ RẤT LÂU"
                               />
                             </div>
                             <div className="space-y-3">
-                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Molecular Concentration</label>
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Nồng Độ</label>
                               <input
                                 className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
                                 value={form.concentration}
                                 onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value }))}
-                                placeholder="E.g. EXTRAIT DE PARFUM"
+                                placeholder="Ví dụ: EXTRAIT DE PARFUM"
                               />
                             </div>
                           </div>
 
                           <div className="space-y-3">
-                            <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Asset Manifesto</label>
+                            <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Mô Tả Sản Phẩm</label>
                             <textarea
                               className="w-full bg-secondary/10 border border-border rounded-[2.5rem] py-8 px-10 outline-none focus:border-gold min-h-[250px] transition-all text-sm font-medium leading-relaxed resize-none shadow-inner"
                               value={form.description}
                               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                              placeholder="Describe the cinematic experience of this olfactory journey..."
+                              placeholder="Mô tả câu chuyện, cảm xúc và trải nghiệm của mùi hương này..."
                             />
                           </div>
                         </section>
@@ -820,15 +835,15 @@ export default function AdminProducts() {
                         <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
                           <div className="flex justify-between items-end border-l-4 border-gold pl-6">
                             <div className="space-y-2">
-                              <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Note Composition</h3>
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">The digital DNA of the olfactory structure.</p>
+                              <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Cấu Trúc Nốt Hương</h3>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Phân tầng cấu trúc hương đầu, giữa và cuối.</p>
                             </div>
                             <button
                               type="button"
                               onClick={addScentNote}
                               className="bg-gold text-primary-foreground text-[10px] uppercase tracking-[.2em] font-black px-8 py-4 rounded-full shadow-xl shadow-gold/20 hover:scale-105 active:scale-95 transition-all"
                             >
-                              + INFUSE NOTE
+                              + Thêm Nốt Hương
                             </button>
                           </div>
 
@@ -840,24 +855,24 @@ export default function AdminProducts() {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-1">
                                   <div className="space-y-3">
-                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Molecular Note</label>
+                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Tên Nốt Hương</label>
                                     <input
                                       className="w-full bg-secondary/5 border border-border rounded-xl py-4 px-6 text-sm font-bold outline-none focus:border-gold transition-all"
                                       value={n.name}
-                                      placeholder="E.g. BLACK OPIUM"
+                                      placeholder="Ví dụ: Hoa Nhài, Gỗ Đàn Hương"
                                       onChange={(e) => updateScentNote(i, { name: e.target.value })}
                                     />
                                   </div>
                                   <div className="space-y-3">
-                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Olfactory Node (Tier)</label>
+                                    <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Tầng Hương</label>
                                     <select
                                       className="w-full bg-secondary/5 border border-border rounded-xl py-4 px-6 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer"
                                       value={n.type}
                                       onChange={(e) => updateScentNote(i, { type: e.target.value as 'TOP' | 'MIDDLE' | 'BASE' })}
                                     >
-                                      <option value="TOP">TOP NOTE (Ascendance)</option>
-                                      <option value="MIDDLE">HEART NOTE (Resonance)</option>
-                                      <option value="BASE">BASE NOTE (Permanence)</option>
+                                      <option value="TOP">Hương Đầu (Top Note)</option>
+                                      <option value="MIDDLE">Hương Giữa (Heart Note)</option>
+                                      <option value="BASE">Hương Cuối (Base Note)</option>
                                     </select>
                                   </div>
                                 </div>
@@ -878,15 +893,15 @@ export default function AdminProducts() {
                         <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
                           <div className="flex justify-between items-end border-l-4 border-gold pl-6">
                             <div className="space-y-2">
-                              <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Volume Variants</h3>
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Commercial configurations and inventory tracking.</p>
+                              <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Biến Thể & Kho Hàng</h3>
+                              <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Cấu hình dung tích, giá bán và số lượng tồn kho.</p>
                             </div>
                             <button
                               type="button"
                               onClick={addVariant}
                               className="bg-gold text-primary-foreground text-[10px] uppercase tracking-[.2em] font-black px-8 py-4 rounded-full shadow-xl shadow-gold/20 hover:scale-105 active:scale-95 transition-all"
                             >
-                              + INTEGRATE VARIANT
+                              + Thêm Biến Thể
                             </button>
                           </div>
 
@@ -894,9 +909,9 @@ export default function AdminProducts() {
                             <table className="w-full text-left">
                               <thead className="bg-zinc-100/50 dark:bg-white/5">
                                 <tr className="border-b border-border">
-                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Volume Descriptor</th>
-                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Valuation</th>
-                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Quantum</th>
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Dung Tích / Tên</th>
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Giá Bán</th>
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Số Lượng Kho</th>
                                   <th className="px-10 py-6 text-right"></th>
                                 </tr>
                               </thead>
@@ -907,13 +922,13 @@ export default function AdminProducts() {
                                       <input
                                         className="w-full bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-bold uppercase tracking-widest py-1 transition-all"
                                         value={v.name}
-                                        placeholder="E.G. 100ML ATOMISEUR"
+                                        placeholder="Ví dụ: 100ml, 50ml, Travel Size"
                                         onChange={(e) => updateVariant(i, { name: e.target.value })}
                                       />
                                     </td>
                                     <td className="px-10 py-8">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-muted-foreground text-sm font-serif italic">$</span>
+                                        <span className="text-muted-foreground text-sm font-serif italic">₫</span>
                                         <input
                                           type="number"
                                           className="w-32 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all"
@@ -952,8 +967,8 @@ export default function AdminProducts() {
                       {activeTab === 'gallery' && (
                         <section className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-12">
                           <div className="space-y-2 border-l-4 border-gold pl-6">
-                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Visual Gallery</h3>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">High-fidelity imagery for the olfactory experience.</p>
+                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Bộ Sưu Tập Ảnh</h3>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black">Tải lên hình ảnh chất lượng cao cho sản phẩm.</p>
                           </div>
 
                           <div className="bg-zinc-50 dark:bg-zinc-900/60 p-12 rounded-[4rem] border border-border shadow-2xl">
@@ -1033,9 +1048,10 @@ export default function AdminProducts() {
                   ) : editId ? t('form.submit_edit') : t('form.submit_create')}
                 </button>
               </div>
+            </motion.div>
             </div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
       </main>
     </AuthGuard>
   );

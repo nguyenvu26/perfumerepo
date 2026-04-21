@@ -45,7 +45,7 @@ export default function StoryPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.7 }}
-                            className="text-fluid-4xl font-serif text-white mb-8 lg:mb-12 leading-tight"
+                            className="text-fluid-3xl font-serif text-white mb-8 lg:mb-12 leading-tight"
                         >
                             {t('intro.title_line1')} <br />
                             <span className="italic">{t('intro.title_line2')}</span>
@@ -182,7 +182,7 @@ export default function StoryPage() {
                 {/* CTA Section */}
                 <section className="py-32 lg:py-48 relative overflow-hidden bg-luxury-black text-white text-center">
                     <div className="container-responsive relative z-10 px-4 lg:px-6">
-                        <h2 className="text-fluid-4xl font-serif mb-8 lg:mb-12 leading-tight">
+                        <h2 className="text-fluid-3xl font-serif mb-8 lg:mb-12 leading-tight">
                             {t('cta.title_line1')} <br className="hidden sm:block" /> {t('cta.title_line2')}
                         </h2>
                         <Link

@@ -10,11 +10,14 @@ import {
 } from 'lucide-react';
 import { Link, usePathname } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
+import { useUIStore } from '@/store/ui.store';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { ThemeToggle } from './theme-toggle';
 import { LanguageSwitch } from './language-switch';
 import { MoreHorizontal } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useState, useEffect } from 'react';
 
 export const Sidebar = ({ 
     onClose, 
@@ -32,7 +35,14 @@ export const Sidebar = ({
     const tUser = useTranslations('dashboard.user');
     const { user, logout } = useAuth();
     const pathname = usePathname();
+    const { theme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const { isModalOpen } = useUIStore();
     const role = user?.role || 'customer';
     const isDrawer = variant === 'drawer';
 
@@ -94,16 +104,25 @@ export const Sidebar = ({
         <>
             {/* Desktop & Tablet Sidebar */}
             <aside className={cn(
-                "h-screen glass border-r border-border flex flex-col transition-all duration-500 fixed left-0 top-0 z-50 overflow-y-auto custom-scrollbar no-print",
+                "h-screen bg-white/95 dark:bg-background/20 backdrop-blur-3xl border-r border-border flex flex-col transition-all duration-500 fixed left-0 top-0 z-50 overflow-y-auto custom-scrollbar no-print",
                 isDrawer ? "w-full border-none shadow-none" : "hidden md:flex", 
                 !isDrawer && (isCollapsed ? "w-20" : "w-20 lg:w-72")
             )}>
                 <Link href="/" className={cn(
                     "flex items-center mb-10 mt-8 px-4 group cursor-pointer shrink-0 transition-all duration-500",
-                    isDrawer || "justify-center lg:justify-start lg:px-8"
+                    isDrawer ? "justify-start px-8" : (isCollapsed ? "justify-center px-0 lg:px-0" : "justify-center lg:justify-start lg:px-8")
                 )}>
-                    <img src="/logo-dark.png" className="h-10 w-10 lg:h-12 lg:w-12 object-contain rounded-full border border-gold/10 shadow-lg group-hover:scale-110 transition-transform" alt="Perfume GPT" />
-                    {(isDrawer || !isCollapsed) && (
+                    <div className="relative w-10 h-10 lg:w-12 lg:h-12 flex-shrink-0">
+                        {mounted && (
+                            <img 
+                                src={theme === 'dark' ? '/logo-light.png' : '/logo-dark.png'} 
+                                className="w-full h-full object-contain rounded-full border border-gold/10 shadow-lg group-hover:scale-110 transition-transform" 
+                                alt="Perfume GPT" 
+                            />
+                        )}
+                        {!mounted && <div className="w-full h-full rounded-full bg-secondary/20 animate-pulse" />}
+                    </div>
+                    {(isDrawer || (!isCollapsed)) && (
                         <span className={cn(
                             "ml-4 font-heading text-lg gold-gradient uppercase tracking-widest font-black transition-all duration-500",
                             isDrawer ? "block" : "hidden lg:block whitespace-nowrap"
@@ -146,8 +165,8 @@ export const Sidebar = ({
                                         "group flex items-center gap-3 px-3 lg:px-4 py-4 lg:py-3 rounded-xl transition-all duration-300 relative overflow-hidden",
                                         isActive
                                             ? "bg-gold text-primary-foreground shadow-lg shadow-gold/20"
-                                            : "text-muted-foreground hover:text-foreground hover:bg-secondary/40",
-                                        isDrawer ? "px-6" : ""
+                                            : "text-muted-foreground hover:text-foreground hover:bg-zinc-50 dark:hover:bg-white/5",
+                                        isDrawer ? "px-6" : (isCollapsed ? "justify-center lg:px-0" : "")
                                     )}
                                     onClick={() => {
                                         if (onClose) onClose();
@@ -187,8 +206,8 @@ export const Sidebar = ({
                 </nav>
 
                 <div className="mt-auto px-3 lg:px-6 py-8 border-t border-border space-y-6 shrink-0">
-                    <div className="px-2 lg:px-4 py-3 rounded-2xl glass border-gold/10 flex items-center gap-3">
-                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-secondary flex items-center justify-center text-[10px] font-heading border border-white/5 uppercase shrink-0">
+                    <div className="px-2 lg:px-4 py-3 rounded-2xl bg-zinc-50 dark:bg-white/5 border border-gold/10 flex items-center gap-3">
+                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-white dark:bg-secondary flex items-center justify-center text-[10px] font-heading border border-gold/5 uppercase shrink-0">
                             {user?.name?.substring(0, 2) || 'AI'}
                         </div>
                         <div className={cn(
@@ -219,7 +238,10 @@ export const Sidebar = ({
 
             {/* Mobile Bottom Navigation (For Customers only) */}
             {role === 'CUSTOMER' && !isDrawer && (
-                <nav className="md:hidden fixed bottom-6 left-6 right-6 h-20 glass-dark backdrop-blur-2xl border border-white/10 rounded-[2.5rem] flex items-center justify-around px-2 z-[100] shadow-2xl">
+                <nav className={cn(
+                    "md:hidden fixed bottom-6 left-6 right-6 h-20 glass-dark backdrop-blur-2xl border border-white/10 rounded-[2.5rem] flex items-center justify-around px-2 z-[100] shadow-2xl transition-all duration-500",
+                    isModalOpen ? "translate-y-32 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+                )}>
                     {items.slice(0, 4).map((item) => {
                         const isActive = pathname === item.href;
                         return (

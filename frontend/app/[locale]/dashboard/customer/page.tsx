@@ -1,13 +1,24 @@
 'use client';
  
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Tag, Sparkles, ArrowUpRight, Zap, Coins, Inbox, MapPinned, User } from 'lucide-react';
+import { Tag, Sparkles, ArrowUpRight, Zap, Coins, Inbox, MapPinned, User, Loader2 } from 'lucide-react';
 import { Link } from '@/lib/i18n';
 import { useTranslations, useFormatter } from 'next-intl';
+import { useEffect, useState } from 'react';
+import { loyaltyService } from '@/services/loyalty.service';
  
 export default function CustomerDashboard() {
     const t = useTranslations('dashboard.customer.home');
     const format = useFormatter();
+    const [points, setPoints] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loyaltyService.getStatus()
+            .then(data => setPoints(data.points))
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
  
     return (
         <AuthGuard allowedRoles={['customer']}>
@@ -19,11 +30,15 @@ export default function CustomerDashboard() {
                     </div>
                     <div className="flex gap-4 w-full md:w-auto">
                         <div className="glass px-4 md:px-6 py-2 md:py-3 rounded-2xl border-gold/10 flex items-center gap-2 md:gap-3 flex-1 md:flex-none">
-                            <Coins size={14} className="text-gold" />
+                            {loading ? (
+                                <Loader2 size={14} className="text-gold animate-spin" />
+                            ) : (
+                                <Coins size={14} className="text-gold" />
+                            )}
                             <div className="text-left">
                                 <p className="text-[7px] md:text-[8px] text-muted-foreground uppercase tracking-widest font-bold">{t('credits_label')}</p>
                                 <p className="text-[10px] md:text-xs font-heading text-foreground">
-                                    {format.number(1250)} {t('credits_suffix')}
+                                    {loading ? '---' : format.number(points ?? 0)} {t('credits_suffix')}
                                 </p>
                             </div>
                         </div>
@@ -66,7 +81,7 @@ export default function CustomerDashboard() {
                                         <Coins className="w-5 h-5 md:w-6 md:h-6" />
                                     </div>
                                     <p className="text-lg md:text-2xl font-heading text-foreground uppercase">
-                                        {format.number(1250)} <span className="text-[8px] md:text-sm font-body text-muted-foreground">{t('credits_suffix')}</span>
+                                        {loading ? '---' : format.number(points ?? 0)} <span className="text-[8px] md:text-sm font-body text-muted-foreground">{t('credits_suffix')}</span>
                                     </p>
                                 </div>
                             </div>

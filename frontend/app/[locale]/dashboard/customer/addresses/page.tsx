@@ -87,7 +87,7 @@ export default function AddressesPage() {
         <div className="flex flex-col gap-6 md:gap-10 p-4 sm:p-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
                 <div className="flex flex-col">
-                    <h1 className="text-3xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter flex items-center gap-3">
+                    <h1 className="text-2xl md:text-3xl font-heading gold-gradient uppercase tracking-tighter flex items-center gap-3">
                         <MapPinned className="text-gold w-8 h-8 md:w-10 md:h-10" />
                         {t('title')}
                     </h1>

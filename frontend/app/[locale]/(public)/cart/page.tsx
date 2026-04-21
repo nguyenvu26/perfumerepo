@@ -83,7 +83,7 @@ export default function CartPage() {
             <div className="w-24 h-24 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-10 border border-gold/20 shadow-2xl">
               <ShoppingBag className="text-gold w-10 h-10" />
             </div>
-            <h1 className="text-6xl md:text-8xl font-serif text-foreground italic mb-6 tracking-tight">{t('title')}</h1>
+            <h1 className="text-fluid-4xl font-serif text-foreground italic mb-6 tracking-tight">{t('title')}</h1>
             <p className="text-[10px] text-muted-foreground uppercase tracking-[.6em] font-black opacity-60 mb-12">{t('signin_required')}</p>
             <Link href="/login" className="inline-flex items-center gap-4 bg-gold text-primary-foreground px-12 py-5 rounded-full font-black tracking-[.3em] uppercase hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-gold/20 text-[10px]">
               {t('signin_btn')} <ArrowRight size={16} />
@@ -127,7 +127,7 @@ export default function CartPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-fluid-4xl font-serif text-foreground italic tracking-tighter"
+            className="text-fluid-3xl font-serif text-foreground italic tracking-tighter"
           >
             {t('title')}
           </motion.h1>
@@ -278,7 +278,7 @@ export default function CartPage() {
                   <ShoppingBag size={120} className="text-gold" />
                 </div>
 
-                <h2 className="text-3xl lg:text-4xl font-serif text-foreground italic mb-10 lg:mb-12 tracking-tight">{t('summary')}</h2>
+                <h2 className="text-fluid-2xl font-serif text-foreground italic mb-10 lg:mb-12 tracking-tight">{t('summary')}</h2>
 
                 <div className="space-y-6 mb-10 lg:mb-12 relative z-10">
                   <div className="flex justify-between items-center group/line">
@@ -296,7 +296,7 @@ export default function CartPage() {
                   <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent my-8 lg:my-10" />
                   <div className="flex justify-between items-baseline group/line">
                     <span className="text-foreground font-black uppercase tracking-[.5em] text-[10px] lg:text-[11px]">{t('total')}</span>
-                    <span className="text-4xl lg:text-5xl font-serif text-gold tracking-tighter">
+                    <span className="text-fluid-3xl font-serif text-gold tracking-tighter">
                       {formatCurrency(subtotal)}
                     </span>
                   </div>

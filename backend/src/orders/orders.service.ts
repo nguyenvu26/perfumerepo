@@ -9,6 +9,7 @@ import { PromotionsService } from '../promotions/promotions.service';
 import { LoyaltyService } from '../loyalty/loyalty.service';
 import { ShippingService } from '../shipping/shipping.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { InventoryLogType, Prisma } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -86,7 +87,6 @@ export class OrdersService {
       finalAmountBeforeLoyalty - loyaltyDiscount + shippingFee,
     );
     const actualDiscountAmount = discountAmount + loyaltyDiscount;
-
     const order = await this.prisma.$transaction(async (tx) => {
       const created = await tx.order.create({
         data: {
@@ -128,6 +128,34 @@ export class OrdersService {
           },
         },
       });
+
+      // --- STOCK RESERVATION ---
+      for (const item of itemsToProcess) {
+        // Attempt to decrement stock using updateMany for conditional safety
+        const result = await tx.productVariant.updateMany({
+          where: {
+            id: item.variantId,
+            stock: { gte: item.quantity },
+          },
+          data: { stock: { decrement: item.quantity } },
+        });
+
+        if (result.count === 0) {
+          throw new BadRequestException(
+            `Sản phẩm ${item.variant.product.name} - ${item.variant.name} đã hết hàng hoặc không đủ số lượng.`,
+          );
+        }
+
+        // Log inventory change
+        await tx.inventoryLog.create({
+          data: {
+            variantId: item.variantId,
+            type: InventoryLogType.SALE_ONLINE,
+            quantity: -item.quantity,
+            reason: `Online order ${created.code}`,
+          },
+        });
+      }
 
       if (promoData) {
         // Increment general usage count
@@ -439,7 +467,12 @@ export class OrdersService {
         ...(status && { status }),
         ...(paymentStatus && { paymentStatus }),
       },
+      include: { items: true }
     });
+
+    if (status === 'CANCELLED') {
+      await this.restockOrderItems(id);
+    }
 
     // GHN shipment creation for ONLINE orders when confirmed
     if (status === 'CONFIRMED' && updated.channel === 'ONLINE') {
@@ -508,8 +541,14 @@ export class OrdersService {
     const updated = await this.prisma.order.update({
       where: { id },
       data: { status: 'CANCELLED' },
-      include: { promotions: true },
+      include: { 
+        promotions: true,
+        items: true,
+      },
     });
+
+    // Return stock
+    await this.restockOrderItems(updated.id);
 
     // Return promotions if any
     if (updated.promotions.length > 0) {
@@ -545,5 +584,58 @@ export class OrdersService {
     });
 
     return updated;
+  }
+
+  /**
+   * Return items from a cancelled/failed order back to stock.
+   */
+  async restockOrderItems(orderId: string, tx?: Prisma.TransactionClient) {
+    const client = tx || this.prisma;
+    const order = await client.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!order || order.items.length === 0) return;
+
+    for (const item of order.items) {
+      if (order.storeId) {
+        // POS Order with store
+        await client.storeStock.upsert({
+          where: {
+            storeId_variantId: {
+              storeId: order.storeId,
+              variantId: item.variantId,
+            },
+          },
+          create: {
+            storeId: order.storeId,
+            variantId: item.variantId,
+            quantity: item.quantity,
+          },
+          update: {
+            quantity: { increment: item.quantity },
+            updatedAt: new Date(),
+          },
+        });
+      } else {
+        // Online Order or POS without store
+        await client.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+
+      // Log inventory return
+      await client.inventoryLog.create({
+        data: {
+          variantId: item.variantId,
+          storeId: order.storeId,
+          type: InventoryLogType.RETURN,
+          quantity: item.quantity,
+          reason: `Restocked from cancelled order ${order.code}`,
+        },
+      });
+    }
   }
 }

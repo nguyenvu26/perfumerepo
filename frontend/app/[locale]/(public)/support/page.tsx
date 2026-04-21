@@ -18,7 +18,7 @@ export default function SupportPage() {
                     <span className="text-[10px] font-bold tracking-[.5em] uppercase text-gold mb-6 block">
                         {t('badge')}
                     </span>
-                    <h1 className="text-6xl md:text-8xl font-serif text-luxury-black dark:text-white mb-6">
+                    <h1 className="text-fluid-4xl font-serif text-luxury-black dark:text-white mb-6">
                         {t('title')}
                     </h1>
                     <p className="text-xl text-stone-500 dark:text-stone-400 max-w-2xl mx-auto">

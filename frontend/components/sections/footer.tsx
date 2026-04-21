@@ -27,7 +27,7 @@ export const Footer = () => {
     const social = ['Instagram', 'Pinterest', 'LinkedIn', 'YouTube'];
 
     return (
-        <footer className="bg-ebony text-muted-foreground section-py border-t border-white/5">
+        <footer className="bg-luxury-black dark:bg-[#050505] text-muted-foreground section-py border-t border-white/5">
             <div className="container-responsive">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20 lg:mb-32">
                     {/* Brand Column */}

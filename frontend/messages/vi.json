@@ -228,16 +228,14 @@
       "subtitle": "Đăng nhập để xem đơn hàng, điểm thưởng và gợi ý nước hoa của bạn.",
       "welcome_back": "Chào mừng trở lại",
       "please_login": "Vui lòng đăng nhập để tiếp tục",
-      "email_label": "Email Đã Đăng Ký",
-      "email_placeholder": "EMAIL CỦA BẠN",
+      "email_label": "Email Đăng Ký",
+      "email_placeholder": "Vui lòng nhập email của bạn",
       "password_label": "Mật Khẩu",
-      "password_placeholder": "••••",
+      "password_placeholder": "Vui lòng nhập mật khẩu của bạn",
       "sign_in": "Đăng nhập",
       "or_continue": "Hoặc tiếp tục với",
       "google": "Google",
-      "facebook": "Facebook",
       "error_failed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
-      "error_facebook_email_required": "Đăng nhập Facebook yêu cầu email công khai. Vui lòng đặt email công khai trong cài đặt Facebook hoặc sử dụng phương thức đăng nhập khác.",
       "error_oauth_failed": "Đăng nhập OAuth thất bại. Vui lòng thử lại.",
       "no_account": "Chưa có tài khoản?",
       "sign_up": "Đăng ký",
@@ -252,18 +250,17 @@
       "name_label": "Tên *",
       "name_placeholder": "Nhập tên của bạn",
       "email_label": "Email Đăng Ký",
-      "email_placeholder": "EMAIL CỦA BẠN",
+      "email_placeholder": "Vui lòng nhập email của bạn",
       "password_label": "Mật Khẩu",
-      "password_placeholder": "••••",
+      "password_placeholder": "Vui lòng nhập mật khẩu của bạn",
       "confirm_password_label": "Xác Nhận Mật Khẩu",
-      "confirm_password_placeholder": "••••",
+      "confirm_password_placeholder": "Vui lòng nhập lại mật khẩu của bạn",
       "terms_text": "Bằng việc tạo tài khoản, tôi đồng ý với",
       "terms_link": "Điều Khoản Dịch Vụ",
       "privacy_link": "Cam Kết Bảo Mật",
       "start_journey": "Tạo Tài Khoản",
       "or_register": "Hoặc đăng ký với",
       "google": "Google",
-      "facebook": "Facebook",
       "already_member": "Đã là thành viên?",
       "sign_in": "Đăng nhập",
       "success_title": "Đăng ký thành công",
@@ -285,7 +282,7 @@
       "page_subtitle": "Nhập email để nhận link đặt lại mật khẩu",
       "enter_email": "Nhập email đã đăng ký của bạn để tiếp tục",
       "email_label": "Email Đã Đăng Ký",
-      "email_placeholder": "EMAIL CỦA BẠN",
+      "email_placeholder": "Vui lòng nhập email của bạn",
       "verification_sent": "Đã Gửi Xác Minh",
       "check_email": "Vui lòng kiểm tra email để biết hướng dẫn",
       "link_sent": "Một liên kết được mã hóa đã được gửi đến",
@@ -301,9 +298,9 @@
       "page_title": "Cài Lại Mật Khẩu",
       "establish_security": "Nhập mật khẩu mới cho tài khoản của bạn",
       "new_password_label": "Mật Khẩu Mới",
-      "new_password_placeholder": "••••",
+      "new_password_placeholder": "Vui lòng nhập mật khẩu của bạn",
       "confirm_label": "Xác Nhận Mật Khẩu Mới",
-      "confirm_placeholder": "••••",
+      "confirm_placeholder": "Vui lòng nhập lại mật khẩu của bạn",
       "update_security": "Cập Nhật Mật Khẩu",
       "security_updated": "Mật Khẩu Đã Được Cập Nhật",
       "portal_secured": "Tài khoản của bạn hiện được bảo mật bằng mật khẩu mới",
@@ -539,7 +536,7 @@
     "column_house": "Về Chúng Tôi",
     "newsletter_title": "Bản Tin Perfume GPT",
     "newsletter_desc": "Nhận thông tin sản phẩm mới và ưu đãi đặc biệt sớm nhất.",
-    "email_placeholder": "EMAIL CỦA BẠN",
+    "email_placeholder": "Vui lòng nhập email của bạn",
     "copyright": "© 2026 PERFUME GPT HOUSE. BẢO LƯU MỌI QUYỀN.",
     "engine": "Động Cơ Perfume GPT v4.2",
     "location": "Grasse • Paris • Tokyo",
@@ -744,7 +741,7 @@
       "coming_soon": "Sắp ra mắt",
       "fallback": {
         "user": "Khách Hàng",
-        "empty": "Chưa có dữ liệu. Hãy bắt đầu khám phá bộ sưu tập.",
+        "empty": "Chưa có dữ liệu, hãy thêm thông tin của bạn",
         "placeholder_phone": "+84 901 234 567"
       }
     },
@@ -1101,7 +1098,8 @@
         },
         "request_return": "Yêu Cầu Trả Hàng",
         "return_submitted": "Đã gửi yêu cầu trả hàng",
-        "view_return": "Xem Đơn Trả Hàng"
+        "view_return": "Xem Đơn Trả Hàng",
+        "cancel_order": "Hủy Đơn Hàng"
       },
       "returns": {
         "title": "Yêu Cầu Đổi Trả",
@@ -1302,7 +1300,8 @@
       },
       "manageJournal": {
         "list": {
-          "title": "Danh Sách Bài Viết",
+          "title": "Quản Lý Tạp Chí",
+          "subtitle": "Biên tập các câu chuyện, kiến thức và cảm hứng khứu giác.",
           "create_btn": "Viết Bài Mới",
           "loading": "Đang tải...",
           "delete_confirm": "Xóa bài viết này? Hành động này không thể hoàn tác.",
@@ -1341,7 +1340,8 @@
           "success": "Đăng bài viết thành công!",
           "error_main_image": "Bắt buộc phải có ảnh bìa chính",
           "error_content": "Mỗi đoạn nội dung bắt buộc phải có văn bản",
-          "error_failed": "Lỗi khi đăng bài viết"
+          "error_failed": "Lỗi khi đăng bài viết",
+          "cancel": "Huỷ Bỏ"
         },
         "edit": {
           "title": "Chỉnh Sửa Bài Viết",
@@ -1350,11 +1350,13 @@
           "submitting": "Đang lưu...",
           "success": "Cập nhật bài viết thành công!",
           "error_load": "Lỗi tải bài viết",
-          "error_failed": "Lỗi khi cập nhật bài viết"
+          "error_failed": "Lỗi khi cập nhật bài viết",
+          "cancel": "Huỷ Bỏ"
         }
       },
       "manageBanner": {
         "title": "Quản Lý Banner",
+        "subtitle": "Cấu hình và cập nhật các biểu ngữ truyền thông trên hệ thống.",
         "form": {
           "add_title": "Thêm Banner Mới",
           "update_title": "Cập Nhật Banner",
@@ -1386,6 +1388,7 @@
       },
       "analytics": {
         "title": "Phân Tích & Báo Cáo",
+        "subtitle": "Phân tích dữ liệu kinh doanh và hiệu suất vận hành thời gian thực.",
         "stats": {
           "revenue": "Tổng Doanh thu",
           "users": "Người dùng",
@@ -1426,18 +1429,18 @@
         },
         "actions": {
           "edit": "Sửa",
-          "assign_store": "Gán Boutique",
+          "assign_store": "Gán cửa hàng",
           "unassign_store": "Hủy Phân bổ"
         },
         "modals": {
-          "edit_title": "Chỉnh Sửa {type}",
+          "edit_title": "Chỉnh Sửa: {name}",
           "assign_title": "Gán nhân viên vào quầy: {name}",
           "assign_desc": "Chọn nhân viên để phân bổ vào quầy này.",
           "save": "Lưu Thay đổi",
           "saving": "Đang lưu...",
           "cancel": "Hủy bỏ",
           "close": "Đóng",
-          "no_stores": "Không có boutique khả dụng để phân bổ."
+          "no_stores": "Không có cửa hàng nào khả dụng để phân bổ."
         },
         "no_users": "Không tìm thấy người dùng nào."
       },
@@ -1497,6 +1500,10 @@
           "address": "Địa chỉ *",
           "status": "Trạng Thái"
         }
+      },
+      "stock": {
+        "title": "Quản Lý Tồn Kho",
+        "subtitle": "Kiểm soát và phân bổ lượng hàng trên toàn hệ thống boutique."
       },
       "returns": {
         "title": "Quản Lý Đổi Trả",

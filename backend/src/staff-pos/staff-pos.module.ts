@@ -7,9 +7,16 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { StoresModule } from '../stores/stores.module';
 import { LoyaltyModule } from '../loyalty/loyalty.module';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
-  imports: [PrismaModule, PaymentsModule, StoresModule, LoyaltyModule],
+  imports: [
+    PrismaModule,
+    PaymentsModule,
+    StoresModule,
+    LoyaltyModule,
+    OrdersModule,
+  ],
   controllers: [StaffPosController, StaffAiController],
   providers: [StaffPosService, StaffAiService],
 })

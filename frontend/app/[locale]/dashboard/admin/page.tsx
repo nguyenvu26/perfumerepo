@@ -223,7 +223,7 @@ export default function AdminDashboard() {
                 {/* ── Header ─────────────────────────────────────────────── */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-4">
                     <header className="space-y-1">
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter leading-none">
+                        <h1 className="text-fluid-3xl font-heading gold-gradient uppercase tracking-tighter leading-none">
                             {t('home.title')}
                         </h1>
                         <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[.3em] sm:tracking-[.4em] font-bold">

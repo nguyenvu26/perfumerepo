@@ -11,7 +11,8 @@ import { toast } from 'sonner';
 import ReviewList from '../review/review-list';
 import ReviewSummaryView from '../review/review-summary';
 import StarRating from '../review/star-rating';
-import { useTranslations, useFormatter } from 'next-intl';
+import { useTranslations, useLocale, useFormatter } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProductDetail({ product }: { product: Product }) {
     const t = useTranslations('product_detail');
@@ -167,14 +168,14 @@ export default function ProductDetail({ product }: { product: Product }) {
                                 {t('archived_hash')}{product.slug.toUpperCase().slice(0, 8)}
                             </span>
                         </div>
-                        <h1 className="text-4xl lg:text-7xl font-heading text-foreground uppercase tracking-tighter leading-none mb-2">
+                        <h1 className="text-fluid-3xl font-heading text-foreground uppercase tracking-tighter leading-none mb-2">
                             {product.name}
                         </h1>
                         <div className="flex items-center gap-2 mb-4">
                             <StarRating rating={4.5} readOnly size={12} />
                             <span className="text-[9px] lg:text-[10px] text-muted-foreground uppercase tracking-widest">{t('rating_label', { rating: 4.5 })}</span>
                         </div>
-                        <p className="text-2xl lg:text-3xl font-heading text-gold">
+                        <p className="text-fluid-xl font-heading text-gold">
                             {selectedVariant ? formatCurrency(selectedVariant.price) : t('select_size')}
                         </p>
                     </div>
@@ -208,11 +209,11 @@ export default function ProductDetail({ product }: { product: Product }) {
                                 <h3 className="text-[9px] lg:text-[10px] uppercase tracking-[0.3em] font-heading text-foreground border-b border-border/50 pb-3 lg:pb-4">
                                     {t('olfactory_structure')}
                                 </h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
                                     {[
-                                        { type: 'TOP', label: t('top_notes') },
-                                        { type: 'MIDDLE', label: t('heart_notes') },
-                                        { type: 'BASE', label: t('base_notes') },
+                                        { type: 'TOP', label: t('top_notes'), icon: <Sparkles className="w-3 h-3 text-gold" /> },
+                                        { type: 'MIDDLE', label: t('heart_notes'), icon: <Heart className="w-3 h-3 text-gold" /> },
+                                        { type: 'BASE', label: t('base_notes'), icon: <ShieldCheck className="w-3 h-3 text-gold" /> },
                                     ].map((group) => {
                                         const notes = product.notes!
                                             .filter((n) => n.note?.type === group.type)
@@ -220,11 +221,14 @@ export default function ProductDetail({ product }: { product: Product }) {
                                             .filter(Boolean);
                                         if (notes.length === 0) return null;
                                         return (
-                                            <div key={group.type}>
-                                                <p className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
-                                                    {group.label}
-                                                </p>
-                                                <p className="text-[9px] lg:text-[10px] font-heading text-gold uppercase tracking-wider leading-relaxed">
+                                            <div key={group.type} className="space-y-3 p-4 glass rounded-2xl border border-border/40 hover:border-gold/30 transition-colors group/note">
+                                                <div className="flex items-center gap-2">
+                                                    {group.icon}
+                                                    <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">
+                                                        {group.label}
+                                                    </p>
+                                                </div>
+                                                <p className="text-[10px] font-heading text-foreground uppercase tracking-wider leading-relaxed group-hover/note:text-gold transition-colors">
                                                     {notes.join(', ')}
                                                 </p>
                                             </div>
@@ -238,20 +242,27 @@ export default function ProductDetail({ product }: { product: Product }) {
                             <h3 className="text-[9px] lg:text-[10px] uppercase tracking-[0.3em] font-heading text-foreground border-b border-border/50 pb-3 lg:pb-4">
                                 {t('technical_specifications')}
                             </h3>
-                            <div className="grid grid-cols-2 gap-6 lg:gap-8">
-                                <div>
-                                    <p className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+                            <div className="grid grid-cols-2 gap-8 lg:gap-12">
+                                <div className="space-y-3">
+                                    <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">
                                         {t('concentration')}
                                     </p>
-                                    <p className="text-[10px] lg:text-xs font-heading text-gold uppercase tracking-widest">
+                                    <p className="text-[10px] lg:text-xs font-heading text-gold uppercase tracking-[0.2em] font-medium">
                                         {product.concentration || 'Eau de Parfum'}
                                     </p>
                                 </div>
-                                <div>
-                                    <p className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
-                                        {t('longevity')}
-                                    </p>
-                                    <p className="text-[10px] lg:text-xs font-heading text-gold uppercase tracking-widest">
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-[8px] text-muted-foreground uppercase tracking-widest font-bold">
+                                            {t('longevity')}
+                                        </p>
+                                        <div className="flex gap-1">
+                                            {[1, 2, 3, 4, 5].map((i) => (
+                                                <div key={i} className={`w-1 h-2 rounded-full ${i <= 4 ? 'bg-gold' : 'bg-gold/20'}`} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] lg:text-xs font-heading text-gold uppercase tracking-widest font-medium">
                                         {product.longevity || 'Persistent'}
                                     </p>
                                 </div>
@@ -293,28 +304,34 @@ export default function ProductDetail({ product }: { product: Product }) {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8 pt-8 lg:pt-10 border-t border-border/50">
-                        <div className="flex gap-4">
-                            <div className="w-10 h-10 rounded-xl glass border-gold/10 flex items-center justify-center shrink-0">
-                                <BrainCircuit className="w-5 h-5 text-gold" />
+                        <div className="flex gap-4 p-5 glass rounded-3xl border border-border/40 group/ai relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover/ai:opacity-100 transition-opacity" />
+                            <div className="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center shrink-0 group-hover/ai:scale-110 transition-transform relative">
+                                <BrainCircuit className="w-6 h-6 text-gold" />
+                                <motion.div 
+                                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="absolute inset-0 bg-gold/20 rounded-2xl -z-10"
+                                />
                             </div>
-                            <div>
-                                <h4 className="text-[9px] lg:text-[10px] uppercase font-heading tracking-widest text-foreground mb-1">
+                            <div className="relative z-10">
+                                <h4 className="text-[10px] lg:text-[11px] uppercase font-heading tracking-widest text-foreground mb-1 font-bold group-hover/ai:text-gold transition-colors">
                                     {t('pattern_matching')}
                                 </h4>
-                                <p className="text-[7px] lg:text-[8px] text-muted-foreground uppercase tracking-widest leading-relaxed">
+                                <p className="text-[8px] lg:text-[9px] text-muted-foreground uppercase tracking-widest leading-relaxed">
                                     {t('pattern_matching_desc')}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex gap-4">
-                            <div className="w-10 h-10 rounded-xl glass border-gold/10 flex items-center justify-center shrink-0">
-                                <ShieldCheck className="w-5 h-5 text-gold" />
+                        <div className="flex gap-4 p-5 glass rounded-3xl border border-border/40 group/shield">
+                            <div className="w-12 h-12 rounded-2xl bg-gold/10 flex items-center justify-center shrink-0 group-hover/shield:scale-110 transition-transform">
+                                <ShieldCheck className="w-6 h-6 text-gold" />
                             </div>
                             <div>
-                                <h4 className="text-[9px] lg:text-[10px] uppercase font-heading tracking-widest text-foreground mb-1">
+                                <h4 className="text-[10px] lg:text-[11px] uppercase font-heading tracking-widest text-foreground mb-1 font-bold group-hover/shield:text-gold transition-colors">
                                     {t('authenticity_shield')}
                                 </h4>
-                                <p className="text-[7px] lg:text-[8px] text-muted-foreground uppercase tracking-widest leading-relaxed">
+                                <p className="text-[8px] lg:text-[9px] text-muted-foreground uppercase tracking-widest leading-relaxed">
                                     {t('authenticity_shield_desc')}
                                 </p>
                             </div>

@@ -14,7 +14,7 @@ export default function PrivacyPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-16"
                 >
-                    <h1 className="text-6xl font-serif text-luxury-black dark:text-white mb-6">
+                    <h1 className="text-fluid-4xl font-serif text-luxury-black dark:text-white mb-6">
                         {t('title')}
                     </h1>
                     <p className="text-stone-500 dark:text-stone-400">

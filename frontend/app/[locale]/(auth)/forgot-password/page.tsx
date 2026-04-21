@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
                                     {t('badge')}
                                 </span>
                             </div>
-                            <h2 className="text-5xl font-serif text-white mb-6 leading-tight italic">
+                            <h2 className="text-fluid-3xl font-serif text-white mb-6 leading-tight italic">
                                 {t('title')}
                             </h2>
                             <p className="text-stone-300 text-sm font-light leading-relaxed max-w-sm">

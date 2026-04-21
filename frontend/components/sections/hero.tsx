@@ -50,6 +50,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
     const heroY = parentHeroY || localHeroY;
     const heroScale = parentHeroScale || localHeroScale;
     const heroOpacity = parentHeroOpacity || localHeroOpacity;
+    const headlineY = useTransform(scrollYProgress, [0, 0.5], ["0px", "100px"]); // Parallax for text
 
     const currentBanner = banners[currentIndex];
 
@@ -93,11 +94,11 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
             {/* Content Context */}
             <div className="container-responsive relative z-10 w-full flex flex-col justify-center h-full">
                 <motion.div
-                    style={{ opacity: heroOpacity }}
+                    style={{ opacity: heroOpacity, y: headlineY }}
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
-                    className="max-w-4xl text-white"
+                    className="max-w-2xl lg:max-w-3xl text-white"
                 >
                     {/* Badge */}
                     <motion.span
@@ -118,7 +119,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                             transition={{ duration: 0.8 }}
                         >
                             {/* Headline */}
-                            <h1 className="text-fluid-4xl font-serif mb-8 leading-[1.15] tracking-tight drop-shadow-2xl whitespace-pre-line">
+                             <h1 className="text-fluid-3xl font-serif mb-6 lg:mb-10 leading-[1.1] tracking-tight drop-shadow-2xl whitespace-pre-line text-white">
                                 {currentBanner?.title || t('title')}
                             </h1>
 
@@ -133,14 +134,14 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                     <div className="flex flex-wrap gap-6 mt-8">
                         <Link
                             href={currentBanner?.linkUrl || "/quiz"}
-                            className="group px-10 py-5 bg-gold hover:bg-gold-light text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] flex items-center gap-4 transition-all shadow-xl"
+                            className="group w-full sm:w-auto px-8 py-4 bg-gold hover:bg-gold-light text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] flex items-center justify-center gap-4 transition-all shadow-xl"
                         >
                             {currentBanner?.linkUrl ? 'Xem Ngay' : t('cta')}
                             <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
                         </Link>
                         <Link
                             href="/collection"
-                            className="px-10 py-5 glass hover:bg-white/20 text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] transition-all shadow-lg"
+                            className="w-full sm:w-auto px-8 py-4 glass hover:bg-white/20 text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] transition-all shadow-lg text-center"
                         >
                             {t('explore')}
                         </Link>
@@ -155,7 +156,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                 transition={{ delay: 1.5, duration: 1 }}
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-none z-10"
             >
-                <span className="text-[10px] uppercase tracking-[0.5em] text-white/80 font-bold drop-shadow-md">
+                <span className="text-[11px] lg:text-xs uppercase tracking-[0.5em] text-white/80 font-bold drop-shadow-md">
                     {t('scroll_to_discover')}
                 </span>
                 <motion.div

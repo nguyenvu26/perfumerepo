@@ -128,9 +128,9 @@ export default function AdminReviewsPage() {
     return (
         <div className="p-4 sm:p-6 md:p-10 space-y-8 md:space-y-12 animate-in fade-in duration-700 max-w-[1600px] mx-auto">
             <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 sm:gap-8">
-                <div className="space-y-2 sm:space-y-3">
-                    <h1 className="text-4xl sm:text-6xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
-                    <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60">
+                <div className="space-y-4">
+                    <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
                         {t('subtitle')}
                     </p>
                 </div>
@@ -175,13 +175,13 @@ export default function AdminReviewsPage() {
                         </div>
                         <div className="relative w-full sm:w-auto">
                             <select
-                                className="w-full sm:w-auto h-12 sm:h-14 px-8 rounded-2xl sm:rounded-full bg-secondary/10 border border-stone-200 dark:border-white/5 text-[16px] sm:text-[10px] uppercase font-bold tracking-[.2em] focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all cursor-pointer hover:bg-gold/5 shadow-sm appearance-none"
+                                className="w-full sm:w-auto h-12 sm:h-14 px-8 rounded-2xl sm:rounded-full bg-secondary/10 dark:bg-zinc-900/80 border border-stone-200 dark:border-white/5 text-[16px] sm:text-[10px] text-foreground uppercase font-bold tracking-[.2em] focus:outline-none focus:ring-2 focus:ring-gold/30 transition-all cursor-pointer hover:bg-gold/5 shadow-sm appearance-none"
                                 value={ratingFilter}
                                 onChange={(e) => setRatingFilter(e.target.value)}
                             >
-                                <option value="">{t('all_ratings')}</option>
+                                <option value="" className="text-foreground bg-background">{t('all_ratings')}</option>
                                 {[5, 4, 3, 2, 1].map(star => (
-                                    <option key={star} value={star}>{tReview('stars', { count: star })}</option>
+                                    <option key={star} value={star} className="text-foreground bg-background">{tReview('stars', { count: star })}</option>
                                 ))}
                             </select>
                             <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">

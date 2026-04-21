@@ -15,6 +15,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
 import { StoresService } from '../stores/stores.service';
+import { OrdersService } from '../orders/orders.service';
 
 import { LoyaltyService } from '../loyalty/loyalty.service';
 
@@ -25,6 +26,7 @@ export class StaffPosService {
     private readonly paymentsService: PaymentsService,
     private readonly storesService: StoresService,
     private readonly loyaltyService: LoyaltyService,
+    private readonly ordersService: OrdersService,
   ) { }
 
   /**
@@ -860,20 +862,25 @@ export class StaffPosService {
       if (paymentMethod === 'CASH') {
         // Deduct store stock & log
         for (const v of variantData) {
-          await tx.storeStock.upsert({
+          const result = await tx.storeStock.updateMany({
             where: {
-              storeId_variantId: { storeId, variantId: v.variantId },
-            },
-            create: {
               storeId,
               variantId: v.variantId,
-              quantity: -v.quantity,
+              quantity: { gte: v.quantity },
             },
-            update: {
+            data: {
               quantity: { decrement: v.quantity },
               updatedAt: new Date(),
             },
           });
+
+          if (result.count === 0) {
+            const variant = await tx.productVariant.findUnique({ where: { id: v.variantId } });
+            throw new BadRequestException(
+              `Sản phẩm ${variant?.name || v.variantId} không đủ số lượng trong kho tại cửa hàng này.`,
+            );
+          }
+
           await tx.inventoryLog.create({
             data: {
               variantId: v.variantId,
@@ -923,6 +930,39 @@ export class StaffPosService {
               },
             });
           }
+        }
+      } else if (paymentMethod === 'QR') {
+        // --- STOCK RESERVATION FOR QR ---
+        for (const v of variantData) {
+          const result = await tx.storeStock.updateMany({
+            where: {
+              storeId,
+              variantId: v.variantId,
+              quantity: { gte: v.quantity },
+            },
+            data: {
+              quantity: { decrement: v.quantity },
+              updatedAt: new Date(),
+            },
+          });
+
+          if (result.count === 0) {
+            const variant = await tx.productVariant.findUnique({ where: { id: v.variantId } });
+            throw new BadRequestException(
+              `Sản phẩm ${variant?.name || v.variantId} không đủ số lượng trong kho tại cửa hàng này.`,
+            );
+          }
+
+          await tx.inventoryLog.create({
+            data: {
+              variantId: v.variantId,
+              staffId: staffUserId,
+              storeId,
+              type: InventoryLogType.SALE_POS,
+              quantity: -v.quantity,
+              reason: `POS order ${newOrder.code} (QR Reservation)`,
+            },
+          });
         }
       }
 
@@ -988,6 +1028,9 @@ export class StaffPosService {
           paymentStatus: PaymentStatus.FAILED,
         },
       });
+
+      // Return stock
+      await this.ordersService.restockOrderItems(order.id, tx);
     });
 
     return { success: true, orderId: order.id };

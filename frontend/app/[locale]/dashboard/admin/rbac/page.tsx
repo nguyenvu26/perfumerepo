@@ -11,17 +11,12 @@ export default function RBACAdmin() {
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-4 sm:p-6 md:p-8 pb-20 max-w-[1600px] mx-auto">
         <header className="mb-8 md:mb-12">
-          <div className="flex items-center gap-3 sm:gap-4 mb-2">
-            <div className="p-2 sm:p-2.5 bg-gold/10 rounded-xl text-gold shadow-sm">
-               <Shield className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-heading gold-gradient uppercase tracking-tighter leading-none">
-              {t('title')}
-            </h1>
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+              {t('subtitle')}
+            </p>
           </div>
-          <p className="text-muted-foreground font-body text-[10px] sm:text-xs uppercase tracking-[.3em] font-bold opacity-70">
-             {t('subtitle')}
-          </p>
         </header>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 mb-8 md:mb-12">

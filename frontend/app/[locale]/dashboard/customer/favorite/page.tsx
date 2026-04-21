@@ -39,7 +39,7 @@ export default function CustomerFavoritePage() {
     <AuthGuard allowedRoles={['customer']}>
       <main className="p-4 sm:p-8 max-w-7xl mx-auto">
         <header className="mb-8 md:mb-10">
-          <h1 className="text-3xl md:text-5xl font-heading gold-gradient uppercase tracking-tighter mb-2 transition-colors">
+          <h1 className="text-2xl md:text-3xl font-heading gold-gradient mb-2 uppercase tracking-tighter transition-colors">
             {t('title')}
           </h1>
           <p className="text-muted-foreground font-body text-[10px] md:text-sm uppercase tracking-widest">

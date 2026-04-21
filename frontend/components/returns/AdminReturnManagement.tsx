@@ -425,17 +425,7 @@ export const AdminReturnManagement = ({
 
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-heading font-semibold text-foreground bg-gradient-to-r from-gold to-gold/50 bg-clip-text text-transparent inline-block">
-              Quản lý Đổi trả
-            </h2>
-            <p className="text-muted-foreground mt-1 text-[10px] md:text-sm">
-              Hệ thống CRM theo dõi và xử lý các yêu cầu đổi trả hàng hóa, quy
-              trình hoàn tiền tinh gọn.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3 px-4 sm:px-0">
             <Button
               variant="outline"
               className="glass border-gold/20 h-10 text-[10px] sm:text-xs"
@@ -445,11 +435,11 @@ export const AdminReturnManagement = ({
             </Button>
             <div className="relative group flex-1 sm:flex-none">
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
-              <Input
+              <input
                 type="date"
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="pl-9 w-full sm:w-40 glass border-gold/20 text-[11px] font-medium h-10 focus:ring-1 focus:ring-gold/30 transition-all cursor-pointer invert dark:invert-0"
+                className="pl-9 w-full sm:w-40 glass border border-gold/20 text-[11px] font-medium h-10 focus:ring-1 focus:ring-gold/30 transition-all cursor-pointer invert dark:invert-0 bg-transparent rounded-md outline-none"
               />
             </div>
             {!isAdmin && (
@@ -467,7 +457,6 @@ export const AdminReturnManagement = ({
               </Button>
             )}
           </div>
-        </div>
 
       <Tabs
         value={activeTab}

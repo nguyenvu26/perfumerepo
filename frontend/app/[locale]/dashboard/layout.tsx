@@ -11,6 +11,7 @@ import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
+import { useUIStore } from '@/store/ui.store';
 
 export default function DashboardLayout({
     children,
@@ -21,7 +22,7 @@ export default function DashboardLayout({
     const locale = useLocale();
     const { user } = useAuth();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const { isSidebarCollapsed: isCollapsed, toggleSidebar: toggleUI } = useUIStore();
 
     const role = user?.role || 'CUSTOMER';
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
@@ -42,7 +43,7 @@ export default function DashboardLayout({
         if (window.innerWidth < 768) {
             setIsMobileSidebarOpen(true);
         } else {
-            setIsCollapsed(!isCollapsed);
+            toggleUI();
         }
     };
 

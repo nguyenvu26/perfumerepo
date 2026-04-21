@@ -17,7 +17,7 @@ export default function RewardsPage() {
                     <motion.h1
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-3xl md:text-6xl font-heading text-luxury-black dark:text-white mb-4 md:mb-6 uppercase tracking-tighter md:tracking-widest"
+                        className="text-fluid-4xl font-heading text-luxury-black dark:text-white mb-4 md:mb-6 uppercase tracking-tighter md:tracking-widest"
                     >
                         {t.rich('title', {
                             tiers: (chunks) => <span className="italic">{chunks}</span>

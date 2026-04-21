@@ -169,9 +169,11 @@ export default function AdminCatalog() {
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto">
         <header className="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="space-y-1">
-            <h1 className="text-3xl sm:text-4xl font-heading gold-gradient mb-1 uppercase tracking-tighter leading-none">{t('title')}</h1>
-            <p className="text-muted-foreground font-body text-[10px] sm:text-xs uppercase tracking-[.3em] font-bold">{t('subtitle')}</p>
+          <div className="space-y-4">
+            <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
+              {t('subtitle')}
+            </p>
           </div>
           <button
             onClick={openCreate}

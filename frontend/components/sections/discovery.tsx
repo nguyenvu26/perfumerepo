@@ -29,10 +29,10 @@ export const Discovery = () => {
                         className="flex justify-center items-center gap-4 text-gold/60"
                     >
                         <div className="w-8 h-px bg-gold/30" />
-                        <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-gold-dark">{t('methodology')}</span>
+                        <span className="text-[9px] lg:text-[11px] uppercase tracking-[0.4em] font-bold text-gold-dark">{t('methodology')}</span>
                         <div className="w-8 h-px bg-gold/30" />
                     </motion.div>
-                    <h2 className="text-fluid-4xl font-heading text-foreground font-light px-4">
+                    <h2 className="text-fluid-3xl font-heading text-foreground font-light px-4">
                         {t.rich('title', {
                             span: (chunks) => <span className="italic font-normal">{chunks}</span>
                         })}
@@ -66,13 +66,13 @@ export const Discovery = () => {
 
                                 {/* Content */}
                                 <div className="space-y-3 lg:space-y-4">
-                                    <span className="text-[9px] lg:text-[10px] uppercase tracking-[0.4em] font-body font-bold text-secondary/40 block">
+                                    <span className="text-[9px] lg:text-[11px] uppercase tracking-[0.4em] font-body font-bold text-secondary/40 block">
                                         {step.label}
                                     </span>
                                     <h3 className="text-xl lg:text-2xl font-heading text-foreground font-medium tracking-tight">
                                         {step.title}
                                     </h3>
-                                    <p className="text-secondary/60 font-body text-xs lg:text-[13px] leading-relaxed max-w-[250px] mx-auto uppercase tracking-wider">
+                                    <p className="text-secondary/60 font-body text-xs lg:text-[14px] leading-relaxed max-w-[280px] lg:max-w-xs mx-auto uppercase tracking-wider">
                                         {step.desc}
                                     </p>
                                 </div>

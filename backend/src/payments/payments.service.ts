@@ -11,6 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PaymentProvider, PaymentStatus } from '@prisma/client';
 import { PayOS } from '@payos/node';
 import { ShippingService } from '../shipping/shipping.service';
+import { OrdersService } from '../orders/orders.service';
 
 @Injectable()
 export class PaymentsService implements OnModuleInit, OnModuleDestroy {
@@ -32,6 +33,7 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly shippingService: ShippingService,
+    private readonly ordersService: OrdersService,
   ) {
     const clientId = this.config.get<string>('PAYOS_CLIENT_ID');
     const apiKey = this.config.get<string>('PAYOS_API_KEY');
@@ -268,6 +270,9 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
             status: 'CANCELLED',
           },
         });
+
+        // Return stock back to inventory
+        await this.ordersService.restockOrderItems(payment.orderId, tx);
       }
     });
 
@@ -527,6 +532,10 @@ export class PaymentsService implements OnModuleInit, OnModuleDestroy {
               paymentStatus: PaymentStatus.FAILED,
             },
           });
+
+          // Return stock back to inventory
+          await this.ordersService.restockOrderItems(order.id, tx);
+
           await tx.payment.updateMany({
             where: {
               orderId: order.id,

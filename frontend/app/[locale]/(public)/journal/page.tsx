@@ -82,7 +82,7 @@ export default function JournalPublicPage() {
                                         <div className="w-6 h-px bg-gold" />
                                         {t('featured_badge')} • {featured.category}
                                     </span>
-                                    <h2 className="text-3xl md:text-6xl font-serif leading-tight mb-6 group-hover:text-gold transition-colors tracking-tight italic">{featured.title}</h2>
+                                    <h2 className="text-fluid-4xl font-serif leading-tight mb-6 group-hover:text-gold transition-colors tracking-tight italic">{featured.title}</h2>
                                     <p className="hidden md:block max-w-2xl text-white/70 text-lg leading-relaxed line-clamp-2 italic font-serif">
                                         {featured.excerpt}
                                     </p>

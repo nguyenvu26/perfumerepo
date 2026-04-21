@@ -112,9 +112,7 @@ export default function CustomerPromotions() {
                             <Sparkles size={16} />
                             <span>{tMarket('badge')}</span>
                         </div>
-                        <h1 className="text-6xl font-heading gold-gradient uppercase tracking-tighter italic">
-                            {t('title')}
-                        </h1>
+                        <h1 className="text-2xl md:text-3xl font-heading gold-gradient mb-2 uppercase tracking-tighter">{t('title')}</h1>
                         <p className="mt-4 text-muted-foreground font-body text-[11px] uppercase tracking-[.3em] font-medium max-w-xl">
                             {t('subtitle')}
                         </p>

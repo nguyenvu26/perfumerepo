@@ -108,7 +108,7 @@ export default function CustomerOrdersPage() {
         <AuthGuard allowedRoles={['customer', 'staff', 'admin']}>
             <div className="flex flex-col gap-10 py-10 px-8">
                 <header className="mb-4 md:mb-8">
-                    <h1 className="text-3xl md:text-5xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
+                    <h1 className="text-2xl md:text-3xl font-heading gold-gradient mb-2 uppercase tracking-tighter">
                         {t('title')}
                     </h1>
                     <p className="text-[8px] md:text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold">
