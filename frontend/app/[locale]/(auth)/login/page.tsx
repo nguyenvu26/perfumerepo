@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/use-auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Mail, Lock, Globe, Eye, EyeOff } from 'lucide-react';
-import { Link } from '@/lib/i18n';
+import { Link, useRouter } from '@/lib/i18n';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
     const t = useTranslations('auth.login');
@@ -43,8 +43,16 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            await login({ email: formData.email, password: formData.password });
-            router.push('/');
+            const user = await login({ email: formData.email, password: formData.password });
+            
+            // Role-based redirection
+            if (user.role === 'ADMIN') {
+                router.push('/dashboard/admin');
+            } else if (user.role === 'STAFF') {
+                router.push('/dashboard/staff');
+            } else {
+                router.push('/');
+            }
         } catch (err: any) {
             setError(err.message || t('error_failed'));
         } finally {

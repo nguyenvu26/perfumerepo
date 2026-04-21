@@ -53,7 +53,7 @@ export class QuizService {
         });
 
         // 2. Get AI recommendations
-        const recommendations = await this.aiService.quizConsult(answers);
+        const recommendations = await this.aiService.quizConsult(answers, userId || undefined);
 
         // 3. Enrich recommendations with DB data
         const enriched = await this.enrichRecommendations(recommendations);

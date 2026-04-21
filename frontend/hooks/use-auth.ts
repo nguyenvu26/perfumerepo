@@ -25,7 +25,9 @@ export const useAuth = () => {
             localStorage.setItem('refreshToken', refreshToken);
         }
         const me = await userService.getMe();
-        setAuth(toFrontendUser(me), accessToken);
+        const mappedUser = toFrontendUser(me);
+        setAuth(mappedUser, accessToken);
+        return mappedUser;
     };
 
     const register = async (userData: { email: string; password: string; full_name?: string; fullName?: string; phone?: string }) => {

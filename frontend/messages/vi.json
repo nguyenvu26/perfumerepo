@@ -156,6 +156,7 @@
       "reviews": "Đánh giá khách hàng",
       "manage_journal": "Quản lý Tạp chí",
       "manage_banner": "Quản lý Banner",
+      "ai_logs": "Hiệu Suất AI",
       "returns": "Yêu cầu Đổi trả"
     },
     "shared": {
@@ -766,6 +767,43 @@
         "delete": "Không thể xóa địa chỉ.",
         "set_default": "Không thể đặt làm mặc định.",
         "generic": "Đã có lỗi xảy ra."
+      }
+    },
+    "ai_logs": {
+      "title": "Hiệu Suất Hệ Thống AI",
+      "subtitle": "Giám sát hiệu suất, độ trễ và tỉ lệ lỗi của các mô hình AI.",
+      "overview": "Tổng Quan Hiệu Suất",
+      "usage_trend": "Xu Hướng Sử Dụng",
+      "type_distribution": "Phân Bổ Theo Chức Năng",
+      "recent_logs": "Nhật Ký Gần Đây",
+      "stats": {
+        "total_requests": "Tổng Yêu Cầu",
+        "avg_latency": "Độ Trễ Trung Bình",
+        "success_rate": "Tỉ Lệ Thành Công",
+        "failed_requests": "Yêu Cầu Thất Bại"
+      },
+      "table": {
+        "type": "Loại",
+        "model": "Model",
+        "status": "Trạng Thái",
+        "duration": "Thời Gian",
+        "time": "Thời Điểm",
+        "user": "Người Dùng",
+        "actions": "Thao Tác"
+      },
+      "detail": {
+        "title": "Chi Tiết Nhật Ký AI",
+        "request": "Yêu Cầu (Input)",
+        "response": "Phản Hồi (Output)",
+        "error": "Chi Tiết Lỗi"
+      },
+      "types": {
+        "PERFUME_CONSULT": "Tư Vấn Nước Hoa",
+        "MARKETING_ADVISOR": "Trợ Lý Tiếp Thị",
+        "REVIEW_SUMMARY": "Tổng Hợp Đánh Giá",
+        "QUIZ_CONSULT": "Kết Quả Trắc Nghiệm",
+        "SCENT_ANALYSIS": "Phân Tích Mùi Hương",
+        "STAFF_POS_CONSULT": "Tư Vấn Tại Quầy"
       }
     },
     "inventory": {
@@ -2354,13 +2392,15 @@
     },
     "staff": {
       "home": {
-        "title": "Tổng Quan Nhân Viên",
-        "subtitle": "Theo dõi hiệu suất và hoạt động bán hàng tại quầy.",
-        "loading": "Đang tải...",
-        "total_orders": "Tổng Đơn Hàng",
-        "completed_suffix": "Hoàn tất",
-        "avg_order_value": "Giá Trị Đơn Trung Bình",
-        "today_revenue": "Doanh Thu Hôm Nay"
+        "title": "Quản Trị Tại Quầy",
+        "subtitle": "Theo dõi biến động doanh thu, hiệu suất bán hàng và tồn kho trực tiếp.",
+        "refresh": "Đồng Bộ",
+        "stats": {
+          "revenue": "Doanh Thu POS",
+          "orders": "Tổng Đơn Hàng",
+          "completion": "Hoàn Thành",
+          "cancelled": "Đã Hủy"
+        }
       },
       "orders": {
         "title": "Đơn Hàng Tại Quầy",

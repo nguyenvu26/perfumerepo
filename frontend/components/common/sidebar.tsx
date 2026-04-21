@@ -87,6 +87,7 @@ export const Sidebar = ({
             { icon: Tag, label: navT('admin.promotions'), href: '/dashboard/admin/marketing/promotions' },
             { icon: Receipt, label: commonT('orders'), href: '/dashboard/admin/orders' },
             { icon: RotateCcw, label: navT('admin.returns'), href: '/dashboard/admin/returns' },
+            { icon: BrainCircuit, label: navT('admin.ai_logs'), href: '/dashboard/admin/ai-logs' },
             // { icon: BarChart3, label: navT('admin.analytics'), href: '/dashboard/admin/analytics' },
             // { icon: Mail, label: navT('admin.marketing'), href: '/dashboard/admin/marketing' },
             { icon: Sparkles, label: navT('admin.manage_banner'), href: '/dashboard/admin/manage-banner' },

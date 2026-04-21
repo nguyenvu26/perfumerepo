@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from '@/lib/i18n';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
@@ -48,9 +49,16 @@ export default function AuthCallbackPage() {
                     setStatus('success');
                     setMessage(t('success_msg'));
 
-                    // Redirect to home page after 1.5 seconds
+                    // Role-based redirection after 1.5 seconds
+                    const mappedUser = toFrontendUser(userProfile);
                     setTimeout(() => {
-                        router.push('/');
+                        if (mappedUser.role === 'ADMIN') {
+                            router.push('/dashboard/admin');
+                        } else if (mappedUser.role === 'STAFF') {
+                            router.push('/dashboard/staff');
+                        } else {
+                            router.push('/');
+                        }
                     }, 1500);
                 } catch (error) {
                     console.error('Error processing OAuth callback:', error);

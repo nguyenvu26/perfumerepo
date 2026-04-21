@@ -78,6 +78,7 @@ export class ChatService {
           aiResponseText = await this.aiService.perfumeConsult(
             userText,
             history,
+            userId,
             dna
               ? {
                   preferredNotes: dna.preferredNotes,
@@ -90,6 +91,7 @@ export class ChatService {
           aiResponseText = await this.aiService.marketingAdvise(
             userText,
             history,
+            userId,
           );
         }
 

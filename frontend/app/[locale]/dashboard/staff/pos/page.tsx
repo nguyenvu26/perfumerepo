@@ -74,7 +74,7 @@ export default function PosPage() {
     const [aiNotes, setAiNotes] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
     const [aiResults, setAiResults] = useState<{
-        productId: string; productName: string; variantId?: string; variantName?: string; price: number; reason: string;
+        productId: string; productName: string; variantId?: string; variantName?: string; price: number; stock: number; reason: string;
     }[]>([]);
     const [aiError, setAiError] = useState<string | null>(null);
     const [cameraScannerOpen, setCameraScannerOpen] = useState(false);
@@ -363,11 +363,23 @@ export default function PosPage() {
 
     const handleAddAiRecommendation = async (variantId?: string) => {
         if (!variantId) return;
-        let stock = 999;
+
+        // Try to find the stock in the current products catalog first
+        let stock = -1;
         for (const p of products) {
             const v = p.variants?.find(v => v.id === variantId);
             if (v) { stock = v.stock; break; }
         }
+
+        // If not found in catalog, get it from the AI recommendation data
+        if (stock === -1) {
+            const rec = aiResults.find(r => r.variantId === variantId);
+            if (rec) stock = rec.stock;
+        }
+
+        // Fallback to a safe number if STILL not found, but we prefer 0 to block adding out-of-stock
+        if (stock === -1) stock = 0;
+
         await handleAddVariant(variantId, stock);
     };
 
@@ -425,7 +437,7 @@ export default function PosPage() {
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 flex-1 min-w-0">
                                 <div className="flex items-center gap-2 shrink-0">
                                     <Store className="w-4 h-4 text-gold" />
-                                    <label className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground">{t('store')}:</label>
+                                    {/* <label className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground">{t('store')}:</label>
                                     <select
                                         value={order?.storeId ?? selectedStoreId}
                                         onChange={(e) => {
@@ -438,7 +450,7 @@ export default function PosPage() {
                                         {myStores.map((s) => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
-                                    </select>
+                                    </select> */}
                                 </div>
                                 <div className="flex items-center gap-2 flex-1 max-w-xl min-w-0">
                                     <div className="relative flex-1 min-w-0">
@@ -580,12 +592,17 @@ export default function PosPage() {
                                                         <div className="flex justify-between items-start">
                                                             <div>
                                                                 <p className="font-heading text-[10px] uppercase tracking-widest">{r.productName}</p>
-                                                                {r.variantName && <p className="text-[9px] text-muted-foreground">{r.variantName}</p>}
+                                                                <div className="flex items-center gap-2">
+                                                                    {r.variantName && <p className="text-[9px] text-muted-foreground">{r.variantName}</p>}
+                                                                    <span className={`text-[8px] px-1.5 py-0.5 rounded-full border ${r.stock > 0 ? 'bg-success/5 text-success border-success/20' : 'bg-error/5 text-error border-error/20'}`}>
+                                                                        Stock: {r.stock}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                             <span className="font-heading text-gold text-sm">{formatVND(r.price)}</span>
                                                         </div>
                                                         <p className="text-[10px] text-muted-foreground italic">{r.reason}</p>
-                                                        <button onClick={() => handleAddAiRecommendation(r.variantId)} disabled={!r.variantId || isOrderCompleted} className="text-[9px] font-heading uppercase tracking-widest text-gold hover:text-foreground transition-colors disabled:opacity-50 flex items-center gap-1 pt-1">
+                                                        <button onClick={() => handleAddAiRecommendation(r.variantId)} disabled={!r.variantId || isOrderCompleted || r.stock <= 0} className="text-[9px] font-heading uppercase tracking-widest text-gold hover:text-foreground transition-colors disabled:opacity-50 flex items-center gap-1 pt-1">
                                                             <Plus className="w-3 h-3" /> {t('ai.add_to_bill')}
                                                         </button>
                                                     </div>

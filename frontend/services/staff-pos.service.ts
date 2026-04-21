@@ -128,6 +128,7 @@ export const staffPosService = {
       variantId?: string;
       variantName?: string;
       price: number;
+      stock: number;
       reason: string;
     }[];
     rawResponse: string;

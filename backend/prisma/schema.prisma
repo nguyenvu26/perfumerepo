@@ -555,14 +555,17 @@ model Notification {
 
 /// AI orchestration & logs
 model AiRequestLog {
-  id        String   @id @default(cuid())
-  userId    String?
-  type      String
-  request   String
-  response  String?
-  status    String?
-  createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
+  id           String   @id @default(cuid())
+  userId       String?
+  type         String
+  request      String
+  response     String?
+  status       String?
+  duration     Int?      // Execution time in ms
+  model        String?   // AI model used
+  errorMessage String?   // Error details if failed
+  createdAt    DateTime @default(now())
+  user         User?    @relation(fields: [userId], references: [id])
 }
 
 /// Audit & system
