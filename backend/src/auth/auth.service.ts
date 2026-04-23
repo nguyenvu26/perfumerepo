@@ -500,8 +500,15 @@ export class AuthService {
         loyaltyPoints: true,
         role: true,
         isActive: true,
+        emailVerified: true,
         createdAt: true,
         updatedAt: true,
+        _count: {
+          select: { 
+            quizResults: true,
+            addresses: true,
+          },
+        },
       },
     });
 
@@ -509,7 +516,10 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    return user;
+    return {
+      ...user,
+      hasAiProfile: user._count.quizResults > 0,
+    };
   }
 
   /**

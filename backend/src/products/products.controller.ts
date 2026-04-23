@@ -13,6 +13,11 @@ export class ProductsController {
     return this.productsService.listPublic(query, req.user?.userId);
   }
 
+  @Get('top-selling')
+  async getTopSelling(@Query('take') take?: string) {
+    return this.productsService.getTopSelling(take ? parseInt(take, 10) : 3);
+  }
+
   @Get(':id')
   async getById(@Param('id') id: string) {
     return this.productsService.getPublicById(id);

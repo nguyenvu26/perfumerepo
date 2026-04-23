@@ -4,12 +4,19 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { Link } from '@/lib/i18n';
 import { ArrowRight } from 'lucide-react';
+
+import { Link } from '@/lib/i18n';
 import { productService, Product } from '@/services/product.service';
+
+type ProductSection = {
+    title: string;
+    products: Product[];
+};
 
 export const FeaturedProducts = () => {
     const t = useTranslations('featured');
+    const commonT = useTranslations('common');
     const [featured, setFeatured] = useState<Product[]>([]);
     const [bestsellers, setBestsellers] = useState<Product[]>([]);
     const [newArrivals, setNewArrivals] = useState<Product[]>([]);
@@ -17,75 +24,106 @@ export const FeaturedProducts = () => {
     useEffect(() => {
         Promise.all([
             productService.list({ isFeatured: true, take: 3 }),
-            productService.list({ isBestseller: true, take: 3 }),
-            productService.list({ take: 3 })
-        ]).then(([f, b, n]) => {
-            setFeatured(f.items);
-            setBestsellers(b.items);
-            setNewArrivals(n.items);
-        }).catch(console.error);
+            productService.getTopSelling(3),
+            productService.list({ take: 3 }),
+        ])
+            .then(([featuredItems, bestsellerProducts, arrivalItems]) => {
+                setFeatured(featuredItems.items);
+                setBestsellers(bestsellerProducts);
+                setNewArrivals(arrivalItems.items);
+            })
+            .catch(console.error);
     }, []);
 
-    const renderGrid = (title: string, products: Product[]) => {
-        if (products.length === 0) return null;
+    const sections: ProductSection[] = [
+        { title: 'Sản phẩm bán chạy', products: bestsellers },
+        { title: 'Sản phẩm nổi bật', products: featured },
+        { title: 'Sản phẩm mới', products: newArrivals },
+    ];
+
+    const renderSection = (section: ProductSection) => {
+        if (section.products.length === 0) return null;
+
         return (
-            <div className="mb-20 lg:mb-32 last:mb-0">
-                <div className="flex flex-col md:flex-row justify-between md:items-end mb-10 lg:mb-16 gap-6 md:gap-12">
-                    <h3 className="text-fluid-2xl font-serif text-luxury-black dark:text-white transition-colors leading-[1.1] tracking-tight">
-                        {title}
-                    </h3>
+            <div key={section.title} className="mb-20 last:mb-0 md:mb-24">
+                <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <h3 className="text-3xl leading-tight text-foreground md:text-4xl">{section.title}</h3>
+                    </div>
+
                     <Link
                         href="/collection"
-                        className="group text-[10px] font-bold tracking-[.4em] uppercase border-b-2 border-gold pb-2 text-luxury-black dark:text-white transition-colors flex items-center gap-4 w-fit"
+                        className="group inline-flex items-center gap-2 text-base font-medium text-gold transition-colors hover:text-gold-dark"
                     >
-                    {t('cta') || 'Explore'}
-                        <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                        {t('cta')}
+                        <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                     </Link>
                 </div>
-                <div className="flex overflow-x-auto lg:grid grid-cols-3 gap-6 lg:gap-gutter no-scrollbar px-4 -mx-4 lg:px-0 lg:mx-0 pb-8 lg:pb-0 scroll-smooth snap-x snap-mandatory">
-                    {products.map((perfume, i) => (
+
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                    {section.products.map((perfume, index) => (
                         <motion.div
                             key={perfume.id}
-                            initial={{ opacity: 0, y: 40 }}
+                            initial={{ opacity: 0, y: 24 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.8, delay: i * 0.2 }}
-                            className="group cursor-pointer min-w-[280px] sm:min-w-[320px] lg:min-w-0 snap-start"
+                            transition={{ duration: 0.55, delay: index * 0.1 }}
+                            whileHover={{ y: -6 }}
+                            className="group h-full"
                         >
-                            <Link href={`/collection/${perfume.id}`}>
-                                <div className="relative aspect-[3/4] bg-stone-50 dark:bg-zinc-900 mb-6 lg:mb-10 overflow-hidden rounded-[2.5rem] lg:rounded-[3rem] transition-all border border-stone-100 dark:border-white/5 shadow-sm group-hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] group-hover:-translate-y-2 lg:group-hover:-translate-y-4">
-                                    {perfume.images?.[0] && (
-                                        <Image
-                                            src={perfume.images[0].url}
-                                            alt={perfume.name}
-                                            fill
-                                            className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
-                                        />
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                                    <div className="absolute top-6 left-6 lg:top-8 lg:left-8">
-                                        <span className="glass px-3 py-1.5 lg:px-4 lg:py-2 rounded-full text-[8px] lg:text-[9px] font-bold tracking-widest uppercase text-white shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-y-4 group-hover:translate-y-0">
-                                            {(perfume as any).scentFamily?.name || perfume.notes?.[0]?.note?.name || 'Aura'}
-                                        </span>
+                            <Link href={`/collection/${perfume.id}`} className="block h-full">
+                                <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-black/6 bg-card shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] transition-all dark:border-white/10 dark:bg-card">
+                                    <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+                                        {perfume.images?.[0] ? (
+                                            <Image
+                                                src={perfume.images[0].url}
+                                                alt={perfume.name}
+                                                fill
+                                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
+                                        ) : (
+                                            <div className="flex h-full items-center justify-center bg-muted text-sm text-muted-foreground">
+                                                Perfume GPT
+                                            </div>
+                                        )}
+
+                                        <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-sm font-medium text-foreground backdrop-blur dark:border-white/12 dark:bg-black/35 dark:text-white">
+                                            {(perfume as any).scentFamily?.name || perfume.notes?.[0]?.note?.name || 'Signature'}
+                                        </div>
                                     </div>
-                                    <div className="absolute bottom-6 left-6 right-6 lg:bottom-8 lg:left-8 lg:right-8 translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700">
-                                        <button className="w-full py-3 lg:py-4 glass text-luxury-black dark:text-white text-[10px] font-bold tracking-[.4em] uppercase rounded-full hover:bg-white hover:text-luxury-black transition-all">
-                                            {t('add') || 'View'}
-                                        </button>
+
+                                    <div className="flex flex-1 flex-col p-5 md:p-6">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm font-medium text-muted-foreground">
+                                                {perfume.brand?.name || 'Perfume GPT'}
+                                            </p>
+                                            {perfume.salesCount != null && (
+                                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gold bg-gold/10 px-2 py-1 rounded-md border border-gold/20">
+                                                    Đã bán {perfume.salesCount}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <h4 className="mt-2 line-clamp-2 text-2xl leading-tight text-foreground md:text-[1.75rem]">
+                                            {perfume.name}
+                                        </h4>
+                                        <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base line-clamp-2">
+                                            {perfume.description || 'Khám phá hương thơm độc đáo dành riêng cho bạn.'}
+                                        </p>
+
+                                        <div className="mt-auto pt-6">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <p className="text-xl font-semibold text-gold md:text-2xl">
+                                                    {perfume.variants?.length
+                                                        ? `${Math.min(...perfume.variants.map((variant) => variant.price)).toLocaleString('vi-VN')}₫`
+                                                        : '0₫'}
+                                                </p>
+                                                <span className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors group-hover:bg-gold group-hover:text-luxury-black dark:bg-white dark:text-black">
+                                                    {commonT('view_options')}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="flex flex-col items-center text-center px-2">
-                                    <p className="text-[9px] lg:text-[10px] text-stone-500 dark:text-stone-400 font-bold tracking-[.4em] uppercase mb-1 lg:mb-2 transition-colors">
-                                        {perfume.brand?.name || 'Perfume'}
-                                    </p>
-                                    <h4 className="text-xl lg:text-3xl font-serif text-luxury-black dark:text-white mb-2 lg:mb-4 group-hover:italic transition-all duration-500 line-clamp-1">
-                                        {perfume.name}
-                                    </h4>
-                                    <div className="w-6 lg:w-8 h-px bg-stone-200 dark:bg-gold/30 mb-2 lg:mb-4 transition-colors" />
-                                    <p className="text-base lg:text-lg font-serif italic text-luxury-black dark:text-white transition-colors tracking-widest">
-                                        {perfume.variants?.length ? Math.min(...perfume.variants.map(v => v.price)).toLocaleString('vi-VN') : '0'}đ
-                                    </p>
-                                </div>
+                                </article>
                             </Link>
                         </motion.div>
                     ))}
@@ -95,20 +133,16 @@ export const FeaturedProducts = () => {
     };
 
     return (
-        <section className="section-py bg-white dark:bg-zinc-950 transition-colors" id="collections">
+        <section className="section-py bg-background transition-colors" id="collections">
             <div className="container-responsive">
-                <div className="max-w-4xl mb-16 lg:mb-24">
-                    <p className="text-[10px] lg:text-[12px] text-stone-500 dark:text-stone-400 font-bold tracking-[.4em] uppercase mb-4 lg:mb-6 transition-colors font-serif italic">
-                        {t('badge')}
-                    </p>
-                    <h2 className="text-fluid-3xl font-serif text-luxury-black dark:text-white transition-colors leading-[1.1] tracking-tight">
+                <div className="mb-14 max-w-4xl md:mb-16">
+                    <p className="text-sm font-medium text-gold">{t('badge')}</p>
+                    <h2 className="mt-4 text-3xl leading-tight text-foreground md:text-4xl lg:text-5xl">
                         {t('title')}
                     </h2>
                 </div>
 
-                {renderGrid('Sản Phẩm Bán Chạy', bestsellers)}
-                {renderGrid('Sản Phẩm Nổi Bật', featured)}
-                {renderGrid('Sản Phẩm Mới', newArrivals)}
+                {sections.map(renderSection)}
             </div>
         </section>
     );

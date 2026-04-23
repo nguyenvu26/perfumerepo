@@ -57,6 +57,7 @@ model User {
   userPromotions            UserPromotion[]
   aiPreference              UserAiPreference?
   phoneOtps                PhoneOtpVerification[]
+  profileCompletionBonusClaimed Boolean @default(false)
 }
 
 model UserAddress {
@@ -140,7 +141,7 @@ model UserScentPreference {
 
 model QuizResult {
   id              String   @id @default(cuid())
-  userId          String
+  userId          String?
   gender          String?
   occasion        String?
   budgetMin       Int?
@@ -148,8 +149,9 @@ model QuizResult {
   preferredFamily String?
   longevity       String?
   createdAt       DateTime @default(now())
-  recommendation  String?
-  user            User     @relation(fields: [userId], references: [id])
+  recommendation  Json?
+  analysis        String?   @db.Text
+  user            User?     @relation(fields: [userId], references: [id])
 }
 
 model UserAiPreference {

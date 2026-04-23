@@ -61,7 +61,7 @@ export default function BrandsIndexPage() {
         <div className="bg-stone-50 dark:bg-zinc-950 transition-colors min-h-screen pt-32 pb-32">
             <div className="container-responsive">
                 <Breadcrumb items={breadcrumbItems} className="mb-12" />
-                
+
                 <header className="text-center mb-16">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -71,12 +71,23 @@ export default function BrandsIndexPage() {
                         <MapPin size={32} />
                     </motion.div>
                     <h1 className="text-fluid-4xl font-serif text-foreground tracking-tighter uppercase italic gold-gradient">Thương hiệu</h1>
-                    <p className="mt-4 text-[10px] md:text-xs uppercase tracking-[0.4em] text-muted-foreground font-black">Archive of the world's finest perfume houses</p>
+                    <p className="mt-4 text-[10px] md:text-xs uppercase tracking-[0.4em] text-muted-foreground font-black">Khám phá những thương hiệu nước hoa cao cấp.</p>
                 </header>
 
                 {/* Filter Bar */}
-                <div className="flex flex-col lg:flex-row items-center justify-between border-y border-border/50 py-10 mb-20 gap-10">
-                    <div className="w-full lg:flex-1 overflow-x-auto no-scrollbar lg:overflow-visible">
+                <div className="flex flex-col items-center justify-center border-y border-border/50 py-10 mb-20 gap-8">
+                    <div className="relative w-full max-w-2xl group">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search by brand name..."
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            className="w-full pl-16 pr-6 py-4 border border-border rounded-2xl bg-background/50 text-sm focus:outline-none focus:border-gold transition-all shadow-sm focus:shadow-gold/5"
+                        />
+                    </div>
+
+                    <div className="w-full overflow-x-auto no-scrollbar lg:overflow-visible flex lg:justify-center">
                         <div className="flex items-center gap-x-6 min-w-max px-4 lg:px-0 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
                             <button
                                 onClick={() => setSelectedLetter(null)}
@@ -96,17 +107,6 @@ export default function BrandsIndexPage() {
                             ))}
                         </div>
                     </div>
-
-                    <div className="relative w-full lg:w-96 group">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" size={18} />
-                        <input
-                            type="text"
-                            placeholder="Search by brand name..."
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full pl-16 pr-6 py-4 border border-border rounded-2xl bg-background/50 text-sm focus:outline-none focus:border-gold transition-all shadow-sm focus:shadow-gold/5"
-                        />
-                    </div>
                 </div>
 
                 {/* Grid */}
@@ -124,31 +124,31 @@ export default function BrandsIndexPage() {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 gap-y-24">
                         {Object.keys(groupedBrands).map(letter => (
-                                <motion.div 
-                                    key={letter} 
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    className="flex flex-col"
-                                >
-                                    <h2 className="text-4xl font-serif text-foreground pb-6 mb-10 border-b border-border/50 relative overflow-hidden group">
-                                        {letter}
-                                        <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-gold translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
-                                    </h2>
-                                    <ul className="flex flex-col gap-6">
-                                        {groupedBrands[letter].map(brand => (
-                                            <li key={brand.id}>
-                                                <Link
-                                                    href={`/collection?brand=${encodeURIComponent(brand.name)}`}
-                                                    className="group flex items-center text-[15px] text-muted-foreground hover:text-gold transition-all duration-300 font-serif"
-                                                >
-                                                    <span className="w-0 group-hover:w-4 h-px bg-gold mr-0 group-hover:mr-3 transition-all duration-500" />
-                                                    {brand.name}
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </motion.div>
+                            <motion.div
+                                key={letter}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="flex flex-col"
+                            >
+                                <h2 className="text-4xl font-serif text-foreground pb-6 mb-10 border-b border-border/50 relative overflow-hidden group">
+                                    {letter}
+                                    <div className="absolute bottom-0 left-0 w-12 h-0.5 bg-gold translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500" />
+                                </h2>
+                                <ul className="flex flex-col gap-6">
+                                    {groupedBrands[letter].map(brand => (
+                                        <li key={brand.id}>
+                                            <Link
+                                                href={`/collection?brand=${encodeURIComponent(brand.name)}`}
+                                                className="group flex items-center text-[15px] text-muted-foreground hover:text-gold transition-all duration-300 font-serif"
+                                            >
+                                                <span className="w-0 group-hover:w-4 h-px bg-gold mr-0 group-hover:mr-3 transition-all duration-500" />
+                                                {brand.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </motion.div>
                         ))}
                     </div>
                 )}

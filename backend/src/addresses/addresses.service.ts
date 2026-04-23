@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 import { UpdateAddressDto } from './dto/update-address.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AddressesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly usersService: UsersService,
+  ) {}
 
   async create(userId: string, dto: CreateAddressDto) {
     const addressCount = await this.prisma.userAddress.count({
@@ -15,7 +19,7 @@ export class AddressesService {
     // If it's the first address, or if explicitly requested to be default
     const shouldBeDefault = addressCount === 0 || dto.isDefault;
 
-    return await this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       if (shouldBeDefault) {
         await tx.userAddress.updateMany({
           where: { userId, isDefault: true },
@@ -31,6 +35,11 @@ export class AddressesService {
         },
       });
     });
+
+    // Check for profile completion bonus
+    await this.usersService.checkAndAwardProfileCompletionBonus(userId);
+
+    return result;
   }
 
   async findAll(userId: string) {

@@ -4,16 +4,18 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { UserRoleEnum } from '@prisma/client';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { LoyaltyService } from '../loyalty/loyalty.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
-  ) {}
+    private readonly loyaltyService: LoyaltyService,
+  ) { }
 
-  findMe(userId: string) {
-    return this.prisma.user.findUnique({
+  async findMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -32,8 +34,29 @@ export class UsersService {
         loyaltyPoints: true,
         createdAt: true,
         emailVerified: true,
+        profileCompletionBonusClaimed: true,
+        _count: {
+          select: { 
+            addresses: true, 
+            quizResults: true 
+          },
+        },
       },
     });
+
+    if (!user) return null;
+
+    // Proactively check for bonus if not claimed yet
+    if (!user.profileCompletionBonusClaimed) {
+      this.checkAndAwardProfileCompletionBonus(userId).catch(err => 
+        console.error('Failed to award profile completion bonus in findMe:', err)
+      );
+    }
+
+    return {
+      ...user,
+      hasAiProfile: user._count.quizResults > 0,
+    };
   }
 
   async updateMe(userId: string, dto: UpdateProfileDto) {
@@ -50,7 +73,7 @@ export class UsersService {
       }
     }
 
-    return this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: {
         fullName: dto.fullName,
@@ -64,25 +87,12 @@ export class UsersService {
         budgetMin: dto.budgetMin,
         budgetMax: dto.budgetMax,
       },
-      select: {
-        id: true,
-        email: true,
-        phone: true,
-        role: true,
-        fullName: true,
-        gender: true,
-        dateOfBirth: true,
-        address: true,
-        city: true,
-        country: true,
-        avatarUrl: true,
-        budgetMin: true,
-        budgetMax: true,
-        loyaltyPoints: true,
-        createdAt: true,
-        emailVerified: true,
-      },
     });
+
+    // Check for profile completion bonus
+    await this.checkAndAwardProfileCompletionBonus(userId);
+
+    return this.findMe(userId);
   }
 
   async uploadAvatar(userId: string, file: Express.Multer.File) {
@@ -91,16 +101,15 @@ export class UsersService {
       'perfume-gpt/users/avatars',
     );
 
-    return this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id: userId },
       data: { avatarUrl: uploadResult.url },
-      select: {
-        id: true,
-        email: true,
-        avatarUrl: true,
-        fullName: true,
-      },
     });
+
+    // Check for profile completion bonus after avatar upload
+    await this.checkAndAwardProfileCompletionBonus(userId);
+
+    return this.findMe(userId);
   }
 
   /** Admin: list users with optional role filter, include stores for staff */
@@ -164,5 +173,45 @@ export class UsersService {
         createdAt: true,
       },
     });
+  }
+
+  async checkAndAwardProfileCompletionBonus(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        _count: {
+          select: { 
+            addresses: true,
+            quizResults: true,
+          },
+        },
+      },
+    });
+
+    if (!user || user.profileCompletionBonusClaimed) return;
+
+    // Check criteria for 100% completion (matching mobile app logic)
+    const isComplete =
+      !!user.fullName &&
+      !!user.phone &&
+      user.emailVerified &&
+      !!user.gender &&
+      !!user.dateOfBirth &&
+      !!user.avatarUrl &&
+      user.budgetMin !== null &&
+      user.budgetMax !== null &&
+      user._count.quizResults > 0 &&
+      user._count.addresses > 0;
+
+    if (isComplete) {
+      // Award 50 points
+      await this.loyaltyService.awardPoints(userId, 50, 'PROFILE_COMPLETION');
+
+      // Mark as claimed
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { profileCompletionBonusClaimed: true },
+      });
+    }
   }
 }

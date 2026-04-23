@@ -7,7 +7,7 @@ import { usePathname } from '@/lib/i18n';
 import { useLocale } from 'next-intl';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { useEffect } from 'react';
@@ -25,7 +25,19 @@ export default function DashboardLayout({
     const { isSidebarCollapsed: isCollapsed, toggleSidebar: toggleUI } = useUIStore();
 
     const role = user?.role || 'CUSTOMER';
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+
+    const pathSegments = pathname.split('/').filter(Boolean);
+    const currentSegment = pathSegments[pathSegments.length - 1];
+    const formatSegment = (value?: string) => {
+        if (!value || ['dashboard', role.toLowerCase()].includes(value.toLowerCase())) {
+            return 'Dashboard';
+        }
+
+        return value
+            .split('-')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    };
 
     // Lock scroll when mobile sidebar is open
     useEffect(() => {
@@ -49,94 +61,102 @@ export default function DashboardLayout({
 
     return (
         <AuthGuard>
-        <div className="flex min-h-screen bg-background transition-colors duration-500 overflow-hidden relative">
-            {/* Background elements for premium feel */}
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-gold/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-gold/5 rounded-full blur-[120px]" />
-            </div>
+            <div className="relative flex min-h-screen overflow-hidden bg-[#f6f1e8] text-foreground transition-colors duration-500 dark:bg-[#0b0c0d]">
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(197,160,89,0.14),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.66),rgba(246,241,232,0.95))] dark:bg-[radial-gradient(circle_at_top_left,rgba(197,160,89,0.14),transparent_26%),linear-gradient(180deg,#101114,#0b0c0d)]" />
+                    <div className="absolute right-[-6rem] top-[-8rem] h-[28rem] w-[28rem] rounded-full bg-gold/10 blur-[120px]" />
+                    <div className="absolute bottom-[-10rem] left-[-8rem] h-[26rem] w-[26rem] rounded-full bg-gold/10 blur-[120px]" />
+                </div>
 
-            <Sidebar 
-                isCollapsed={isCollapsed} 
-                onOpenMore={() => setIsMobileSidebarOpen(true)} 
-            />
+                <Sidebar
+                    isCollapsed={isCollapsed}
+                    onOpenMore={() => setIsMobileSidebarOpen(true)}
+                />
 
-            {/* Mobile Sidebar Overlay */}
-            <AnimatePresence>
-                {isMobileSidebarOpen && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setIsMobileSidebarOpen(false)}
-                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] md:hidden"
-                        />
-                        <motion.div
-                            initial={{ x: '-100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '-100%' }}
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="fixed top-0 left-0 bottom-0 w-[280px] bg-background z-[120] md:hidden shadow-2xl overflow-hidden"
-                        >
-                            <div className="h-full w-full overflow-y-auto custom-scrollbar p-0">
-                                <div className="w-full flex h-full">
-                                    <div className="w-full h-full [&>aside]:flex [&>aside]:w-full [&>aside]:md:hidden [&>aside]:border-none shadow-none">
-                                        <Sidebar 
-                                            variant="drawer"
-                                            onClose={() => setIsMobileSidebarOpen(false)} 
-                                        />
+                <AnimatePresence>
+                    {isMobileSidebarOpen && (
+                        <>
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsMobileSidebarOpen(false)}
+                                className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm md:hidden"
+                            />
+                            <motion.div
+                                initial={{ x: '-100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '-100%' }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                                className="fixed bottom-0 left-0 top-0 z-[120] w-[320px] overflow-hidden bg-background shadow-2xl md:hidden"
+                            >
+                                <div className="h-full w-full overflow-y-auto custom-scrollbar p-0">
+                                    <div className="flex h-full w-full">
+                                        <div className="h-full w-full [&>aside]:flex [&>aside]:w-full [&>aside]:md:hidden [&>aside]:border-none shadow-none">
+                                            <Sidebar
+                                                variant="drawer"
+                                                onClose={() => setIsMobileSidebarOpen(false)}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
 
-            <div className={cn(
-                "flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500",
-                "pl-0 md:pl-20",
-                !isCollapsed && "lg:pl-72",
-                role === 'CUSTOMER' ? "pb-32 md:pb-0" : "" 
-            )}>
-                <header className="h-20 border-b border-border/50 flex items-center justify-between px-4 md:px-8 bg-background/40 backdrop-blur-2xl sticky top-0 z-30 shrink-0">
-                    <div className="flex items-center gap-4 md:gap-6">
-                        {/* Integrated Toggle (Always visible except possibly for Customers if they don't have a sidebar) */}
-                        <button
-                            onClick={toggleSidebar}
-                            className="p-3 -ml-2 text-foreground hover:text-gold transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center bg-secondary/10 md:bg-transparent rounded-xl"
-                        >
-                            <Menu size={24} />
-                        </button>
-
-                        <div className="h-10 px-3 md:px-5 rounded-2xl glass border-gold/10 flex items-center gap-2 md:gap-3 text-muted-foreground hover:text-foreground transition-all cursor-pointer group hover:border-gold/30">
-                            <div className="w-2 h-2 rounded-full bg-gold animate-pulse shadow-[0_0_10px_rgba(197,160,89,0.5)]" />
-                            <span className="text-[9px] md:text-[10px] uppercase font-heading tracking-[0.2em] font-medium truncate max-w-[150px] md:max-w-none">
-                                {new Date().toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <div className="h-6 md:h-10 w-px bg-border/50 mx-1 md:mx-2" />
-                        <ThemeToggle />
-                    </div>
-                </header>
-
-                <motion.div
-                    key={pathname}
-                    initial={{ opacity: 0, y: 15 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex-1 overflow-y-auto custom-scrollbar px-4 md:px-0"
+                <div
+                    className={cn(
+                        'relative z-10 flex min-w-0 flex-1 flex-col transition-all duration-500',
+                        'pl-0 md:pl-[88px]',
+                        !isCollapsed && 'lg:pl-[320px]',
+                        role === 'CUSTOMER' ? 'pb-32 md:pb-0' : '',
+                    )}
                 >
-                    <div className="max-w-[1600px] mx-auto py-8 md:py-12">
-                        {children}
-                    </div>
-                </motion.div>
+                    <header className="sticky top-0 z-30 flex min-h-[92px] items-center justify-between border-b border-black/6 bg-white/70 px-4 backdrop-blur-2xl dark:border-white/8 dark:bg-[rgba(12,13,15,0.72)] md:px-8">
+                        <div className="flex items-center gap-4 md:gap-6">
+                            <button
+                                onClick={toggleSidebar}
+                                className="flex min-h-[48px] min-w-[48px] items-center justify-center rounded-2xl border border-black/6 bg-white/85 text-foreground transition-colors hover:text-gold dark:border-white/10 dark:bg-white/[0.04]"
+                            >
+                                <Menu size={22} />
+                            </button>
+
+                            {/* Removed role and segment title as per user request */}
+
+
+                            <div className="hidden min-h-[52px] items-center gap-3 rounded-[1.25rem] border border-gold/15 bg-white/80 px-4 shadow-[0_20px_40px_-28px_rgba(15,23,42,0.4)] dark:bg-white/[0.04] md:flex">
+                                <div className="h-2.5 w-2.5 rounded-full bg-gold shadow-[0_0_12px_rgba(197,160,89,0.55)]" />
+                                <span className="text-sm font-medium text-stone-500 dark:text-stone-300">
+                                    {new Date().toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    })}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 md:gap-4">
+                            <div className="mx-1 h-8 w-px bg-border/50 md:mx-2 md:h-10" />
+                            <ThemeToggle />
+                        </div>
+                    </header>
+
+                    <motion.div
+                        key={pathname}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        className="dashboard-shell flex-1 overflow-y-auto custom-scrollbar px-4 py-6 md:px-6 md:py-8"
+                    >
+                        <div className="mx-auto max-w-[1700px]">
+                            {children}
+                        </div>
+                    </motion.div>
+                </div>
             </div>
-        </div>
         </AuthGuard>
     );
 }

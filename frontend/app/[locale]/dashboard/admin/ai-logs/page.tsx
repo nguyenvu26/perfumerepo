@@ -62,31 +62,31 @@ export default function AiLogsPage() {
     const statCards = [
         { 
             key: 'total_requests', 
+            variant: 'total_requests_desc',
             value: stats?.total || 0, 
             icon: Activity, 
-            color: 'text-gold',
-            desc: '+5.2% from last week' 
+            color: 'text-gold'
         },
         { 
             key: 'success_rate', 
+            variant: 'success_rate_desc',
             value: `${stats?.successRate?.toFixed(1) || 0}%`, 
             icon: BrainCircuit, 
-            color: 'text-emerald-500',
-            desc: 'Optimal Performance'
+            color: 'text-emerald-500'
         },
         { 
             key: 'avg_latency', 
+            variant: 'avg_latency_desc',
             value: `${stats?.avgDuration || 0}ms`, 
             icon: Clock, 
-            color: 'text-blue-500',
-            desc: 'Under 500ms target'
+            color: 'text-blue-500'
         },
         { 
             key: 'failed_requests', 
+            variant: 'failed_requests_desc',
             value: (stats?.total - (stats?.total * stats?.successRate / 100))?.toFixed(0) || 0, 
             icon: AlertCircle, 
-            color: 'text-red-500',
-            desc: 'Requires intervention'
+            color: 'text-red-500'
         },
     ];
 
@@ -129,7 +129,7 @@ export default function AiLogsPage() {
                                     <stat.icon className="w-6 h-6" />
                                 </div>
                                 <div className="flex items-center gap-1 text-[9px] font-heading px-3 py-1.5 rounded-full glass border-border font-bold uppercase tracking-widest text-muted-foreground">
-                                    {stat.desc}
+                                    {t(`stats.${stat.variant}` as any)}
                                 </div>
                             </div>
                             <h3 className="text-muted-foreground text-[10px] uppercase tracking-[0.3em] font-heading mb-2">
@@ -298,7 +298,7 @@ export default function AiLogsPage() {
                                 ) : logs.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={7} className="h-40 text-center text-muted-foreground uppercase tracking-widest text-xs">
-                                            No logs found matching filters
+                                            {t('no_logs')}
                                         </TableCell>
                                     </TableRow>
                                 ) : logs.map((log) => (
@@ -439,11 +439,11 @@ export default function AiLogsPage() {
                                 )}>
                                     {selectedLog?.status === 'FAILED' ? (
                                         <p className="text-[11px] font-mono text-red-400 break-all leading-relaxed">
-                                            {selectedLog?.errorMessage || 'Unknown Error Event'}
+                                            {selectedLog?.errorMessage || t('detail.unknown_error')}
                                         </p>
                                     ) : (
                                         <div className="text-[11px] font-mono text-emerald-400/90 whitespace-pre-wrap break-all leading-relaxed no-scrollbar max-h-[400px] overflow-y-auto italic">
-                                            {selectedLog?.response || 'No output generated'}
+                                            {selectedLog?.response || t('detail.no_output')}
                                         </div>
                                     )}
                                 </div>
@@ -452,15 +452,15 @@ export default function AiLogsPage() {
 
                         <div className="mt-8 pt-8 border-t border-white/5 flex gap-12">
                             <div>
-                                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground block mb-1">Execution Velocity</span>
+                                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground block mb-1">{t('detail.velocity')}</span>
                                 <span className="text-xl font-heading text-gold italic">{selectedLog?.duration}ms</span>
                             </div>
                             <div>
-                                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground block mb-1">Neural Model</span>
+                                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground block mb-1">{t('detail.model')}</span>
                                 <span className="text-xl font-heading text-foreground italic uppercase tracking-tighter">{selectedLog?.model}</span>
                             </div>
                             <div>
-                                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground block mb-1">Temporal Origin</span>
+                                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground block mb-1">{t('detail.origin')}</span>
                                 <span className="text-xl font-heading text-muted-foreground italic">
                                     {selectedLog?.createdAt ? format(new Date(selectedLog.createdAt), 'HH:mm:ss dd MMM yyyy') : '-'}
                                 </span>

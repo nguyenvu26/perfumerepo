@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { UsersService } from '../users/users.service';
 
 export interface QuizAnswers {
     gender?: 'MALE' | 'FEMALE' | 'UNISEX';
@@ -31,40 +32,35 @@ export class QuizService {
         private readonly prisma: PrismaService,
         private readonly aiService: AiService,
         private readonly notificationsService: NotificationsService,
+        private readonly usersService: UsersService,
     ) { }
 
     async submitQuiz(
         userId: string | null,
         answers: QuizAnswers,
-    ): Promise<{ quizId: string; recommendations: QuizRecommendation[] }> {
-        // 1. Save quiz result to DB
-        const data: any = {
-            gender: answers.gender,
-            occasion: answers.occasion,
-            budgetMin: answers.budgetMin,
-            budgetMax: answers.budgetMax,
-            preferredFamily: answers.preferredFamily,
-            longevity: answers.longevity,
-        };
-        if (userId) data.userId = userId;
+    ): Promise<{ quizId: string; analysis: string; recommendations: QuizRecommendation[] }> {
+        // 1. Get AI recommendations first
+        const aiResult = await this.aiService.quizConsult(answers, userId || undefined);
 
+        // 2. Enrich recommendations with DB data
+        const enriched = await this.enrichRecommendations(aiResult.recommendations);
+
+        // 3. Save quiz result to DB in one go
         const quizResult = await this.prisma.quizResult.create({
-            data,
+            data: {
+                userId,
+                gender: answers.gender,
+                occasion: answers.occasion,
+                budgetMin: answers.budgetMin,
+                budgetMax: answers.budgetMax,
+                preferredFamily: answers.preferredFamily,
+                longevity: answers.longevity,
+                recommendation: enriched as any,
+                analysis: aiResult.analysis,
+            },
         });
 
-        // 2. Get AI recommendations
-        const recommendations = await this.aiService.quizConsult(answers, userId || undefined);
-
-        // 3. Enrich recommendations with DB data
-        const enriched = await this.enrichRecommendations(recommendations);
-
-        // 4. Save recommendations to quiz result (optional, for history)
-        await this.prisma.quizResult.update({
-            where: { id: quizResult.id },
-            data: { recommendation: JSON.stringify(enriched) },
-        });
-
-        // 5. Notify user if logged in
+        // 4. Notify user if logged in
         if (userId) {
             this.notificationsService.create({
                 userId,
@@ -72,10 +68,25 @@ export class QuizService {
                 title: 'Kết hợp mùi hương hoàn hảo cho bạn!',
                 content: 'Kết quả phân tích mùi hương dựa trên Quiz của bạn đã sẵn sàng. Xem ngay các gợi ý dành riêng cho bạn!',
                 data: { quizId: quizResult.id },
-            }).catch(() => {});
+            }).catch(() => { });
+
+            // Check for profile completion bonus
+            await this.usersService.checkAndAwardProfileCompletionBonus(userId);
         }
 
-        return { quizId: quizResult.id, recommendations: enriched };
+        return { quizId: quizResult.id, analysis: aiResult.analysis, recommendations: enriched };
+    }
+
+    async getUserHistory(userId: string): Promise<any[]> {
+        const results = await this.prisma.quizResult.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return results.map(r => ({
+            ...r,
+            recommendation: r.recommendation,
+        }));
     }
 
     async getQuizResult(quizId: string): Promise<any> {
@@ -86,10 +97,14 @@ export class QuizService {
 
         if (!result) throw new Error('Quiz result not found');
 
-        return {
-            ...result,
-            recommendation: result.recommendation ? JSON.parse(result.recommendation) : null,
-        };
+        return result;
+    }
+
+    async getHistory(userId: string) {
+        return this.prisma.quizResult.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
     }
 
     private async enrichRecommendations(

@@ -180,7 +180,7 @@ export default function NotificationsPage() {
                           let href = '#';
                           if (n.type === 'ORDER') href = `/dashboard/customer/orders/${data.orderId || ''}`;
                           if (n.type === 'PROMOTION') href = '/vouchers';
-                          if (n.type === 'SYSTEM' && data.quizId) href = `/quiz/results/${data.quizId}`;
+                          if (n.type === 'SYSTEM' && data.quizId) href = `/quiz`;
 
                           const Row = (
                             <div className={cn(

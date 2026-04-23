@@ -4,6 +4,16 @@ import { GoogleGenAI } from '@google/genai';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
 
+interface CatalogData {
+  /** Products with at least one variant in stock */
+  inStockCatalog: string;
+  /** Products where ALL variants are out of stock */
+  outOfStockCatalog: string;
+  /** Total counts for prompt context */
+  inStockCount: number;
+  outOfStockCount: number;
+}
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -150,10 +160,16 @@ ${reviewTexts}`;
   // ──────────────────────────────────────────────────────
 
   /** Simple in-memory cache so we don't query DB on every single message */
-  private productCatalogCache: { data: string; expiresAt: number } | null =
+  private productCatalogCache: { data: CatalogData; expiresAt: number } | null =
     null;
 
-  private async getProductCatalog(): Promise<string> {
+  /**
+   * Upgraded: Splits catalog into IN-STOCK and OUT-OF-STOCK lists.
+   * Only products with at least one active variant with stock > 0 are
+   * considered "in stock". Fully out-of-stock products go into a separate
+   * list so the AI can apologise and suggest alternatives.
+   */
+  private async getProductCatalog(): Promise<CatalogData> {
     const now = Date.now();
     if (this.productCatalogCache && this.productCatalogCache.expiresAt > now) {
       return this.productCatalogCache.data;
@@ -186,35 +202,173 @@ ${reviewTexts}`;
       take: 100, // limit to keep prompt manageable
     });
 
-    const catalog = products
-      .map((p) => {
-        const prices = p.variants.map(
-          (v) => `${v.name}: ${v.price.toLocaleString()}₫ (stock: ${v.stock})`,
-        );
-        const notes = p.notes.map(
-          (n) => `${n.note.type}: ${n.note.name}`,
-        );
-        return [
-          `[ID: ${p.id}] ${p.name}`,
-          `  Brand: ${p.brand.name}`,
-          p.category ? `  Category: ${p.category.name}` : null,
-          p.scentFamily ? `  Scent Family: ${p.scentFamily.name}` : null,
-          p.gender ? `  Gender: ${p.gender}` : null,
-          p.concentration ? `  Concentration: ${p.concentration}` : null,
-          p.longevity ? `  Longevity: ${p.longevity}` : null,
-          notes.length > 0 ? `  Notes: ${notes.join(', ')}` : null,
-          prices.length > 0 ? `  Variants: ${prices.join(' | ')}` : null,
-          p.description ? `  Description: ${p.description.slice(0, 150)}` : null,
-          `  URL slug: ${p.slug}`,
-        ]
-          .filter(Boolean)
-          .join('\n');
-      })
+    // ── Partition into in-stock vs out-of-stock ──
+    const inStockProducts: typeof products = [];
+    const outOfStockProducts: typeof products = [];
+
+    for (const p of products) {
+      const hasStock = p.variants.some((v) => v.stock > 0);
+      if (hasStock) {
+        inStockProducts.push(p);
+      } else {
+        outOfStockProducts.push(p);
+      }
+    }
+
+    // ── Format helper ──
+    const formatProduct = (p: (typeof products)[0], includeStock: boolean) => {
+      const prices = p.variants.map((v) => {
+        const stockInfo = includeStock ? ` (còn ${v.stock} sản phẩm)` : '';
+        return `${v.name}: ${v.price.toLocaleString()}₫${stockInfo}`;
+      });
+      const notes = p.notes.map(
+        (n) => `${n.note.type}: ${n.note.name}`,
+      );
+      return [
+        `[ID: ${p.id}] ${p.name}`,
+        `  Brand: ${p.brand.name}`,
+        p.category ? `  Category: ${p.category.name}` : null,
+        p.scentFamily ? `  Scent Family: ${p.scentFamily.name}` : null,
+        p.gender ? `  Gender: ${p.gender}` : null,
+        p.concentration ? `  Concentration: ${p.concentration}` : null,
+        p.longevity ? `  Longevity: ${p.longevity}` : null,
+        notes.length > 0 ? `  Notes: ${notes.join(', ')}` : null,
+        prices.length > 0 ? `  Variants: ${prices.join(' | ')}` : null,
+        p.description ? `  Description: ${p.description.slice(0, 150)}` : null,
+        `  URL slug: ${p.slug}`,
+      ]
+        .filter(Boolean)
+        .join('\n');
+    };
+
+    const inStockCatalog = inStockProducts
+      .map((p) => formatProduct(p, true))
       .join('\n\n');
 
+    const outOfStockCatalog = outOfStockProducts
+      .map((p) => formatProduct(p, false))
+      .join('\n\n');
+
+    const catalogData: CatalogData = {
+      inStockCatalog,
+      outOfStockCatalog,
+      inStockCount: inStockProducts.length,
+      outOfStockCount: outOfStockProducts.length,
+    };
+
     // Cache for 5 minutes
-    this.productCatalogCache = { data: catalog, expiresAt: now + 5 * 60 * 1000 };
-    return catalog;
+    this.productCatalogCache = {
+      data: catalogData,
+      expiresAt: now + 5 * 60 * 1000,
+    };
+    return catalogData;
+  }
+
+  // ──────────────────────────────────────────────────────
+  // Post-check: Validate AI recommendations against DB
+  // ──────────────────────────────────────────────────────
+
+  /**
+   * After the AI returns a JSON response with recommendations, this method
+   * cross-checks each recommended productId against the live database to
+   * ensure the product actually exists and has stock > 0.
+   *
+   * - Removes out-of-stock or invalid recommendations.
+   * - If any were removed, appends a note explaining the removal and
+   *   suggests the user ask for alternatives.
+   */
+  private async postCheckRecommendations(
+    aiResponseText: string,
+  ): Promise<string> {
+    // Try to extract JSON from the AI response
+    const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      // Not a recommendation response – return as-is
+      return aiResponseText;
+    }
+
+    let parsed: any;
+    try {
+      parsed = JSON.parse(jsonMatch[0]);
+    } catch {
+      return aiResponseText;
+    }
+
+    if (
+      !parsed.recommendations ||
+      !Array.isArray(parsed.recommendations) ||
+      parsed.recommendations.length === 0
+    ) {
+      return aiResponseText;
+    }
+
+    const productIds: string[] = parsed.recommendations
+      .map((r: any) => r.productId)
+      .filter(Boolean);
+
+    if (productIds.length === 0) return aiResponseText;
+
+    // ── Live DB check ──
+    const validProducts = await this.prisma.product.findMany({
+      where: {
+        id: { in: productIds },
+        isActive: true,
+        variants: {
+          some: {
+            isActive: true,
+            stock: { gt: 0 },
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    const validIds = new Set(validProducts.map((p) => p.id));
+    const originalCount = parsed.recommendations.length;
+
+    // Filter out invalid/out-of-stock recommendations
+    const removedItems: any[] = [];
+    parsed.recommendations = parsed.recommendations.filter((r: any) => {
+      if (validIds.has(r.productId)) {
+        return true;
+      }
+      removedItems.push(r);
+      return false;
+    });
+
+    // If nothing was removed, return original response
+    if (removedItems.length === 0) return aiResponseText;
+
+    this.logger.warn(
+      `Post-check removed ${removedItems.length} out-of-stock recommendation(s): ${removedItems.map((r) => r.name || r.productId).join(', ')}`,
+    );
+
+    // Append a note about removed items
+    const removedNames = removedItems
+      .map((r) => r.name || 'Unknown')
+      .join(', ');
+
+    if (parsed.recommendations.length === 0) {
+      // All recommendations were invalid – tell the user
+      parsed.text =
+        `Rất tiếc, các sản phẩm mà tôi định gợi ý (${removedNames}) hiện đã hết hàng. ` +
+        `Xin hãy cho tôi biết thêm về sở thích của bạn để tôi tìm những lựa chọn thay thế phù hợp nhất!`;
+      parsed.recommendations = [];
+    } else {
+      // Some were removed – note it
+      parsed.text +=
+        `\n\n⚠️ Lưu ý: Sản phẩm ${removedNames} hiện đã hết hàng nên tôi đã loại khỏi danh sách gợi ý.`;
+    }
+
+    // Reconstruct the response with the validated JSON
+    const beforeJson = aiResponseText.slice(
+      0,
+      aiResponseText.indexOf(jsonMatch[0]),
+    );
+    const afterJson = aiResponseText.slice(
+      aiResponseText.indexOf(jsonMatch[0]) + jsonMatch[0].length,
+    );
+    return beforeJson + JSON.stringify(parsed) + afterJson;
   }
 
   async perfumeConsult(
@@ -249,23 +403,68 @@ ADVICE STRATEGY:
 `;
       }
 
-      const systemPrompt = `You are "PerfumeGPT", an expert fragrance consultant for our perfume store.
+    const systemPrompt = `You are "PerfumeGPT", an expert fragrance consultant for our luxury perfume store.
 ${dnaContext}
 
-IMPORTANT RULES:
-- You can ONLY recommend products that exist in our catalog below.
-- NEVER invent product names or prices.
+╔══════════════════════════════════════════════════════════╗
+║               CRITICAL STOCK RULES                       ║
+╚══════════════════════════════════════════════════════════╝
+
+1. You can ONLY recommend products from the "IN-STOCK CATALOG" below.
+2. NEVER recommend products from the "OUT-OF-STOCK LIST" as available products.
+3. If a customer asks about a specific product that is in the OUT-OF-STOCK LIST:
+   a. Politely inform them the product is currently out of stock.
+   b. IMMEDIATELY suggest 3-5 ALTERNATIVE products from the IN-STOCK CATALOG that share the SAME or SIMILAR:
+      - Scent Family (Họ hương)
+      - Top/Middle/Base Notes (Nốt hương)
+      - Gender target
+      - Concentration type
+      - Price range
+   c. Explain WHY each alternative is a good substitute (e.g., "Cùng họ hương Woody-Spicy, có nốt hương Vetiver tương tự...").
+4. NEVER invent product names, IDs, or prices.
+5. If no suitable alternatives exist in stock, say so honestly.
+
+╔══════════════════════════════════════════════════════════╗
+║               RESPONSE FORMAT                            ║
+╚══════════════════════════════════════════════════════════╝
+
 - Respond in the same language the user writes in (Vietnamese or English).
-- When recommending products, return a JSON object:
-  { "text": "<your warm explanation>", "recommendations": [{ "productId": "<actual ID>", "name": "<exact product name>", "reason": "<why this suits them>", "price": "<lowest variant price as number>" }] }
-- If the question is general (e.g. greetings, fragrance knowledge), reply in plain text.
-- Be concise, warm, and knowledgeable.
-- If no products match the user's request, say so honestly and suggest alternatives from the catalog.
+- When recommending products, you MUST return a JSON object:
+  {
+    "text": "<your warm, expert explanation>",
+    "recommendations": [
+      {
+        "productId": "<exact ID from IN-STOCK catalog>",
+        "name": "<exact product name>",
+        "reason": "<why this suits them, mentioning scent family/notes>",
+        "price": <lowest variant price as number>
+      }
+    ]
+  }
+- If the question is general (e.g. greetings, fragrance knowledge), reply in plain text only.
+- Be concise, warm, and knowledgeable – speak like a luxury fragrance house advisor.
+
+╔══════════════════════════════════════════════════════════╗
+║  FALLBACK & ALTERNATIVE LOGIC (When products are OOS)    ║
+╚══════════════════════════════════════════════════════════╝
+
+When a customer requests a product that is OUT OF STOCK, follow this priority:
+  Priority 1: Same Scent Family + Similar Notes → Best match
+  Priority 2: Same Scent Family + Different Notes → Good match
+  Priority 3: Related Scent Family (e.g., Woody → Woody-Spicy) + Similar Notes → Acceptable
+  Priority 4: Same Gender + Same Concentration + Similar Price → Last resort
+
+Always explain the substitution logic to the customer so they feel confident.
 
 ═══════════════════════════════════════
-OUR PRODUCT CATALOG (${catalog ? 'available' : 'empty'}):
+IN-STOCK CATALOG (${catalog.inStockCount} products available for recommendation):
 ═══════════════════════════════════════
-${catalog || '(No products currently in system)'}
+${catalog.inStockCatalog || '(No products currently in stock)'}
+
+═══════════════════════════════════════
+OUT-OF-STOCK LIST (${catalog.outOfStockCount} products – DO NOT recommend these as available):
+═══════════════════════════════════════
+${catalog.outOfStockCatalog || '(None)'}
 ═══════════════════════════════════════`;
 
       const contents = [
@@ -421,7 +620,7 @@ INSTRUCTIONS:
       longevity?: string;
     },
     userId?: string,
-  ): Promise<Array<{ productId: string; name: string; reason: string; price: number }>> {
+  ): Promise<{ analysis: string; recommendations: Array<{ productId: string; name: string; reason: string; price: number }> }> {
     const startTime = Date.now();
     try {
       const catalog = await this.getProductCatalog();
@@ -440,13 +639,24 @@ INSTRUCTIONS:
 THÔNG TIN KHÁCH HÀNG:
 ${customerInfo.join('\n')}
 
-DANH MỤC SẢN PHẨM:
-${catalog}
+═══════════════════════════════════════
+DANH MỤC SẢN PHẨM CÒN HÀNG (Chỉ chọn từ danh sách này):
+═══════════════════════════════════════
+${catalog.inStockCatalog}
+
+═══════════════════════════════════════
+SẢN PHẨM HẾT HÀNG (KHÔNG được chọn từ danh sách này):
+═══════════════════════════════════════
+${catalog.outOfStockCatalog || '(Không có)'}
 
 YÊU CẦU:
 - Chọn 3-5 sản phẩm phù hợp nhất dựa trên thông tin khách hàng.
-- Ưu tiên: phù hợp giới tính, dịp sử dụng, ngân sách, gia đình hương, thời gian lưu hương.
-- Trả kết quả dạng JSON array: [{"productId": "<ID từ catalog>", "name": "<tên chính xác>", "reason": "<giải thích ngắn gọn bằng tiếng Việt>", "price": <giá thấp nhất số>}].
+- CHỈ ĐƯỢC CHỌN sản phẩm từ danh mục CÒN HÀNG. TUYỆT ĐỐI KHÔNG chọn sản phẩm hết hàng.
+- Chiến lược: Nếu không tìm thấy sản phẩm khớp tất cả tiêu chí (đặc biệt là ngân sách thấp), hãy ưu tiên PHÙ HỢP HƠN về nhóm hương và dịp dùng, đồng thời giải thích rõ lý do.
+- Trả kết quả dạng JSON object: {
+    "analysis": "<Đoạn văn ngắn 2-3 câu phân tích hồ sơ mùi hương của khách hàng theo phong cách sang trọng, tinh tế>",
+    "recommendations": [{"productId": "<ID từ catalog>", "name": "<tên chính xác>", "reason": "<giải thích ngắn gọn bằng tiếng Việt>", "price": <giá thấp nhất số>}]
+  }
 - Chỉ trả JSON, không thêm text ngoài.`;
 
       const response = await this.ai.models.generateContent({
@@ -454,41 +664,66 @@ YÊU CẦU:
         contents: prompt,
       });
 
-      const text = response.text ?? '[]';
-      let results: any[] = [];
-      
+    const text = response.text ?? '{}';
+    let analysis = 'Dựa trên hồ sơ của bạn, chúng tôi đã tinh chọn những mùi hương phản chiếu đúng cá tính và không gian sống của bạn nhất.';
+    let recommendations: Array<{ productId: string; name: string; reason: string; price: number }> = [];
+
       try {
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
-          results = Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+          analysis = parsed.analysis || analysis;
+          recommendations = Array.isArray(parsed.recommendations) ? parsed.recommendations.slice(0, 5) : [];
         }
+
+        await this.logRequest(
+          userId || null,
+          'QUIZ_CONSULT',
+          answers,
+          text,
+          recommendations.length > 0 ? 'SUCCESS' : 'FAILED',
+          Date.now() - startTime,
+        );
       } catch (error) {
         this.logger.error('Failed to parse quiz AI response', error);
       }
 
-      await this.logRequest(
-        userId || null,
-        'QUIZ_CONSULT',
-        answers,
-        text,
-        results.length > 0 ? 'SUCCESS' : 'FAILED',
-        Date.now() - startTime,
-      );
+    // ── Post-check: Validate quiz recommendations against live DB ──
+    if (recommendations.length > 0) {
+      const productIds = recommendations.map((r) => r.productId).filter(Boolean);
+      const validProducts = await this.prisma.product.findMany({
+        where: {
+          id: { in: productIds },
+          isActive: true,
+          variants: {
+            some: {
+              isActive: true,
+              stock: { gt: 0 },
+            },
+          },
+        },
+        select: { id: true },
+      });
 
-      return results;
+      const validIds = new Set(validProducts.map((p) => p.id));
+      const beforeCount = recommendations.length;
+
+      recommendations = recommendations.filter((r) => validIds.has(r.productId));
+
+      if (recommendations.length < beforeCount) {
+        this.logger.warn(
+          `Quiz post-check removed ${beforeCount - recommendations.length} out-of-stock recommendation(s)`,
+        );
+      }
+    }
+
+      return { analysis, recommendations };
     } catch (error) {
-      this.logger.error('Failed to generate quiz consultation', error);
-      await this.logRequest(
-        userId || null,
-        'QUIZ_CONSULT',
-        answers,
-        null,
-        'FAILED',
-        Date.now() - startTime,
-        error.message,
-      );
-      return [];
+      this.logger.error('Failed during quiz consultation', error);
+      return { 
+        analysis: 'Hệ thống đang gặp gián đoạn nhỏ, nhưng chúng tôi vẫn tìm thấy những lựa chọn tuyệt vời cho bạn.', 
+        recommendations: [] 
+      };
     }
   }
 

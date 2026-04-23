@@ -74,6 +74,7 @@
     "view_profile": "View Profile",
     "my_profile": "My Profile",
     "member": "Member",
+    "anonymous_user": "Anonymous Guest",
     "all": "All",
     "loading": "Loading...",
     "processing": "Processing...",
@@ -199,79 +200,84 @@
     "member_no": "Member No. {no} / VIP"
   },
   "discovery": {
-    "title": "The AI <span>Discovery</span> Process",
-    "step1_title": "Bio-Mapping",
-    "step1_desc": "Our AI analyzes 147 data points from your sensory preferences and lifestyle.",
-    "step2_title": "Synthesis",
-    "step2_desc": "A unique molecular formula is generated, blending over 200 rare ingredients.",
-    "step3_title": "Manifestation",
-    "step3_desc": "Hand-poured in Grasse, France, and shipped to your doorstep in obsidian glass.",
-    "methodology": "The Methodology",
+    "title": "AI-Powered Fragrance Shopping",
+    "subtitle": "A personalized shopping experience that helps you find your perfect scent without the hassle of trying dozens of products.",
+    "step1_title": "Share Your Preferences",
+    "step1_desc": "Simply answer a few short questions, and our AI will capture your unique style.",
+    "step2_title": "Data Analysis",
+    "step2_desc": "Our system cross-references your preferences with thousands of authentic perfumes to find the perfect match.",
+    "step3_title": "Get Matches & Shop",
+    "step3_desc": "Receive a curated list of perfumes. Shop with confidence, and we'll deliver them straight to your door.",
+    "methodology": "How It Works",
     "phase": "Phase",
-    "begin_profile": "Begin My Neural Profile",
+    "begin_profile": "Begin Your Scent Journey",
     "steps": [
       {
-        "label": "Neural Analysis"
+        "label": "Short Quiz"
       },
       {
-        "label": "Olfactory Synthesis"
+        "label": "AI Filtering"
       },
       {
-        "label": "Curation"
+        "label": "Perfect Match"
       }
-    ]
+    ],
+    "final_badge": "A Refined Experience",
+    "final_title": "Find your true signature scent quickly and accurately.",
+    "final_desc": "We simplify the selection process, turning a complex search into an effortless, time-saving, and highly personalized shopping journey."
   },
   "auth": {
     "login": {
       "badge": "Private Access",
-      "title": "Enter the House",
-      "subtitle": "Unlock your neural scent profile, manage your private collection, and access member-exclusive releases.",
+      "title": "Sign In",
+      "subtitle": "A fragrance journey curated just for you.",
       "welcome_back": "Welcome back",
-      "please_login": "Please log in to continue",
-      "email_label": "Email Address",
-      "email_placeholder": "Please enter your email",
+      "please_login": "Please sign in to continue",
+      "email_label": "Email",
+      "email_placeholder": "name@example.com",
       "password_label": "Password",
-      "password_placeholder": "Please enter your password",
+      "password_placeholder": "Enter your password",
       "sign_in": "Sign In",
       "or_continue": "Or continue with",
       "google": "Google",
-      "error_failed": "Login failed",
+      "error_failed": "Sign in failed",
       "error_oauth_failed": "OAuth login failed. Please try again.",
       "no_account": "Don't have an account?",
-      "sign_up": "Sign up"
+      "sign_up": "Sign up",
+      "back_to_login": "Back to login"
     },
     "register": {
-      "badge": "The Journey Begins",
-      "title": "Craft Your Signature",
-      "subtitle": "Join 50,000+ connoisseurs who have discovered their true olfactory identity through our AI synthesis.",
-      "page_title": "Discover Your Scent Identity",
-      "page_subtitle": "Create an account to preserve your private collection",
-      "name_label": "Full Name",
-      "name_placeholder": "Alexander Dupont",
-      "email_label": "Email Address",
-      "email_placeholder": "Please enter your email",
+      "badge": "Create Account",
+      "title": "Create Account",
+      "subtitle": "Enter the world of Perfume GPT.",
+      "page_title": "Create Account",
+      "page_subtitle": "Join the world of Perfume GPT",
+      "name_label": "Name",
+      "name_placeholder": "Enter your name",
+      "email_label": "Email",
+      "email_placeholder": "name@example.com",
       "password_label": "Password",
-      "password_placeholder": "Please enter your password",
-      "confirm_password_label": "Confirm New Password",
-      "confirm_password_placeholder": "Please enter your password",
-      "terms_text": "By creating an account, I agree to the",
-      "terms_link": "Terms of Service",
-      "privacy_link": "Privacy Covenant",
-      "start_journey": "Start The Journey",
+      "password_placeholder": "Create a password",
+      "confirm_password_label": "Confirm password",
+      "confirm_password_placeholder": "Enter your password again",
+      "terms_text": "I agree to the",
+      "terms_link": "Terms",
+      "privacy_link": "Policy",
+      "start_journey": "Create account",
       "or_register": "Or register with",
       "google": "Google",
-      "already_member": "Already part of the House?",
+      "already_member": "Already have an account?",
       "sign_in": "Sign in",
       "success_title": "Registration Successful",
-      "success_desc": "Account created successfully. You can sign in now. Email verification can be done later in your profile.",
-      "go_to_login": "Go to Sign In",
+      "success_desc": "Your account is ready. You can sign in right away.",
+      "go_to_login": "Sign in",
       "phone_label": "Phone Number (Optional)",
-      "phone_placeholder": "+84 901 234 567",
+      "phone_placeholder": "Enter your phone number",
       "error_terms": "You must accept the terms and conditions",
       "error_password_match": "Passwords do not match",
       "error_failed": "Registration failed",
-      "join_badge": "Join the House",
-      "create_profile": "Create your scent profile"
+      "join_badge": "Join us",
+      "create_profile": "Create your account"
     },
     "forgot_password": {
       "badge": "Identity Recovery",
@@ -311,11 +317,11 @@
       "error_failed": "Failed to update password"
     },
     "logout": {
-      "title": "Until the next Inspiration",
-      "subtitle": "You have been safely disconnected from the House",
-      "quote": "A journey of a thousand scents ends with a single memory.",
-      "home": "The Home",
-      "return_portal": "Return to Portal"
+      "title": "Signed out",
+      "subtitle": "Your session has ended securely. We look forward to welcoming you back.",
+      "quote": "Every visit leaves behind a new scent memory.",
+      "home": "Home",
+      "return_portal": "Log In"
     },
     "callback": {
       "authenticating": "Authenticating",
@@ -341,6 +347,7 @@
     },
     "step_label": "Step",
     "prev_step": "Back",
+    "step_indicator": "Step {current} / {total}",
     "steps": {
       "gender": {
         "title": "Who is this signature for?",
@@ -359,7 +366,7 @@
           "office": "Professional Node",
           "date": "Intimate Resonance",
           "party": "Social Density",
-          "special": "Rare Occasions"
+          "special_event": "Rare Occasions"
         }
       },
       "budget": {
@@ -390,7 +397,7 @@
         "options": {
           "light": "Light Presence",
           "moderate": "Moderate Sillage",
-          "long": "Extended Persistence",
+          "long_lasting": "Extended Persistence",
           "very_long": "Absolute Performance"
         }
       }
@@ -752,9 +759,13 @@
       "recent_logs": "Recent Logs",
       "stats": {
         "total_requests": "Total Requests",
+        "total_requests_desc": "+5.2% from last week",
         "avg_latency": "Avg Latency",
+        "avg_latency_desc": "Under 500ms target",
         "success_rate": "Success Rate",
-        "failed_requests": "Failed Requests"
+        "success_rate_desc": "Optimal Performance",
+        "failed_requests": "Failed Requests",
+        "failed_requests_desc": "Requires intervention"
       },
       "table": {
         "type": "Type",
@@ -769,7 +780,12 @@
         "title": "AI Log Detail",
         "request": "Request (Input)",
         "response": "Response (Output)",
-        "error": "Error Details"
+        "error": "Error Details",
+        "unknown_error": "Unknown Error Event",
+        "no_output": "No output generated",
+        "velocity": "Execution Velocity",
+        "model": "Neural Model",
+        "origin": "Temporal Origin"
       },
       "types": {
         "PERFUME_CONSULT": "Perfume Consultation",
@@ -778,7 +794,9 @@
         "QUIZ_CONSULT": "Quiz Result",
         "SCENT_ANALYSIS": "Scent Analysis",
         "STAFF_POS_CONSULT": "Staff POS Consult"
-      }
+      },
+      "showing_count": "Showing {start}-{end} of {total}",
+      "no_logs": "No logs found matching filters"
     },
     "inventory": {
       "title": "Boutique Stock",
@@ -1106,12 +1124,22 @@
           "CANCEL": "Cancelled",
           "DELIVERING": "Delivering",
           "DELIVERED": "Delivered",
-          "RETURN": "Returned"
+          "RETURN": "Returned",
+          "PENDING": "Pending",
+          "PICKED_UP": "Picked Up",
+          "FAILED": "Delivery Failed",
+          "LOST": "Package Lost",
+          "DAMAGE": "Package Damaged"
         },
         "request_return": "Request Return",
         "return_submitted": "Return Request Submitted",
         "view_return": "View Return Request",
-        "cancel_order": "Cancel Order"
+        "cancel_order": "Cancel Order",
+        "confirm_cancel_title": "Confirm Cancellation",
+        "confirm_cancel_desc": "Are you sure you want to cancel this acquisition? This action cannot be undone.",
+        "cancel_success": "Acquisition revoked successfully.",
+        "status_refunding": "Refunding",
+        "cancel_error": "Failed to revoke acquisition."
       },
       "returns": {
         "title": "My Returns",
@@ -1196,7 +1224,7 @@
         }
       },
       "notifications": {
-        "title": "Notifi{italic}",
+        "title": "Notifications",
         "subtitle": "Monitor your acquisitions, incentives, and account resonance.",
         "mark_all_read": "Mark all as read",
         "mark_read": "Mark as read",
@@ -2142,6 +2170,7 @@
             "confirm_cancel_desc": "Are you sure you want to cancel this acquisition? This action cannot be undone.",
             "cancel_success": "Acquisition revoked successfully.",
             "cancel_error": "Failed to revoke acquisition.",
+            "status_refunding": "Refunding",
             "payment_status": {
               "paid": "Settled",
               "pending": "Awaiting Fulfillment"
@@ -2152,7 +2181,16 @@
               "CANCEL": "Cancelled",
               "DELIVERING": "Delivering",
               "DELIVERED": "Delivered",
-              "RETURN": "Returned"
+              "RETURN": "Returned",
+              "PICKED_UP": "Picked Up",
+              "FAILED": "Delivery Failed",
+              "LOST": "Package Lost",
+              "DAMAGE": "Package Damaged"
+            }
+          },
+          "returns": {
+            "details": {
+              "confirm_handover": "Confirm Handover"
             }
           },
           "notifications": {

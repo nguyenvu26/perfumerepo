@@ -4,120 +4,136 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/lib/i18n';
 import { ArrowRight } from 'lucide-react';
 
+type FooterLinkItem = {
+    label: string;
+    href: string;
+};
+
+function FooterLinkGroup({
+    title,
+    items,
+}: {
+    title: string;
+    items: FooterLinkItem[];
+}) {
+    return (
+        <div className="space-y-6">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#d7c3a0]">
+                {title}
+            </p>
+
+            <ul className="space-y-3.5">
+                {items.map((item) => (
+                    <li key={item.href}>
+                        <Link
+                            href={item.href}
+                            className="group inline-flex items-center text-sm text-[#f3eee2] transition-colors hover:text-[#d7c3a0]"
+                        >
+                            <span className="relative">
+                                {item.label}
+                                <span className="absolute left-0 top-full mt-1 h-px w-full origin-left scale-x-0 bg-[#d7c3a0] transition-transform duration-300 group-hover:scale-x-100" />
+                            </span>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}
+
 export const Footer = () => {
     const t = useTranslations('footer');
-    const commonT = useTranslations('common');
 
-    const navigation = [
-        { label: t('navigation_labels.products'), href: '/products' },
-        { label: t('navigation_labels.consultation'), href: '/consultation' },
+    const exploreLinks = [
+        { label: t('navigation_labels.products'), href: '/collection' },
+        { label: t('navigation_labels.consultation'), href: '/quiz' },
         { label: t('navigation_labels.journal'), href: '/journal' },
         { label: t('navigation_labels.boutiques'), href: '/boutiques' },
-        { label: t('navigation_labels.gifting'), href: '/gifting' }
     ];
 
-    const support = [
+    const aboutLinks = [
         { label: t('support_labels.story'), href: '/story' },
-        { label: t('support_labels.ingredients'), href: '/ingredients' },
         { label: t('support_labels.terms'), href: '/terms' },
         { label: t('support_labels.privacy'), href: '/privacy' },
-        { label: t('support_labels.support'), href: '/support' }
     ];
 
-    const social = ['Instagram', 'Pinterest', 'LinkedIn', 'YouTube'];
+    const socialLinks = [
+        { label: 'Instagram', href: '#' },
+        { label: 'Pinterest', href: '#' },
+        { label: 'LinkedIn', href: '#' },
+        { label: 'YouTube', href: '#' },
+    ];
 
     return (
-        <footer className="bg-luxury-black dark:bg-[#050505] text-muted-foreground section-py border-t border-white/5">
-            <div className="container-responsive">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20 lg:mb-32">
-                    {/* Brand Column */}
-                    <div className="flex flex-col">
-                        <Link href="/">
-                            <h2 className="text-fluid-2xl font-serif text-white tracking-[0.3em] font-bold mb-8 lg:mb-10 uppercase transition-colors">
-                                PERFUME GPT
+        <footer className="border-t border-white/6 bg-[#040404] text-[#f3eee2]">
+            <div className="container-responsive py-16 sm:py-20 lg:py-24">
+                <div className="grid gap-12 border-b border-white/6 pb-14 sm:gap-14 lg:grid-cols-[1.2fr_0.7fr_0.7fr_1fr] lg:pb-16">
+                    <div className="max-w-md space-y-7">
+                        <Link href="/" className="inline-block">
+                            <h2 className="font-serif text-[2rem] font-semibold uppercase tracking-[0.12em] text-[#f8f3e8] sm:text-[2.3rem]">
+                                Perfume GPT
                             </h2>
                         </Link>
-                        <p className="text-xs lg:text-sm leading-relaxed mb-8 lg:mb-10 font-light italic max-w-sm">
+
+                        <p className="max-w-sm text-sm leading-7 text-[#a8a29a] sm:text-[15px]">
                             {t('desc')}
                         </p>
-                        <div className="flex flex-wrap gap-x-6 gap-y-3 mt-auto">
-                            {social.map(name => (
+
+                        <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2">
+                            {socialLinks.map((item) => (
                                 <a
-                                    key={name}
-                                    href="#"
-                                    className="text-[9px] uppercase tracking-[0.3em] text-stone-700 hover:text-gold transition-colors font-bold"
+                                    key={item.label}
+                                    href={item.href}
+                                    className="group inline-flex items-center text-xs uppercase tracking-[0.2em] text-[#8e877d] transition-colors hover:text-[#d7c3a0]"
                                 >
-                                    {name}
+                                    <span className="relative">
+                                        {item.label}
+                                        <span className="absolute left-0 top-full mt-1 h-px w-full origin-left scale-x-0 bg-[#d7c3a0] transition-transform duration-300 group-hover:scale-x-100" />
+                                    </span>
                                 </a>
                             ))}
                         </div>
                     </div>
 
-                    {/* Navigation Column */}
-                    <div>
-                        <h4 className="text-white font-bold mb-8 lg:mb-10 uppercase text-[10px] lg:text-[11px] tracking-[0.4em]">
-                            {t('column_exploration')}
-                        </h4>
-                        <ul className="space-y-4 lg:space-y-6 text-[10px] uppercase tracking-[0.2em] font-bold">
-                            {navigation.map(item => (
-                                <li key={item.href}>
-                                    <Link
-                                        href={item.href}
-                                        className="hover:text-gold transition-colors block py-1"
-                                    >
-                                        {item.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    <FooterLinkGroup title={t('column_exploration')} items={exploreLinks} />
 
-                    {/* Support Column */}
-                    <div>
-                        <h4 className="text-white font-bold mb-8 lg:mb-10 uppercase text-[10px] lg:text-[11px] tracking-[0.4em]">
-                            {t('column_house')}
-                        </h4>
-                        <ul className="space-y-4 lg:space-y-6 text-[10px] uppercase tracking-[0.2em] font-bold">
-                            {support.map(item => (
-                                <li key={item.href}>
-                                    <Link
-                                        href={item.href}
-                                        className="hover:text-gold transition-colors block py-1"
-                                    >
-                                        {item.label}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                    <FooterLinkGroup title={t('column_house')} items={aboutLinks} />
 
-                    {/* Newsletter Column */}
-                    <div>
-                        <h4 className="text-white font-bold mb-8 lg:mb-10 uppercase text-[10px] lg:text-[11px] tracking-[0.4em]">
+                    <div className="space-y-6">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#d7c3a0]">
                             {t('newsletter_title')}
-                        </h4>
-                        <p className="text-xs mb-6 lg:mb-8 italic max-w-xs">
+                        </p>
+
+                        <p className="max-w-sm text-sm leading-7 text-[#a8a29a] sm:text-[15px]">
                             {t('newsletter_desc')}
                         </p>
-                        <div className="flex border-b border-white/10 pb-2 lg:pb-4 group focus-within:border-gold transition-colors min-h-[44px] items-center">
-                            <input
-                                type="email"
-                                placeholder={t('email_placeholder')}
-                                className="bg-transparent text-xs w-full outline-none placeholder:text-stone-800 text-white transition-all uppercase tracking-widest h-10"
-                            />
-                            <button className="text-stone-700 hover:text-gold transition-colors p-2 min-w-[44px] flex items-center justify-center">
-                                <ArrowRight size={20} strokeWidth={1} />
-                            </button>
-                        </div>
+
+                        <form className="space-y-4">
+                            <div className="group flex min-h-[58px] items-center gap-3 rounded-[1.4rem] border border-white/8 bg-white/[0.02] px-4 transition-all focus-within:border-[#d7c3a0]/45 focus-within:bg-white/[0.04]">
+                                <input
+                                    type="email"
+                                    placeholder={t('email_placeholder')}
+                                    className="h-12 w-full bg-transparent text-sm text-[#f3eee2] outline-none placeholder:text-[#69635d]"
+                                />
+                                <button
+                                    type="submit"
+                                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-[#d7c3a0] transition-all hover:border-[#d7c3a0]/40 hover:bg-[#d7c3a0]/10"
+                                >
+                                    <ArrowRight size={16} />
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                {/* Bottom Bar */}
-                <div className="flex flex-col md:flex-row justify-between items-center pt-12 border-t border-white/5 text-[9px] tracking-[0.3em] uppercase font-bold text-stone-800">
-                    <span>{t('copyright')}</span>
-                    <div className="flex gap-12 mt-8 md:mt-0 italic">
-                        <span>{t('engine')}</span>
-                        <span>{t('location')}</span>
+                <div className="flex flex-col gap-4 pt-6 text-xs text-[#7d776e] sm:pt-7 lg:flex-row lg:items-center lg:justify-between">
+                    <p className="tracking-[0.08em]">
+                        {t('copyright')}
+                    </p>
+
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-5 lg:gap-8">
+                        <span className="tracking-[0.12em]">{t('engine')}</span>
+                        <span className="tracking-[0.12em]">{t('location')}</span>
                     </div>
                 </div>
             </div>

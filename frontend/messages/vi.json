@@ -74,6 +74,7 @@
     "view_profile": "Xem Hồ Sơ Của Bạn",
     "my_profile": "Hồ Sơ Của Tôi",
     "member": "Thành viên",
+    "anonymous_user": "Khách Ẩn Danh",
     "all": "Tất cả thương hiệu",
     "loading": "Đang tải...",
     "processing": "ĐANG CHUẨN BỊ",
@@ -81,8 +82,8 @@
     "clear_filters": "Xóa Bộ Lọc",
     "previous": "Trước",
     "next": "Tiếp",
-    "odyssey": "Hành Trình",
-    "catalog": "Danh mục",
+    "odyssey": "Trang Chủ",
+    "catalog": "Bộ Sưu Tập",
     "admin_dashboard": "Quản Trị Viên",
     "staff_dashboard": "Nhân Viên",
     "curation": "Tuyển Chọn",
@@ -164,12 +165,12 @@
     }
   },
   "hero": {
-    "badge": "Nước Hoa Cao Cấp",
+    "badge": "PerfumeGPT",
     "title": "Bản Sắc Của Bạn, Kết Tinh Thành Hương Thơm.",
     "subtitle": "Được gợi ý bởi AI dựa trên phong cách sống, cảm xúc và sở thích cá nhân của bạn.",
     "cta": "Tìm Nước Hoa Của Tôi",
     "explore": "Xem Bộ Sưu Tập →",
-    "scroll_to_discover": "Cuộn Xuống"
+    "scroll_to_discover": "Cuộn Xuống Để Khám Phá Thêm"
   },
   "story": {
     "badge": "Câu Chuyện Của Chúng Tôi",
@@ -200,39 +201,43 @@
     "member_no": "Thành viên số {no} / VIP"
   },
   "discovery": {
-    "title": "Cách Chúng Tôi Gợi Ý Nước Hoa",
-    "step1_title": "Tìm Hiểu Sở Thích",
-    "step1_desc": "AI phân tích phong cách sống, lối sống và các mùi hương bạn đã thích trước đây.",
-    "step2_title": "Ghép Cặp Mùi Hương",
-    "step2_desc": "Tạo ra công thức phù hợp từ những nguyên liệu tự nhiên chất lượng cao.",
-    "step3_title": "Hoàn Thiện & Giao Hàng",
-    "step3_desc": "Sản phẩm được ủ và đóng gói thủ công tại Grasse, giao đến tận tay bạn.",
-    "methodology": "Quy Trình",
+    "title": "Trải Nghiệm Mua Sắm Cá Nhân Hóa",
+    "subtitle": "Trải nghiệm mua sắm được cá nhân hóa giúp bạn dễ dàng tìm thấy mùi hương chân ái mà không cần phải thử nghiệm quá nhiều.",
+    "step1_title": "Chia Sẻ Sở Thích",
+    "step1_desc": "Chỉ cần trả lời vài câu hỏi ngắn, AI của chúng tôi sẽ ghi nhận phong cách riêng của bạn.",
+    "step2_title": "Phân Tích Dữ Liệu",
+    "step2_desc": "Hệ thống sẽ đối chiếu sở thích của bạn với hàng ngàn mẫu nước hoa chính hãng để tìm ra độ tương thích hoàn hảo.",
+    "step3_title": "Nhận Gợi Ý & Mua Sắm",
+    "step3_desc": "Nhận danh sách nước hoa dành riêng cho bạn. Tự tin lựa chọn và đặt hàng, chúng tôi sẽ giao hàng tận tay.",
+    "methodology": "Hướng Dẫn",
     "phase": "Bước",
     "begin_profile": "Bắt Đầu Tìm Nước Hoa",
     "steps": [
       {
-        "label": "Trả Lời Câu Hỏi"
+        "label": "Khảo Sát Ngắn"
       },
       {
-        "label": "AI Phân Tích"
+        "label": "AI Xử Lý"
       },
       {
         "label": "Nhận Gợi Ý"
       }
-    ]
+    ],
+    "final_badge": "Trải Nghiệm Tinh Tế",
+    "final_title": "Tìm thấy mùi hương chân ái một cách nhanh chóng và chính xác.",
+    "final_desc": "Chúng tôi biến quá trình tìm kiếm phức tạp thành một trải nghiệm mua sắm nhẹ nhàng, tiết kiệm thời gian và đầy tính cá nhân hóa."
   },
   "auth": {
     "login": {
-      "badge": "Đăng Nhập",
+      "badge": "Đăng nhập",
       "title": "Đăng Nhập",
-      "subtitle": "Đăng nhập để xem đơn hàng, điểm thưởng và gợi ý nước hoa của bạn.",
+      "subtitle": "Trải nghiệm mùi hương dành riêng cho bạn",
       "welcome_back": "Chào mừng trở lại",
       "please_login": "Vui lòng đăng nhập để tiếp tục",
-      "email_label": "Email Đăng Ký",
-      "email_placeholder": "Vui lòng nhập email của bạn",
-      "password_label": "Mật Khẩu",
-      "password_placeholder": "Vui lòng nhập mật khẩu của bạn",
+      "email_label": "Email",
+      "email_placeholder": "name@example.com",
+      "password_label": "Mật khẩu",
+      "password_placeholder": "Nhập mật khẩu",
       "sign_in": "Đăng nhập",
       "or_continue": "Hoặc tiếp tục với",
       "google": "Google",
@@ -240,40 +245,40 @@
       "error_oauth_failed": "Đăng nhập OAuth thất bại. Vui lòng thử lại.",
       "no_account": "Chưa có tài khoản?",
       "sign_up": "Đăng ký",
-      "back_to_login": "Quay Lại Đăng Nhập"
+      "back_to_login": "Quay lại đăng nhập"
     },
     "register": {
-      "badge": "Tạo Tài Khoản",
-      "title": "Đăng Ký",
-      "subtitle": "Tạo tài khoản để lưu kết quả gợi ý và theo dõi đơn hàng.",
-      "page_title": "Tạo Tài Khoản Mới",
-      "page_subtitle": "Gia nhập cộng đồng yêu nước hoa của Perfume GPT",
-      "name_label": "Tên *",
+      "badge": "Tạo tài khoản",
+      "title": "Tạo Tài Khoản",
+      "subtitle": "Gia nhập thế giới nước hoa của Perfume GPT",
+      "page_title": "Tạo Tài Khoản",
+      "page_subtitle": "Gia nhập thế giới nước hoa của Perfume GPT",
+      "name_label": "Tên",
       "name_placeholder": "Nhập tên của bạn",
-      "email_label": "Email Đăng Ký",
-      "email_placeholder": "Vui lòng nhập email của bạn",
-      "password_label": "Mật Khẩu",
-      "password_placeholder": "Vui lòng nhập mật khẩu của bạn",
-      "confirm_password_label": "Xác Nhận Mật Khẩu",
-      "confirm_password_placeholder": "Vui lòng nhập lại mật khẩu của bạn",
-      "terms_text": "Bằng việc tạo tài khoản, tôi đồng ý với",
-      "terms_link": "Điều Khoản Dịch Vụ",
-      "privacy_link": "Cam Kết Bảo Mật",
-      "start_journey": "Tạo Tài Khoản",
+      "email_label": "Email",
+      "email_placeholder": "name@example.com",
+      "password_label": "Mật khẩu",
+      "password_placeholder": "Tạo mật khẩu",
+      "confirm_password_label": "Xác nhận mật khẩu",
+      "confirm_password_placeholder": "Nhập lại mật khẩu",
+      "terms_text": "Tôi đồng ý với",
+      "terms_link": "Điều khoản",
+      "privacy_link": "Chính sách",
+      "start_journey": "Tạo tài khoản",
       "or_register": "Hoặc đăng ký với",
       "google": "Google",
-      "already_member": "Đã là thành viên?",
+      "already_member": "Đã có tài khoản?",
       "sign_in": "Đăng nhập",
       "success_title": "Đăng ký thành công",
-      "success_desc": "Tài khoản đã được tạo. Bạn có thể đăng nhập ngay. Xác thực email có thể thực hiện sau trong trang Hồ sơ.",
-      "go_to_login": "Đến trang Đăng nhập",
-      "phone_label": "Số điện thoại (Tùy chọn)",
-      "phone_placeholder": "Nhập số điện thoại...",
-      "error_terms": "Bạn phải chấp nhận các điều khoản và điều kiện",
+      "success_desc": "Tài khoản của bạn đã sẵn sàng. Bạn có thể đăng nhập ngay.",
+      "go_to_login": "Đăng nhập",
+      "phone_label": "Số điện thoại (tùy chọn)",
+      "phone_placeholder": "Nhập số điện thoại",
+      "error_terms": "Bạn phải chấp nhận điều khoản và chính sách",
       "error_password_match": "Mật khẩu không khớp",
       "error_failed": "Đăng ký thất bại. Vui lòng thử lại.",
       "join_badge": "Tham gia cùng chúng tôi",
-      "create_profile": "Tạo hồ sơ của bạn"
+      "create_profile": "Tạo tài khoản của bạn"
     },
     "forgot_password": {
       "badge": "Quên Mật Khẩu",
@@ -313,11 +318,11 @@
       "error_failed": "Cập nhật mật khẩu thất bại. Vui lòng thử lại."
     },
     "logout": {
-      "title": "Đã Đăng Xuất",
-      "subtitle": "Cảm ơn bạn đã ghé thăm Perfume GPT. Hẹn gặp lại!",
-      "quote": "\"Mỗi lần ghé thăm là một trải nghiệm mới.\"",
+      "title": "Đã đăng xuất",
+      "subtitle": "Cảm ơn bạn đã ghé thăm PERFUMEGPT , Hẹn ghặp lại !!!",
+      "quote": "Mỗi lần ghé thăm là một trải nghiệm mùi hương mới.",
       "home": "Trang Chủ",
-      "return_portal": "Quay Lại Trang Chủ"
+      "return_portal": "Đăng Nhập"
     },
     "callback": {
       "authenticating": "Đang xác thực",
@@ -343,6 +348,7 @@
     },
     "step_label": "Giai đoạn",
     "prev_step": "Quay lại",
+    "step_indicator": "Bước {current} / {total}",
     "steps": {
       "gender": {
         "title": "Bạn muốn nước hoa cho ai?",
@@ -361,7 +367,7 @@
           "office": "Đi Làm / Học",
           "date": "Hẹn Hò",
           "party": "Tiệc Tùng",
-          "special": "Dịp Đặc Biệt"
+          "special_event": "Dịp Đặc Biệt"
         }
       },
       "budget": {
@@ -392,7 +398,7 @@
         "options": {
           "light": "Nhẹ nhàng (2-4 tiếng)",
           "moderate": "Vừa phải (4-6 tiếng)",
-          "long": "Lâu (6-8 tiếng)",
+          "long_lasting": "Lâu (6-8 tiếng)",
           "very_long": "Rất lâu (8 tiếng+)"
         }
       }
@@ -408,10 +414,10 @@
       "no_results_title": "Chưa Tìm Thấy Kết Quả Phù Hợp",
       "no_results_desc": "Hệ thống chưa tìm thấy sản phẩm phù hợp. Hãy thử điều chỉnh lựa chọn của bạn.",
       "retake": "Thực Hiện Lại Bước",
-      "ai_picked": "Giám Tuyển Bởi Perfume GPT",
+      "ai_picked": "Gợi Ý Bởi Perfume GPT",
       "title": "Bản Vẽ Khứu Giác Của Bạn (Blueprint)",
       "subtitle": "Dựa trên hồ sơ AI, hệ thống của chúng tôi đã tuyển chọn những sản phẩm này với mức độ phù hợp 98.4%.",
-      "view_detail": "Thưởng Lãm Chi Tiết"
+      "view_detail": "Xem chi tiết"
     },
     "elite_series": "Dòng Cao Cấp",
     "rating_label": "Đánh Giá: {rating}/5",
@@ -445,11 +451,11 @@
     "archived_hash": "Mã Lưu Trữ #",
     "rating_label": "Mức Độ Phù Hợp: {rating}/5",
     "select_size": "Lựa Chọn Dung Tích",
-    "select_olfactory_volume": "Lựa Chọn Thể Tích Khứu Giác (Volume)",
+    "select_olfactory_volume": "Lựa Chọn Thể Tích",
     "olfactory_structure": "Kiến Trúc Tầng Hương",
-    "top_notes": "Nốt Hương Đầu (Làn Gió Đầu)",
-    "heart_notes": "Nốt Hương Giữa (Trái Tim Của Độ Lưu Hương)",
-    "base_notes": "Nốt Hương Cuối (Dấu Ấn Lưu Lại)",
+    "top_notes": "Nốt Hương Đầu",
+    "heart_notes": "Nốt Hương Giữa",
+    "base_notes": "Nốt Hương Cuối",
     "technical_specifications": "Thông Số Tuyển Chọn",
     "concentration": "Nồng Độ Mùi Hương",
     "longevity": "Độ Lưu Hương",
@@ -539,14 +545,14 @@
     "newsletter_desc": "Nhận thông tin sản phẩm mới và ưu đãi đặc biệt sớm nhất.",
     "email_placeholder": "Vui lòng nhập email của bạn",
     "copyright": "© 2026 PERFUME GPT HOUSE. BẢO LƯU MỌI QUYỀN.",
-    "engine": "Động Cơ Perfume GPT v4.2",
+    "engine": "PerfumeGPT v4.2",
     "location": "Grasse • Paris • Tokyo",
     "navigation_labels": {
       "products": "Sản phẩm",
       "consultation": "Tư Vấn AI",
       "journal": "Tạp Chí",
       "subscription": "Gói Hội Viên",
-      "boutiques": "Cửa Hàng",
+      "boutiques": "Thương Hiệu",
       "gifting": "Quà Tặng"
     },
     "support_labels": {
@@ -581,7 +587,7 @@
       "delivery_desc": "Miễn phí cho tất cả đơn hàng.",
       "auth_title": "Hàng Chính Hãng",
       "auth_desc": "Được đảm bảo chính hãng 100%.",
-      "refill_title": "Dịch Vụ Nạp Lại",
+      "refill_title": "Trả Hàng",
       "refill_desc": "Sự bền vững trong từng chai nước hoa."
     }
   },
@@ -778,9 +784,13 @@
       "recent_logs": "Nhật Ký Gần Đây",
       "stats": {
         "total_requests": "Tổng Yêu Cầu",
+        "total_requests_desc": "+5.2% so với tuần trước",
         "avg_latency": "Độ Trễ Trung Bình",
+        "avg_latency_desc": "Dưới mục tiêu 500ms",
         "success_rate": "Tỉ Lệ Thành Công",
-        "failed_requests": "Yêu Cầu Thất Bại"
+        "success_rate_desc": "Hiệu suất tối ưu",
+        "failed_requests": "Yêu Cầu Thất Bại",
+        "failed_requests_desc": "Cần can thiệp"
       },
       "table": {
         "type": "Loại",
@@ -795,7 +805,12 @@
         "title": "Chi Tiết Nhật Ký AI",
         "request": "Yêu Cầu (Input)",
         "response": "Phản Hồi (Output)",
-        "error": "Chi Tiết Lỗi"
+        "error": "Chi Tiết Lỗi",
+        "unknown_error": "Lỗi không xác định",
+        "no_output": "Không có dữ liệu phản hồi",
+        "velocity": "Tốc độ xử lý",
+        "model": "Mô hình Nơ-ron",
+        "origin": "Thời điểm khởi tạo"
       },
       "types": {
         "PERFUME_CONSULT": "Tư Vấn Nước Hoa",
@@ -804,7 +819,9 @@
         "QUIZ_CONSULT": "Kết Quả Trắc Nghiệm",
         "SCENT_ANALYSIS": "Phân Tích Mùi Hương",
         "STAFF_POS_CONSULT": "Tư Vấn Tại Quầy"
-      }
+      },
+      "showing_count": "Hiển thị {start}-{end} trên tổng số {total}",
+      "no_logs": "Không tìm thấy nhật ký phù hợp với bộ lọc"
     },
     "inventory": {
       "title": "Quản Lý Tồn Kho",
@@ -1132,12 +1149,22 @@
           "CANCEL": "Đã hủy",
           "DELIVERING": "Đang giao hàng",
           "DELIVERED": "Đã giao",
-          "RETURN": "Đã trả hàng"
+          "RETURN": "Đã trả hàng",
+          "PENDING": "Đang chờ hàng",
+          "PICKED_UP": "Đã lấy hàng",
+          "FAILED": "Giao hàng thất bại",
+          "LOST": "Thất lạc hàng hóa",
+          "DAMAGE": "Hàng hóa hư hỏng"
         },
         "request_return": "Yêu Cầu Trả Hàng",
         "return_submitted": "Đã gửi yêu cầu trả hàng",
         "view_return": "Xem Đơn Trả Hàng",
-        "cancel_order": "Hủy Đơn Hàng"
+        "cancel_order": "Hủy Đơn Hàng",
+        "confirm_cancel_title": "Xác nhận hủy đơn",
+        "confirm_cancel_desc": "Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.",
+        "cancel_success": "Đơn hàng đã được hủy thành công.",
+        "cancel_error": "Không thể hủy đơn hàng này.",
+        "status_refunding": "Đang hoàn tiền"
       },
       "returns": {
         "title": "Yêu Cầu Đổi Trả",
@@ -1195,7 +1222,7 @@
           "title": "Tạo Yêu Cầu Đổi Trả",
           "subtitle": "Cung cấp thông tin để chúng tôi xử lý yêu cầu của bạn nhanh chóng.",
           "select_items": "Chọn sản phẩm đổi trả",
-          "quantity_label": "Số lượng: {qty}",
+          "quantity_label": "Số lượng",
           "reason_label": "Lý do đổi trả (Bắt buộc)",
           "reason_placeholder": "Ghi nhận tình trạng: Hàng bể vỡ, Bao bì móp, Khách đổi ý...",
           "item_reason_label": "Lý do riêng",
@@ -2177,6 +2204,7 @@
             "confirm_cancel_desc": "Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.",
             "cancel_success": "Đơn hàng đã được hủy thành công.",
             "cancel_error": "Không thể hủy đơn hàng này.",
+            "status_refunding": "Đang hoàn tiền",
             "payment_status": {
               "paid": "ĐÃ THANH TOÁN",
               "pending": "CHỜ THANH TOÁN"
@@ -2187,7 +2215,16 @@
               "CANCEL": "Đã hủy",
               "DELIVERING": "Đang giao hàng",
               "DELIVERED": "Đã giao",
-              "RETURN": "Đã trả hàng"
+              "RETURN": "Đã trả hàng",
+              "PICKED_UP": "Đã lấy hàng",
+              "FAILED": "Giao hàng thất bại",
+              "LOST": "Thất lạc hàng hóa",
+              "DAMAGE": "Hàng hóa hư hỏng"
+            }
+          },
+          "returns": {
+            "details": {
+              "confirm_handover": "Xác nhận đã bàn giao hàng"
             }
           },
           "notifications": {
@@ -2689,7 +2726,9 @@
       "IN_TRANSIT": "Đang vận chuyển",
       "DELIVERED": "Đã giao",
       "FAILED": "Thất bại / Hủy",
-      "RETURNED": "Hoàn hàng"
+      "RETURNED": "Hoàn hàng",
+      "LOST": "Thất lạc hàng hóa",
+      "DAMAGE": "Hàng hóa hư hỏng"
     }
   },
   "support_page": {

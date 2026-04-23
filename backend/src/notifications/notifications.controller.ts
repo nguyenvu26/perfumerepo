@@ -19,8 +19,9 @@ export class NotificationsController {
 
   @Get()
   findAll(@Request() req, @Query() query: NotificationQueryDto) {
+    const userId = req.user?.userId ?? req.user?.sub ?? req.user?.id;
     return this.notificationsService.findAll(
-      req.user.userId,
+      userId,
       query.skip,
       query.take,
       query.type,
@@ -29,23 +30,27 @@ export class NotificationsController {
 
   @Get('unread-count')
   unreadCount(@Request() req) {
+    const userId = req.user?.userId ?? req.user?.sub ?? req.user?.id;
     return this.notificationsService
-      .countUnread(req.user.userId)
+      .countUnread(userId)
       .then((count) => ({ count }));
   }
 
   @Patch('mark-all-read')
   markAllAsRead(@Request() req) {
-    return this.notificationsService.markAllAsRead(req.user.userId);
+    const userId = req.user?.userId ?? req.user?.sub ?? req.user?.id;
+    return this.notificationsService.markAllAsRead(userId);
   }
 
   @Patch(':id/read')
   markAsRead(@Request() req, @Param('id') id: string) {
-    return this.notificationsService.markAsRead(req.user.userId, id);
+    const userId = req.user?.userId ?? req.user?.sub ?? req.user?.id;
+    return this.notificationsService.markAsRead(userId, id);
   }
 
   @Delete(':id')
   remove(@Request() req, @Param('id') id: string) {
-    return this.notificationsService.remove(req.user.userId, id);
+    const userId = req.user?.userId ?? req.user?.sub ?? req.user?.id;
+    return this.notificationsService.remove(userId, id);
   }
 }

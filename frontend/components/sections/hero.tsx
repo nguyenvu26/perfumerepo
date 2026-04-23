@@ -2,10 +2,11 @@
 
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { motion, useScroll, useTransform, MotionValue, AnimatePresence } from 'framer-motion';
 import { Link } from '@/lib/i18n';
 import { useRef, useEffect, useState } from 'react';
+
 import { bannerService, Banner } from '@/services/banner.service';
 import { cn } from '@/lib/utils';
 
@@ -24,145 +25,140 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
 
     useEffect(() => {
         setIsMounted(true);
-        bannerService.list().then(res => {
-            if (res.length > 0) setBanners(res);
-        }).catch(console.error);
+        bannerService
+            .list()
+            .then((res) => {
+                if (res.length > 0) setBanners(res);
+            })
+            .catch(console.error);
     }, []);
 
     useEffect(() => {
         if (banners.length <= 1) return;
         const timer = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % banners.length);
-        }, 3000); // 3 second interval
+        }, 4000);
+
         return () => clearInterval(timer);
     }, [banners.length]);
 
-    // Use parent props if provided, otherwise create own scroll transforms
     const { scrollYProgress } = useScroll({
         target: isMounted && !parentHeroY ? containerRef : undefined,
-        offset: ["start start", "end start"]
+        offset: ['start start', 'end start'],
     });
 
-    const localHeroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-    const localHeroScale = useTransform(scrollYProgress, [0, 1], [1, 1.2]);
-    const localHeroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+    const localHeroY = useTransform(scrollYProgress, [0, 1], ['0%', '35%']);
+    const localHeroScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+    const localHeroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.15]);
+    const headlineY = useTransform(scrollYProgress, [0, 0.45], ['0px', '70px']);
 
     const heroY = parentHeroY || localHeroY;
     const heroScale = parentHeroScale || localHeroScale;
     const heroOpacity = parentHeroOpacity || localHeroOpacity;
-    const headlineY = useTransform(scrollYProgress, [0, 0.5], ["0px", "100px"]); // Parallax for text
-
     const currentBanner = banners[currentIndex];
+    const bannerTitle = currentBanner?.title || t('title');
+    const bannerSubtitle = currentBanner?.subtitle || t('subtitle');
+    const bannerHref = currentBanner?.linkUrl || '/quiz';
 
     return (
         <section
             ref={containerRef}
-            className="relative h-screen flex items-center overflow-hidden pt-24" // Added pt-24 so content doesn't get hidden behind the fixed transparent navbar
+            className="relative flex min-h-screen items-center overflow-hidden pt-20 pb-12 md:pt-32 md:pb-24"
         >
-            {/* Parallax Background Slider */}
             <motion.div
                 style={{ y: heroY, scale: heroScale }}
                 className="absolute inset-0 z-0"
             >
                 {banners.length > 0 ? (
-                    banners.map((b, i) => (
+                    banners.map((banner, index) => (
                         <Image
-                            key={b.id}
-                            src={b.imageUrl}
-                            alt={b.title || 'Luxury Fragrance'}
+                            key={banner.id}
+                            src={banner.imageUrl}
+                            alt={banner.title || 'Luxury fragrance'}
                             fill
+                            priority={index === 0}
                             className={cn(
-                                "object-cover transition-opacity duration-1000",
-                                i === currentIndex ? "opacity-100" : "opacity-0"
+                                'object-cover transition-opacity duration-1000',
+                                index === currentIndex ? 'opacity-100' : 'opacity-0',
                             )}
-                            priority={i === 0}
                         />
                     ))
                 ) : (
                     <Image
                         src="/luxury_perfume_hero_cinematic.png"
-                        alt="Luxury Fragrance Default"
+                        alt="Luxury fragrance"
                         fill
-                        className="object-cover"
                         priority
+                        className="object-cover"
                     />
                 )}
-                {/* Overlay gradient to ensure text readability */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60 transition-colors" />
+                <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(9,9,11,0.84)_0%,rgba(9,9,11,0.58)_42%,rgba(9,9,11,0.28)_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(197,160,89,0.28),transparent_30%),radial-gradient(circle_at_80%_25%,rgba(255,255,255,0.12),transparent_20%)]" />
             </motion.div>
 
-            {/* Content Context */}
-            <div className="container-responsive relative z-10 w-full flex flex-col justify-center h-full">
-                <motion.div
-                    style={{ opacity: heroOpacity, y: headlineY }}
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
-                    className="max-w-2xl lg:max-w-3xl text-white"
-                >
-                    {/* Badge */}
-                    <motion.span
-                        initial={{ opacity: 0, y: 10 }}
+            <div className="container-responsive relative z-10">
+                <div className="grid gap-8">
+                    <motion.div
+                        style={{ opacity: heroOpacity, y: headlineY }}
+                        initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="inline-block px-4 py-1.5 glass rounded-full text-[10px] font-bold tracking-[.4em] uppercase mb-8 shadow-md"
+                        transition={{ duration: 0.8 }}
+                        className="max-w-4xl text-white"
                     >
-                        {t('badge')}
-                    </motion.span>
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur-xl">
+                            <Sparkles className="h-4 w-4 text-gold" />
+                            <span>{t('badge')}</span>
+                        </div>
 
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={currentBanner?.id || 'default-banner'}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.8 }}
-                        >
-                            {/* Headline */}
-                             <h1 className="text-fluid-3xl font-serif mb-6 lg:mb-10 leading-[1.1] tracking-tight drop-shadow-2xl whitespace-pre-line text-white">
-                                {currentBanner?.title || t('title')}
-                            </h1>
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentBanner?.id || 'default-banner'}
+                                initial={{ opacity: 0, y: 18 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -18 }}
+                                transition={{ duration: 0.55 }}
+                            >
+                                <h1 className="max-w-[18ch] sm:max-w-[22ch] lg:max-w-none text-[clamp(2.1rem,6vw,3.3rem)] font-heading leading-[1.1] md:leading-tight tracking-[-0.04em] text-white lg:whitespace-nowrap">
+                                    {bannerTitle}
+                                </h1>
+                                <p className="mt-6 max-w-2xl text-lg leading-8 text-white/86 md:text-xl">
+                                    {bannerSubtitle}
+                                </p>
+                            </motion.div>
+                        </AnimatePresence>
 
-                            {/* Subtitle */}
-                            <p className="text-fluid-lg text-white/90 mb-12 font-light leading-relaxed max-w-lg italic drop-shadow-md">
-                                {currentBanner?.subtitle || t('subtitle')}
-                            </p>
-                        </motion.div>
-                    </AnimatePresence>
+                        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+                            <Link
+                                href={bannerHref}
+                                className="group inline-flex min-h-[56px] items-center justify-center gap-3 rounded-full bg-gold px-7 text-base font-semibold text-luxury-black transition-all hover:scale-[1.01]"
+                            >
+                                {currentBanner?.linkUrl ? 'Xem ngay' : t('cta')}
+                                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                            </Link>
+                            <Link
+                                href="/collection"
+                                className="inline-flex min-h-[56px] items-center justify-center rounded-full border border-white/18 bg-white/8 px-7 text-base font-medium text-white backdrop-blur-xl transition-all hover:border-gold hover:text-gold"
+                            >
+                                {t('explore')}
+                            </Link>
+                        </div>
 
-                    {/* CTAs */}
-                    <div className="flex flex-wrap gap-6 mt-8">
-                        <Link
-                            href={currentBanner?.linkUrl || "/quiz"}
-                            className="group w-full sm:w-auto px-8 py-4 bg-gold hover:bg-gold-light text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] flex items-center justify-center gap-4 transition-all shadow-xl"
-                        >
-                            {currentBanner?.linkUrl ? 'Xem Ngay' : t('cta')}
-                            <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                        </Link>
-                        <Link
-                            href="/collection"
-                            className="w-full sm:w-auto px-8 py-4 glass hover:bg-white/20 text-white rounded-full font-bold tracking-[.3em] uppercase text-[10px] transition-all shadow-lg text-center"
-                        >
-                            {t('explore')}
-                        </Link>
-                    </div>
-                </motion.div>
+                    </motion.div>
+
+                </div>
             </div>
 
-            {/* Scroll Indicator */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.5, duration: 1 }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 pointer-events-none z-10"
+                transition={{ delay: 1, duration: 0.8 }}
+                className="pointer-events-none absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 items-center gap-4 md:flex"
             >
-                <span className="text-[11px] lg:text-xs uppercase tracking-[0.5em] text-white/80 font-bold drop-shadow-md">
-                    {t('scroll_to_discover')}
-                </span>
+                <span className="text-sm font-medium text-white/78">{t('scroll_to_discover')}</span>
                 <motion.div
                     animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="w-px h-16 bg-gradient-to-b from-gold to-transparent"
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    className="h-12 w-px bg-gradient-to-b from-gold to-transparent"
                 />
             </motion.div>
         </section>

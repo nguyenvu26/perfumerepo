@@ -21,7 +21,7 @@ export class NotificationsService {
     private readonly prisma: PrismaService,
     private readonly gateway: NotificationGateway,
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   /** Create a notification, save to DB, and push real-time */
   async create(params: CreateNotificationParams) {
@@ -71,12 +71,12 @@ export class NotificationsService {
       const status = params.data?.status;
 
       if (params.title.includes('thành công') && orderCode && totalAmount) {
-         return this.mailService.sendOrderConfirmationMail(
-           user.email,
-           user.fullName || 'bạn',
-           orderCode,
-           totalAmount
-         );
+        return this.mailService.sendOrderConfirmationMail(
+          user.email,
+          user.fullName || 'bạn',
+          orderCode,
+          totalAmount
+        );
       }
 
       if (status && orderCode) {
@@ -91,16 +91,16 @@ export class NotificationsService {
     }
 
     if (params.type === 'PROMOTION') {
-       const promoCode = params.data?.promoCode;
-       const description = params.data?.description || params.content;
-       if (promoCode) {
-         return this.mailService.sendPromotionMail(
-           user.email,
-           user.fullName || 'bạn',
-           promoCode,
-           description
-         );
-       }
+      const promoCode = params.data?.promoCode;
+      const description = params.data?.description || params.content;
+      if (promoCode) {
+        return this.mailService.sendPromotionMail(
+          user.email,
+          user.fullName || 'bạn',
+          promoCode,
+          description
+        );
+      }
     }
 
     // Default simple email fallback
@@ -132,6 +132,9 @@ export class NotificationsService {
 
   /** List notifications for a user (paginated, optionally filtered by type) */
   async findAll(userId: string, skip = 0, take = 20, type?: string) {
+    if (!userId) {
+      return { data: [], total: 0, skip, take, pages: 0 };
+    }
     const where: any = { userId };
     if (type) where.type = type;
 
@@ -150,6 +153,7 @@ export class NotificationsService {
 
   /** Count unread notifications */
   async countUnread(userId: string): Promise<number> {
+    if (!userId) return 0;
     return this.prisma.notification.count({
       where: { userId, isRead: false },
     });
@@ -157,6 +161,7 @@ export class NotificationsService {
 
   /** Mark a single notification as read */
   async markAsRead(userId: string, id: string) {
+    if (!userId) throw new NotFoundException('User ID required');
     const notification = await this.prisma.notification.findFirst({
       where: { id, userId },
     });
@@ -170,13 +175,14 @@ export class NotificationsService {
     const unreadCount = await this.countUnread(userId);
     try {
       this.gateway.sendUnreadCount(userId, unreadCount);
-    } catch (_) {}
+    } catch (_) { }
 
     return { success: true };
   }
 
   /** Mark all notifications as read for a user */
   async markAllAsRead(userId: string) {
+    if (!userId) return { success: false };
     await this.prisma.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true },
@@ -184,7 +190,7 @@ export class NotificationsService {
 
     try {
       this.gateway.sendUnreadCount(userId, 0);
-    } catch (_) {}
+    } catch (_) { }
 
     return { success: true };
   }
@@ -203,6 +209,7 @@ export class NotificationsService {
 
   /** Delete a notification */
   async remove(userId: string, id: string) {
+    if (!userId) throw new NotFoundException('User ID required');
     const notification = await this.prisma.notification.findFirst({
       where: { id, userId },
     });

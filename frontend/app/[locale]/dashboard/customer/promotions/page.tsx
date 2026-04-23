@@ -197,25 +197,6 @@ export default function CustomerPromotions() {
                         </aside>
                     </div>
                 )}
-                
-                {/* Referral Card (Optional) */}
-                <motion.div 
-                   initial={{ opacity: 0 }}
-                   whileInView={{ opacity: 1 }}
-                   className="mt-32 glass p-12 rounded-[4rem] border-gold/10 bg-gradient-to-r from-background to-gold/5 flex flex-col md:flex-row items-center gap-12 relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 w-64 h-full bg-gold/5 blur-[100px] pointer-events-none" />
-                    <div className="w-24 h-24 rounded-[2rem] bg-gold flex items-center justify-center shadow-2xl shadow-gold/30 relative z-10">
-                        <Zap className="text-black" size={40} />
-                    </div>
-                    <div className="flex-1 text-center md:text-left relative z-10">
-                        <h3 className="text-2xl font-heading uppercase tracking-tighter mb-3 italic">{t('referral.title')}</h3>
-                        <p className="text-[11px] text-muted-foreground font-body leading-relaxed uppercase tracking-[.1em]">{t('referral.desc')}</p>
-                    </div>
-                    <button className="bg-foreground dark:bg-gold text-background dark:text-foreground px-12 py-5 rounded-full font-heading text-[10px] uppercase tracking-[.3em] font-bold hover:scale-105 transition-all shadow-xl shadow-gold/10 relative z-10">
-                        {t('referral.cta')}
-                    </button>
-                </motion.div>
             </main>
         </AuthGuard>
     );

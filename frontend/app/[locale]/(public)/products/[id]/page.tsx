@@ -18,7 +18,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
     const breadcrumbItems = [
         { label: t('collection'), href: '/collection' },
-        ...(product.brand ? [{ label: product.brand.name }] : []),
+        ...(product.category ? [{ label: product.category.name, href: `/collection?category=${encodeURIComponent(product.category.name)}` }] : []),
+        ...(product.brand ? [{ label: product.brand.name, href: `/collection?brandId=${product.brand.id}&brand=${encodeURIComponent(product.brand.name)}` }] : []),
         { label: product.name, active: true }
     ];
 

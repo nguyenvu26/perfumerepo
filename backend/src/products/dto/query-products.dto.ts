@@ -46,10 +46,6 @@ export class QueryProductsDto {
   notes?: string;
 
   @IsOptional()
-  @IsString()
-  occasion?: string;
-
-  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(0)

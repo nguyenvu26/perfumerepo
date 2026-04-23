@@ -147,20 +147,20 @@ export default function CustomerOrdersPage() {
                                         <div className="flex-1">
                                             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-5 md:mb-6">
                                                 <div className="w-full sm:w-auto">
-                                                    <span className="text-[8px] font-bold text-gold uppercase tracking-[.3em] mb-1.5 block">
-                                                        {t('order_label')} {order.code}
+                                                    <span className="text-[10px] font-black text-gold uppercase tracking-[.4em] mb-2 block leading-none">
+                                                        {t('order_label')} #{order.code}
                                                     </span>
-                                                    <h2 className="text-xl md:text-2xl font-heading text-foreground mb-1 uppercase tracking-widest leading-snug">
+                                                    <h2 className="text-lg md:text-xl font-heading text-stone-900 dark:text-stone-100 mb-1.5 uppercase tracking-wide leading-snug">
                                                         {order.items?.[0]?.product?.name || t('fragrance_acquisition')}
-                                                        {order.items && order.items.length > 1 && <span className="text-[10px] md:text-sm italic text-muted-foreground ml-2"> {t('more_suffix', { count: order.items.length - 1 })}</span>}
+                                                        {order.items && order.items.length > 1 && <span className="text-[10px] md:text-xs italic text-stone-500 ml-2"> {t('more_suffix', { count: order.items.length - 1 })}</span>}
                                                     </h2>
-                                                    <p className="text-[8px] md:text-[9px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
-                                                        <Calendar size={10} />
+                                                    <p className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                                                        <Calendar size={12} className="text-gold/60" />
                                                         {new Date(order.createdAt!).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </p>
                                                 </div>
                                                 <div className="flex sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto border-t sm:border-t-0 border-border/10 pt-3 sm:pt-0">
-                                                    <span className="text-lg md:text-xl font-heading text-foreground block sm:mb-2">
+                                                    <span className="text-xl font-heading text-stone-900 dark:text-stone-100 block sm:mb-2 tracking-tighter">
                                                         {formatCurrency(order.finalAmount)}
                                                     </span>
                                                     <div className={cn(

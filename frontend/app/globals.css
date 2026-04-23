@@ -146,6 +146,17 @@
     @apply font-heading font-medium;
     text-rendering: optimizeLegibility;
   }
+
+  .auth-input-element:-webkit-autofill,
+  .auth-input-element:-webkit-autofill:hover,
+  .auth-input-element:-webkit-autofill:focus,
+  .auth-input-element:-webkit-autofill:active {
+    -webkit-text-fill-color: #F5F5F5 !important;
+    caret-color: #F5F5F5;
+    -webkit-box-shadow: 0 0 0 1000px #181B20 inset !important;
+    box-shadow: 0 0 0 1000px #181B20 inset !important;
+    transition: background-color 9999s ease-out 0s;
+  }
 }
 
 /**
@@ -348,5 +359,109 @@ html[lang="vi"] .text-\[10px\] {
   .section-py {
     padding-top: var(--spacing-layout-py);
     padding-bottom: var(--spacing-layout-py);
+  }
+
+  .dashboard-shell {
+    color: var(--foreground);
+  }
+
+  .dashboard-shell .glass {
+    border-color: color-mix(in srgb, var(--color-gold) 14%, transparent);
+    background: color-mix(in srgb, white 82%, transparent);
+    box-shadow: 0 24px 55px -36px rgba(15, 23, 42, 0.55);
+  }
+
+  .dark .dashboard-shell .glass {
+    background: color-mix(in srgb, #17181c 82%, transparent);
+    box-shadow: 0 24px 55px -36px rgba(0, 0, 0, 0.8);
+  }
+
+  .dashboard-shell .text-\[8px\],
+  .dashboard-shell .text-\[9px\],
+  .dashboard-shell .text-\[10px\],
+  .dashboard-shell .text-\[11px\] {
+    font-size: 0.9rem !important;
+    line-height: 1.5rem !important;
+    letter-spacing: 0.02em !important;
+    text-transform: none !important;
+  }
+
+  .dashboard-shell .text-xs {
+    font-size: 0.9rem !important;
+    line-height: 1.5rem !important;
+  }
+
+  .dashboard-shell h1 {
+    font-size: clamp(2rem, 2vw + 1.3rem, 3.25rem);
+    line-height: 1.05;
+  }
+
+  .dashboard-shell h2 {
+    font-size: clamp(1.5rem, 1.2vw + 1rem, 2.2rem);
+    line-height: 1.15;
+  }
+
+  .dashboard-shell h3 {
+    font-size: clamp(1.15rem, 0.8vw + 0.95rem, 1.5rem);
+    line-height: 1.2;
+  }
+
+  .dashboard-shell p,
+  .dashboard-shell li {
+    line-height: 1.65;
+  }
+
+  .dashboard-shell label {
+    font-size: 0.85rem !important;
+    line-height: 1.35rem !important;
+    letter-spacing: 0.06em !important;
+    text-transform: none !important;
+  }
+
+  .dashboard-shell input,
+  .dashboard-shell select,
+  .dashboard-shell textarea {
+    min-height: 48px;
+    color: var(--foreground);
+    font-size: 0.95rem !important;
+    line-height: 1.5rem !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+  }
+
+  .dashboard-shell select {
+    background-color: var(--background);
+  }
+
+  .dashboard-shell select option,
+  .dashboard-shell select optgroup {
+    color: #111216;
+    background-color: #ffffff;
+  }
+
+  .dark .dashboard-shell select option,
+  .dark .dashboard-shell select optgroup {
+    color: #f5f5f5;
+    background-color: #18181b;
+  }
+
+  .dashboard-shell button {
+    min-height: 44px;
+  }
+
+  .dashboard-shell table th {
+    font-size: 0.82rem !important;
+    line-height: 1.3rem !important;
+    letter-spacing: 0.06em !important;
+    text-transform: none !important;
+  }
+
+  .dashboard-shell table td {
+    font-size: 0.95rem !important;
+    line-height: 1.55rem !important;
+  }
+
+  .dashboard-shell [class*="tracking-"] {
+    letter-spacing: normal;
   }
 }

@@ -108,5 +108,37 @@ export class LoyaltyService {
       })
       .catch(() => {});
   }
+  
+  async awardPoints(userId: string, points: number, reason: string) {
+    if (points <= 0) return;
 
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { loyaltyPoints: { increment: points } },
+      }),
+      this.prisma.loyaltyTransaction.create({
+        data: {
+          userId,
+          points,
+          reason,
+        },
+      }),
+    ]);
+
+    // Notify user with a premium feel
+    this.notificationsService
+      .create({
+        userId,
+        type: 'LOYALTY',
+        title: '✨ Tuyệt vời! Bạn đã nhận được phần thưởng',
+        content:
+          reason === 'PROFILE_COMPLETION'
+            ? `Chúc mừng bạn đã hoàn thiện 100% hồ sơ! 50 điểm thưởng đã được cộng vào tài khoản thành viên của bạn như một lời cảm ơn từ chúng tôi.`
+            : `Bạn vừa nhận được ${points} điểm thưởng vào ví thành viên.`,
+        data: { points, reason },
+        sendEmail: reason === 'PROFILE_COMPLETION', // Send email for the big milestone
+      })
+      .catch(() => {});
+  }
 }

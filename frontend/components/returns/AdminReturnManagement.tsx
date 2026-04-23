@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import {
   returnsService,
   ReturnRequest,
@@ -19,16 +20,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Select } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { useUIStore } from "@/store/ui.store";
+import { cn } from "@/lib/utils";
 import {
   Check,
   X,
@@ -43,13 +39,23 @@ import {
   Banknote,
   Truck,
   Calendar,
+  Upload,
+  User,
+  Barcode,
 } from "lucide-react";
 import api from "@/lib/axios";
 import {
   staffOrdersService,
   StaffPosOrder,
 } from "@/services/staff-orders.service";
-import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+
+function formatVND(n: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(n);
+}
 
 const getStatusColor = (status: ReturnStatus) => {
   switch (status) {
@@ -77,36 +83,17 @@ const getStatusColor = (status: ReturnStatus) => {
   }
 };
 
-const formatVND = (amount: number) => {
-  return new Intl.NumberFormat("vi-VN", {
-    style: "currency",
-    currency: "VND",
-  }).format(amount);
-};
-
-const getStatusLabel = (status: ReturnStatus) => {
-  const map: Record<string, string> = {
-    REQUESTED: "Yêu cầu mới",
-    AWAITING_CUSTOMER: "Chờ phản hồi khách",
-    REVIEWING: "Đang xem xét",
-    APPROVED: "Đã duyệt, đợi trả hàng",
-    RETURNING: "Đang gửi hàng về",
-    RECEIVED: "Đã nhận hàng",
-    REFUNDING: "Đang hoàn tiền",
-    REFUND_FAILED: "Hoàn tiền thất bại",
-    COMPLETED: "Hoàn tất",
-    REJECTED: "Đã từ chối",
-    REJECTED_AFTER_RETURN: "Từ chối sau khi nhận",
-    CANCELLED: "Đã huỷ",
-  };
-  return map[status] || status;
-};
-
 export const AdminReturnManagement = ({
   isAdmin = false,
 }: {
   isAdmin?: boolean;
 }) => {
+  const t = useTranslations("dashboard.admin.returns");
+  const { isSidebarCollapsed: isCollapsed } = useUIStore();
+
+  const getStatusLabel = (status: ReturnStatus) => {
+    return t(`status.${status}`);
+  };
   const [data, setData] = useState<{ data: ReturnRequest[]; total: number }>({
     data: [],
     total: 0,
@@ -423,40 +410,82 @@ export const AdminReturnManagement = ({
     return { all: data.data.length, online, pos };
   }, [data.data]);
 
+  const overviewStats = useMemo(() => {
+    const newRequests = data.data.filter((req) =>
+      ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status),
+    ).length;
+    const inHandling = data.data.filter((req) =>
+      ["APPROVED", "RETURNING", "RECEIVED", "REFUNDING", "REFUND_FAILED"].includes(req.status),
+    ).length;
+    const resolved = data.data.filter((req) =>
+      ["COMPLETED", "REJECTED", "REJECTED_AFTER_RETURN", "CANCELLED"].includes(req.status),
+    ).length;
+
+    return { newRequests, inHandling, resolved };
+  }, [data.data]);
+
   return (
-    <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-        <div className="flex flex-wrap items-center justify-end gap-3 px-4 sm:px-0">
-            <Button
-              variant="outline"
-              className="glass border-gold/20 h-10 text-[10px] sm:text-xs"
-              onClick={loadData}
-            >
-              <RefreshCcw className="w-4 h-4 mr-2 text-gold" /> Làm mới
-            </Button>
-            <div className="relative group flex-1 sm:flex-none">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gold/60 w-3.5 h-3.5 pointer-events-none group-focus-within:text-gold transition-colors" />
-              <input
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                className="pl-9 w-full sm:w-40 glass border border-gold/20 text-[11px] font-medium h-10 focus:ring-1 focus:ring-gold/30 transition-all cursor-pointer invert dark:invert-0 bg-transparent rounded-md outline-none"
-              />
-            </div>
-            {!isAdmin && (
-              <Button
-                className="bg-gold hover:bg-gold/90 text-primary-foreground shadow-lg shadow-gold/20 h-10 text-[10px] sm:text-xs flex-1 sm:flex-none"
-                onClick={() => {
-                  setIsPosCreateOpen(true);
-                  setPosOrder(null);
-                  setPosSearchKey("");
-                  setPosReason("");
-                  setPosSelectedItems({});
-                }}
-              >
-                <RotateCcw className="w-4 h-4 mr-2" /> Tạo hoàn trả POS
-              </Button>
-            )}
+    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
+      <div className="overflow-hidden rounded-[2rem] border border-black/6 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(247,242,233,0.9))] p-4 shadow-[0_24px_70px_-48px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] lg:p-5">
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="flex min-h-[108px] flex-col justify-between rounded-[1.4rem] border border-black/6 bg-white/75 px-5 py-4 dark:border-white/10 dark:bg-white/5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+              {t("status.REQUESTED")}
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">
+              {overviewStats.newRequests}
+            </p>
           </div>
+          <div className="flex min-h-[108px] flex-col justify-between rounded-[1.4rem] border border-black/6 bg-white/75 px-5 py-4 dark:border-white/10 dark:bg-white/5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+              {t("status.REVIEWING")}
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-foreground">
+              {overviewStats.inHandling}
+            </p>
+          </div>
+          <div className="flex min-h-[108px] flex-col justify-between rounded-[1.4rem] border border-gold/20 bg-gold/10 px-5 py-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-gold/80">
+              {t("status.COMPLETED")}
+            </p>
+            <p className="mt-2 text-3xl font-semibold text-gold">
+              {overviewStats.resolved}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="grid gap-3 rounded-[1.75rem] border border-black/6 bg-card px-4 py-4 shadow-[0_18px_50px_-44px_rgba(15,23,42,0.2)] dark:border-white/10 sm:px-5 md:ml-auto md:w-fit md:grid-cols-[auto_auto_auto] md:justify-end">
+        <Button
+          variant="outline"
+          className="h-11 rounded-full border-gold/20 bg-white/70 px-5 text-sm font-semibold shadow-sm transition-all hover:border-gold hover:bg-gold/10 dark:bg-white/5"
+          onClick={loadData}
+        >
+          <RefreshCcw className="w-4 h-4 mr-2 text-gold" /> {t("buttons.refresh")}
+        </Button>
+        <div className="relative group">
+          <Calendar className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gold/60 transition-colors group-focus-within:text-gold" />
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="h-11 w-full rounded-full border border-gold/20 bg-white/70 pl-11 pr-4 text-sm font-medium shadow-sm outline-none transition-all focus:ring-1 focus:ring-gold/30 dark:bg-white/5 md:w-48"
+          />
+        </div>
+        {!isAdmin && (
+          <Button
+            className="h-11 rounded-full bg-gold px-5 text-sm font-semibold text-primary-foreground shadow-lg shadow-gold/20 hover:bg-gold/90"
+            onClick={() => {
+              setIsPosCreateOpen(true);
+              setPosOrder(null);
+              setPosSearchKey("");
+              setPosReason("");
+              setPosSelectedItems({});
+            }}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" /> {t("buttons.create_pos")}
+          </Button>
+        )}
+      </div>
 
       <Tabs
         value={activeTab}
@@ -464,42 +493,42 @@ export const AdminReturnManagement = ({
         className="w-full space-y-6"
       >
         {isAdmin && (
-          <TabsList className="bg-background/40 glass border border-gold/10 p-1 w-full max-w-[450px] mx-auto md:mx-0 grid grid-cols-3">
+          <TabsList className="mx-auto !grid !h-auto !w-full max-w-[640px] grid-cols-3 items-stretch rounded-full border border-black/6 bg-card p-1.5 shadow-[0_18px_50px_-42px_rgba(15,23,42,0.24)] dark:border-white/10 md:mx-0">
             <TabsTrigger
               value="all"
-              className="data-[state=active]:bg-gold/20 data-[state=active]:text-gold text-[10px] sm:text-xs"
+              className="!flex !h-11 !w-full min-w-0 items-center justify-center gap-2 rounded-full px-3 text-center text-xs font-semibold whitespace-nowrap data-[state=active]:bg-gold/12 data-[state=active]:text-gold data-[state=active]:shadow-[0_14px_28px_-22px_rgba(197,160,89,0.95)] sm:text-sm"
             >
-              <Box className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Tất cả
+              <Box className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              {t("tabs.all")}
               <Badge
                 variant="secondary"
-                className="ml-1 sm:ml-2 bg-background/50 text-[9px] sm:text-[10px] py-0 px-1"
+                className="flex h-5 min-w-[22px] items-center justify-center rounded-full bg-background/60 px-1.5 text-[9px] sm:text-[10px]"
               >
                 {counts.all}
               </Badge>
             </TabsTrigger>
             <TabsTrigger
               value="online"
-              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-400 text-[10px] sm:text-xs"
+              className="!flex !h-11 !w-full min-w-0 items-center justify-center gap-2 rounded-full px-3 text-center text-xs font-semibold whitespace-nowrap data-[state=active]:bg-cyan-500/14 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_14px_28px_-22px_rgba(34,211,238,0.8)] sm:text-sm"
             >
-              <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Online
+              <Globe className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              {t("tabs.online")}
               <Badge
                 variant="secondary"
-                className="ml-1 sm:ml-2 bg-background/50 text-[9px] sm:text-[10px] py-0 px-1"
+                className="flex h-5 min-w-[22px] items-center justify-center rounded-full bg-background/60 px-1.5 text-[9px] sm:text-[10px]"
               >
                 {counts.online}
               </Badge>
             </TabsTrigger>
             <TabsTrigger
               value="pos"
-              className="data-[state=active]:bg-rose-500/20 data-[state=active]:text-rose-400 text-[10px] sm:text-xs"
+              className="!flex !h-11 !w-full min-w-0 items-center justify-center gap-2 rounded-full px-3 text-center text-xs font-semibold whitespace-nowrap data-[state=active]:bg-rose-500/14 data-[state=active]:text-rose-400 data-[state=active]:shadow-[0_14px_28px_-22px_rgba(244,63,94,0.7)] sm:text-sm"
             >
-              <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              Tại Quầy
+              <Store className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
+              {t("tabs.pos")}
               <Badge
                 variant="secondary"
-                className="ml-1 sm:ml-2 bg-background/50 text-[9px] sm:text-[10px] py-0 px-1"
+                className="flex h-5 min-w-[22px] items-center justify-center rounded-full bg-background/60 px-1.5 text-[9px] sm:text-[10px]"
               >
                 {counts.pos}
               </Badge>
@@ -507,21 +536,21 @@ export const AdminReturnManagement = ({
           </TabsList>
         )}
 
-        <div className="glass border-gold/20 shadow-2xl overflow-hidden rounded-2xl bg-black/40 backdrop-blur-xl">
+        <div className="overflow-hidden rounded-[2rem] border border-black/6 bg-card shadow-[0_28px_90px_-54px_rgba(15,23,42,0.32)] dark:border-white/10">
           {/* Desktop Table View */}
           <div className="hidden lg:block">
             <Table>
               <TableHeader>
-                <TableRow className="border-gold/10 hover:bg-transparent bg-background/20 font-medium">
-                  <TableHead className="w-[120px]">Nguồn</TableHead>
-                  <TableHead className="w-[140px]">Mã Yêu Cầu</TableHead>
-                  <TableHead className="w-[140px]">Mã Đơn</TableHead>
-                  <TableHead className="w-[120px]">Ngày tạo</TableHead>
-                  <TableHead>Lý do</TableHead>
-                  {isAdmin && <TableHead className="w-[180px]">Vận chuyển</TableHead>}
-                  <TableHead className="w-[180px]">Trạng thái</TableHead>
+                <TableRow className="border-black/6 bg-[linear-gradient(135deg,rgba(197,160,89,0.08),rgba(197,160,89,0.02))] hover:bg-transparent dark:border-white/10">
+                  <TableHead className="w-[120px]">{t("table.source")}</TableHead>
+                  <TableHead className="w-[140px]">{t("table.id")}</TableHead>
+                  <TableHead className="w-[140px]">{t("table.order_id")}</TableHead>
+                  <TableHead className="w-[120px]">{t("table.date")}</TableHead>
+                  <TableHead>{t("table.reason")}</TableHead>
+                  {isAdmin && <TableHead className="w-[180px]">{t("table.shipping")}</TableHead>}
+                  <TableHead className="w-[180px]">{t("table.status")}</TableHead>
                   <TableHead className="text-right w-[160px]">
-                    Hành động
+                    {t("table.actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -532,7 +561,7 @@ export const AdminReturnManagement = ({
                       <div className="flex flex-col items-center justify-center space-y-3">
                         <RefreshCcw className="w-8 h-8 animate-spin text-gold/50" />
                         <p className="text-muted-foreground text-sm">
-                          Đang đồng bộ dữ liệu...
+                          Dang dong bo du lieu...
                         </p>
                       </div>
                     </TableCell>
@@ -552,7 +581,7 @@ export const AdminReturnManagement = ({
                   filteredData.map((req) => (
                     <TableRow
                       key={req.id}
-                      className="border-gold/5 hover:bg-gold/5 transition-colors group cursor-pointer"
+                      className="group cursor-pointer border-black/6 transition-colors hover:bg-gold/5 dark:border-white/5"
                       onClick={() => {
                         setSelectedReturn(req);
                         setIsReviewOpen(true);
@@ -575,10 +604,10 @@ export const AdminReturnManagement = ({
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground group-hover:text-gold transition-colors">
+                      <TableCell className="font-mono text-sm text-muted-foreground group-hover:text-gold transition-colors">
                         {req.id.substring(0, 8).toUpperCase()}
                       </TableCell>
-                      <TableCell className="font-mono text-sm font-bold">
+                      <TableCell className="font-mono text-sm font-bold text-foreground">
                         {req.orderId.substring(0, 8).toUpperCase()}
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
@@ -586,10 +615,10 @@ export const AdminReturnManagement = ({
                           "vi-VN",
                         )}
                       </TableCell>
-                      <TableCell className="max-w-[200px] truncate text-sm">
+                      <TableCell className="max-w-[240px] text-sm leading-7">
                         {req.reason || (
                           <span className="text-muted-foreground/50 italic">
-                            Không có lý do
+                            {t("table.no_reason")}
                           </span>
                         )}
                       </TableCell>
@@ -627,7 +656,7 @@ export const AdminReturnManagement = ({
                                     </a>
                                     {s.receivedAt && (
                                       <span className="text-[8px] text-green-500 ml-1 uppercase font-medium">
-                                        • Đã nhận
+                                        • {t("status.RECEIVED")}
                                       </span>
                                     )}
                                   </div>
@@ -635,8 +664,8 @@ export const AdminReturnManagement = ({
                               })}
                             </div>
                           ) : (
-                            <span className="text-[10px] text-muted-foreground/40 italic">
-                              Chưa có vận đơn
+                            <span className="text-[11px] text-muted-foreground/50 italic">
+                              {t("table.no_shipment")}
                             </span>
                           )}
                         </TableCell>
@@ -644,7 +673,7 @@ export const AdminReturnManagement = ({
                       <TableCell>
                         <Badge
                           variant="outline"
-                          className={`${getStatusColor(req.status)} text-[10px] px-2 py-0.5 tracking-wide uppercase font-bold`}
+                          className={`${getStatusColor(req.status)} px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em]`}
                         >
                           {getStatusLabel(req.status)}
                         </Badge>
@@ -661,7 +690,7 @@ export const AdminReturnManagement = ({
                               setIsReviewOpen(true);
                             }}
                           >
-                            <Search className="w-3.5 h-3.5 mr-1" /> Chi tiết
+                            <Search className="w-3.5 h-3.5 mr-1" /> {t("table.actions")}
                           </Button>
                         )}
 
@@ -683,7 +712,7 @@ export const AdminReturnManagement = ({
                                 setIsReviewOpen(true);
                               }}
                             >
-                              <Check className="w-3.5 h-3.5 mr-1" /> Duyệt
+                              <Check className="w-3.5 h-3.5 mr-1" /> {t("dialogs.btn_approve")}
                             </Button>
                           )}
 
@@ -698,14 +727,14 @@ export const AdminReturnManagement = ({
                                 e.stopPropagation();
                                 if (
                                   window.confirm(
-                                    "Bạn có chắc chắn muốn hủy yêu cầu trả hàng này?",
+                                    t("toasts.confirm_cancel"),
                                   )
                                 ) {
                                   handleCancel(req.id);
                                 }
                               }}
                             >
-                              <X className="w-3.5 h-3.5 mr-1" /> Hủy
+                              <X className="w-3.5 h-3.5 mr-1" /> {t("dialogs.btn_cancel")}
                             </Button>
                           )}
 
@@ -723,7 +752,7 @@ export const AdminReturnManagement = ({
                               className="h-8 bg-teal-600/90 hover:bg-teal-500 text-white shadow-md shadow-teal-900/20"
                             >
                               <Box className="w-3.5 h-3.5 mr-1" />{" "}
-                              {req.origin === "POS" ? "Nhận Quầy" : "Nhận Kho"}
+                              {req.origin === "POS" ? "Nhận quầy" : "Nhận kho"}
                             </Button>
                           )}
 
@@ -740,8 +769,8 @@ export const AdminReturnManagement = ({
                               }}
                               className="h-8 bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-md shadow-indigo-900/20"
                             >
-                              <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn
-                              tiền
+                              <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn tiền
+
                             </Button>
                           )}
                       </TableCell>
@@ -813,7 +842,7 @@ export const AdminReturnManagement = ({
                     </div>
                     <div className="space-y-1">
                       <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-tight block">Lý do:</span>
-                      <p className="text-[11px] text-foreground/80 bg-white/5 p-2 rounded-lg italic">
+                      <p className="text-[11px] text-foreground/80 bg-muted/40 p-2 rounded-lg italic">
                         {req.reason || "Không có lý do chi tiết"}
                       </p>
                     </div>
@@ -841,7 +870,7 @@ export const AdminReturnManagement = ({
                           setIsReviewOpen(true);
                         }}
                       >
-                        <Check className="w-3 h-3 mr-1" /> Duyệt
+                        <Check className="w-3 h-3 mr-1" /> {"Duyệt"}
                       </Button>
                     )}
 
@@ -856,7 +885,7 @@ export const AdminReturnManagement = ({
                         }}
                         className="h-8 bg-teal-600 text-white text-[10px] font-bold"
                       >
-                        <Box className="w-3 h-3 mr-1" /> Nhận
+                        <Box className="w-3 h-3 mr-1" /> {"Nhận kho"}
                       </Button>
                     )}
 
@@ -899,782 +928,767 @@ export const AdminReturnManagement = ({
       </Tabs>
 
       {/* Review Dialog */}
-      <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-        <DialogContent className="glass border-gold/30 w-full sm:max-w-3xl h-[100vh] sm:h-auto sm:max-h-[90vh] flex flex-col shadow-2xl sm:rounded-2xl overflow-hidden p-0">
-          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 bg-background/80 backdrop-blur-md shrink-0">
-            <DialogTitle className="text-xl text-gold pb-1 border-b border-gold/10 inline-block font-heading">
-              Xét duyệt Yêu cầu Đổi Trả
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar space-y-6">
-            <div className="bg-background/40 p-4 rounded-xl border border-border/50 flex flex-col sm:flex-row justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                  Mã Yêu Cầu
-                </p>
-                <strong className="font-mono text-foreground text-lg">
-                  {selectedReturn?.id.substring(0, 8)}
-                </strong>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                  Mã Đơn Hàng
-                </p>
-                <strong className="font-mono text-foreground text-lg">
-                  {selectedReturn?.orderId.substring(0, 8)}
-                </strong>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                  Nguồn
-                </p>
-                <Badge
-                  variant="outline"
-                  className={
-                    selectedReturn?.origin === "POS"
-                      ? "border-rose-500/30 text-rose-400 bg-rose-500/10"
-                      : "border-cyan-500/30 text-cyan-400 bg-cyan-500/10"
-                  }
+      <AnimatePresence>
+        {isReviewOpen && (
+          <div
+            className={cn(
+              "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl",
+              "left-0 md:left-20",
+              !isCollapsed && "lg:left-72"
+            )}
+            onClick={() => setIsReviewOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              className="relative w-full max-w-3xl h-full sm:h-auto sm:max-h-[85vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[120px] pointer-events-none" />
+
+              {/* MODAL HEADER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20 shrink-0">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-heading gold-gradient uppercase tracking-tighter italic leading-none mb-1">
+                    Xét duyệt yêu cầu đổi trả
+                  </h2>
+                  <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
+                    Thẩm định tình trạng và quyết định phương án
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsReviewOpen(false)}
+                  className="p-2.5 bg-secondary/10 hover:bg-white/20 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-border"
                 >
-                  {selectedReturn?.origin === "POS" ? "POS" : "Online"}
-                </Badge>
+                  <X size={18} />
+                </button>
               </div>
-            </div>
 
-            {/* Refund Total Info */}
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-gold/5 p-3 rounded-lg border border-gold/10">
-              <span className="text-gold font-medium">Lý do chung:</span>
-              <span>{selectedReturn?.reason || "Không có lý do chung"}</span>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wider border-b border-border/50 pb-2">
-                Chi tiết sản phẩm cần trả
-              </h3>
-              <div className="space-y-4">
-                {selectedReturn?.items.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className="bg-background/30 border border-border/50 rounded-xl p-4 transition-all hover:border-gold/20"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex items-center gap-3">
-                        {item.variant?.product?.images?.[0]?.url && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={item.variant.product.images[0].url}
-                            alt="Product"
-                            className="w-12 h-12 object-cover rounded-md border border-border/50"
-                          />
-                        )}
-                        <div>
-                          <p className="font-medium text-foreground line-clamp-1">
-                            {item.variant?.product?.name ||
-                              "Sản phẩm không xác định"}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Variant:{" "}
-                            <span className="font-mono text-gold/80">
-                              {item.variantId.substring(0, 8).toUpperCase()}
-                            </span>
-                            {item.variant?.volume &&
-                              ` • ${item.variant.volume}`}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge className="bg-foreground text-background font-mono text-sm px-3">
-                        SL: {item.quantity}
-                      </Badge>
-                    </div>
-
-                    {/* Evidence display */}
-                    {item.images && item.images.length > 0 && (
-                      <div className="mt-4">
-                        <p className="text-xs text-muted-foreground mb-2">
-                          Bằng chứng đổi trả ({item.images.length} tệp):
-                        </p>
-                        <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
-                          {item.images.map((url, iIndex) => {
-                            const isVideo =
-                              url.match(/\.(mp4|webm|mov)$/i) ||
-                              url.includes(
-                                "res.cloudinary.com/perfume-gpt/video",
-                              ) ||
-                              url.includes("returns/videos");
-                            return (
-                              <div
-                                key={iIndex}
-                                className="relative flex-none w-32 h-32 rounded-lg border border-border/50 overflow-hidden bg-black/40 group"
-                              >
-                                {isVideo ? (
-                                  <video
-                                    src={url}
-                                    controls
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={url}
-                                    alt={item.variant?.product?.name || "Product image"}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  />
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+              {/* MODAL BODY */}
+              <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar space-y-8">
+                <div className="bg-muted/40 p-4 rounded-xl border border-border/50 flex flex-col sm:flex-row justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                      Mã yêu cầu
+                    </p>
+                    <strong className="font-mono text-foreground text-lg">
+                      {selectedReturn?.id.substring(0, 8)}
+                    </strong>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                      {t("dialogs.order_id")}
+                    </p>
+                    <strong className="font-mono text-foreground text-lg">
+                      {selectedReturn?.orderId.substring(0, 8)}
+                    </strong>
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                      {t("dialogs.source")}
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className={
+                        selectedReturn?.origin === "POS"
+                          ? "border-rose-500/30 text-rose-400 bg-rose-500/10"
+                          : "border-cyan-500/30 text-cyan-400 bg-cyan-500/10"
+                      }
+                    >
+                      {selectedReturn?.origin === "POS" ? "POS" : "Online"}
+                    </Badge>
+                  </div>
+                </div>
 
-            <div className="space-y-3 pt-4 border-t border-border/50">
-              <h3 className="text-xs font-semibold text-foreground flex items-center gap-2 uppercase tracking-wider">
-                <RotateCcw className="w-3 h-3 text-gold" /> Nhật ký xử lý
-              </h3>
-              <div className="bg-black/20 rounded-xl border border-border/50 overflow-hidden">
-                {auditsLoading ? (
-                  <div className="p-4 flex justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-gold/50" />
-                  </div>
-                ) : audits.length === 0 ? (
-                  <div className="p-4 text-center text-[10px] text-muted-foreground italic">
-                    Chưa có nhật ký hoạt động
-                  </div>
-                ) : (
-                  <div className="max-h-40 overflow-y-auto custom-scrollbar">
-                    {audits.map((a, idx) => (
+                {/* Refund Total Info */}
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-gold/5 p-3 rounded-lg border border-gold/10">
+                  <span className="text-gold font-medium">{t("dialogs.reason_general")}</span>
+                  <span>{selectedReturn?.reason || t("dialogs.no_reason_general")}</span>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wider border-b border-border/50 pb-2">
+                    {t("dialogs.product_details")}
+                  </h3>
+                  <div className="space-y-4">
+                    {selectedReturn?.items.map((item, idx) => (
                       <div
-                        key={a.id}
-                        className="p-3 border-b border-border/30 last:border-0 flex justify-between items-start gap-3"
+                        key={item.id}
+                        className="bg-muted/20 border border-border/50 rounded-xl p-4 transition-all hover:border-gold/20"
                       >
-                        <div className="flex-1">
-                          <p
-                            className={cn(
-                              "text-[10px] font-bold uppercase tracking-widest mb-0.5",
-                              a.action.includes("FAILED")
-                                ? "text-red-400"
-                                : "text-gold/80",
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-center gap-3">
+                            {item.variant?.product?.images?.[0]?.url && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={item.variant.product.images[0].url}
+                                alt="Product"
+                                className="w-12 h-12 object-cover rounded-md border border-border/50"
+                              />
                             )}
-                          >
-                            {a.action.replace(/_/g, " ")}
-                          </p>
-                          {a.payload?.message && (
-                            <p className="text-[9px] text-muted-foreground italic">
-                              {a.payload.message}
-                            </p>
-                          )}
-                          {a.payload?.orderCode && (
-                            <p className="text-[9px] text-cyan-400 font-mono mt-0.5">
-                              Vận đơn: {a.payload.orderCode}
-                            </p>
-                          )}
+                            <div>
+                              <p className="font-medium text-foreground line-clamp-1">
+                                {item.variant?.product?.name ||
+                                  "Sản phẩm không xác định"}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Variant:{" "}
+                                <span className="font-mono text-gold/80">
+                                  {item.variantId.substring(0, 8).toUpperCase()}
+                                </span>
+                                {item.variant?.volume &&
+                                  ` • ${item.variant.volume}`}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className="bg-foreground text-background font-mono text-sm px-3">
+                            SL: {item.quantity}
+                          </Badge>
                         </div>
-                        <span className="text-[9px] text-muted-foreground font-mono">
-                          {new Date(a.createdAt).toLocaleString("vi-VN")}
-                        </span>
+
+                        {/* Evidence display */}
+                        {item.images && item.images.length > 0 && (
+                          <div className="mt-4">
+                            <p className="text-xs text-muted-foreground mb-2">
+                              {t("dialogs.evidence", { count: item.images.length })}
+                            </p>
+                            <div className="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
+                              {item.images.map((url, iIndex) => {
+                                const isVideo =
+                                  url.match(/\.(mp4|webm|mov)$/i) ||
+                                  url.includes(
+                                    "res.cloudinary.com/perfume-gpt/video",
+                                  ) ||
+                                  url.includes("returns/videos");
+                                return (
+                                  <div
+                                    key={iIndex}
+                                    className="relative flex-none w-32 h-32 rounded-lg border border-border/50 overflow-hidden bg-secondary/40 group"
+                                  >
+                                    {isVideo ? (
+                                      <video
+                                        src={url}
+                                        controls
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img
+                                        src={url}
+                                        alt={item.variant?.product?.name || "Product image"}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
 
-            {isAdmin && (
-              <div className="space-y-2 pt-4 border-t border-border/50">
-                <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
-                  Ghi chú hoặc Phản hồi cho{" "}
-                  {selectedReturn?.origin === "POS" ? "Staff" : "khách"} (nếu từ
-                  chối)
-                </label>
-                <Input
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder={
-                    selectedReturn?.origin === "POS"
-                      ? "Nhập ghi chú hoặc lý do chi tiết để phản hồi lại cho nhân viên tại quầy..."
-                      : "Nhập ghi chú hoặc lý do chi tiết để thông báo lại khách hàng..."
-                  }
-                  className="bg-background/50 border-gold/20 h-11 focus-visible:ring-gold/30"
-                />
-              </div>
-            )}
-          </div>
-          <DialogFooter className="gap-3 sm:gap-0 px-6 py-4 border-t border-border/50 bg-background/80 backdrop-blur-md">
-            {isAdmin ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => handleReview("reject")}
-                  className="gap-2 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
-                >
-                  <X className="w-4 h-4" /> Bác bỏ Yêu cầu
-                </Button>
-                <Button
-                  onClick={() => handleReview("approve")}
-                  className="gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20"
-                >
-                  <Check className="w-4 h-4" /> Chấp nhận & Cho phép Gửi Hàng
-                </Button>
-              </>
-            ) : (
-              <Button variant="outline" onClick={() => setIsReviewOpen(false)}>Đóng</Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Receive Dialog */}
-      <Dialog open={isReceiveOpen} onOpenChange={setIsReceiveOpen}>
-        <DialogContent className="glass border-gold/30 w-full sm:max-w-md h-[100vh] sm:h-auto shadow-2xl sm:rounded-2xl flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 shrink-0">
-            <DialogTitle className="text-xl text-teal-400 font-semibold font-heading">
-              Xác nhận Nhận Hàng
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
-            <div className="bg-teal-500/10 p-4 rounded-xl border border-teal-500/20">
-              <p className="text-sm text-teal-200/80 leading-relaxed">
-                Hệ thống sẽ cập nhật kho{" "}
-                {selectedReturn?.origin === "POS"
-                  ? "tại quầy (POS)"
-                  : "cho cửa hàng chính"}{" "}
-                và đánh dấu quy trình hoàn trả hàng bước vào giai đoạn hoàn
-                tiền. Nếu hàng bị bóc seal, yêu cầu sẽ tự động bị TỪ CHỐI (Không
-                hoàn tiền).
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
-                Tình trạng Sản phẩm Nhận về
-              </label>
-              {selectedReturn?.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between bg-black/20 p-3 rounded-xl border border-border/50 gap-3"
-                >
-                  <div className="flex items-center gap-3">
-                    {item.variant?.product?.images?.[0]?.url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.variant?.product?.images?.[0]?.url}
-                        alt="Product"
-                        className="w-10 h-10 object-cover rounded-md border border-border/50"
-                      />
+                <div className="space-y-3 pt-4 border-t border-border/50">
+                  <h3 className="text-xs font-semibold text-foreground flex items-center gap-2 uppercase tracking-wider">
+                    <RotateCcw className="w-3 h-3 text-gold" /> {t("dialogs.audit_log")}
+                  </h3>
+                  <div className="bg-muted/30 rounded-xl border border-border/30 overflow-hidden">
+                    {auditsLoading ? (
+                      <div className="p-4 flex justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin text-gold/50" />
+                      </div>
+                    ) : audits.length === 0 ? (
+                      <div className="p-4 text-center text-[10px] text-muted-foreground italic">
+                        {t("dialogs.no_audit")}
+                      </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-md border border-border/50 bg-white/5 flex items-center justify-center">
-                        <Box className="w-5 h-5 text-muted-foreground/30" />
+                      <div className="max-h-40 overflow-y-auto custom-scrollbar">
+                        {audits.map((a, idx) => (
+                          <div
+                            key={a.id}
+                            className="p-3 border-b border-border/20 last:border-0 flex justify-between items-start gap-3"
+                          >
+                            <div className="flex-1">
+                              <p
+                                className={cn(
+                                  "text-[10px] font-bold uppercase tracking-widest mb-0.5",
+                                  a.action.includes("FAILED")
+                                    ? "text-red-500 dark:text-red-400"
+                                    : "text-gold/80 dark:text-gold/90",
+                                )}
+                              >
+                                {a.action.replace(/_/g, " ")}
+                              </p>
+                              {a.payload?.message && (
+                                <p className="text-[9px] text-muted-foreground italic">
+                                  {a.payload.message}
+                                </p>
+                              )}
+                              {a.payload?.orderCode && (
+                                <p className="text-[9px] text-cyan-600 dark:text-cyan-400 font-mono mt-0.5">
+                                  Vận đơn: {a.payload.orderCode}
+                                </p>
+                              )}
+                            </div>
+                            <span className="text-[9px] text-muted-foreground font-mono">
+                              {new Date(a.createdAt).toLocaleString("vi-VN")}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     )}
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-foreground line-clamp-1">
-                        {item.variant?.product?.name ||
-                          `Mẫu #${item.variantId.slice(-6).toUpperCase()}`}
-                      </span>
-                      <span className="text-xs text-muted-foreground mt-0.5">
-                        {item.variant?.volume && `${item.variant.volume} • `}SL
-                        Yêu cầu: {item.quantity}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center gap-2 bg-background/50 px-2 py-1.5 rounded-lg border border-border">
-                      <label className="text-[10px] text-muted-foreground uppercase font-bold">
-                        Thực nhận:
-                      </label>
-                      <input
-                        type="number"
-                        min="0"
-                        max={item.quantity}
-                        value={
-                          receiveItemsState[item.variantId]?.qtyReceived ??
-                          item.quantity
-                        }
-                        onChange={(e) => {
-                          const v = parseInt(e.target.value) || 0;
-                          setReceiveItemsState((prev) => ({
-                            ...prev,
-                            [item.variantId]: {
-                              ...prev[item.variantId],
-                              qtyReceived: Math.min(
-                                item.quantity,
-                                Math.max(0, v),
-                              ),
-                            },
-                          }));
-                        }}
-                        className="bg-transparent border-none text-sm w-10 text-center text-gold font-bold focus:ring-0 p-0"
-                      />
-                    </div>
-
-                    <div
-                      className="flex items-center space-x-2 bg-background/50 px-3 py-2 rounded-lg border border-border cursor-pointer hover:bg-white/5 transition-colors"
-                      onClick={() => {
-                        setReceiveItemsState((prev) => ({
-                          ...prev,
-                          [item.variantId]: {
-                            ...prev[item.variantId],
-                            sealIntact: !(
-                              prev[item.variantId]?.sealIntact ?? true
-                            ),
-                          },
-                        }));
-                      }}
-                    >
-                      <Checkbox
-                        checked={
-                          receiveItemsState[item.variantId]?.sealIntact ?? true
-                        }
-                        onCheckedChange={(checked) => {
-                          setReceiveItemsState((prev) => ({
-                            ...prev,
-                            [item.variantId]: {
-                              ...prev[item.variantId],
-                              sealIntact: checked === true,
-                            },
-                          }));
-                        }}
-                      />
-                      <span
-                        className={`text-sm font-semibold ${receiveItemsState[item.variantId]?.sealIntact !== false ? "text-teal-400" : "text-red-400"}`}
-                      >
-                        {receiveItemsState[item.variantId]?.sealIntact !== false
-                          ? "Nguyên seal"
-                          : "Lỗi/Hư"}
-                      </span>
-                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
-                Ghi chú tình trạng hàng nhập kho
-              </label>
-              <Input
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Ví dụ: Đã kiểm tra nguyên seal..."
-                className="bg-background/50 border-gold/20 h-11"
-              />
-            </div>
+                {isAdmin && (
+                  <div className="space-y-2 pt-4 border-t border-border/50">
+                    <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                      {t("dialogs.note_label", {
+                        target: selectedReturn?.origin === "POS" ? "nhân viên" : "khách"
+                      })}
+                    </label>
+                    <Input
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      placeholder={
+                        selectedReturn?.origin === "POS"
+                          ? t("dialogs.note_placeholder_staff")
+                          : t("dialogs.note_placeholder_customer")
+                      }
+                      className="bg-muted/30 border-gold/20 h-11 focus-visible:ring-gold/30"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* MODAL FOOTER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 border-t border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 flex flex-col sm:flex-row justify-end gap-3">
+                {isAdmin ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleReview("reject")}
+                      className="gap-2 border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                    >
+                      <X className="w-4 h-4" /> {t("dialogs.btn_reject")}
+                    </Button>
+                    <Button
+                      onClick={() => handleReview("approve")}
+                      className="gap-2 bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20"
+                    >
+                      <Check className="w-4 h-4" /> {t("dialogs.btn_approve")}
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="outline" onClick={() => setIsReviewOpen(false)}>Đóng</Button>
+                )}
+              </div>
+            </motion.div>
           </div>
-          <DialogFooter className="px-6 py-4 border-t border-border/50 bg-background/80 flex flex-row justify-end gap-3 shrink-0">
-            <Button variant="ghost" onClick={() => setIsReceiveOpen(false)}>
-              Hủy
-            </Button>
-            <Button
-              onClick={handleReceive}
-              className="bg-teal-600 hover:bg-teal-500 shadow-lg shadow-teal-900/30 font-bold uppercase tracking-widest text-[10px]"
+        )}
+      </AnimatePresence>
+
+      {/* Receive Dialog */}
+      <AnimatePresence>
+        {isReceiveOpen && (
+          <div
+            className={cn(
+              "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl",
+              "left-0 md:left-20",
+              !isCollapsed && "lg:left-72"
+            )}
+            onClick={() => setIsReceiveOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              className="relative w-full max-w-xl h-full sm:h-auto sm:max-h-[85vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+              onClick={(e) => e.stopPropagation()}
             >
-              <Box className="w-4 h-4 mr-2" /> Nhập Kho
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 blur-[120px] pointer-events-none" />
 
-      {/* Refund Dialog */}
-      <Dialog open={isRefundOpen} onOpenChange={setIsRefundOpen}>
-        <DialogContent className="glass border-indigo-500/30 w-full sm:max-w-md h-[100vh] sm:h-auto shadow-2xl sm:rounded-2xl flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 shrink-0">
-            <DialogTitle className="text-xl text-indigo-400 font-heading">
-              Xác Nhận Hoàn Đơn Hàng
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
-            <div className="space-y-4">
-            <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl flex items-baseline justify-between">
-              <p className="text-xs text-indigo-300">
-                Đơn hàng:{" "}
-                <strong className="font-mono text-white">
-                  {selectedReturn?.orderId.substring(0, 8)}
-                </strong>
-              </p>
-              {selectedReturn?.origin === "ONLINE" && (
-                <Badge className="bg-cyan-500/20 text-cyan-400 border-none text-[8px] h-4">
-                  Trực Tuyến
-                </Badge>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground block">
-                Phương thức hoàn tiền thực tế
-              </label>
-              <div
-                className={cn(
-                  "grid gap-3",
-                  selectedReturn?.origin === "ONLINE"
-                    ? "grid-cols-1"
-                    : "grid-cols-2",
-                )}
-              >
-                {selectedReturn?.origin !== "ONLINE" && (
-                  <button
-                    onClick={() => setRefundMethod("cash")}
-                    className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${refundMethod === "cash"
-                      ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-900/20"
-                      : "bg-black/20 border-border/50 text-muted-foreground hover:border-indigo-500/30"
-                      }`}
-                  >
-                    <Banknote className="w-4 h-4" />
-                    <span className="text-sm font-medium">Tiền mặt</span>
-                  </button>
-                )}
+              {/* MODAL HEADER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20 shrink-0">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-heading text-teal-600 dark:text-teal-400 uppercase tracking-tighter italic leading-none mb-1">
+                    {t("dialogs.receive_title")}
+                  </h2>
+                  <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
+                    Nhập kho và kiểm tra tình trạng niêm phong
+                  </p>
+                </div>
                 <button
-                  onClick={() => setRefundMethod("bank_transfer")}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${refundMethod === "bank_transfer"
-                    ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 shadow-lg shadow-indigo-900/20"
-                    : "bg-black/20 border-border/50 text-muted-foreground hover:border-indigo-500/30"
-                    }`}
+                  onClick={() => setIsReceiveOpen(false)}
+                  className="p-2.5 bg-secondary/10 hover:bg-white/20 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-border"
                 >
-                  <CreditCard className="w-4 h-4" />
-                  <span className="text-sm font-medium">Chuyển khoản</span>
+                  <X size={18} />
                 </button>
               </div>
-            </div>
 
-            {/* Refund Amount Info */}
-            <div className="bg-indigo-500/10 border border-indigo-500/30 p-3 rounded-xl flex justify-between items-center group">
-              <div>
-                <p className="text-[9px] uppercase tracking-widest text-indigo-300/70 font-bold mb-0.5">
-                  Tiền hoàn trả
-                </p>
-                <p className="text-xl font-heading font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors leading-none">
-                  {formatVND(selectedReturn?.refundAmount || 0)}
-                </p>
+              {/* MODAL BODY */}
+              <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar space-y-8">
+                <div className="bg-teal-500/10 dark:bg-teal-500/5 p-4 rounded-xl border border-teal-500/20">
+                  <p className="text-sm text-teal-700 dark:text-teal-200/80 leading-relaxed">
+                    {t("dialogs.receive_desc", {
+                      target: selectedReturn?.origin === "POS"
+                        ? "tại quầy (POS)"
+                        : "cho cửa hàng chính"
+                    })}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                    {t("dialogs.receive_condition")}
+                  </label>
+                  {selectedReturn?.items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex flex-col sm:flex-row items-center justify-between p-4 bg-muted/20 border border-border/50 rounded-xl gap-4"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">
+                          {item.variant?.product?.name || "Sản phẩm"}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {item.variant?.name} • Đã mua: {item.quantity}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-6">
+                        <div className="flex flex-col items-center">
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground mb-2">{t("dialogs.actual_receive")}</span>
+                          <div className="flex items-center gap-2 bg-background border border-border rounded-lg p-1">
+                            <button
+                              onClick={() => {
+                                const current = receiveItemsState[item.variantId]?.qtyReceived ?? item.quantity;
+                                setReceiveItemsState(prev => ({
+                                  ...prev,
+                                  [item.variantId]: { ...prev[item.variantId], qtyReceived: Math.max(0, current - 1) }
+                                }));
+                              }}
+                              className="w-6 h-6 flex items-center justify-center hover:bg-muted rounded"
+                            >
+                              -
+                            </button>
+                            <span className="w-4 text-center text-xs font-bold">
+                              {receiveItemsState[item.variantId]?.qtyReceived ?? item.quantity}
+                            </span>
+                            <button
+                              onClick={() => {
+                                const current = receiveItemsState[item.variantId]?.qtyReceived ?? item.quantity;
+                                setReceiveItemsState(prev => ({
+                                  ...prev,
+                                  [item.variantId]: { ...prev[item.variantId], qtyReceived: Math.min(item.quantity, current + 1) }
+                                }));
+                              }}
+                              className="w-6 h-6 flex items-center justify-center hover:bg-muted rounded"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-center">
+                          <span className="text-[9px] uppercase font-bold text-muted-foreground mb-2">{t("dialogs.seal_intact")}</span>
+                          <Switch
+                            checked={receiveItemsState[item.variantId]?.sealIntact ?? true}
+                            onCheckedChange={(checked: boolean) => {
+                              setReceiveItemsState(prev => ({
+                                ...prev,
+                                [item.variantId]: { ...prev[item.variantId], sealIntact: checked }
+                              }));
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                    {t("dialogs.note_label_receive")}
+                  </label>
+                  <Input
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder={t("dialogs.note_placeholder_receive")}
+                    className="bg-muted/30 border-teal-500/20 h-11 focus-visible:ring-teal-500/30"
+                  />
+                </div>
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={handleAutoCalc}
-                disabled={calculatingRefund}
-                className="h-7 text-[9px] font-bold text-indigo-400 hover:text-white hover:bg-indigo-500/30 border border-indigo-500/20"
-              >
-                {calculatingRefund ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  "Auto Calc"
-                )}
-              </Button>
-            </div>
 
-            {/* Bank Info for Chuyển khoản */}
-            {refundMethod === "bank_transfer" &&
-              selectedReturn?.paymentInfo && (
-                <div className="bg-black/20 border border-white/5 rounded-xl p-3 space-y-2 animate-in fade-in slide-in-from-top-2">
-                  <div className="flex justify-between items-center border-b border-white/5 pb-1.5">
-                    <h4 className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">
-                      Thông tin thụ hưởng
-                    </h4>
+              {/* MODAL FOOTER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 border-t border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 flex flex-col sm:flex-row justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsReceiveOpen(false)}>{t("dialogs.btn_cancel")}</Button>
+                <Button
+                  onClick={handleReceive}
+                  className="bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-900/20 px-8"
+                >
+                  {t("dialogs.btn_receive")}
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Refund Dialog */}
+      <AnimatePresence>
+        {isRefundOpen && (
+          <div
+            className={cn(
+              "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl",
+              "left-0 md:left-20",
+              !isCollapsed && "lg:left-72"
+            )}
+            onClick={() => setIsRefundOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              className="relative w-full max-w-xl h-full sm:h-auto sm:max-h-[85vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-[120px] pointer-events-none" />
+
+              {/* MODAL HEADER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20 shrink-0">
+                <div>
+                  <h2 className="text-xl md:text-2xl font-heading text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter italic leading-none mb-1">
+                    {t("dialogs.refund_title")}
+                  </h2>
+                  <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
+                    Thanh toán và kết thúc quy trình trả hàng
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsRefundOpen(false)}
+                  className="p-2.5 bg-secondary/10 hover:bg-white/20 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-border"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* MODAL BODY */}
+              <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar space-y-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-indigo-500/10 dark:bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/20">
+                    <p className="text-[10px] uppercase font-bold text-indigo-400 mb-1">{t("dialogs.refund_suggest")}</p>
+                    <p className="text-xl font-mono font-bold text-foreground">
+                      {formatVND(selectedReturn?.refundAmount || 0)}
+                    </p>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-2 text-[9px] text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10"
-                      onClick={() => {
-                        const info = selectedReturn.paymentInfo as any;
-                        const text = `STK: ${info.accountNumber}\nNH: ${info.bankName}\nTen: ${info.accountName}`;
-                        navigator.clipboard.writeText(text);
-                        toast.success("Đã sao chép thông tin tài khoản");
-                      }}
+                      className="mt-2 h-7 text-[9px] text-indigo-400 hover:text-indigo-300 p-0"
+                      onClick={handleAutoCalc}
+                      disabled={calculatingRefund}
                     >
-                      <RefreshCcw className="w-3 h-3 mr-1" /> Sao chép
+                      <RefreshCcw className={cn("w-3 h-3 mr-1", calculatingRefund && "animate-spin")} /> {t("dialogs.refund_calc_btn")}
                     </Button>
                   </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-[11px]">
-                    <div>
-                      <p className="text-[8px] text-muted-foreground uppercase font-semibold">
-                        Ngân hàng
-                      </p>
-                      <p className="font-semibold text-foreground italic">
-                        {(selectedReturn.paymentInfo as any).bankName}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[8px] text-muted-foreground uppercase font-semibold">
-                        Số tài khoản
-                      </p>
-                      <p className="font-mono font-bold text-indigo-400">
-                        {(selectedReturn.paymentInfo as any).accountNumber}
-                      </p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-[8px] text-muted-foreground uppercase font-semibold">
-                        Chủ tài khoản
-                      </p>
-                      <p className="font-semibold text-foreground uppercase">
-                        {(selectedReturn.paymentInfo as any).accountName}
-                      </p>
-                    </div>
+                  <div className="bg-muted/40 p-4 rounded-xl border border-border/50">
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">{t("dialogs.refund_method")}</p>
+                    <select
+                      value={refundMethod}
+                      onChange={(e) => setRefundMethod(e.target.value as any)}
+                      className="bg-transparent border-none text-sm font-semibold outline-none w-full"
+                    >
+                      <option value="cash">{t("dialogs.cash")}</option>
+                      <option value="bank_transfer">{t("dialogs.bank_transfer")}</option>
+                      <option value="gateway">Cổng thanh toán</option>
+                    </select>
                   </div>
                 </div>
-              )}
-            </div>
 
-            <div className="space-y-4">
-              {refundMethod === "bank_transfer" && (
-                <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                  <label className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground block mb-1">
-                    Ảnh Hóa Đơn (Nếu có)
+                <div className="space-y-4">
+                  <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                    {t("dialogs.refund_receipt")}
+                  </label>
+                  <div className="relative group min-h-[160px] rounded-2xl border-2 border-dashed border-indigo-500/20 bg-indigo-500/5 flex flex-col items-center justify-center p-6 transition-all hover:border-indigo-500/40">
+                    {receiptImageUrl ? (
+                      <div className="relative w-full h-full">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={receiptImageUrl} alt="Receipt" className="w-full h-40 object-contain rounded-lg" />
+                        <button
+                          onClick={() => setReceiptImageUrl("")}
+                          className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full shadow-lg"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-indigo-400/50 mb-2 group-hover:scale-110 transition-transform" />
+                        <p className="text-xs font-medium text-muted-foreground text-center">
+                          {isUploadingReceipt ? t("pos.loading") : t("dialogs.refund_receipt")}
+                        </p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleReceiptUpload}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                    {t("dialogs.refund_note")}
                   </label>
                   <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleReceiptUpload}
-                    disabled={isUploadingReceipt}
-                    className="bg-black/20 border-indigo-500/10 focus-visible:ring-indigo-500 file:bg-indigo-600 file:text-white file:border-0 file:py-1 file:px-2 file:mr-3 file:rounded file:text-[10px] cursor-pointer text-[10px] h-8 p-1 px-2"
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder={t("dialogs.refund_note")}
+                    className="bg-muted/30 border-indigo-500/20 h-11 focus-visible:ring-indigo-500/30"
                   />
-                  {isUploadingReceipt && (
-                    <div className="flex items-center text-xs text-indigo-400 mt-2 font-medium">
-                      <Loader2 className="w-3 h-3 mr-2 animate-spin" /> Đang tải
-                      ảnh lên...
-                    </div>
-                  )}
-                  {receiptImageUrl && !isUploadingReceipt && (
-                    <div className="mt-2 w-full max-h-40 overflow-hidden rounded-lg border border-indigo-500/30 relative group bg-black/40 flex justify-center">
-                      <img
-                        src={receiptImageUrl}
-                        alt="Receipt Preview"
-                        className="w-full max-h-40 object-contain"
-                      />
-                      <button
-                        onClick={() => setReceiptImageUrl("")}
-                        className="absolute top-2 right-2 bg-black/60 hover:bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
                 </div>
-              )}
-
-              {refundMethod === "cash" && (
-                <div className="bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20 flex gap-3">
-                  <div className="bg-emerald-500/20 p-2 rounded-lg self-start">
-                    <Banknote className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <p className="text-xs text-emerald-200/80 leading-relaxed">
-                    Xác nhận hoàn tiền bằng <strong>tiền mặt</strong> trực tiếp
-                    tại quầy. Nhân viên vui lòng kiểm tra kỹ số tiền trả cho
-                    khách hàng.
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-2 pt-2">
-                <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
-                  Ghi chú (Tùy chọn)
-                </label>
-                <Input
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder={
-                    refundMethod === "cash"
-                      ? "Ví dụ: Đã trả tiền mặt cho khách..."
-                      : "Ví dụ: Mã giao dịch hoặc ghi chú hoàn tiền..."
-                  }
-                  className="bg-background/50 border-indigo-500/20 h-11 focus-visible:ring-indigo-500"
-                />
               </div>
-            </div>
+
+              {/* MODAL FOOTER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 border-t border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 flex flex-col sm:flex-row justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsRefundOpen(false)}>{t("dialogs.btn_cancel")}</Button>
+                <Button
+                  onClick={handleRefund}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20 px-8"
+                >
+                  {t("dialogs.btn_refund")}
+                </Button>
+              </div>
+            </motion.div>
           </div>
-          <DialogFooter className="pt-2">
-            <Button variant="ghost" onClick={() => setIsRefundOpen(false)}>
-              Hủy
-            </Button>
-            <Button
-              onClick={handleRefund}
-              className="bg-indigo-600 hover:bg-indigo-500 shadow-lg shadow-indigo-900/30"
-            >
-              <CreditCard className="w-4 h-4 mr-2" /> Xác Nhận Hoàn Tiền
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        )}
+      </AnimatePresence>
 
       {/* POS Create Dialog */}
-      <Dialog open={isPosCreateOpen} onOpenChange={setIsPosCreateOpen}>
-        <DialogContent className="glass border-gold/30 max-w-3xl max-h-[90vh] flex flex-col overflow-hidden rounded-[24px] p-0 shadow-2xl">
-          <DialogHeader className="px-6 pt-6 pb-2 border-b border-border/50">
-            <DialogTitle className="text-2xl text-gold pb-2 flex items-center">
-              <Store className="w-6 h-6 mr-3 text-gold/70" />
-              Khởi tạo Yêu cầu Đổi Trả Quầy (POS)
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="p-6 pb-2">
-            <div className="relative group">
-              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" />
-              <Input
-                placeholder="Nhập mã đơn khách mua (VD: ORD-...) hoặc Quét Barcode..."
-                value={posSearchKey}
-                onChange={(e) => setPosSearchKey(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handlePosOrderSearch()}
-                className="w-full bg-black/40 border-gold/20 h-14 pl-12 pr-28 text-lg rounded-xl focus-visible:ring-gold/30"
-                autoFocus
-              />
-              <Button
-                onClick={handlePosOrderSearch}
-                disabled={posLoading}
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-24 bg-gold/10 text-gold hover:bg-gold hover:text-black border border-gold/20"
-              >
-                {posLoading ? "Đang tìm..." : "Kiểm tra"}
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-6 custom-scrollbar">
-            {posLoading && (
-              <div className="flex flex-col justify-center items-center h-40 space-y-4">
-                <div className="w-8 h-8 rounded-full border-2 border-gold/30 border-t-gold animate-spin" />
-                <p className="text-muted-foreground animate-pulse">
-                  Đang truy xuất hệ thống...
-                </p>
-              </div>
+      <AnimatePresence>
+        {isPosCreateOpen && (
+          <div
+            className={cn(
+              "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl",
+              "left-0 md:left-20",
+              !isCollapsed && "lg:left-72"
             )}
+            onClick={() => setIsPosCreateOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[85vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[120px] pointer-events-none" />
 
-            {posOrder && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 mb-6">
-                <div className="bg-gradient-to-br from-gold/10 to-transparent p-5 rounded-2xl border border-gold/20 shadow-inner">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.2em] text-gold font-semibold mb-1">
-                        Thông tin giao dịch
-                      </p>
-                      <p className="font-mono text-xl text-foreground">
-                        {posOrder.code || posOrder.id.substring(0, 8)}
-                      </p>
-                    </div>
-                    <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 px-3 py-1">
-                      {posOrder.status}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center text-sm mt-3 text-muted-foreground bg-background/40 inline-flex px-3 py-1.5 rounded-lg border border-border/50">
-                    <span className="w-2 h-2 rounded-full bg-gold mr-2" />
-                    Khách:{" "}
-                    <strong className="text-foreground ml-1">
-                      {posOrder.user?.fullName ||
-                        posOrder.user?.email ||
-                        "Khách mua lẻ"}
-                    </strong>
-                  </div>
-                </div>
-
+              {/* MODAL HEADER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20 shrink-0">
                 <div>
-                  <label className="text-sm font-semibold mb-3 block text-foreground flex items-center">
-                    <Box className="w-4 h-4 mr-2 text-gold" /> Chọn sản phẩm đổi
-                    trả
-                  </label>
-                  <div className="space-y-3">
-                    {posOrder.items.map((item) => {
-                      const qty = posSelectedItems[item.variantId] || 0;
-                      return (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-4 border border-border bg-background/30 rounded-xl transition-all hover:border-gold/30 group"
-                        >
-                          <div className="flex-1 mr-4">
-                            <p className="font-medium text-foreground text-sm line-clamp-1">
-                              {item.product?.name ||
-                                item.variant?.product?.name ||
-                                item.variant?.name ||
-                                "Sản phẩm không xác định"}
-                            </p>
-                            {item.variant && (
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                Loại:{" "}
-                                <span className="text-foreground/80">
-                                  {item.variant.name}
-                                </span>
-                              </p>
-                            )}
-                            <Badge
-                              variant="outline"
-                              className="mt-2 text-[10px] bg-background"
-                            >
-                              SL Đã mua: {item.quantity}
-                            </Badge>
-                          </div>
-
-                          <div className="flex items-center space-x-1 bg-black/40 rounded-lg p-1 border border-border/50">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="w-8 h-8 rounded-md hover:bg-gold/20 hover:text-gold"
-                              onClick={() => {
-                                setPosSelectedItems((prev) => ({
-                                  ...prev,
-                                  [item.variantId]: Math.max(0, qty - 1),
-                                }));
-                              }}
-                            >
-                              -
-                            </Button>
-                            <span className="w-8 text-center text-sm font-medium font-mono text-gold">
-                              {qty}
-                            </span>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="w-8 h-8 rounded-md hover:bg-gold/20 hover:text-gold"
-                              onClick={() => {
-                                setPosSelectedItems((prev) => ({
-                                  ...prev,
-                                  [item.variantId]: Math.min(
-                                    item.quantity,
-                                    qty + 1,
-                                  ),
-                                }));
-                              }}
-                            >
-                              +
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <h2 className="text-xl md:text-2xl font-heading gold-gradient uppercase tracking-tighter italic leading-none mb-1">
+                    {t("pos.title")}
+                  </h2>
+                  <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
+                    {t("toasts.pos_search_error_today")}
+                  </p>
                 </div>
+                <button
+                  onClick={() => setIsPosCreateOpen(false)}
+                  className="p-2.5 bg-secondary/10 hover:bg-white/20 rounded-full text-muted-foreground transition-all flex items-center justify-center border border-border"
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-                <div>
-                  <label className="text-sm font-semibold mb-3 block text-foreground">
-                    Lý do nhận lại (Bắt buộc)
-                  </label>
+              {/* MODAL BODY */}
+              <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar space-y-8">
+                {/* Search Box */}
+                <div className="relative group">
+                  <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" />
                   <Input
-                    value={posReason}
-                    onChange={(e) => setPosReason(e.target.value)}
-                    placeholder="Ghi nhận tình trạng: Hàng bể vỡ, Bao bì móp, Khách đổi ý..."
-                    className="bg-black/40 border-gold/20 h-12 rounded-xl focus-visible:ring-gold/30"
+                    placeholder={t("pos.search_placeholder")}
+                    value={posSearchKey}
+                    onChange={(e) => setPosSearchKey(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handlePosOrderSearch()}
+                    className="w-full bg-black/40 border-gold/20 h-14 pl-12 pr-28 text-lg rounded-xl focus-visible:ring-gold/30"
+                    autoFocus
                   />
+                  <Button
+                    onClick={handlePosOrderSearch}
+                    disabled={posLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-24 bg-gold/10 text-gold hover:bg-gold hover:text-black border border-gold/20 rounded-lg"
+                  >
+                    {posLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      t("pos.verify_btn")
+                    )}
+                  </Button>
                 </div>
-              </div>
-            )}
-          </div>
 
-          <DialogFooter className="p-6 bg-background/80 border-t border-border/50 backdrop-blur-md">
-            <Button
-              variant="ghost"
-              onClick={() => setIsPosCreateOpen(false)}
-              className="rounded-xl h-11"
-            >
-              Hủy
-            </Button>
-            <Button
-              onClick={handlePosSubmit}
-              disabled={!posOrder || posSubmitting}
-              className="bg-gold hover:bg-gold/90 text-primary-foreground shadow-lg shadow-gold/20 rounded-xl px-8 h-11 text-base font-medium"
-            >
-              {posSubmitting ? "Đang đẩy yêu cầu..." : "Khởi tạo Yêu cầu"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                {posOrder ? (
+                  <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="bg-gold/5 p-5 rounded-2xl border border-gold/20">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.2em] text-gold font-bold mb-1">
+                            {t("pos.order_info")}
+                          </p>
+                          <p className="font-mono text-xl text-foreground font-bold">
+                            {posOrder.code || posOrder.id.substring(0, 8)}
+                          </p>
+                        </div>
+                        <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 px-3 py-1">
+                          {posOrder.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center text-sm mt-3 text-muted-foreground">
+                        <User className="w-4 h-4 mr-2" />
+                        {t("pos.customer_label")}{" "}
+                        <strong className="text-foreground ml-1">
+                          {posOrder.user?.fullName ||
+                            posOrder.user?.email ||
+                            t("pos.guest")}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                        <Box className="w-3 h-3" /> {t("pos.select_items")}
+                      </h3>
+                      <div className="grid gap-3">
+                        {posOrder.items.map((item) => {
+                          const quantity = posSelectedItems[item.variantId] || 0;
+                          const isSelected = quantity > 0;
+
+                          return (
+                            <div
+                              key={item.id}
+                              className={cn(
+                                "flex items-center justify-between p-4 rounded-xl border transition-all",
+                                isSelected
+                                  ? "bg-gold/10 border-gold/50 shadow-inner"
+                                  : "bg-muted/10 border-border/50 hover:bg-muted/20"
+                              )}
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-lg border border-border overflow-hidden bg-white">
+                                  {item.product?.images?.[0]?.url ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                      src={item.product.images[0].url}
+                                      alt=""
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
+                                      <Box size={20} />
+                                    </div>
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-sm line-clamp-1">
+                                    {item.product?.name ?? "..."}
+                                  </p>
+                                  <p className="text-[10px] text-muted-foreground font-mono">
+                                    {item.variant?.name} • {formatVND(item.unitPrice)}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2 bg-background border border-gold/20 rounded-lg p-1">
+                                  <button
+                                    className="w-6 h-6 flex items-center justify-center hover:bg-gold/10 rounded"
+                                    onClick={() => {
+                                      setPosSelectedItems((prev) => ({
+                                        ...prev,
+                                        [item.variantId]: Math.max(0, quantity - 1),
+                                      }));
+                                    }}
+                                  >
+                                    -
+                                  </button>
+                                  <span className="text-xs font-bold w-4 text-center">
+                                    {quantity}
+                                  </span>
+                                  <button
+                                    className="w-6 h-6 flex items-center justify-center hover:bg-gold/10 rounded"
+                                    onClick={() => {
+                                      setPosSelectedItems((prev) => ({
+                                        ...prev,
+                                        [item.variantId]: Math.min(
+                                          item.quantity,
+                                          quantity + 1,
+                                        ),
+                                      }));
+                                    }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
+                        {t("pos.reason_label")}
+                      </label>
+                      <Input
+                        placeholder={t("pos.reason_placeholder")}
+                        value={posReason}
+                        onChange={(e) => setPosReason(e.target.value)}
+                        className="bg-muted/30 border-gold/20 h-11 focus-visible:ring-gold/30"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                    <div className="w-16 h-16 rounded-3xl bg-gold/5 flex items-center justify-center border border-gold/10">
+                      <Barcode className="w-8 h-8 text-gold/40" />
+                    </div>
+                    <p className="text-sm text-muted-foreground max-w-[240px]">
+                      {t("pos.search_placeholder")}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* MODAL FOOTER */}
+              <div className="px-8 py-6 md:px-12 md:py-8 border-t border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 flex flex-col sm:flex-row justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsPosCreateOpen(false)}>{t("pos.btn_cancel")}</Button>
+                <Button
+                  onClick={handlePosSubmit}
+                  disabled={!posOrder || posSubmitting}
+                  className="bg-gold hover:bg-gold/90 text-primary-foreground shadow-lg shadow-gold/20 px-8"
+                >
+                  {posSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {t("pos.submitting")}
+                    </>
+                  ) : (
+                    t("pos.btn_submit")
+                  )}
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
+

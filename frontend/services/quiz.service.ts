@@ -22,6 +22,7 @@ export interface QuizRecommendation {
 
 export interface QuizResult {
     quizId: string;
+    analysis: string;
     recommendations: QuizRecommendation[];
 }
 
@@ -33,6 +34,11 @@ export const quizService = {
 
     async getQuizResult(quizId: string) {
         const response = await api.get(`/quiz/${quizId}`);
+        return response.data;
+    },
+
+    async getHistory() {
+        const response = await api.get('/quiz/history');
         return response.data;
     },
 };

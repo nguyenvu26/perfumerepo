@@ -23,6 +23,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { cartService } from '@/services/cart.service';
 import { notificationService } from '@/services/notification.service';
 import { getNotificationSocket } from '@/lib/socket';
+import { BrandMegaMenu } from './brand-mega-menu';
 
 export const Header = () => {
     const t = useTranslations('common');
@@ -104,7 +105,6 @@ export const Header = () => {
     ];
 
     const menuRight = [
-        {},
         { name: t('about'), href: '/story' },
         { name: t('journal'), href: '/journal' },
     ];
@@ -112,6 +112,47 @@ export const Header = () => {
     const role = user?.role || 'CUSTOMER';
     const isAdmin = role === 'ADMIN';
     const isStaff = role === 'STAFF';
+    const navItemClass = (isActive: boolean) =>
+        cn(
+            "rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-300 cursor-pointer relative group",
+            isActive
+                ? "bg-[linear-gradient(135deg,rgba(197,160,89,0.18),rgba(197,160,89,0.08))] text-gold shadow-[0_14px_30px_-24px_rgba(197,160,89,0.95)] ring-1 ring-gold/20"
+                : isScrolled
+                    ? "text-foreground/88 hover:-translate-y-[1px] hover:bg-black/4 hover:text-gold dark:text-white/88 dark:hover:bg-white/6"
+                    : "text-white/92 hover:-translate-y-[1px] hover:bg-white/10 hover:text-gold"
+        );
+    const iconButtonClass = cn(
+        "relative flex h-11 w-11 items-center justify-center rounded-full border transition-all hover:border-gold hover:text-gold",
+        isScrolled
+            ? "border-black/6 bg-white/70 text-foreground dark:border-white/10 dark:bg-white/5"
+            : "border-white/14 bg-white/10 text-white"
+    );
+    const profilePanelClass = cn(
+        "hidden md:flex flex-col items-end rounded-[1.2rem] px-3 py-2 transition-colors",
+        isScrolled
+            ? "hover:bg-black/4 dark:hover:bg-white/6"
+            : "hover:bg-white/10"
+    );
+    const profileNameClass = isScrolled ? "text-xs font-semibold text-foreground dark:text-white" : "text-xs font-semibold text-white";
+    const authDividerClass = isScrolled ? "border-l border-border/70" : "border-l border-white/12";
+    const loginButtonClass = cn(
+        "ml-1 flex min-w-[44px] items-center justify-center rounded-full border px-4 py-2.5 text-xs font-semibold shadow-sm transition-all hover:border-gold hover:bg-gold hover:text-luxury-black md:ml-4 md:px-5",
+        isScrolled
+            ? "border-black/8 bg-white/78 text-foreground dark:border-white/10 dark:bg-white/6 dark:text-white"
+            : "border-white/14 bg-white/10 text-white"
+    );
+    const mobileMenuButtonClass = cn(
+        "ml-1 -mr-1 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border cursor-pointer transition-all lg:hidden",
+        isScrolled
+            ? "border-black/8 bg-white/70 text-foreground dark:border-white/10 dark:bg-white/5 dark:text-white"
+            : "border-white/14 bg-white/10 text-white"
+    );
+    const logoutButtonClass = cn(
+        "flex h-11 w-11 items-center justify-center rounded-full border transition-all hover:border-red-200 hover:text-red-500",
+        isScrolled
+            ? "border-black/6 bg-white/70 text-stone-500 dark:border-white/10 dark:bg-white/5 dark:text-stone-300"
+            : "border-white/14 bg-white/10 text-white/78"
+    );
 
     return (
         <>
@@ -119,72 +160,75 @@ export const Header = () => {
                 className={cn(
                     "fixed top-0 left-0 right-0 z-50 transition-all duration-500 no-print",
                     isScrolled 
-                        ? "py-3 bg-background/90 backdrop-blur-2xl border-b border-border shadow-lg" 
-                        : "py-6 bg-transparent border-b border-white/5"
+                        ? "py-3 bg-transparent" 
+                        : "py-5 bg-transparent"
                 )}
             >
-                <div className="container-responsive">
-                    <div className="grid grid-cols-[1fr_auto_1fr] items-center">
-                        {/* Left */}
-                        <div className="hidden lg:flex items-center gap-10 justify-start">
-                            {menuLeft.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "text-[10px] font-bold tracking-[.3em] uppercase transition-all cursor-pointer relative group",
-                                        pathname === item.href
-                                            ? "text-gold"
-                                            : "text-foreground hover:text-gold"
-                                    )}
-                                >
-                                    {item.name}
-                                    <span className={cn(
-                                        "absolute -bottom-1 left-0 h-px bg-gold transition-all duration-500",
-                                        pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-                                    )} />
-                                </Link>
-                            ))}
+                <div className="mx-auto w-full max-w-[1540px] px-2 sm:px-3 lg:px-4">
+                    <div
+                        className={cn(
+                            "grid grid-cols-[1fr_auto_1fr] items-center rounded-full border px-4 py-3 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.45)] transition-all duration-500 lg:px-7 lg:py-4",
+                            isScrolled
+                                ? "border-black/8 bg-background/84 backdrop-blur-2xl dark:border-white/10"
+                                : "border-white/10 bg-[linear-gradient(135deg,rgba(9,9,11,0.56),rgba(9,9,11,0.3))] backdrop-blur-xl"
+                        )}
+                    >
+                        <div className="hidden lg:flex items-center gap-2 justify-start">
+                            {menuLeft.map((item) => {
+                                const isBoutiques = item.href === '/boutiques';
+                                return isBoutiques ? (
+                                    <div key={item.href} className="group/mega relative flex items-center">
+                                        <Link
+                                            href={item.href}
+                                            className={navItemClass(pathname === item.href)}
+                                        >
+                                            {item.name}
+                                        </Link>
+                                        <div className="absolute top-[calc(100%+24px)] left-0 opacity-0 invisible group-hover/mega:opacity-100 group-hover/mega:visible transition-all duration-300 translate-y-4 group-hover/mega:translate-y-0 before:absolute before:-top-8 before:left-0 before:w-full before:h-8">
+                                            <BrandMegaMenu />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        className={navItemClass(pathname === item.href)}
+                                    >
+                                        {item.name}
+                                    </Link>
+                                );
+                            })}
                         </div>
 
                         {/* Center Logo (always centered) */}
                         <div className="flex items-center justify-center">
                             <Link
                                 href="/"
-                                className="w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center font-serif text-[10px] tracking-[0.4em] font-bold uppercase shadow-sm hover:shadow-md transition-shadow"
+                                className="flex h-14 w-14 items-center justify-center rounded-full border border-gold/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(246,238,225,0.88))] text-background shadow-[0_20px_38px_-24px_rgba(197,160,89,0.7)] transition-all hover:scale-[1.02] hover:shadow-[0_24px_44px_-24px_rgba(197,160,89,0.9)]"
                                 aria-label="Perfume GPT Home"
                             >
-                                <img src="/logo-light.png" className="h-10 w-10 object-contain rounded-full border border-gold/10 shadow-sm" alt="Perfume GPT" />
+                                <img src="/logo-light.png" className="h-11 w-11 object-contain rounded-full border border-gold/10 shadow-sm" alt="Perfume GPT" />
                             </Link>
                         </div>
 
                         {/* Right (menu + actions) */}
-                        <div className="flex items-center justify-end gap-6">
-                            <div className="hidden lg:flex items-center gap-10">
+                        <div className="flex items-center justify-end gap-3 lg:gap-4">
+                            <div className="hidden lg:flex items-center gap-2">
                                 {menuRight.filter(item => item.href).map((item) => (
                                     <Link
                                         key={item.href!}
                                         href={item.href!}
-                                        className={cn(
-                                            "text-[10px] font-bold tracking-[.3em] uppercase transition-all cursor-pointer relative group",
-                                            pathname === item.href
-                                                ? "text-gold"
-                                                : "text-foreground hover:text-gold"
-                                        )}
+                                        className={navItemClass(pathname === item.href)}
                                     >
                                         {item.name}
-                                        <span className={cn(
-                                            "absolute -bottom-1 left-0 h-px bg-gold transition-all duration-500",
-                                            pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-                                        )} />
                                     </Link>
                                 ))}
                             </div>
 
-                            <div className="flex items-center gap-1 md:gap-2">
+                            <div className="flex items-center gap-1.5 md:gap-2">
                                 <Link
                                     href={isAuthenticated ? '/notifications' : '/login'}
-                                    className="hidden md:flex p-2 text-foreground hover:text-gold transition-colors cursor-pointer relative"
+                                    className={cn("hidden md:flex", iconButtonClass)}
                                     title={('notifications')}
                                 >
                                     <Bell size={20} strokeWidth={1.5} />
@@ -206,7 +250,7 @@ export const Header = () => {
 
                                 <Link
                                     href="/cart"
-                                    className="p-2 text-foreground hover:text-gold transition-colors relative cursor-pointer"
+                                    className={iconButtonClass}
                                 >
                                     <ShoppingBag size={20} strokeWidth={1.5} />
                                     {cartCount > 0 && (
@@ -221,21 +265,21 @@ export const Header = () => {
                                 </Link>
 
                                 {isAuthenticated ? (
-                                    <div className="flex items-center gap-1 md:gap-4 pl-1 md:pl-4 border-l border-border transition-colors ml-1 md:ml-2">
+                                    <div className={cn("ml-1 flex items-center gap-2 pl-3 transition-colors md:ml-2 md:gap-4 md:pl-4", authDividerClass)}>
                                         <Link
                                             href="/dashboard/profile"
-                                            className="hidden md:flex flex-col items-end group"
+                                            className={profilePanelClass}
                                         >
-                                            <span className="text-[9px] font-bold text-foreground uppercase tracking-widest">
+                                            <span className={profileNameClass}>
                                                 {user?.name?.split(' ')[0] || t('member')}
                                             </span>
-                                            <span className="text-[8px] text-gold font-bold uppercase tracking-tighter opacity-100">
+                                            <span className="text-[11px] text-gold font-medium">
                                                 {t('view_profile')}
                                             </span>
                                         </Link>
                                         <button
                                             onClick={() => logout()}
-                                            className="p-2 text-stone-400 hover:text-red-500 transition-colors cursor-pointer"
+                                            className={logoutButtonClass}
                                             title={t('logout')}
                                         >
                                             <LogOut size={18} strokeWidth={1.5} />
@@ -244,7 +288,7 @@ export const Header = () => {
                                 ) : (
                                     <Link
                                         href="/login"
-                                        className="ml-1 md:ml-4 px-3 md:px-5 py-1.5 md:py-1.5 border border-border rounded-full text-[10px] md:text-[11px] font-bold tracking-[.1em] md:tracking-[.2em] uppercase text-foreground hover:bg-foreground hover:text-background dark:hover:bg-foreground dark:hover:text-background transition-all shadow-sm flex items-center justify-center min-w-[32px]"
+                                        className={loginButtonClass}
                                     >
                                         <span className="hidden sm:inline">{t('login')}</span>
                                         <UserCircle className="sm:hidden" size={20} strokeWidth={1.5} />
@@ -252,7 +296,7 @@ export const Header = () => {
                                 )}
 
                                 <button
-                                    className="lg:hidden p-3 text-foreground cursor-pointer ml-1 -mr-2 flex items-center justify-center min-w-[44px] min-h-[44px]"
+                                    className={mobileMenuButtonClass}
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                     aria-label={isMobileMenuOpen ? "Close Menu" : "Open Menu"}
                                 >

@@ -273,18 +273,17 @@ export default function CustomerOrderDetailPage() {
                                 {productHref ? (
                                   <Link
                                     href={productHref}
-                                    className="font-bold text-luxury-black dark:text-white hover:text-gold transition-colors line-clamp-2 uppercase tracking-tight"
+                                    className="font-heading text-base md:text-lg text-stone-900 dark:text-stone-100 hover:text-gold transition-colors line-clamp-2 uppercase tracking-wide"
                                   >
                                     {item.product?.name}
                                   </Link>
                                 ) : (
-                                  <p className="font-bold text-luxury-black dark:text-white uppercase tracking-tight">
+                                  <p className="font-heading text-base md:text-lg text-stone-900 dark:text-stone-100 uppercase tracking-wide">
                                     {item.product?.name}
                                   </p>
                                 )}
-                                <p className="text-[10px] text-stone-400 uppercase mt-1">
-                                  × {item.quantity} —{" "}
-                                  {formatCurrency(item.unitPrice)}
+                                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 font-medium tracking-tight uppercase">
+                                  <span className="opacity-50 lowercase">x</span> {item.quantity} <span className="mx-1 opacity-20">|</span> {formatCurrency(item.unitPrice)}
                                 </p>
                                 {(() => {
                                   const refundedQty = (order.returnRequests || [])
@@ -326,7 +325,7 @@ export default function CustomerOrderDetailPage() {
                                 })()}
                               </div>
                               <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                                <span className="font-bold text-luxury-black dark:text-white">
+                                <span className="font-heading text-stone-900 dark:text-stone-100 tracking-tight">
                                   {formatCurrency(item.totalPrice)}
                                 </span>
                                 {order.status === "COMPLETED" && !item.review && (
@@ -484,22 +483,22 @@ export default function CustomerOrderDetailPage() {
               )}
 
               <div className="mt-8 pt-8 border-t border-border space-y-3">
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
                   <span className="text-stone-400">{tDetail("subtotal")}</span>
-                  <span className="text-luxury-black dark:text-white">
+                  <span className="text-stone-900 dark:text-stone-100 font-heading tracking-tight">
                     {formatCurrency(order.totalAmount)}
                   </span>
                 </div>
                 {order.discountAmount > 0 && (
-                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-widest">
                     <span className="text-stone-400">{tDetail("discount")}</span>
-                    <span className="text-red-500">
+                    <span className="text-red-500 font-heading tracking-tight">
                       -{formatCurrency(order.discountAmount)}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest pt-4 border-t border-stone-100 dark:border-white/5">
-                  <span className="text-luxury-black dark:text-white">
+                <div className="flex justify-between text-xs font-bold uppercase tracking-widest pt-4 border-t border-stone-100 dark:border-white/5">
+                  <span className="text-stone-900 dark:text-stone-100">
                     {tDetail("total")}
                   </span>
                   <span className="text-2xl font-heading text-gold tracking-tighter">

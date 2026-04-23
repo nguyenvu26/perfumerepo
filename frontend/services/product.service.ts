@@ -40,6 +40,7 @@ export type Product = {
   variants?: ProductVariant[];
   scentFamily?: { id: number; name: string } | null;
   notes?: { note: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' } }[];
+  salesCount?: number;
 };
 
 export type ProductListRes = {
@@ -51,6 +52,7 @@ export type ProductListRes = {
 
 interface IProductService {
   list(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; isFeatured?: boolean | string; isBestseller?: boolean | string }): Promise<ProductListRes>;
+  getTopSelling(take?: number): Promise<Product[]>;
   getById(id: string): Promise<Product>;
   adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number }): Promise<ProductListRes>;
   adminCreate(dto: {
@@ -78,6 +80,9 @@ export const productService: IProductService = {
   // Public
   list(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; isFeatured?: boolean | string; isBestseller?: boolean | string }) {
     return api.get<ProductListRes>('/products', { params }).then((r) => r.data);
+  },
+  getTopSelling(take: number = 3) {
+    return api.get<Product[]>('/products/top-selling', { params: { take } }).then((r) => r.data);
   },
   getById(id: string) {
     return api.get<Product>('/products/' + id).then((r) => r.data);
