@@ -59,7 +59,7 @@ export class ReturnsService {
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
     private readonly shippingService: ShippingService,
-  ) {}
+  ) { }
 
   // ─────────── HELPERS ───────────
 
@@ -251,7 +251,10 @@ export class ReturnsService {
     // We don't pre-check audit table because returnId doesn't exist yet
     if (idempotencyKey) {
       const existingReturn = await this.prisma.returnRequest.findFirst({
-        where: { orderId: dto.orderId },
+        where: {
+          orderId: dto.orderId,
+          status: { notIn: [ReturnStatus.CANCELLED, ReturnStatus.REJECTED] }
+        },
         orderBy: { createdAt: 'desc' },
         include: {
           items: {
@@ -351,7 +354,9 @@ export class ReturnsService {
     // 5) Calculate expected refund amount (enhanced)
     // Luxury Strategy: Refund shipping if reason is DAMAGED or WRONG_ITEM, OR if VIP
     const isStoreFault =
-      dto.reason?.includes('[DAMAGED]') || dto.reason?.includes('[WRONG_ITEM]');
+      dto.reason?.includes("[DAMAGED]") ||
+      dto.reason?.includes("[WRONG_ITEM]") ||
+      dto.reason?.includes("[EXPIRED]");
 
     // Check if VIP (e.g. loyalty points > 5000)
     const isVIP = (order.user?.loyaltyPoints ?? 0) >= 5000;
@@ -423,7 +428,7 @@ export class ReturnsService {
           content: `Yêu cầu trả hàng cho đơn ${order.code} đã được ghi nhận.`,
           data: { returnRequestId: result.id, orderId: order.id },
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     // Notify all admins so they can review/approve the POS return
@@ -441,7 +446,7 @@ export class ReturnsService {
               content: `Có yêu cầu trả hàng mới (${result.id}) từ POS cho đơn ${order.code}. Vui lòng kiểm tra và xét duyệt.`,
               data: { returnRequestId: result.id, orderId: order.id },
             })
-            .catch(() => {}),
+            .catch(() => { }),
         ),
       );
     } catch (e) {
@@ -720,7 +725,7 @@ export class ReturnsService {
           content: msg,
           data: { returnRequestId: id },
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     // ─────────── AUTOMATED GHN PICKUP ───────────
@@ -730,14 +735,27 @@ export class ReturnsService {
       !ret.createdBy
     ) {
       try {
-        const pickupResult =
-          await this.shippingService.createGhnReturnPickup(id);
+        // Determine who pays: Shop pays (1) if it's shop fault, Customer pays (2) otherwise
+        const isShopFault =
+          ret.reason?.includes("[DAMAGED]") ||
+          ret.reason?.includes("[WRONG_ITEM]") ||
+          ret.reason?.includes("[EXPIRED]");
+        const paymentTypeId = isShopFault ? 1 : 2;
+
+        const pickupResult = await this.shippingService.createGhnReturnPickup(
+          id,
+          paymentTypeId,
+        );
         await this.prisma.returnAudit.create({
           data: {
             returnId: id,
             actorId: adminId,
             action: 'AUTOMATED_PICKUP_CREATED',
-            payload: { ...pickupResult, provider: 'GHN' },
+            payload: { 
+              ...pickupResult, 
+              provider: 'GHN',
+              paidBy: paymentTypeId === 1 ? 'SHOP' : 'CUSTOMER' 
+            },
           },
         });
       } catch (err) {
@@ -791,7 +809,7 @@ export class ReturnsService {
           content: dto.message,
           data: { returnRequestId: id },
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     return updated;
@@ -814,11 +832,22 @@ export class ReturnsService {
       );
     }
 
-    // Check for seal integrity - reject if broken seal on perfume
-    const hasUnsealedItem = dto.items.some((item) => item.sealIntact === false);
-    const allUnsealed = dto.items.every((item) => item.sealIntact === false);
+    // Check for seal integrity or damage - reject whole request if any item is compromised
+    const hasCompromisedItem = dto.items.some(
+      (item) =>
+        item.sealIntact === false ||
+        item.condition === 'DAMAGED' ||
+        item.condition === 'LEAKED'
+    );
 
-    const newStatus = allUnsealed
+    // Require evidence photos when rejecting
+    if (hasCompromisedItem && (!dto.evidenceImages || dto.evidenceImages.length === 0)) {
+      throw new BadRequestException(
+        'Vui lòng chụp ít nhất 1 ảnh bằng chứng khi đánh dấu hàng lỗi/hư',
+      );
+    }
+
+    const newStatus = hasCompromisedItem
       ? ReturnStatus.REJECTED_AFTER_RETURN
       : ReturnStatus.RECEIVED;
 
@@ -890,6 +919,7 @@ export class ReturnsService {
         receivedLocation,
         resultStatus: newStatus,
         note: dto.note,
+        evidenceImages: dto.evidenceImages || [],
       });
 
       return updated;
@@ -897,18 +927,18 @@ export class ReturnsService {
 
     // Notify customer
     if (ret.userId) {
-      const msg = hasUnsealedItem
-        ? 'Hàng trả về bị từ chối do seal đã bị mở.'
+      const msg = hasCompromisedItem
+        ? 'Yêu cầu trả hàng bị từ chối do sản phẩm không còn nguyên seal hoặc bị hư hại. Cửa hàng sẽ gửi trả sản phẩm lại cho bạn.'
         : 'Hàng trả về đã được nhận. Đang xử lý hoàn tiền.';
       this.notificationsService
         .create({
           userId: ret.userId,
           type: 'ORDER',
-          title: hasUnsealedItem ? 'Hàng trả bị từ chối' : 'Đã nhận hàng trả',
+          title: hasCompromisedItem ? 'Yêu cầu trả hàng bị từ chối' : 'Đã nhận hàng trả',
           content: msg,
-          data: { returnRequestId: id },
+          data: { returnRequestId: id, evidenceImages: dto.evidenceImages || [] },
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     return result;
@@ -1119,7 +1149,7 @@ export class ReturnsService {
           content: `Đã hoàn (hoặc đang xử lý) ${refundAmount.toLocaleString('vi-VN')}đ.`,
           data: { returnRequestId: id, refundAmount },
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     return result;
@@ -1161,7 +1191,7 @@ export class ReturnsService {
             content: `Yêu cầu trả hàng đã bị hủy bởi quản trị viên. ${reason || ''}`,
             data: { returnRequestId: id },
           })
-          .catch(() => {});
+          .catch(() => { });
       }
 
       return updated;
@@ -1184,5 +1214,88 @@ export class ReturnsService {
       where: { returnId },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  // ─────────── ADMIN: SHIP BACK TO CUSTOMER ───────────
+
+  async addAdminShipment(adminId: string, id: string, dto: CreateReturnShipmentDto) {
+    const ret = await this.findReturnOrThrow(id);
+    if (ret.status !== ReturnStatus.REJECTED_AFTER_RETURN) {
+      throw new BadRequestException(
+        'Chỉ có thể gửi trả lại hàng khi trạng thái là REJECTED_AFTER_RETURN',
+      );
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const shipment = await tx.returnShipment.create({
+        data: {
+          returnRequestId: id,
+          courier: dto.courier,
+          trackingNumber: dto.trackingNumber,
+          shippedAt: new Date(),
+          status: 'RETURN_TO_CUSTOMER',
+        },
+      });
+
+      await this.createAudit(tx, id, adminId, 'ADMIN_SHIP_BACK', {
+        courier: dto.courier,
+        trackingNumber: dto.trackingNumber,
+        shipmentId: shipment.id,
+      });
+
+      // Notify customer
+      if (ret.userId) {
+        this.notificationsService
+          .create({
+            userId: ret.userId,
+            type: 'ORDER',
+            title: 'Hàng đang được gửi trả lại cho bạn',
+            content: `Cửa hàng đang gửi trả lại sản phẩm cho bạn qua ${dto.courier || 'đơn vị vận chuyển'}. Mã vận đơn: ${dto.trackingNumber}. Quý khách vui lòng thanh toán phí vận chuyển cho bưu tá khi nhận hàng.`,
+            data: { returnRequestId: id },
+          })
+          .catch(() => {});
+      }
+
+      return shipment;
+    });
+
+    return result;
+  }
+
+  // ─────────── ADMIN: AUTOMATED SHIP BACK ───────────
+
+  async createShipBackAutomated(adminId: string, id: string) {
+    const ret = await this.findReturnOrThrow(id);
+    if (ret.status !== ReturnStatus.REJECTED_AFTER_RETURN) {
+      throw new BadRequestException(
+        'Chỉ có thể gửi trả lại hàng khi trạng thái là REJECTED_AFTER_RETURN',
+      );
+    }
+    if (ret.origin !== 'ONLINE') {
+      throw new BadRequestException('Chỉ đơn Online mới hỗ trợ tạo vận đơn GHN tự động');
+    }
+
+    const result = await this.shippingService.createGhnReturnToCustomer(id);
+
+    await this.createAudit(this.prisma, id, adminId, 'ADMIN_SHIP_BACK_AUTOMATED', {
+      courier: 'GHN',
+      trackingNumber: result.orderCode,
+      fee: result.fee,
+    });
+
+    // Notify customer
+    if (ret.userId) {
+      this.notificationsService
+        .create({
+          userId: ret.userId,
+          type: 'ORDER',
+          title: 'Hàng đang được gửi trả lại cho bạn',
+          content: `Cửa hàng đang gửi trả lại sản phẩm cho bạn qua GHN. Mã vận đơn: ${result.orderCode}. Quý khách vui lòng thanh toán phí vận chuyển cho bưu tá khi nhận hàng.`,
+          data: { returnRequestId: id },
+        })
+        .catch(() => { });
+    }
+
+    return result;
   }
 }

@@ -8,7 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { GHNService } from '../ghn/ghn.service';
-import { ShippingProvider, ShipmentStatus } from '@prisma/client';
+import { ShippingProvider, ShipmentStatus, PaymentProvider } from '@prisma/client';
 import { NotificationsService } from '../notifications/notifications.service';
 
 const GHN_STATUS_MAP: Record<string, ShipmentStatus> = {
@@ -128,10 +128,19 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       orderBy: { createdAt: 'asc' },
     });
 
+    // Identify if this order was intended to be paid online by checking for any online payment records
+    const onlinePaymentAttempts = await this.prisma.payment.findMany({
+      where: {
+        orderId,
+        provider: { notIn: [PaymentProvider.COD] },
+      },
+    });
+
     if (
       order.channel === 'ONLINE' &&
       order.paymentStatus !== 'PAID' &&
-      !paidOnlinePayment
+      !paidOnlinePayment &&
+      onlinePaymentAttempts.length > 0
     ) {
       throw new BadRequestException(
         'Đơn online chưa thanh toán thành công, chưa thể tạo GHN',
@@ -233,6 +242,7 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
 
   async createGhnReturnPickup(
     returnRequestId: string,
+    paymentTypeId: number = 1,
   ): Promise<{ orderCode: string; fee: number }> {
     if (!this.ghn.isConfigured()) {
       throw new BadRequestException('GHN chưa được cấu hình');
@@ -284,7 +294,7 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       height: 10,
       serviceId: ret.order.shippingServiceId ?? 0,
       serviceTypeId: 2,
-      paymentTypeId: 1, // Store (Receiver) pays shipping
+      paymentTypeId, // 1: Shop (Receiver) pays, 2: Customer (Sender) pays
       codAmount: 0,
       insuranceValue: ret.totalAmount ?? 0,
       content: `Thu hồi đơn hàng ${ret.order.code} - Return ID: ${ret.id}`,
@@ -299,6 +309,83 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
         courier: 'GHN',
         trackingNumber: result.order_code,
         shippedAt: new Date(),
+      },
+    });
+
+    return {
+      orderCode: result.order_code,
+      fee: result.total_fee,
+    };
+  }
+
+  async createGhnReturnToCustomer(
+    returnRequestId: string,
+  ): Promise<{ orderCode: string; fee: number }> {
+    if (!this.ghn.isConfigured()) {
+      throw new BadRequestException('GHN chưa được cấu hình');
+    }
+
+    const ret = await this.prisma.returnRequest.findUnique({
+      where: { id: returnRequestId },
+      include: {
+        order: true,
+        items: { include: { variant: { include: { product: true } } } },
+      },
+    });
+
+    if (!ret) throw new NotFoundException('Return request not found');
+    if (ret.origin !== 'ONLINE')
+      throw new BadRequestException('Chỉ đơn Online mới hỗ trợ GHN gửi trả');
+
+    const fromDistrictId = parseInt(
+      this.config.get('SHIPPING_GHN_FROM_DISTRICT_ID') ?? '0',
+      10,
+    );
+    const fromWardCode = this.config.get('SHIPPING_GHN_FROM_WARD_CODE') ?? '';
+    const fromAddress = this.config.get('SHIPPING_GHN_RETURN_ADDRESS') ?? '';
+    const fromName = 'Kho nước hoa Perfume GPT';
+    const fromPhone = this.config.get('SHIPPING_GHN_RETURN_PHONE') ?? '';
+
+    const items = ret.items.map((item) => ({
+      name: item.variant.product.name + ' ' + item.variant.name,
+      quantity: item.quantity,
+      price: item.variant.price,
+      weight: 100,
+    }));
+
+    const result = await this.ghn.createOrder({
+      toName: ret.order.recipientName ?? 'Khách hàng',
+      toPhone: ret.order.phone ?? '',
+      toAddress: ret.order.shippingAddress ?? '',
+      toWardCode: ret.order.shippingWardCode ?? '',
+      toDistrictId: ret.order.shippingDistrictId ?? 0,
+      fromName,
+      fromPhone,
+      fromAddress,
+      fromWardCode,
+      fromDistrictId,
+      weight: 500,
+      length: 20,
+      width: 15,
+      height: 10,
+      serviceId: ret.order.shippingServiceId ?? 0,
+      serviceTypeId: 2,
+      paymentTypeId: 2, // 2: Receiver (Customer) pays
+      codAmount: 0,
+      insuranceValue: ret.totalAmount ?? 0,
+      content: `Gửi trả hàng lỗi đơn ${ret.order.code} - Return ID: ${ret.id}`,
+      clientOrderCode: `BACK-${ret.id.substring(0, 8)}`,
+      items,
+    });
+
+    // Create a return shipment record
+    await this.prisma.returnShipment.create({
+      data: {
+        returnRequestId,
+        courier: 'GHN',
+        trackingNumber: result.order_code,
+        shippedAt: new Date(),
+        status: 'RETURN_TO_CUSTOMER',
       },
     });
 

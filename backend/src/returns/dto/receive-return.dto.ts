@@ -8,6 +8,7 @@ import {
   ValidateNested,
   ArrayMinSize,
   IsIn,
+  IsUrl,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -44,4 +45,10 @@ export class ReceiveReturnDto {
   @IsString()
   @IsIn(['WAREHOUSE', 'POS'])
   receivedLocation?: string;
+
+  /** Admin unboxing evidence photos (required when marking items as damaged) */
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  evidenceImages?: string[];
 }

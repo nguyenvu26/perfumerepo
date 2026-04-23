@@ -2242,6 +2242,58 @@
               "yesterday": "Hôm qua",
               "days_ago": "{count} ngày trước"
             }
+          },
+          "returns": {
+            "create_modal": {
+              "title": "Tạo Yêu Cầu Đổi Trả",
+              "subtitle": "Cung cấp thông tin để chúng tôi xử lý yêu cầu của bạn nhanh chóng.",
+              "select_items": "Chọn sản phẩm đổi trả",
+              "quantity_label": "Số lượng trả",
+              "item_reason_label": "Lý do riêng cho sản phẩm này",
+              "item_reason_placeholder": "Mô tả tình trạng sản phẩm...",
+              "images_label": "Hình ảnh minh chứng (tối thiểu 3 ảnh)",
+              "images_desc": "Chụp ảnh sản phẩm từ nhiều góc độ (tối thiểu 3, tối đa 5 ảnh, mỗi ảnh < 5MB).",
+              "min_images_warning": "Vui lòng tải lên ít nhất 3 ảnh minh chứng",
+              "add_photo": "Thêm ảnh",
+              "video_label": "Video minh chứng (tối thiểu 3s, tối đa 60s)",
+              "video_desc": "Quay video mở hộp hoặc video quay rõ lỗi của sản phẩm.",
+              "video_uploaded": "Video đã được tải lên",
+              "video_uploading": "Đang tải video...",
+              "add_video": "Thêm video",
+              "video_too_short": "Video quá ngắn (tối thiểu 3 giây)",
+              "video_too_long": "Video quá dài (tối đa 60 giây)",
+              "error_no_items": "Vui lòng chọn ít nhất một sản phẩm để yêu cầu đổi trả",
+              "error_qty": "Số lượng sản phẩm không hợp lệ",
+              "error_select_reason": "Vui lòng chọn lý do trả hàng",
+              "error_bank_info": "Vui lòng cung cấp đầy đủ thông tin tài khoản ngân hàng để nhận hoàn tiền",
+              "error_submit_failed": "Gửi yêu cầu thất bại",
+              "success": "Yêu cầu đổi trả đã được gửi thành công",
+              "cancel_btn": "Hủy",
+              "submit_btn": "Gửi Yêu Cầu",
+              "submitting": "Đang gửi...",
+              "reason_selection_title": "Chọn Lý Do Trả Hàng (Bắt Buộc)",
+              "store_fault_title": "Lỗi của Cửa Hàng (Hoàn toàn bộ + phí ship)",
+              "customer_fault_title": "Lý Do Khác (Hoàn sản phẩm, không hoàn phí ship)",
+              "refund_full": "Hoàn tiền đầy đủ (tính cả phí vận chuyển gốc)",
+              "refund_product_only": "Hoàn tiền sản phẩm (không hoàn phí vận chuyển)",
+              "additional_note_label": "Ghi Chú Thêm (Tùy chọn)",
+              "additional_note_placeholder": "Thêm chi tiết...",
+              "no_reason_note_placeholder": "Vui lòng chọn lý do trước",
+              "bank_info_title": "Thông tin nhận hoàn tiền (Bắt buộc)",
+              "bank_info_notice": "* Đơn hàng thanh toán theo hình thức online sẽ được hoàn tiền thủ công qua tài khoản ngân hàng.",
+              "bank_name_label": "Tên Ngân hàng",
+              "bank_account_label": "Số Tài Khoản",
+              "bank_holder_label": "Chủ Tài Khoản",
+              "reasons": {
+                "damaged": "Hàng hư hỏng / Chai/lọ bị vỡ",
+                "wrong_item": "Gửi sai sản phẩm",
+                "expired": "Sản phẩm đã hết hạn sử dụng",
+                "scent_mismatch": "Mùi hương không phù hợp với sở thích",
+                "color_mismatch": "Màu/sắc tố không đúng như mong đợi",
+                "quality_issue": "Chất lượng không như kỳ vọng",
+                "personal_change": "Thay đổi ý định không muốn mua"
+              }
+            }
           }
         },
         "gender_options": {

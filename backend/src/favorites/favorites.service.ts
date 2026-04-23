@@ -12,6 +12,10 @@ export class FavoritesService {
         product: {
           include: {
             brand: true,
+            scentFamily: true,
+            notes: {
+              include: { note: true },
+            },
             images: {
               orderBy: { order: 'asc' },
             },

@@ -162,7 +162,7 @@ export function CreateReturnModal({
         },
       }));
     } catch {
-      toast.error("Lỗi tải ảnh lên");
+      toast.error(t("error_upload_failed") || "Lỗi tải ảnh lên");
       setItemStates((prev) => ({
         ...prev,
         [id]: { ...prev[id], uploadingImages: false },
@@ -222,7 +222,7 @@ export function CreateReturnModal({
       }));
       toast.success(t("video_uploaded"));
     } catch {
-      toast.error("Lỗi tải video lên");
+      toast.error(t("error_upload_failed") || "Lỗi tải video lên");
       setItemStates((prev) => ({
         ...prev,
         [id]: { ...prev[id], uploadingVideo: false },
@@ -257,14 +257,12 @@ export function CreateReturnModal({
     }
 
     if (!selectedReasonType || !reason) {
-      toast.error("Vui lòng chọn lý do trả hàng");
+      toast.error(t("error_select_reason"));
       return;
     }
 
     if (!bankName.trim() || !bankAccount.trim() || !bankHolder.trim()) {
-      toast.error(
-        "Vui lòng cung cấp đầy đủ thông tin tài khoản ngân hàng để nhận hoàn tiền",
-      );
+      toast.error(t("error_bank_info"));
       return;
     }
 
@@ -303,7 +301,9 @@ export function CreateReturnModal({
       toast.success(t("success"));
       onSuccess();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Gửi yêu cầu thất bại");
+      toast.error(
+        err?.response?.data?.message || t("error_submit_failed"),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -686,19 +686,19 @@ export function CreateReturnModal({
           <div>
             <div className="mb-6">
               <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-4">
-                Chọn Lý Do Trả Hàng (Bắt Buộc)
+                {t("reason_selection_title")}
               </label>
 
               {/* Store Fault - Ship Refundable */}
               <div className="mb-6">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-green-500/80 mb-3 flex items-center gap-2">
-                  <CheckCircle size={12} /> Lỗi của Cửa Hàng (Hoàn toàn bộ + phí
-                  ship)
+                  <CheckCircle size={12} /> {t("store_fault_title")}
                 </p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    { key: "[DAMAGED]", label: "Hàng hư hỏng / Chai/lọ bị vỡ" },
-                    { key: "[WRONG_ITEM]", label: "Gửi sai sản phẩm" },
+                    { key: "[DAMAGED]", label: t("reasons.damaged") },
+                    { key: "[WRONG_ITEM]", label: t("reasons.wrong_item") },
+                    { key: "[EXPIRED]", label: t("reasons.expired") },
                   ].map((opt) => (
                     <label
                       key={opt.key}
@@ -737,27 +737,25 @@ export function CreateReturnModal({
               {/* Customer Reason - No Ship Refund */}
               <div>
                 <p className="text-[9px] font-bold uppercase tracking-widest text-amber-500/80 mb-3 flex items-center gap-2">
-                  <AlertCircle size={12} /> Lý Do Khác (Hoàn sản phẩm, không
-                  hoàn phí ship)
+                  <AlertCircle size={12} /> {t("customer_fault_title")}
                 </p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
                     {
                       key: "[SCENT_MISMATCH]",
-                      label: "Mùi hương không phù hợp với sở thích",
+                      label: t("reasons.scent_mismatch"),
                     },
                     {
                       key: "[COLOR_MISMATCH]",
-                      label: "Màu/sắc tố không đúng như mong đợi",
+                      label: t("reasons.color_mismatch"),
                     },
-                    { key: "[EXPIRED]", label: "Sản phẩm gần hết hạn sử dụng" },
                     {
                       key: "[QUALITY_ISSUE]",
-                      label: "Chất lượng không như kỳ vọng",
+                      label: t("reasons.quality_issue"),
                     },
                     {
                       key: "[PERSONAL_CHANGE]",
-                      label: "Thay đổi ý định không muốn mua",
+                      label: t("reasons.personal_change"),
                     },
                   ].map((opt) => (
                     <label
@@ -817,12 +815,12 @@ export function CreateReturnModal({
                   {selectedReasonType === "STORE" ? (
                     <>
                       <CheckCircle size={14} />
-                      Hoàn tiền đầy đủ (tính cả phí vận chuyển gốc)
+                      {t("refund_full")}
                     </>
                   ) : (
                     <>
                       <AlertCircle size={14} />
-                      Hoàn tiền sản phẩm (không hoàn phí vận chuyển)
+                      {t("refund_product_only")}
                     </>
                   )}
                 </p>
@@ -831,15 +829,15 @@ export function CreateReturnModal({
 
             {/* Additional notes */}
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">
-              Ghi Chú Thêm (Tùy chọn)
+              {t("additional_note_label")}
             </label>
             <textarea
               value={additionalNote}
               onChange={(e) => setAdditionalNote(e.target.value)}
               placeholder={
                 selectedReasonType
-                  ? "Thêm chi tiết..."
-                  : "Vui lòng chọn lý do trước"
+                  ? t("additional_note_placeholder")
+                  : t("no_reason_note_placeholder")
               }
               rows={2}
               disabled={!selectedReasonType}
@@ -852,16 +850,15 @@ export function CreateReturnModal({
             />
 
             <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2 mt-6">
-              Thông tin nhận hoàn tiền (Bắt buộc)
+              {t("bank_info_title")}
             </label>
             <div className="grid grid-cols-1 gap-4 bg-gold/5 p-5 rounded-2xl border border-gold/20 mb-6">
               <p className="text-xs text-gold mb-2">
-                * Đơn hàng thanh toán theo hình thức online sẽ được hoàn tiền
-                thủ công qua tài khoản ngân hàng.
+                {t("bank_info_notice")}
               </p>
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">
-                  Tên Ngân hàng
+                  {t("bank_name_label")}
                 </label>
                 <input
                   type="text"
@@ -875,7 +872,7 @@ export function CreateReturnModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">
-                    Số Tài Khoản
+                    {t("bank_account_label")}
                   </label>
                   <input
                     type="text"
@@ -888,7 +885,7 @@ export function CreateReturnModal({
                 </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-1">
-                    Chủ Tài Khoản
+                    {t("bank_holder_label")}
                   </label>
                   <input
                     type="text"

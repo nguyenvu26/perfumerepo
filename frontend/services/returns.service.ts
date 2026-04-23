@@ -158,7 +158,7 @@ export const returnsService = {
 
   receiveReturn(
     id: string,
-    dto: { items: ReceiveItemDto[]; note?: string; receivedLocation?: string },
+    dto: { items: ReceiveItemDto[]; note?: string; receivedLocation?: string; evidenceImages?: string[] },
   ) {
     return api.patch(`/returns/admin/${id}/receive`, dto).then((r) => r.data);
   },
@@ -193,5 +193,15 @@ export const returnsService = {
         headers: { "Idempotency-Key": idempotencyKey || "" },
       })
       .then((r) => r.data);
+  },
+
+  /** Admin: Ship rejected items back to customer (Manual entry) */
+  shipBackManual(id: string, dto: CreateReturnShipmentDto) {
+    return api.post(`/returns/admin/${id}/ship-back-manual`, dto).then((r) => r.data);
+  },
+
+  /** Admin: Ship rejected items back to customer (Automated GHN - Receiver pays) */
+  shipBackAutomated(id: string) {
+    return api.post(`/returns/admin/${id}/ship-back-automated`).then((r) => r.data);
   },
 };

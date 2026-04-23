@@ -16,13 +16,14 @@ import { ReturnsService } from './returns.service';
 import { CreateReturnDto } from './dto/create-return.dto';
 import { ReviewReturnDto, RequestMoreInfoDto } from './dto/review-return.dto';
 import { ReceiveReturnDto } from './dto/receive-return.dto';
+import { CreateReturnShipmentDto } from './dto/create-shipment.dto';
 import { TriggerRefundDto } from './dto/trigger-refund.dto';
 
 @Controller('returns/admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN', 'STAFF')
 export class ReturnsAdminController {
-  constructor(private readonly returnsService: ReturnsService) {}
+  constructor(private readonly returnsService: ReturnsService) { }
 
   /** Admin/Staff: danh sách tất cả yêu cầu trả hàng */
   @Get('all')
@@ -140,5 +141,21 @@ export class ReturnsAdminController {
       req.user.userId, // staffId
       idempotencyKey,
     );
+  }
+
+  /** Admin: Gửi trả hàng thủ công (nhập mã vận đơn tay) */
+  @Post(':id/ship-back-manual')
+  async shipBackManual(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() dto: CreateReturnShipmentDto,
+  ) {
+    return this.returnsService.addAdminShipment(req.user.userId, id, dto);
+  }
+
+  /** Admin: Gửi trả hàng tự động qua GHN (khách trả ship) */
+  @Post(':id/ship-back-automated')
+  async shipBackAutomated(@Req() req: any, @Param('id') id: string) {
+    return this.returnsService.createShipBackAutomated(req.user.userId, id);
   }
 }

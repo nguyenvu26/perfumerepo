@@ -381,6 +381,26 @@ export default function CustomerReturnDetailPage() {
                         <CheckCircle size={14} /> Hệ thống đã đặt lịch thu hồi
                         tận nơi
                       </p>
+                      
+                      {/* Shipping Fee Responsibility Notice */}
+                      <div className={cn(
+                        "mt-3 mb-4 p-3 rounded-2xl border flex items-center gap-3",
+                        ['DAMAGED', 'WRONG_ITEM', 'EXPIRED'].includes(returnReq.reason || '')
+                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                          : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                      )}>
+                        {['DAMAGED', 'WRONG_ITEM', 'EXPIRED'].includes(returnReq.reason || '') ? (
+                          <CheckCircle size={14} />
+                        ) : (
+                          <AlertCircle size={14} />
+                        )}
+                        <p className="text-[10px] font-bold uppercase tracking-widest">
+                          {['DAMAGED', 'WRONG_ITEM', 'EXPIRED'].includes(returnReq.reason || '')
+                            ? "Phí vận chuyển hoàn trả sẽ do Shop chi trả"
+                            : "Vui lòng thanh toán phí vận chuyển cho bưu tá khi lấy hàng"}
+                        </p>
+                      </div>
+
                       <p className="text-[11px] text-blue-200/60 leading-relaxed mb-4">
                         Shipper của <strong>GHN</strong> sẽ liên hệ với bạn qua
                         số điện thoại{" "}
@@ -720,6 +740,122 @@ export default function CustomerReturnDetailPage() {
                   </motion.div>
                 );
               })()}
+
+            {/* === REJECTED EVIDENCE SECTION === */}
+            {returnReq.status === "REJECTED_AFTER_RETURN" && (() => {
+              // Find RECEIVED audit with evidence
+              const receivedAudit = (returnReq as any).audits?.find(
+                (a: any) => a.action === "RECEIVED" && a.payload?.evidenceImages?.length > 0
+              );
+              const evidenceImages: string[] = receivedAudit?.payload?.evidenceImages || [];
+              
+              // Find return-to-customer shipments
+              const returnShipments = returnReq.shipments?.filter(
+                (s) => s.status === "RETURN_TO_CUSTOMER"
+              ) || [];
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                  className="glass bg-red-950/30 rounded-3xl p-8 border border-red-500/30 shadow-2xl backdrop-blur-md space-y-6"
+                >
+                  {/* Header */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-red-500/15 flex items-center justify-center ring-1 ring-red-500/30">
+                      <XCircle size={18} className="text-red-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-heading uppercase tracking-widest text-red-300">
+                        Yêu cầu bị từ chối
+                      </h2>
+                      <p className="text-[9px] text-red-500/70 font-bold uppercase tracking-widest mt-0.5">
+                        Sản phẩm không đạt yêu cầu nhập kho
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-red-900/20 border border-red-500/20 rounded-2xl p-4">
+                    <p className="text-[11px] text-red-200/80 leading-relaxed">
+                      Sản phẩm hoàn trả không còn nguyên seal hoặc bị hư hại. Theo chính sách,
+                      cửa hàng sẽ gửi trả lại sản phẩm cho bạn. Phí vận chuyển sẽ do người mua chi trả.
+                    </p>
+                  </div>
+
+                  {/* Evidence photos from admin */}
+                  {evidenceImages.length > 0 && (
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-red-500/80 mb-3">
+                        Bằng chứng từ cửa hàng ({evidenceImages.length} ảnh)
+                      </p>
+                      <div className="flex gap-3 flex-wrap">
+                        {evidenceImages.map((url: string, idx: number) => (
+                          <a
+                            key={idx}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden border border-red-500/30 hover:border-red-400/60 transition-colors bg-black/40 group"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={`evidence-${idx}`}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Return-to-sender shipment tracking */}
+                  {returnShipments.length > 0 && (
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-orange-400/80 mb-3">
+                        Hàng đang gửi trả lại bạn
+                      </p>
+                      {returnShipments.map((s) => (
+                        <div
+                          key={s.id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-orange-500/10 p-4 rounded-2xl border border-orange-500/20"
+                        >
+                          <div>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-orange-500/70 mb-1">
+                              Mã vận đơn {s.courier || ""}
+                            </p>
+                            <p className="font-mono text-base font-bold text-orange-400 select-all uppercase">
+                              {s.trackingNumber}
+                            </p>
+                          </div>
+                          {s.courier === "GHN" && s.trackingNumber && (
+                            <a
+                              href={`https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all w-fit"
+                            >
+                              Theo dõi hành trình
+                              <ArrowLeft size={10} className="rotate-180" />
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {returnShipments.length === 0 && (
+                    <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4">
+                      <p className="text-[11px] text-orange-300/70 leading-relaxed flex items-center gap-2">
+                        <Truck size={14} className="text-orange-400" />
+                        Cửa hàng đang chuẩn bị gửi trả sản phẩm cho bạn. Vui lòng chờ cập nhật.
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })()}
           </div>
 
           {/* Sidebar */}

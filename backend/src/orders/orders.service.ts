@@ -9,7 +9,7 @@ import { PromotionsService } from '../promotions/promotions.service';
 import { LoyaltyService } from '../loyalty/loyalty.service';
 import { ShippingService } from '../shipping/shipping.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { InventoryLogType, Prisma } from '@prisma/client';
+import { InventoryLogType, Prisma, PaymentProvider, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -88,6 +88,7 @@ export class OrdersService {
     );
     const actualDiscountAmount = discountAmount + loyaltyDiscount;
     const order = await this.prisma.$transaction(async (tx) => {
+      console.log(`[OrdersService] Creating order from cart. Payment method: ${dto.paymentMethod}`);
       const created = await tx.order.create({
         data: {
           code: `ORD-${Date.now()}`,
@@ -117,6 +118,15 @@ export class OrdersService {
                   promotionCodeId: promoData.promoId,
                   discountAmount: promoData.discountAmount,
                   userPromotionId: promoData.userPromoId,
+                },
+              }
+            : undefined,
+          payments: dto.paymentMethod === 'COD'
+            ? {
+                create: {
+                  provider: PaymentProvider.COD,
+                  amount: finalAmount,
+                  status: PaymentStatus.PENDING,
                 },
               }
             : undefined,

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ReviewForm from "@/components/review/review-form";
 import { CreateReturnModal } from "@/components/returns/CreateReturnModal";
+import { AlertTriangle } from "lucide-react";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
 
 export default function CustomerOrderDetailPage() {
@@ -39,6 +40,8 @@ export default function CustomerOrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [reviewingItemId, setReviewingItemId] = useState<number | null>(null);
   const [showReturnModal, setShowReturnModal] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [existingReturn, setExistingReturn] = useState<ReturnRequest | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
@@ -472,7 +475,7 @@ export default function CustomerOrderDetailPage() {
                     </Link>
                   ) : (
                     <button
-                      onClick={() => setShowReturnModal(true)}
+                      onClick={() => setShowPolicyModal(true)}
                       className="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-stone-200 dark:border-white/10 text-stone-600 dark:text-stone-400 text-[10px] font-bold uppercase tracking-widest hover:border-amber-500/30 hover:text-amber-600 hover:bg-amber-500/5 transition-all"
                     >
                       <RotateCcw size={12} />
@@ -577,6 +580,149 @@ export default function CustomerOrderDetailPage() {
           }}
         />
       )}
+
+      {/* Return Policy Modal */}
+      {showPolicyModal && (
+        <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl max-h-[85vh] flex flex-col rounded-[2.5rem] bg-white dark:bg-zinc-950 border border-stone-200 dark:border-white/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="p-8 border-b border-stone-100 dark:border-white/5 bg-stone-50/50 dark:bg-zinc-900/50">
+              <h2 className="text-xl font-heading gold-gradient uppercase tracking-widest text-center">
+                CHÍNH SÁCH ĐỔI TRẢ VÀ HOÀN TIỀN
+              </h2>
+              <p className="text-[10px] text-stone-400 uppercase tracking-[0.3em] text-center mt-2 font-bold">
+                (RETURN POLICY)
+              </p>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
+              <section className="space-y-3">
+                <h3 className="text-sm font-bold text-luxury-black dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-gold/10 text-gold flex items-center justify-center text-[10px]">1</span>
+                  Điều kiện đổi trả chung
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed pl-8 text-justify">
+                  Khách hàng có quyền yêu cầu trả hàng/hoàn tiền trong vòng <strong>07 ngày</strong> kể từ khi nhận hàng thành công. Mọi yêu cầu phải được thực hiện thông qua hệ thống PerfumeGPT kèm theo hình ảnh/video bằng chứng.
+                </p>
+              </section>
+
+              <section className="space-y-4">
+                <h3 className="text-sm font-bold text-luxury-black dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-gold/10 text-gold flex items-center justify-center text-[10px]">2</span>
+                  Phân định trách nhiệm và Chi phí
+                </h3>
+                
+                <div className="pl-8 space-y-4">
+                  <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                    <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">2.1. Lỗi từ phía PerfumeGPT (Shop's Fault)</h4>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                      <strong>Trường hợp:</strong> Giao sai sản phẩm, hàng hết hạn sử dụng, hàng hư hỏng do vận chuyển hoặc lỗi đóng gói.<br/>
+                      <strong>Chi phí:</strong> Shop chịu 100% phí vận chuyển thu hồi.<br/>
+                      <strong>Hoàn tiền:</strong> Khách hàng được hoàn 100% giá trị đơn hàng (bao gồm phí ship ban đầu).
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
+                    <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">2.2. Lỗi từ phía Khách hàng (Change of Mind)</h4>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                      <strong>Trường hợp:</strong> Khách hàng thay đổi ý định, đặt nhầm dung tích, không thích mùi hương.<br/>
+                      <strong>Điều kiện bắt buộc:</strong> Sản phẩm phải <strong>CÒN NGUYÊN SEAL</strong> (Lớp nilon bọc ngoài và tem niêm phong). Chưa qua sử dụng, dù chỉ xịt thử 01 lần.<br/>
+                      <strong>Chi phí:</strong> Khách hàng chịu phí vận chuyển trả hàng về kho.<br/>
+                      <strong>Hoàn tiền:</strong> Chỉ hoàn giá trị sản phẩm (không hoàn phí ship ban đầu).
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <h3 className="text-sm font-bold text-luxury-black dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-gold/10 text-gold flex items-center justify-center text-[10px]">3</span>
+                  Quy trình kiểm định và Xử lý hàng lỗi
+                </h3>
+                <div className="pl-8 space-y-3 text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                  <p>Khi hàng được hoàn trả về kho, Quản trị viên sẽ tiến hành kiểm tra tình trạng thực tế:</p>
+                  <ul className="list-disc pl-4 space-y-2">
+                    <li><strong>Hàng đạt tiêu chuẩn:</strong> Hệ thống tự động thực hiện lệnh hoàn tiền trong vòng 3-5 ngày làm việc.</li>
+                    <li>
+                      <strong>KHÔNG đạt tiêu chuẩn (Mất seal, nứt vỡ, đã sử dụng):</strong> PerfumeGPT có quyền <strong>Từ chối hoàn tiền</strong>. 
+                      Hệ thống cung cấp bằng chứng (hình ảnh/video kiểm hàng) trực tiếp trên ứng dụng.
+                    </li>
+                  </ul>
+                  <div className="p-3 bg-red-500/5 border border-red-500/10 rounded-xl text-red-600 text-[10px] font-medium italic">
+                    Xử lý tài sản: Sản phẩm lỗi sẽ được gửi trả lại cho khách hàng theo hình thức Ship COD phí vận chuyển (Khách hàng thanh toán). Sau 07 ngày nếu từ chối nhận, shop không chịu trách nhiệm hoàn tiền.
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3 pb-4">
+                <h3 className="text-sm font-bold text-luxury-black dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-gold/10 text-gold flex items-center justify-center text-[10px]">4</span>
+                  Quy định về bằng chứng (Evidence)
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed pl-8">
+                  Khách hàng nên quay video quá trình <strong>mở hộp (unboxing)</strong> và quá trình <strong>đóng gói trả hàng</strong>. Mọi tranh chấp không có bằng chứng sẽ được xử lý dựa trên kết quả kiểm định tại kho.
+                </p>
+              </section>
+            </div>
+
+            <div className="p-6 border-t border-stone-100 dark:border-white/5 bg-stone-50/50 dark:bg-zinc-900/50 flex gap-4">
+              <button
+                onClick={() => setShowPolicyModal(false)}
+                className="flex-1 py-4 rounded-2xl border border-stone-200 dark:border-white/10 text-[10px] font-bold uppercase tracking-widest text-stone-500 hover:bg-white dark:hover:bg-zinc-800 transition-all"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                onClick={() => {
+                  setShowPolicyModal(false);
+                  setShowConfirmModal(true);
+                }}
+                className="flex-[2] py-4 rounded-2xl bg-gold text-white text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-gold/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Tôi đã đọc và đồng ý
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Pop-up */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[70] bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 p-10 space-y-8 animate-in zoom-in-95 duration-200 shadow-2xl text-center">
+            <div className="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <PackageCheck size={40} className="text-amber-500" />
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-xl font-heading uppercase tracking-widest text-luxury-black dark:text-white">
+                Xác nhận tình trạng
+              </h3>
+              <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed italic">
+                "Tôi xác nhận sản phẩm vẫn còn <strong>nguyên seal</strong>. Tôi hiểu rằng nếu sản phẩm bị mất seal, tôi sẽ bị <strong>từ chối hoàn tiền</strong> và phải <strong>trả phí ship</strong> để nhận lại hàng."
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 pt-4">
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setShowReturnModal(true);
+                }}
+                className="w-full py-4 rounded-2xl bg-gold text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-gold/20 hover:translate-y-[-2px] active:translate-y-[0px] transition-all"
+              >
+                Xác nhận và Tiếp tục
+              </button>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="w-full py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors"
+              >
+                Quay lại
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showRefundModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="w-full max-w-lg rounded-3xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 p-8 space-y-4">
