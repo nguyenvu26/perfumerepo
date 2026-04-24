@@ -19,6 +19,7 @@ import {
     Store,
     BookOpen,
     RotateCcw,
+    History,
     X,
     Globe,
     ClipboardList,
@@ -102,6 +103,7 @@ export const Sidebar = ({
     const adminItems: SidebarItem[] = [
         { icon: Users, label: navT('admin.users'), href: '/dashboard/admin/users' },
         { icon: Store, label: navT('admin.stores'), href: '/dashboard/admin/stores' },
+        { icon: History, label: "Lịch sử chốt ca", href: '/dashboard/admin/daily-closing' },
         { icon: Package, label: navT('admin.products'), href: '/dashboard/admin/products' },
         { icon: MessageSquare, label: navT('admin.reviews'), href: '/dashboard/admin/reviews' },
         { icon: BookOpen, label: navT('admin.manage_journal'), href: '/dashboard/admin/manage-journal' },

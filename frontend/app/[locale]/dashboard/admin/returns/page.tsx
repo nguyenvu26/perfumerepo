@@ -25,18 +25,18 @@ export default function AdminReturnsPage() {
           <div className="grid grid-cols-2 gap-3 sm:w-fit">
             <div className="rounded-[1.6rem] border border-black/6 bg-white/70 px-5 py-4 dark:border-white/10 dark:bg-white/5">
               <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                Focus
+                {t('header.focus_label')}
               </p>
               <p className="mt-2 text-base font-semibold text-foreground">
-                Review & approve
+                {t('header.focus_value')}
               </p>
             </div>
             <div className="rounded-[1.6rem] border border-gold/20 bg-gold/10 px-5 py-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-gold/80">
-                Experience
+                {t('header.experience_label')}
               </p>
               <p className="mt-2 text-base font-semibold text-gold">
-                Clear & premium
+                {t('header.experience_value')}
               </p>
             </div>
           </div>

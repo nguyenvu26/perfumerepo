@@ -189,9 +189,15 @@ export default function CustomerPromotions() {
                         <aside className="space-y-8">
                             {/* Info Card */}
                             <div className="p-10 rounded-[3.5rem] bg-gold/5 border border-gold/10">
-                                <p className="text-[10px] text-gold uppercase tracking-[.3em] font-bold mb-4 italic">Neural Insight</p>
+                                <p className="text-[10px] text-gold uppercase tracking-[.3em] font-bold mb-4 italic">{t('neural_insight_title')}</p>
                                 <p className="text-[11px] text-muted-foreground uppercase tracking-widest leading-loose">
-                                    Claims and redemptions are processed instantly. Once synthesized, vouchers appear in your <Link href="/dashboard/customer/loyalty" className="text-gold underline decoration-gold/30 underline-offset-4">Loyalty Vault</Link>.
+                                    {t.rich('neural_insight_desc', {
+                                        vault: () => (
+                                            <Link href="/dashboard/customer/loyalty" className="text-gold underline decoration-gold/30 underline-offset-4">
+                                                {t('loyalty_vault')}
+                                            </Link>
+                                        )
+                                    })}
                                 </p>
                             </div>
                         </aside>

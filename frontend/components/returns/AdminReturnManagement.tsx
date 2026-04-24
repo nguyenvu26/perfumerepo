@@ -53,6 +53,9 @@ import {
   PackageX,
   User,
   Barcode,
+  Eye,
+  Minus,
+  Plus,
 } from "lucide-react";
 import api from "@/lib/axios";
 import {
@@ -673,18 +676,15 @@ export const AdminReturnManagement = ({
           <div className="hidden lg:block">
             <Table>
               <TableHeader>
-                <TableRow className="border-black/6 bg-[linear-gradient(135deg,rgba(197,160,89,0.08),rgba(197,160,89,0.02))] hover:bg-transparent dark:border-white/10">
-                  <TableHead className="w-[120px]">{t("table.source")}</TableHead>
-                  <TableHead className="w-[140px]">{t("table.id")}</TableHead>
-                  <TableHead className="w-[140px]">{t("table.order_id")}</TableHead>
-                  <TableHead className="w-[120px]">{t("table.date")}</TableHead>
-                  <TableHead>{t("table.reason")}</TableHead>
-                  {isAdmin && <TableHead className="w-[180px]">{t("table.shipping")}</TableHead>}
-                  <TableHead className="w-[180px]">{t("table.status")}</TableHead>
-                  <TableHead className="text-right w-[160px]">
-                    {t("table.actions")}
-                  </TableHead>
-                </TableRow>
+                <tr className="border-black/6 bg-[linear-gradient(135deg,rgba(197,160,89,0.08),rgba(197,160,89,0.02))] hover:bg-transparent dark:border-white/10">
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.source")}</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Yêu cầu / Đơn hàng</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.date")}</th>
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.reason")}</th>
+                  {isAdmin && <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.shipping")}</th>}
+                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.status")}</th>
+                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.actions")}</th>
+                </tr>
               </TableHeader>
               <TableBody>
                 {loading ? (
@@ -719,40 +719,51 @@ export const AdminReturnManagement = ({
                         setIsReviewOpen(true);
                       }}
                     >
-                      <TableCell>
+                      <TableCell className="px-4 py-4 whitespace-nowrap">
                         {req.origin === "POS" ? (
-                          <Badge
-                            variant="outline"
-                            className="border-rose-500/30 text-rose-400 bg-rose-500/10"
-                          >
-                            <Store className="w-3 h-3 mr-1" /> POS
-                          </Badge>
+                          <div className="flex items-center gap-2 text-rose-400">
+                             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/10 border border-rose-500/20 shadow-sm">
+                                <Store className="w-4 h-4" />
+                             </div>
+                             <span className="text-[10px] font-bold tracking-widest uppercase">POS</span>
+                          </div>
                         ) : (
-                          <Badge
-                            variant="outline"
-                            className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10"
-                          >
-                            <Globe className="w-3 h-3 mr-1" /> Online
-                          </Badge>
+                          <div className="flex items-center gap-2 text-cyan-400">
+                             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/10 border border-cyan-500/20 shadow-sm">
+                                <Globe className="w-4 h-4" />
+                             </div>
+                             <span className="text-[10px] font-bold tracking-widest uppercase">Web</span>
+                          </div>
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-muted-foreground group-hover:text-gold transition-colors">
-                        {req.id.substring(0, 8).toUpperCase()}
+                      <TableCell className="px-4 py-4 whitespace-nowrap">
+                        <div className="flex flex-col">
+                           <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-black tracking-widest text-gold uppercase">REQ:</span>
+                              <span className="text-xs font-bold text-foreground">#{req.id.substring(0, 8).toUpperCase()}</span>
+                           </div>
+                           <div className="flex items-center gap-1.5 mt-0.5 opacity-60">
+                              <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">ORD:</span>
+                              <span className="text-[10px] font-medium text-stone-500">#{req.orderId.substring(0, 8).toUpperCase()}</span>
+                           </div>
+                        </div>
                       </TableCell>
-                      <TableCell className="font-mono text-sm font-bold text-foreground">
-                        {req.orderId.substring(0, 8).toUpperCase()}
+                      <TableCell className="px-4 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                           <Calendar size={12} className="opacity-40" />
+                           <span className="text-[11px] font-bold uppercase tracking-tight">
+                              {new Date((req as any).createdAt).toLocaleDateString("vi-VN", { day: '2-digit', month: 'short' })}
+                           </span>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {new Date((req as any).createdAt).toLocaleDateString(
-                          "vi-VN",
-                        )}
-                      </TableCell>
-                      <TableCell className="max-w-[240px] text-sm leading-7">
-                        {getReasonLabel(req.reason) || (
-                          <span className="text-muted-foreground/50 italic">
-                            {t("table.no_reason")}
-                          </span>
-                        )}
+                      <TableCell className="px-4 py-4 max-w-[200px]">
+                        <p className="text-[11px] font-medium leading-relaxed line-clamp-2">
+                           {getReasonLabel(req.reason) || (
+                             <span className="text-muted-foreground/50 italic">
+                               {t("table.no_reason")}
+                             </span>
+                           )}
+                        </p>
                       </TableCell>
                       {isAdmin && (
                         <TableCell>
@@ -802,128 +813,76 @@ export const AdminReturnManagement = ({
                           )}
                         </TableCell>
                       )}
-                      <TableCell>
+                      <TableCell className="px-3 py-3 whitespace-nowrap">
                         <Badge
                           variant="outline"
-                          className={`${getStatusColor(req.status)} px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em]`}
+                          className={cn(getStatusColor(req.status), "px-2 py-0.5 text-[9px] font-black uppercase tracking-[.15em] border rounded-full shadow-sm")}
                         >
                           {getStatusLabel(req.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        {!isAdmin && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedReturn(req);
-                              setIsReviewOpen(true);
-                            }}
-                          >
-                            <Search className="w-3.5 h-3.5 mr-1" /> {t("table.actions")}
-                          </Button>
-                        )}
+                      <TableCell className="px-3 py-3 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-2">
+                           {isAdmin && ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status) && (
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               className="h-8 w-8 p-0 rounded-lg border-gold/30 text-gold hover:bg-gold hover:text-white transition-all shadow-sm"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setSelectedReturn(req);
+                                 setNote("");
+                                 setIsReviewOpen(true);
+                               }}
+                               title="Duyệt yêu cầu"
+                             >
+                               <Check className="w-4 h-4" />
+                             </Button>
+                           )}
 
-                        {/* ADMIN ONLY ACTIONS */}
-                        {isAdmin &&
-                          [
-                            "REQUESTED",
-                            "REVIEWING",
-                            "AWAITING_CUSTOMER",
-                          ].includes(req.status) && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 glass border-gold/30 hover:bg-gold hover:text-black"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedReturn(req);
-                                setNote("");
-                                setIsReviewOpen(true);
-                              }}
-                            >
-                              <Check className="w-3.5 h-3.5 mr-1" /> {t("dialogs.btn_approve")}
-                            </Button>
-                          )}
+                           {["RETURNING", "APPROVED"].includes(req.status) && !(isAdmin && req.origin === "POS") && (
+                             <Button
+                               size="sm"
+                               className="h-8 px-3 rounded-lg bg-teal-600/90 hover:bg-teal-500 text-white text-[10px] font-bold uppercase tracking-tighter transition-all shadow-md shadow-teal-900/20"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setSelectedReturn(req);
+                                 setNote("");
+                                 setIsReceiveOpen(true);
+                               }}
+                             >
+                               <Box className="w-3.5 h-3.5 mr-1" /> Nhận hàng
+                             </Button>
+                           )}
 
-                        {/* CANCEL ACTION (FOR UNAPPROVED REQUESTS - STAFF ONLY) */}
-                        {!isAdmin &&
-                          ["REQUESTED", "REVIEWING"].includes(req.status) && (
-                            <Button
+                           {["RECEIVED", "REFUND_FAILED"].includes(req.status) && !(isAdmin && req.origin === "POS") && (
+                             <Button
+                               size="sm"
+                               className="h-8 px-3 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white text-[10px] font-bold uppercase tracking-tighter transition-all shadow-md shadow-indigo-900/20"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setSelectedReturn(req);
+                                 setNote("");
+                                 setIsRefundOpen(true);
+                               }}
+                             >
+                               <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn tiền
+                             </Button>
+                           )}
+                           
+                           <Button
                               size="sm"
                               variant="ghost"
-                              className="h-8 text-red-500/80 hover:text-red-500 hover:bg-red-500/10"
+                              className="h-8 w-8 p-0 rounded-lg text-stone-400 hover:text-gold hover:bg-gold/5 transition-all"
                               onClick={(e) => {
-                                e.stopPropagation();
-                                if (
-                                  window.confirm(
-                                    t("toasts.confirm_cancel"),
-                                  )
-                                ) {
-                                  handleCancel(req.id);
-                                }
+                                 e.stopPropagation();
+                                 setSelectedReturn(req);
+                                 setIsReviewOpen(true);
                               }}
-                            >
-                              <X className="w-3.5 h-3.5 mr-1" /> {t("dialogs.btn_cancel")}
-                            </Button>
-                          )}
-
-                        {/* GENERAL ACTIONS (HIDE RECEIVE FOR ADMIN IF POS) */}
-                        {["RETURNING", "APPROVED"].includes(req.status) &&
-                          !(isAdmin && req.origin === "POS") && (
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedReturn(req);
-                                setNote("");
-                                setIsReceiveOpen(true);
-                              }}
-                              className="h-8 bg-teal-600/90 hover:bg-teal-500 text-white shadow-md shadow-teal-900/20"
-                            >
-                              <Box className="w-3.5 h-3.5 mr-1" />{" "}
-                              {req.origin === "POS" ? "Nhận quầy" : "Nhận kho"}
-                            </Button>
-                          )}
-
-                        {/* HIDE REFUND FOR ADMIN IF POS */}
-                        {["RECEIVED", "REFUND_FAILED"].includes(req.status) &&
-                          !(isAdmin && req.origin === "POS") && (
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedReturn(req);
-                                setNote("");
-                                setIsRefundOpen(true);
-                              }}
-                              className="h-8 bg-indigo-600/90 hover:bg-indigo-500 text-white shadow-md shadow-indigo-900/20"
-                            >
-                              <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn tiền
-
-                            </Button>
-                          )}
-
-                        {/* SHIP BACK - FOR REJECTED AFTER RETURN */}
-                        {isAdmin && 
-                         req.status === "REJECTED_AFTER_RETURN" && 
-                         !req.shipments?.some(s => s.status === "RETURN_TO_CUSTOMER") && (
-                          <Button
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedReturn(req);
-                              setShipBackCourier("");
-                              setShipBackTracking("");
-                              setIsShipBackOpen(true);
-                            }}
-                            className="h-8 bg-orange-600/90 hover:bg-orange-500 text-white shadow-md shadow-orange-900/20"
-                          >
-                            <PackageX className="w-3.5 h-3.5 mr-1" /> Gửi trả khách
-                          </Button>
-                        )}
+                           >
+                              <Eye className="w-4 h-4" />
+                           </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -1489,7 +1448,7 @@ export const AdminReturnManagement = ({
                       <div className="flex items-center gap-6">
                         <div className="flex flex-col items-center">
                           <span className="text-[9px] uppercase font-bold text-muted-foreground mb-2">{t("dialogs.actual_receive")}</span>
-                          <div className="flex items-center gap-2 bg-background border border-border rounded-lg p-1">
+                          <div className="flex items-center gap-1 bg-zinc-100 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl p-1 shadow-inner">
                             <button
                               onClick={() => {
                                 const current = receiveItemsState[item.variantId]?.qtyReceived ?? item.quantity;
@@ -1498,13 +1457,13 @@ export const AdminReturnManagement = ({
                                   [item.variantId]: { ...prev[item.variantId], qtyReceived: Math.max(0, current - 1) }
                                 }));
                               }}
-                              className="w-6 h-6 flex items-center justify-center hover:bg-muted rounded"
+                              className="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-white/10 rounded-lg transition-all text-muted-foreground hover:text-foreground active:scale-90"
                             >
-                              -
+                              <Minus size={14} />
                             </button>
-                            <span className="w-4 text-center text-xs font-bold">
+                            <div className="w-10 text-center text-xs font-black font-mono">
                               {receiveItemsState[item.variantId]?.qtyReceived ?? item.quantity}
-                            </span>
+                            </div>
                             <button
                               onClick={() => {
                                 const current = receiveItemsState[item.variantId]?.qtyReceived ?? item.quantity;
@@ -1513,24 +1472,42 @@ export const AdminReturnManagement = ({
                                   [item.variantId]: { ...prev[item.variantId], qtyReceived: Math.min(item.quantity, current + 1) }
                                 }));
                               }}
-                              className="w-6 h-6 flex items-center justify-center hover:bg-muted rounded"
+                              className="w-8 h-8 flex items-center justify-center hover:bg-white dark:hover:bg-white/10 rounded-lg transition-all text-muted-foreground hover:text-foreground active:scale-90"
                             >
-                              +
+                              <Plus size={14} />
                             </button>
                           </div>
                         </div>
 
                         <div className="flex flex-col items-center">
                           <span className="text-[9px] uppercase font-bold text-muted-foreground mb-2">{t("dialogs.seal_intact")}</span>
-                          <Switch
-                            checked={receiveItemsState[item.variantId]?.sealIntact ?? true}
-                            onCheckedChange={(checked: boolean) => {
+                          <button
+                            onClick={() => {
+                              const current = receiveItemsState[item.variantId]?.sealIntact ?? true;
                               setReceiveItemsState(prev => ({
                                 ...prev,
-                                [item.variantId]: { ...prev[item.variantId], sealIntact: checked }
+                                [item.variantId]: { ...prev[item.variantId], sealIntact: !current }
                               }));
                             }}
-                          />
+                            className={cn(
+                              "relative w-16 h-8 rounded-full transition-all duration-300 p-1 flex items-center shadow-inner border",
+                              (receiveItemsState[item.variantId]?.sealIntact ?? true)
+                                ? "bg-emerald-500 border-emerald-600 shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]"
+                                : "bg-zinc-200 dark:bg-zinc-800 border-black/10 dark:border-white/10"
+                            )}
+                          >
+                            <div className={cn(
+                              "h-6 w-6 rounded-full transition-all duration-300 shadow-lg flex items-center justify-center",
+                              (receiveItemsState[item.variantId]?.sealIntact ?? true)
+                                ? "translate-x-8 bg-white"
+                                : "translate-x-0 bg-white"
+                            )}>
+                                {(receiveItemsState[item.variantId]?.sealIntact ?? true) ? 
+                                    <Check className="w-3 h-3 text-emerald-600" /> : 
+                                    <X className="w-3 h-3 text-zinc-400" />
+                                }
+                            </div>
+                          </button>
                         </div>
                       </div>
                     </div>

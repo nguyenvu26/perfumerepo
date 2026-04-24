@@ -130,7 +130,7 @@
       "recommendations": "Gợi Ý Từ AI",
       "history": "Lịch sử giao dịch",
       "loyalty": "Điểm thưởng",
-      "promotions": "Cửa hàng Ưu đãi",
+      "promotions": "Cửa hàng ưu đãi",
       "consultation": "Tư Vấn AI",
       "subscription": "Gói Hội Viên",
       "returns": "Yêu cầu Đổi trả"
@@ -149,7 +149,7 @@
       "analytics": "Trí Tuệ Hệ Thống",
       "logs": "Nhật Ký & Log AI",
       "marketing": "Trợ lý Tiếp thị AI",
-      "promotions": "Cửa hàng Ưu đãi",
+      "promotions": "Quản lý ưu đãi",
       "promotion_singular": "ưu đãi",
       "stores": "Hệ thống Cửa hàng",
       "stock": "Số lượng",
@@ -974,7 +974,7 @@
         "charge_cash": "Thanh toán tiền mặt",
         "generate_qr": "Tạo mã QR",
         "show_qr_again": "Hiện lại mã QR",
-        "processing": "ĐANG CHUẨN BỊ",
+        "processing": "Đang chuẩn bị",
         "generating": "Đang tạo...",
         "waiting_payment": "Đang chờ thanh toán...",
         "open_payos": "Mở cổng thanh toán PayOS",
@@ -1014,7 +1014,7 @@
       "loyalty": {
         "title": "Điểm Thưởng & Ưu Đãi",
         "subtitle": "Mỗi đơn hàng giúp bạn tích thêm điểm để đổi ưu đãi.",
-        "credits_suffix": "ĐIỂM",
+        "credits_suffix": "Điểm",
         "history_title": "Lịch Sử Điểm Thưởng",
         "syncing": "Đang tải...",
         "empty": "Chưa có giao dịch nào. Bắt đầu mua sắm để tích điểm.",
@@ -1048,7 +1048,7 @@
         "title": "Trang Chủ Thành Viên",
         "subtitle": "Chào mừng bạn trở lại. Hãy tiếp tục khám phá nước hoa.",
         "credits_label": "Điểm Thưởng",
-        "credits_suffix": "ĐIỂM",
+        "credits_suffix": "Điểm",
         "analyzing": "Đang phân tích...",
         "evolving_title": "Hồ Sơ Mùi Hương Đã Cập Nhật",
         "evolving_desc": "AI đã phát hiện sở thích mới dựa trên hoạt động gần đây. Cập nhật hồ sơ để nhận gợi ý chính xác hơn.",
@@ -1068,7 +1068,7 @@
         }
       },
       "promotions": {
-        "title": "Ưu Đãi Của Tôi",
+        "title": "Cửa hàng ưu đãi",
         "marketplace_title": "Thị trường Đặc quyền",
         "subtitle": "Các mã giảm giá và đặc quyền đang chờ bạn sử dụng.",
         "verified_signature": "Chữ ký Bảo chứng",
@@ -1079,9 +1079,12 @@
         "benefit_label": "Lợi ích",
         "no_promos": "Bộ sưu tập ưu đãi của bạn đang trống",
         "no_promos_desc": "Hãy đổi điểm thưởng để nhận thêm ưu đãi mới.",
-        "discount_off": "GIẢM {value}%",
-        "discount_fixed": "GIẢM {value} {currency}",
+        "discount_off": "Giảm {value}%",
+        "discount_fixed": "Giảm {value} {currency}",
         "fallback_desc": "Đặc quyền dành riêng cho khách hàng của Perfume GPT.",
+        "neural_insight_title": "Phân tích Hệ thống",
+        "neural_insight_desc": "Các yêu cầu và lượt quy đổi được xử lý ngay lập tức. Sau khi tổng hợp, mã ưu đãi sẽ xuất hiện trong {vault} của bạn.",
+        "loyalty_vault": "Ví Đặc Quyền",
         "referral": {
           "title": "Chương Trình Giới Thiệu",
           "desc": "Chia sẻ mã của bạn và nhận điểm thưởng đặc biệt khi bạn bè đặt hàng.",
@@ -1099,12 +1102,12 @@
         "destination": "Điểm Đến",
         "view_details": "Xem Chi Tiết",
         "status": {
-          "pending": "CHỜ XÁC NHẬN",
-          "confirmed": "ĐÃ XÁC NHẬN",
-          "processing": "ĐANG CHUẨN BỊ",
-          "shipped": "ĐANG GIAO HÀNG",
-          "completed": "HOÀN THÀNH",
-          "cancelled": "ĐÃ HỦY"
+          "pending": "Chờ xác nhận",
+          "confirmed": "Đã xác nhận",
+          "processing": "Đang chuẩn bị",
+          "shipped": "Đang giao hàng",
+          "completed": "Hoàn thành",
+          "cancelled": "Đã hủy"
         }
       },
       "favorite": {
@@ -1144,8 +1147,8 @@
         "not_found": "Không tìm thấy đơn hàng",
         "back_to_list": "Quay lại danh sách đơn hàng",
         "payment_status": {
-          "paid": "ĐÃ THANH TOÁN",
-          "pending": "CHỜ THANH TOÁN"
+          "paid": "Đã thanh toán",
+          "pending": "Chờ thanh toán"
         },
         "shipping_status_labels": {
           "READY_TO_PICK": "Sẵn sàng lấy hàng",
@@ -1195,10 +1198,10 @@
           "RECEIVED": "Đã nhận hàng",
           "REFUNDING": "Đang hoàn tiền",
           "REFUND_FAILED": "Hoàn tiền thất bại",
-          "COMPLETED": "Hoàn Thành",
+          "COMPLETED": "Hoàn thành",
           "REJECTED": "Đã từ chối",
           "REJECTED_AFTER_RETURN": "Từ chối sau khi nhận",
-          "CANCELLED": "Đã Hủy"
+          "CANCELLED": "Đã hủy"
         },
         "detail": {
           "back": "Quay Lại",
@@ -1228,7 +1231,7 @@
           "cancel_confirm": "Bạn có chắc muốn hủy yêu cầu này?",
           "cancel_reason_placeholder": "Lý do hủy (tùy chọn)...",
           "cancelling": "Đang hủy...",
-          "cancelled": "ĐÃ HỦY",
+          "cancelled": "Đã hủy",
           "cancel_error": "Lỗi khi hủy yêu cầu",
           "not_found": "Không tìm thấy yêu cầu đổi trả",
           "status_label": "Trạng thái:",
@@ -1311,7 +1314,7 @@
           "video_uploaded": "Video đã tải lên",
           "remove_video": "Xóa video",
           "min_images_warning": "Vui lòng thêm ít nhất 3 ảnh minh chứng.",
-          "submit_btn": "GỬI YÊU CẦU",
+          "submit_btn": "Gửi yêu cầu",
           "submitting": "Đang xử lý...",
           "cancel_btn": "Hủy",
           "success": "Gửi yêu cầu đổi trả thành công!",
@@ -1369,7 +1372,11 @@
           "orders": "Tổng Đơn hàng",
           "consultations": "Lượt tư vấn AI",
           "members": "Thành viên Cao cấp",
-          "delivery": "Giao hàng Tb."
+          "delivery": "Giao hàng Tb.",
+          "today": "+{count} hôm nay",
+          "ai_suffix": "Phiên AI · 30 ngày",
+          "refresh": "Làm mới",
+          "updated_at": "Cập nhật:"
         },
         "management": {
           "products": "Sản phẩm",
@@ -1433,7 +1440,7 @@
               "cancel": "Hủy bỏ",
               "create": "Tạo mới",
               "update": "Áp dụng thay đổi",
-              "processing": "ĐANG XỬ LÝ"
+              "processing": "Đang xử lý"
             }
           },
           "confirm": {
@@ -1489,12 +1496,12 @@
           "section_image": "Hình ảnh minh hoạ",
           "existing_image": "Đã có ảnh cũ",
           "current_image": "Ảnh hiện tại",
-          "content": "NỘI DUNG",
+          "content": "Nội dung",
           "content_placeholder": "Nội dung cho đoạn này..."
         },
         "create": {
           "title": "Tạo Bài Viết Mới",
-          "submit_btn": "ĐĂNG BÀI VIẾT",
+          "submit_btn": "Đăng bài viết",
           "submitting": "Đang đăng...",
           "success": "Đăng bài viết thành công!",
           "error_main_image": "Bắt buộc phải có ảnh bìa chính",
@@ -1505,7 +1512,7 @@
         "edit": {
           "title": "Chỉnh Sửa Bài Viết",
           "loading": "Đang tải...",
-          "submit_btn": "LƯU THAY ĐỔI",
+          "submit_btn": "Lưu thay đổi",
           "submitting": "Đang lưu...",
           "success": "Cập nhật bài viết thành công!",
           "error_load": "Lỗi tải bài viết",
@@ -1528,8 +1535,8 @@
           "subtitle_placeholder": "VD: Bộ sưu tập mới...",
           "link_label": "Link URL (nếu có)",
           "link_placeholder": "VD: /collection/...",
-          "submit_add": "THÊM MỚI",
-          "submit_update": "LƯU THAY ĐỔI",
+          "submit_add": "Thêm mới",
+          "submit_update": "Lưu thay đổi",
           "submitting": "Đang lưu..."
         },
         "list": {
@@ -1559,7 +1566,7 @@
         },
         "feed": {
           "title": "Luồng Hoạt Động Thời Gian Thực",
-          "event_label": "SỰ KIỆN:",
+          "event_label": "Sự kiện:",
           "sync_complete": "Người dùng #{id} đồng bộ hoàn tất",
           "active_now": "Đang hoạt động"
         }
@@ -1595,7 +1602,7 @@
           "edit_title": "Chỉnh Sửa: {name}",
           "assign_title": "Gán nhân viên vào quầy: {name}",
           "assign_desc": "Chọn nhân viên để phân bổ vào quầy này.",
-          "save": "Lưu Thay đổi",
+          "save": "Lưu thay đổi",
           "saving": "Đang lưu...",
           "cancel": "Hủy bỏ",
           "close": "Đóng",
@@ -1608,7 +1615,7 @@
         "subtitle": "Quản lý vai trò và quyền truy cập cho từng thành phần hệ thống.",
         "stats": {
           "active_roles": "Vai trò Hoạt động",
-          "pending": "CHỜ XÁC NHẬN",
+          "pending": "Chờ xác nhận",
           "alerts": "Cảnh báo Bảo mật"
         },
         "matrix": {
@@ -1643,7 +1650,7 @@
           "empty": "Chưa có cửa hàng nào. Hãy tạo cửa hàng đầu tiên.",
           "confirm_delete": "Xóa cửa hàng này? Tồn kho và gán nhân sự sẽ bị ảnh hưởng.",
           "saving": "Đang lưu...",
-          "save": "Lưu Thay đổi",
+          "save": "Lưu thay đổi",
           "cancel": "Hủy bỏ"
         },
         "modal": {
@@ -1758,6 +1765,12 @@
         "buttons": {
           "refresh": "Làm mới",
           "create_pos": "Tạo Đơn Đổi Trả"
+        },
+        "header": {
+          "focus_label": "Trọng tâm",
+          "focus_value": "Xem xét & Phê duyệt",
+          "experience_label": "Trải nghiệm",
+          "experience_value": "Minh bạch & Cao cấp"
         },
         "tabs": {
           "all": "Tất cả",
@@ -1966,7 +1979,7 @@
           },
           "submit_create": "Tạo sản phẩm mới",
           "submit_edit": "Áp dụng thay đổi",
-          "processing": "ĐANG XỬ LÝ",
+          "processing": "Đang xử lý",
           "cancel": "Hủy bỏ"
         },
         "errors": {
@@ -1977,7 +1990,7 @@
         "confirm_show": "Hiện sản phẩm này lên trang công khai?"
       },
       "promotions": {
-        "title": "Cửa hàng Ưu đãi",
+        "title": "Quản lý ưu đãi",
         "subtitle": "Tạo và quản lý các mã giảm giá, chương trình khuyến mãi.",
         "search_placeholder": "Tìm theo mã ưu đãi...",
         "stats": {
@@ -2002,26 +2015,42 @@
         "modals": {
           "create_title": "Tạo {type} Mới",
           "create_subtitle": "Cấu hình logic ưu đãi",
+          "edit_title": "Chỉnh sửa {type}",
+          "edit_subtitle": "Cập nhật cấu hình ưu đãi",
           "code": "Mã ưu đãi",
-          "type": "LOẠI LỢI ÍCH",
+          "type": "Loại ưu đãi",
           "desc": "Mô tả ưu đãi",
-          "value": "GIÁ TRỊ",
-          "limit": "GIỚI HẠN SỬ DỤNG",
-          "start": "NGÀY BẮT ĐẦU",
-          "end": "NGÀY HẾT HẠN",
-          "is_public": "LOẠI TIẾP CẬN",
-          "points_cost": "PHÍ QUY ĐỔI (ĐIỂM)",
-          "submit": "Kích hoạt Ưu Đãi",
-          "submitting": "Đang tạo...",
-          "error_create": "Lỗi tạo ưu đãi."
+          "value": "Giá trị giảm",
+          "limit": "Số lượng (Bỏ trống nếu không giới hạn)",
+          "start": "Ngày bắt đầu",
+          "end": "Ngày hết hạn",
+          "is_public": "Loại tiếp cận",
+          "points_cost": "Phí quy đổi (Điểm)",
+          "is_active": "Trạng thái hoạt động",
+          "active": "Đang hoạt động",
+          "inactive": "Tạm ngưng",
+          "submit": "Kích hoạt ưu đãi",
+          "submit_edit": "Lưu thay đổi",
+          "submitting": "Đang xử lý...",
+          "error_create": "Lỗi tạo ưu đãi.",
+          "error_update": "Lỗi cập nhật ưu đãi."
         },
         "types": {
-          "percentage": "PHẦN TRĂM (%)",
-          "fixed": "SỐ TIỀN CỐ ĐỊNH (VNĐ)",
-          "public": "CÔNG KHAI (MIỄN PHÍ)",
-          "private": "NỘI BỘ (DÙNG ĐIỂM)"
+          "percentage": "Phần trăm (%)",
+          "fixed": "Số tiền cố định (VNĐ)",
+          "public": "Công khai (Miễn phí)",
+          "private": "Nội bộ (Dùng điểm)"
         },
-        "delete_confirm": "Xóa ưu đãi này? Hành động này không thể hoàn tác."
+        "delete_confirm": "Xóa ưu đãi này? Hành động này không thể hoàn tác.",
+        "toasts": {
+          "update_success": "Cập nhật ưu đãi thành công",
+          "create_success": "Khởi tạo ưu đãi thành công",
+          "toggle_active": "Đã kích hoạt ưu đãi",
+          "toggle_inactive": "Đã tạm ngưng ưu đãi",
+          "delete_success": "Đã xóa ưu đãi thành công",
+          "delete_error": "Lỗi khi xóa ưu đãi",
+          "error_toggle": "Lỗi khi cập nhật trạng thái"
+        }
       },
       "reviews": {
         "title": "Quản Lý Đánh Giá",
@@ -2068,8 +2097,8 @@
           "curating": "Đang tải đánh giá...",
           "silence": "Chưa có đánh giá nào.",
           "no_commentary": "Không có bình luận",
-          "essence_voices": "tiếng nói cao cấp",
-          "confirm_purge": "Bạn có chắc chắn muốn XÓA VĨNH VIỄN đánh giá này? Hành động này không thể hoàn tác."
+          "essence_voices": "Tiếng nói cao cấp",
+          "confirm_purge": "Bạn có chắc chắn muốn xóa vĩnh viễn đánh giá này? Hành động này không thể hoàn tác."
         },
         "rating_label": "Xếp hạng: {rating}/5"
       },
@@ -2082,7 +2111,7 @@
           "id": "Mã Đơn",
           "customer": "Khách Hàng",
           "total": "Tổng Thanh Toán",
-          "fulfillment": "Hoàn Tất",
+          "fulfillment": "Trạng thái",
           "payment": "Thanh toán",
           "date": "Ngày đặt",
           "actions": "Thao Tác",
@@ -2103,28 +2132,28 @@
         },
         "print": {
           "title": "Hóa Đơn Perfume GPT",
-          "recipient": "NGƯỜI NHẬN",
-          "content": "SẢN PHẨM",
+          "recipient": "Người nhận",
+          "content": "Sản phẩm",
           "payment": "Thanh toán:",
           "method": "Hình thức:",
-          "paid": "ĐÃ THANH TOÁN",
+          "paid": "Đã thanh toán",
           "cod": "C.O.D",
           "footer": "Cảm ơn bạn đã lựa chọn Perfume GPT Cửa Hàng.",
           "guest": "Khách vãng lai"
         },
         "status": {
-          "pending": "CHỜ XÁC NHẬN",
-          "confirmed": "ĐÃ XÁC NHẬN",
-          "processing": "ĐANG CHUẨN BỊ",
-          "shipped": "ĐANG GIAO HÀNG",
-          "completed": "HOÀN THÀNH",
-          "cancelled": "ĐÃ HỦY"
+          "pending": "Chờ xác nhận",
+          "confirmed": "Đã xác nhận",
+          "processing": "Đang chuẩn bị",
+          "shipped": "Đang giao hàng",
+          "completed": "Hoàn thành",
+          "cancelled": "Đã hủy"
         },
         "payment_status": {
-          "pending": "CHỜ THANH TOÁN",
-          "paid": "ĐÃ THANH TOÁN",
-          "failed": "LỖI THANH TOÁN",
-          "refunded": "HOÀN TIỀN"
+          "pending": "Chờ thanh toán",
+          "paid": "Đã thanh toán",
+          "failed": "Lỗi thanh toán",
+          "refunded": "Hoàn tiền"
         }
       },
       "catalog": {
@@ -2147,7 +2176,7 @@
           "desc_label": "Mô tả",
           "desc_placeholder": "Nhập mô tả (tùy chọn)",
           "cancel": "Hủy bỏ",
-          "save": "Lưu Thay đổi",
+          "save": "Lưu thay đổi",
           "create": "Tạo mới",
           "saving": "Đang lưu..."
         },
@@ -2243,10 +2272,10 @@
             "pos": "Tại Quầy (POS)"
           },
           "status": {
-            "completed": "HOÀN THÀNH",
-            "paid": "ĐÃ THANH TOÁN",
-            "pending": "CHỜ XÁC NHẬN",
-            "cancelled": "ĐÃ HỦY"
+            "completed": "Hoàn thành",
+            "paid": "Đã thanh toán",
+            "pending": "Chờ xác nhận",
+            "cancelled": "Đã hủy"
           },
           "stats": {
             "showing": "Hiển thị {count} đơn / tổng {total}"
@@ -2259,7 +2288,7 @@
             "subtotal": "Tổng Tiền Hàng",
             "discount": "Giảm Giá",
             "total": "Tổng Thanh Toán",
-            "payments": "LỊCH SỬ THANH TOÁN"
+            "payments": "Lịch sử thanh toán"
           },
           "errors": {
             "load_failed": "Không tải được danh sách đơn hàng"
@@ -2272,7 +2301,7 @@
         "user_placeholder": "Quản Trị Viên",
         "personal_info": "Thông tin cá nhân",
         "edit": "Sửa",
-        "save": "Lưu Thay đổi",
+        "save": "Lưu thay đổi",
         "cancel": "Hủy bỏ",
         "roles": {
           "customer": "Khách Hàng",
@@ -2290,7 +2319,7 @@
           "loyalty": {
             "title": "Điểm Thưởng & Đặc Quyền",
             "subtitle": "Mỗi giao dịch là một bước tiến trên hành trình trở thành khách hàng cao cấp.",
-            "credits_suffix": "ĐIỂM",
+            "credits_suffix": "Điểm",
             "history_title": "Lịch Sử Điểm Thưởng",
             "syncing": "Đang tải...",
             "empty": "Chưa có giao dịch nào. Bắt đầu mua sắm để tích điểm.",
@@ -2322,7 +2351,7 @@
             "title": "Trang Chủ Thành Viên",
             "subtitle": "Chào mừng trở lại. Hành trình khứu giác của bạn đang chờ tiếp nối.",
             "credits_label": "Điểm Thưởng",
-            "credits_suffix": "ĐIỂM",
+            "credits_suffix": "Điểm",
             "analyzing": "Đang phân tích...",
             "evolving_title": "Hồ Sơ Mùi Hương Đã Cập Nhật",
             "evolving_desc": "AI đã phát hiện sở thích mới. Cập nhật hồ sơ để nhận gợi ý chính xác hơn.",
@@ -2342,19 +2371,22 @@
             }
           },
           "promotions": {
-            "title": "Ưu Đãi Của Tôi",
+            "title": "Cửa hàng ưu đãi",
             "subtitle": "Các mã giảm giá và đặc quyền đang chờ bạn sử dụng.",
             "marketplace_title": "Thị trường Đặc quyền",
             "verified_signature": "Đã xác thực",
             "time_left": "Còn lại {time}",
             "expired": "Hết hạn",
+            "neural_insight_title": "Phân tích Hệ thống",
+            "neural_insight_desc": "Các yêu cầu và lượt quy đổi được xử lý ngay lập tức. Sau khi tổng hợp, mã ưu đãi sẽ xuất hiện trong {vault} của bạn.",
+            "loyalty_vault": "Ví Đặc Quyền",
             "copy_btn": "Sao chép mã",
             "copied": "Đã sao chép vào bộ nhớ tạm",
             "benefit_label": "Lợi ích",
             "no_promos": "Bộ sưu tập ưu đãi của bạn đang trống",
             "no_promos_desc": "Hãy đổi điểm thưởng để nhận thêm ưu đãi mới.",
-            "discount_off": "GIẢM {value}%",
-            "discount_fixed": "GIẢM {value} {currency}",
+            "discount_off": "Giảm {value}%",
+            "discount_fixed": "Giảm {value} {currency}",
             "fallback_desc": "Đặc quyền dành riêng cho khách hàng của Perfume GPT.",
             "referral": {
               "title": "Chương Trình Giới Thiệu",
@@ -2373,12 +2405,12 @@
             "destination": "Điểm Đến",
             "view_details": "Xem Chi Tiết",
             "status": {
-              "pending": "CHỜ XÁC NHẬN",
-              "confirmed": "ĐÃ XÁC NHẬN",
-              "processing": "ĐANG CHUẨN BỊ",
-              "shipped": "ĐANG GIAO HÀNG",
-              "completed": "HOÀN THÀNH",
-              "cancelled": "ĐÃ HỦY"
+              "pending": "Chờ xác nhận",
+              "confirmed": "Đã xác nhận",
+              "processing": "Đang chuẩn bị",
+              "shipped": "Đang giao hàng",
+              "completed": "Hoàn thành",
+              "cancelled": "Đã hủy"
             }
           },
           "favorite": {
@@ -2423,8 +2455,8 @@
             "cancel_error": "Không thể hủy đơn hàng này.",
             "status_refunding": "Đang hoàn tiền",
             "payment_status": {
-              "paid": "ĐÃ THANH TOÁN",
-              "pending": "CHỜ THANH TOÁN"
+              "paid": "Đã thanh toán",
+              "pending": "Chờ thanh toán"
             },
             "shipping_status_labels": {
               "READY_TO_PICK": "Sẵn sàng lấy hàng",
@@ -2484,10 +2516,10 @@
               "error_submit_failed": "Gửi yêu cầu thất bại",
               "success": "Yêu cầu đổi trả đã được gửi thành công",
               "cancel_btn": "Hủy",
-              "submit_btn": "Gửi Yêu Cầu",
+              "submit_btn": "Gửi yêu cầu",
               "submitting": "Đang gửi...",
               "reason_selection_title": "Chọn Lý Do Trả Hàng (Bắt Buộc)",
-              "store_fault_title": "Lỗi của Cửa Hàng (Hoàn toàn bộ + phí ship)",
+              "store_fault_title": "Lỗi của Cửa Hàng (Hoàn tiền 100% + phí ship)",
               "customer_fault_title": "Lý Do Khác (Hoàn sản phẩm, không hoàn phí ship)",
               "refund_full": "Hoàn tiền đầy đủ (tính cả phí vận chuyển gốc)",
               "refund_product_only": "Hoàn tiền sản phẩm (không hoàn phí vận chuyển)",
@@ -2557,7 +2589,7 @@
         "stock_ledger": "Sổ Cái Tồn Kho",
         "filter_placeholder": "Lọc theo sản phẩm hoặc thương hiệu...",
         "quantity": "Số Lượng",
-        "processing": "ĐANG CHUẨN BỊ",
+        "processing": "Đang chuẩn bị",
         "status": {
           "out": "Hết hàng",
           "low": "Sắp hết",
@@ -2570,10 +2602,10 @@
           "none": "Trống",
           "import_qty": "Số Lượng Nhập",
           "import_reason": "Lý do (tùy chọn)",
-          "import_btn": "Nhập Kho",
+          "import_btn": "Nhập kho",
           "adjust_delta": "Điều Chỉnh (+/-)",
           "adjust_reason": "Lý do",
-          "adjust_btn": "Điều Chỉnh",
+          "adjust_btn": "Điều chỉnh",
           "default_reason": "Điều chỉnh thủ công"
         },
         "logs": {
@@ -2638,10 +2670,10 @@
           "pos": "Tại Quầy (POS)"
         },
         "status": {
-          "completed": "HOÀN THÀNH",
-          "paid": "ĐÃ THANH TOÁN",
-          "pending": "CHỜ XÁC NHẬN",
-          "cancelled": "ĐÃ HỦY"
+          "completed": "Hoàn thành",
+          "paid": "Đã thanh toán",
+          "pending": "Chờ xác nhận",
+          "cancelled": "Đã hủy"
         },
         "stats": {
           "showing": "Hiển thị {count} đơn / tổng {total}"
@@ -2654,7 +2686,7 @@
           "subtotal": "Tổng Tiền Hàng",
           "discount": "Giảm Giá",
           "total": "Tổng Thanh Toán",
-          "payments": "LỊCH SỬ THANH TOÁN"
+          "payments": "Lịch sử thanh toán"
         }
       }
     }
@@ -2708,8 +2740,8 @@
     "error_create_order": "Không thể tạo đơn hàng. Vui lòng thử lại.",
     "error_calculate_fee": "Lỗi tính phí vận chuyển",
     "coupon_discount_label": "Coupon giảm giá",
-    "promotion_label": "ƯU ĐÃI",
-    "select_voucher": "CHỌN MÃ ƯU ĐÃI",
+    "promotion_label": "Ưu đãi",
+    "select_voucher": "Chọn mã ưu đãi",
     "vouchers_modal_title": "Ví Voucher Của Bạn",
     "vouchers_modal_subtitle": "Chọn mã giảm giá khả dụng để áp dụng cho đơn hàng.",
     "no_vouchers": "Hiện không có đặc quyền nào khả dụng.",
@@ -2724,10 +2756,10 @@
       "cross_referencing": "Đang so sánh hồ sơ {intensity}...",
       "finalizing": "Đang hoàn thiện kết quả...",
       "calculating": "AI đang tính toán gợi ý cho bạn...",
-      "complete": "Phân Tích Hoàn Tất",
+      "complete": "Phân tích hoàn tất",
       "description": "Hồ sơ mùi hương của bạn đã sẵn sàng.",
       "dna_blueprint": "Hồ Sơ Mùi Hương Của Bạn",
-      "profile_label": "HỒ SƠ",
+      "profile_label": "Hồ sơ",
       "view_profile": "Xem Hồ Sơ Của Bạn"
     },
     "steps": {
@@ -2916,7 +2948,7 @@
     }
   },
   "support_page": {
-    "badge": "DỊCH VỤ ĐẶC QUYỀN",
+    "badge": "Dịch vụ đặc quyền",
     "title": "Chúng Tôi Có Thể Hỗ Trợ Gì?",
     "subtitle": "Đội ngũ chuyên gia luôn sẵn lòng dẫn lối bạn qua mọi trải nghiệm khứu giác",
     "email_label": "Email",

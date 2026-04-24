@@ -13,6 +13,7 @@ import { TopProductsList, TopProductDto } from '@/components/dashboard/admin/Top
 import { ChannelDonutChart } from '@/components/dashboard/admin/ChannelDonutChart';
 import { LowStockWidget } from '@/components/dashboard/admin/LowStockWidget';
 import { RecentOrdersFeed, RecentOrderDto } from '@/components/dashboard/admin/RecentOrdersFeed';
+import { StoreRevenueWidget } from '@/components/dashboard/admin/StoreRevenueWidget';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
 
@@ -191,7 +192,7 @@ export default function AdminDashboard() {
                 color: 'bg-emerald-500/10 text-emerald-500',
             },
             {
-                label: t('home.stats.orders') || 'Total Orders',
+                label: t('home.stats.orders'),
                 value: overview.totalOrders.toLocaleString(),
                 change: overview.ordersChange,
                 icon: ShoppingBag,
@@ -203,7 +204,7 @@ export default function AdminDashboard() {
                 change: null,
                 icon: Users,
                 color: 'bg-blue-500/10 text-blue-400',
-                subtext: `+${overview.newCustomersToday} today`,
+                subtext: t('home.stats.today', { count: overview.newCustomersToday }),
             },
             {
                 label: t('home.stats.consultations'),
@@ -211,7 +212,7 @@ export default function AdminDashboard() {
                 change: null,
                 icon: BrainCircuit,
                 color: 'bg-violet-500/10 text-violet-400',
-                subtext: 'AI sessions · 30D',
+                subtext: t('home.stats.ai_suffix'),
             },
         ]
         : [];
@@ -232,14 +233,14 @@ export default function AdminDashboard() {
                     </header>
                     <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
                         <span className="text-[9px] text-muted-foreground uppercase tracking-widest block opacity-70">
-                            Cập nhật: {lastRefreshed.toLocaleTimeString('vi-VN')}
+                            {t('home.stats.updated_at')} {lastRefreshed.toLocaleTimeString('vi-VN')}
                         </span>
                         <button
                             onClick={refreshAll}
                             className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-widest border border-gold/20 bg-gold/5 text-gold rounded-full px-5 py-2.5 hover:bg-gold hover:text-black transition-all active:scale-95"
                         >
                             <RefreshCw className="w-3 h-3" />
-                            Làm mới
+                            {t('home.stats.refresh')}
                         </button>
                     </div>
                 </div>
@@ -276,6 +277,11 @@ export default function AdminDashboard() {
                             </motion.div>
                         ))
                     }
+                </section>
+
+                {/* ── Per-Store Analytics ────────────────────────────────── */}
+                <section>
+                    <StoreRevenueWidget />
                 </section>
 
                 {/* ── Sales Chart + Top Products ────────────────────────── */}

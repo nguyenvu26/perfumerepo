@@ -37,6 +37,9 @@ export const promotionService = {
     create(dto: any) {
         return api.post<any>('/promotions', dto).then((r) => r.data);
     },
+    update(id: string, dto: any) {
+        return api.patch<any>(`/promotions/${id}`, dto).then((r) => r.data);
+    },
     remove(id: string) {
         return api.delete(`/promotions/${id}`).then((r) => r.data);
     }

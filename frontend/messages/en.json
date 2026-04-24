@@ -1322,7 +1322,11 @@
           "orders": "Total Orders",
           "consultations": "AI Consultations",
           "members": "Prestige Members",
-          "delivery": "Avg. Delivery"
+          "delivery": "Avg. Delivery",
+          "today": "+{count} today",
+          "ai_suffix": "AI sessions · 30D",
+          "refresh": "Refresh",
+          "updated_at": "Updated:"
         },
         "management": {
           "products": "Products",
@@ -1707,6 +1711,12 @@
           "refresh": "Refresh",
           "create_pos": "Create POS Return"
         },
+        "header": {
+          "focus_label": "Focus",
+          "focus_value": "Review & Approve",
+          "experience_label": "Experience",
+          "experience_value": "Clear & Premium"
+        },
         "tabs": {
           "all": "All",
           "online": "Online",
@@ -1949,6 +1959,8 @@
         "modals": {
           "create_title": "Forge New {type}",
           "create_subtitle": "Configure Incentive Logic",
+          "edit_title": "Reforge {type}",
+          "edit_subtitle": "Reconfigure Incentive Logic",
           "code": "SIGNATURE CODE",
           "type": "BENEFIT TYPE",
           "desc": "SPECIFICATIONS",
@@ -1958,9 +1970,14 @@
           "end": "EXPIRATION",
           "is_public": "ACCESS TYPE",
           "points_cost": "REDEMPTION COST (POINTS)",
+          "is_active": "RESONANCE STATE",
+          "active": "ACTIVE RESONANCE",
+          "inactive": "VOIDED",
           "submit": "Activate Protocol",
-          "submitting": "Forging...",
-          "error_create": "Protocol initialization failure."
+          "submit_edit": "Update Protocol",
+          "submitting": "Processing...",
+          "error_create": "Protocol initialization failure.",
+          "error_update": "Protocol update failure."
         },
         "types": {
           "percentage": "PERCENTAGE (%)",
@@ -1968,7 +1985,16 @@
           "public": "PUBLIC (FREE)",
           "private": "PRIVATE (REDEEMABLE)"
         },
-        "delete_confirm": "Deauthorize this {type}? This protocol will cascade to all associated artifacts."
+        "delete_confirm": "Deauthorize this {type}? This protocol will cascade to all associated artifacts.",
+        "toasts": {
+          "update_success": "Protocol updated successfully",
+          "create_success": "Protocol initialized successfully",
+          "toggle_active": "Protocol activated successfully",
+          "toggle_inactive": "Protocol voided successfully",
+          "delete_success": "Protocol purged successfully",
+          "delete_error": "Purge sequence failed",
+          "error_toggle": "Resonance sync failure"
+        }
       },
       "reviews": {
         "title": "Review Moderation",
@@ -2029,7 +2055,7 @@
           "id": "Order ID",
           "customer": "Customer",
           "total": "Total",
-          "fulfillment": "Fulfillment",
+          "fulfillment": "Status",
           "payment": "Payment",
           "date": "Date",
           "actions": "Actions",

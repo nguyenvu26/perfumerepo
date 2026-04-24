@@ -3,7 +3,7 @@
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { storesService, type StoreWithDetails } from '@/services/stores.service';
 import { userService } from '@/services/user.service';
-import { Plus, Pencil, Trash2, UserPlus, UserMinus, Loader2, Warehouse, Save, X, MapPin, Activity, Info, ShieldCheck, Lock } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserPlus, UserMinus, Loader2, Warehouse, Save, X, MapPin, Activity, Info, ShieldCheck, Lock, History } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -171,6 +171,13 @@ export default function AdminStoresPage() {
                         className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 h-14 sm:h-16 rounded-full bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-secondary transition-all active:scale-95 shadow-lg"
                     >
                         <Warehouse className="w-5 h-5 opacity-60 flex-shrink-0" /> {tx('stock_button') || 'Quản lý tồn kho'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => router.push(`/${locale}/dashboard/admin/daily-closing`)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 h-14 sm:h-16 rounded-full bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-secondary transition-all active:scale-95 shadow-lg"
+                    >
+                        <History className="w-5 h-5 opacity-60 flex-shrink-0 text-gold" /> Lịch sử chốt ca
                     </button>
                 </div>
             </header>

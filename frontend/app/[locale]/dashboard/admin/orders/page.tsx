@@ -40,7 +40,8 @@ export default function AdminOrders() {
     const [take, setTake] = useState(20);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED' | 'REFUND_REQUIRED'>('ALL');
+    const [activeTab, setActiveTab] = useState<'ALL' | 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'COMPLETED' | 'CANCELLED' | 'REFUND_REQUIRED'>('ALL');
+    const [activeChannel, setActiveChannel] = useState<'ALL' | 'ONLINE' | 'POS'>('ALL');
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [updating, setUpdating] = useState(false);
     const [refundInfo, setRefundInfo] = useState<any>(null);
@@ -262,6 +263,10 @@ export default function AdminOrders() {
         o.phone?.includes(search)
     );
     const filteredOrders = baseFilteredOrders.filter((o) => {
+        // Filter by Channel
+        if (activeChannel !== 'ALL' && (o as any).channel !== activeChannel) return false;
+
+        // Filter by Status
         if (activeTab === 'ALL') return true;
         if (activeTab === 'REFUND_REQUIRED') {
             return o.status === 'CANCELLED' && 
@@ -317,28 +322,58 @@ export default function AdminOrders() {
                     </div>
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-                    {[
-                        { id: 'ALL', label: 'Tất cả' },
-                        { id: 'PENDING', label: 'Chờ xử lý' },
-                        { id: 'PROCESSING', label: 'Đang xử lý' },
-                        { id: 'COMPLETED', label: 'Hoàn thành' },
-                        { id: 'CANCELLED', label: 'Đã hủy' },
-                        { id: 'REFUND_REQUIRED', label: 'Cần hoàn tiền' },
-                    ].map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={cn(
-                                "px-5 py-3 lg:py-2 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest border transition-all whitespace-nowrap shrink-0",
-                                activeTab === tab.id
-                                    ? "bg-gold text-primary-foreground border-gold shadow-md shadow-gold/20 scale-105"
-                                    : "bg-white dark:bg-zinc-900 border-stone-200 dark:border-white/10 text-stone-500 hover:border-gold/50"
-                            )}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
+                {/* Dual Layer Filters */}
+                <div className="space-y-4">
+                    {/* Top Row: Channel/Type Filters */}
+                    <div className="flex items-center gap-3 border-b border-stone-100 dark:border-white/5 pb-4">
+                        <span className="text-[10px] font-black uppercase tracking-[.3em] text-stone-400 mr-2">Phân loại:</span>
+                        {[
+                            { id: 'ALL', label: 'Tất cả' },
+                            { id: 'ONLINE', label: 'Đơn trực tuyến' },
+                            { id: 'POS', label: 'Đơn tại quầy' },
+                        ].map((channel) => (
+                            <button
+                                key={channel.id}
+                                onClick={() => setActiveChannel(channel.id as any)}
+                                className={cn(
+                                    "px-6 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
+                                    activeChannel === channel.id
+                                        ? "bg-luxury-black text-white dark:bg-white dark:text-black shadow-lg"
+                                        : "bg-stone-50 dark:bg-white/5 text-stone-500 hover:bg-stone-100 dark:hover:bg-white/10"
+                                )}
+                            >
+                                {channel.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Bottom Row: Progress Status Filters */}
+                    <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                        {[
+                            { id: 'ALL', label: 'Mọi trạng thái' },
+                            { id: 'PENDING', label: 'Chờ xử lý' },
+                            { id: 'PROCESSING', label: 'Đang chuẩn bị' },
+                            { id: 'SHIPPED', label: 'Đang giao' },
+                            { id: 'COMPLETED', label: 'Hoàn thành' },
+                            { id: 'CANCELLED', label: 'Đã hủy' },
+                            { id: 'REFUND_REQUIRED', label: 'Cần hoàn tiền', highlight: true },
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id as any)}
+                                className={cn(
+                                    "px-5 py-3 lg:py-2 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest border transition-all whitespace-nowrap shrink-0",
+                                    activeTab === tab.id
+                                        ? tab.highlight 
+                                            ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/20"
+                                            : "bg-gold text-primary-foreground border-gold shadow-md shadow-gold/20 scale-105"
+                                        : "bg-white dark:bg-zinc-900 border-stone-200 dark:border-white/10 text-stone-500 hover:border-gold/50"
+                                )}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Orders List */}
@@ -348,13 +383,12 @@ export default function AdminOrders() {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="border-b border-stone-100 dark:border-white/5 bg-stone-50/50 dark:bg-white/[0.02]">
-                                    <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.id')}</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.customer')}</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.total')}</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.fulfillment')}</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.payment')}</th>
-                                    <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.date')}</th>
-                                    <th className="px-8 py-6 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.actions')}</th>
+                                    <th className="px-4 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.id')}</th>
+                                    <th className="px-4 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.customer')}</th>
+                                    <th className="px-4 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.total')}</th>
+                                    <th className="px-4 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.fulfillment')}</th>
+                                    <th className="px-4 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.payment')}</th>
+                                    <th className="px-4 py-6 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t('table.date')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-stone-100 dark:divide-white/5">
@@ -374,27 +408,37 @@ export default function AdminOrders() {
                                             key={order.id}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="hover:bg-stone-50/80 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer"
+                                            className="hover:bg-stone-50/80 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer border-b border-stone-100/50 dark:border-white/[0.02]"
                                             onClick={() => setSelectedOrder(order)}
                                         >
-                                            <td className="px-8 py-6">
-                                                <div className="flex flex-col">
-                                                    <span className="text-xs font-bold text-luxury-black dark:text-white transition-colors">{order.code}</span>
-                                                    <span className="text-[8px] uppercase tracking-tighter text-stone-400 mt-1">Ref ID: {order.id.substring(0, 8)}</span>
+                                            <td className="px-4 py-6 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={cn(
+                                                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm border",
+                                                        (order as any).channel === 'POS' 
+                                                            ? "bg-purple-500/10 text-purple-600 border-purple-500/20" 
+                                                            : "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                                                    )} title={(order as any).channel === 'POS' ? 'Tại quầy' : 'Trực tuyến'}>
+                                                        {(order as any).channel === 'POS' ? <ImageIcon size={14} /> : <Search size={14} />}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-xs font-bold text-luxury-black dark:text-white transition-colors tracking-tight">{order.code}</span>
+                                                        <span className="text-[9px] uppercase tracking-widest text-stone-400 mt-0.5 opacity-70">Ref: {order.id.substring(0, 8)}</span>
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-4 py-6 whitespace-nowrap">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-bold text-luxury-black dark:text-white">{order.user?.name || t('print.guest')}</span>
                                                     <span className="text-[9px] text-stone-500 mt-0.5">{order.phone}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-4 py-6 whitespace-nowrap">
                                                 <span className="text-sm font-serif text-luxury-black dark:text-white">
                                                     {format.number(order.finalAmount, { style: 'currency', currency: 'VND' })}
                                                 </span>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-4 py-6 whitespace-nowrap">
                                                 <div className={cn(
                                                     "inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[9px] font-bold uppercase tracking-widest",
                                                     statusStyle.color
@@ -403,7 +447,7 @@ export default function AdminOrders() {
                                                     {statusStyle.label}
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-4 py-6 whitespace-nowrap">
                                                 <div className="flex items-center gap-2">
                                                     <div className={cn("w-1.5 h-1.5 rounded-full", paymentStyle.color.replace('text', 'bg'))} />
                                                     <span className={cn("text-[10px] font-bold uppercase tracking-widest", paymentStyle.color)}>
@@ -411,23 +455,17 @@ export default function AdminOrders() {
                                                     </span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6 text-stone-400 text-[10px] uppercase font-bold tracking-wider">
-                                                {format.dateTime(new Date(order.createdAt || ''))}
-                                            </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    {order.status === 'PENDING' && (
-                                                        <button 
-                                                            onClick={(e) => handleConfirmAndCreateGhn(e, order.id)}
-                                                            title="Xác nhận & Chuyển cho GHN"
-                                                            className="flex flex-row items-center gap-2 p-2 px-3 rounded-xl border border-gold text-gold hover:bg-gold hover:text-white transition-all text-[9px] uppercase tracking-widest font-bold"
-                                                        >
-                                                            <Truck size={14} /> Chuyển GHN
-                                                        </button>
-                                                    )}
-                                                    <button className="p-3.5 rounded-xl border border-stone-200 dark:border-white/10 hover:border-gold hover:text-gold transition-all">
-                                                        <Eye size={16} />
-                                                    </button>
+                                            <td className="px-4 py-6 text-stone-500 text-[10px] font-medium tracking-tight whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar size={12} className="text-stone-300" />
+                                                    <span className="uppercase">
+                                                        {format.dateTime(new Date(order.createdAt || ''), {
+                                                            month: 'short',
+                                                            day: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}
+                                                    </span>
                                                 </div>
                                             </td>
                                         </motion.tr>

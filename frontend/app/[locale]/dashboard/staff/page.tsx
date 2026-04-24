@@ -5,13 +5,14 @@ import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import {
     TrendingUp, ArrowUpRight, ArrowDownRight,
-    ShoppingBag, CheckCircle2, XCircle, RefreshCw,
+    ShoppingBag, CheckCircle2, XCircle, RefreshCw, Calculator
 } from 'lucide-react';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { SalesChart, SalesTrendPoint } from '@/components/dashboard/admin/SalesChart';
 import { TopProductsList, TopProductDto } from '@/components/dashboard/admin/TopProductsList';
 import { LowStockWidget, LowStockItemDto } from '@/components/dashboard/admin/LowStockWidget';
 import { RecentOrdersFeed, RecentOrderDto } from '@/components/dashboard/admin/RecentOrdersFeed';
+import { DailyClosingWebDialog } from '@/components/dashboard/staff/DailyClosingWebDialog';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
 
@@ -48,6 +49,7 @@ function ChangeChip({ value }: { value: number }) {
 
 export default function StaffDashboard() {
     const t = useTranslations('dashboard.staff');
+    const [isClosingOpen, setIsClosingOpen] = useState(false);
 
     // Overview state
     const [overview, setOverview] = useState<OverviewData | null>(null);
@@ -208,6 +210,13 @@ export default function StaffDashboard() {
                             <RefreshCw className="w-3 h-3" />
                             {t('home.refresh')}
                         </button>
+                        <button
+                            onClick={() => setIsClosingOpen(true)}
+                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] bg-gold text-black rounded-full px-8 py-3 shadow-xl shadow-gold/20 hover:scale-105 active:scale-95 transition-all"
+                        >
+                            <Calculator className="w-3.5 h-3.5" />
+                            Chốt doanh thu
+                        </button>
                     </div>
                 </div>
 
@@ -260,6 +269,16 @@ export default function StaffDashboard() {
                     <LowStockWidget data={lowStock} loading={lowStockLoading} />
                     <RecentOrdersFeed data={recentOrders} loading={recentLoading} />
                 </section>
+
+                <DailyClosingWebDialog
+                    isOpen={isClosingOpen}
+                    onClose={() => setIsClosingOpen(false)}
+                    report={{
+                        totalRevenue: overview?.totalRevenue || 0,
+                        totalOrders: overview?.totalOrders || 0
+                    }}
+                    onSuccess={refreshAll}
+                />
 
             </div>
         </AuthGuard>
