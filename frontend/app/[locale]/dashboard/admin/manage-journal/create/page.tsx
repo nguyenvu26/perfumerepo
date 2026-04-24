@@ -95,7 +95,7 @@ export default function CreateJournalPage() {
                     </div>
                     <div>
                         <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-2 font-bold">{t('fields.priority')} (0)</label>
-                        <input type="number" required value={form.priority} onChange={e => setForm({...form, priority: parseInt(e.target.value)||0})} className="w-full px-4 py-3 rounded-xl border border-border bg-transparent text-sm" />
+                        <input type="number" required value={form.priority || ''} onChange={e => setForm({...form, priority: parseInt(e.target.value)||0})} onFocus={e => e.target.select()} className="w-full px-4 py-3 rounded-xl border border-border bg-transparent text-sm" />
                     </div>
                 </div>
 

@@ -19,6 +19,7 @@ export interface AiRecommendation {
     price: number;
     stock: number;
     reason: string;
+    imageUrl?: string;
 }
 
 @Injectable()
@@ -35,7 +36,6 @@ export class StaffAiService {
         this.modelName = this.config.get<string>('GEMINI_MODEL', 'gemini-3-flash-preview');
         this.genAI = new GoogleGenAI({ apiKey });
     }
-
     async consultForStaff(
         staffUserId: string,
         req: StaffAiConsultRequest,
@@ -84,6 +84,7 @@ export class StaffAiService {
                     }
                 },
                 notes: { include: { note: true } },
+                images: true,
             },
             orderBy: { updatedAt: 'desc' },
             take: 80, // Limit to 80 for faster processing
@@ -100,12 +101,14 @@ export class StaffAiService {
                 }).join('; ');
 
                 const notes = p.notes.map(n => n.note.name).slice(0, 5).join(', ');
-                
+                const mainImage = p.images?.[0]?.url || '';
+
                 return `[PRODUCT ID: ${p.id}]
 Name: ${p.name}
 Brand: ${p.brand?.name ?? 'Unknown'}
 Gender: ${p.gender}
 Notes: ${notes}
+Image: ${mainImage}
 Variants: ${variantInfo}`;
             })
             .join('\n---\n');
@@ -131,7 +134,7 @@ Variants: ${variantInfo}`;
             rawResponse = result.text || '';
         } catch (err: any) {
             this.logger.error('AI Consultation SDK Error:', err.message);
-            
+
             // Log FAILED status
             await this.prisma.aiRequestLog.create({
                 data: {
@@ -144,7 +147,7 @@ Variants: ${variantInfo}`;
                     model: this.modelName,
                     errorMessage: err.message,
                 },
-            }).catch(() => {});
+            }).catch(() => { });
 
             throw new InternalServerErrorException(
                 `AI consultation failed: ${err.message}`,
@@ -152,7 +155,7 @@ Variants: ${variantInfo}`;
         }
 
         // 4. Parse AI response
-        const recommendations = this.parseRecommendations(rawResponse);
+        const recommendations = await this.parseRecommendations(rawResponse);
 
         // 5. Log to AiRequestLog
         try {
@@ -209,13 +212,14 @@ YÊU CẦU:
     "variantName": "Tên variant",
     "price": 1200000,
     "stock": 15,
-    "reason": "Giải thích ngắn gọn lý do chọn (tiếng Việt)"
+    "reason": "Giải thích ngắn gọn lý do chọn (tiếng Việt)",
+    "imageUrl": "url_image_here"
   }
 ]
 4. Không thêm bất kỳ văn bản nào ngoài JSON.`;
     }
 
-    private parseRecommendations(raw: string): AiRecommendation[] {
+    private async parseRecommendations(raw: string): Promise<AiRecommendation[]> {
         try {
             let jsonStr = raw;
             // Handle common AI prefixes/suffixes or markdown code blocks
@@ -227,18 +231,34 @@ YÊU CẦU:
             const parsed = JSON.parse(jsonStr);
             if (!Array.isArray(parsed)) return [];
 
-            return parsed
-                .slice(0, 3)
-                .map((item: any) => ({
-                    productId: item.productId || '',
-                    productName: item.productName || '',
-                    variantId: item.variantId || '',
-                    variantName: item.variantName || '',
-                    price: Number(item.price) || 0,
-                    stock: Number(item.stock) || 0,
-                    reason: item.reason || '',
-                }))
-                .filter((r) => r.productId && r.variantId);
+            const recs = parsed.slice(0, 3).map((item: any) => ({
+                productId: item.productId || '',
+                productName: item.productName || '',
+                variantId: item.variantId || '',
+                variantName: item.variantName || '',
+                price: Number(item.price) || 0,
+                stock: Number(item.stock) || 0,
+                reason: item.reason || '',
+                imageUrl: '', // Will be enriched
+            }));
+
+            // Enrich with real images from DB
+            const productIds = recs.map(r => r.productId).filter(Boolean);
+            if (productIds.length > 0) {
+                const products = await this.prisma.product.findMany({
+                    where: { id: { in: productIds } },
+                    select: {
+                        id: true,
+                        images: { take: 1, select: { url: true } },
+                    }
+                });
+                const imgMap = new Map(products.map(p => [p.id, p.images[0]?.url]));
+                recs.forEach(r => {
+                    r.imageUrl = imgMap.get(r.productId) || '';
+                });
+            }
+
+            return recs.filter((r) => r.productId && r.variantId);
         } catch (e) {
             this.logger.error('Failed to parse AI JSON:', e.message);
             return [];

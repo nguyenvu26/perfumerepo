@@ -221,7 +221,7 @@ export class StaffPosService {
       where: { id: orderId },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         payments: true,
         store: true,
@@ -294,7 +294,7 @@ export class StaffPosService {
       },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         store: true,
         user: {
@@ -333,7 +333,7 @@ export class StaffPosService {
       },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         store: true,
         user: {
@@ -355,7 +355,7 @@ export class StaffPosService {
       where: { id: orderId },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         store: true,
       },
@@ -471,7 +471,7 @@ export class StaffPosService {
       where: { id: order.id },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         store: true,
         user: {
@@ -607,7 +607,7 @@ export class StaffPosService {
       where: { id: orderId },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         payments: true,
         store: true,
@@ -736,7 +736,7 @@ export class StaffPosService {
       where: { id: order.id },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         store: true,
         user: {
@@ -975,7 +975,7 @@ export class StaffPosService {
         where: { id: order.id },
         include: {
           items: {
-            include: { variant: { include: { product: true } } },
+            include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
           },
         },
       });
@@ -995,7 +995,7 @@ export class StaffPosService {
       where: { id: order.id },
       include: {
         items: {
-          include: { variant: { include: { product: true } } },
+          include: { variant: { include: { product: { include: { images: { take: 1, select: { url: true } }, brand: true } } } } },
         },
         payments: true,
         store: true,

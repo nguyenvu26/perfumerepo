@@ -198,6 +198,10 @@ ${reviewTexts}`;
           select: { name: true, price: true, stock: true },
           orderBy: { price: 'asc' },
         },
+        images: {
+          select: { url: true },
+          take: 1,
+        },
       },
       take: 100, // limit to keep prompt manageable
     });
@@ -236,6 +240,7 @@ ${reviewTexts}`;
         prices.length > 0 ? `  Variants: ${prices.join(' | ')}` : null,
         p.description ? `  Description: ${p.description.slice(0, 150)}` : null,
         `  URL slug: ${p.slug}`,
+        p.images?.[0]?.url ? `  ImageUrl: ${p.images[0].url}` : null,
       ]
         .filter(Boolean)
         .join('\n');
@@ -429,19 +434,21 @@ ${dnaContext}
 ╚══════════════════════════════════════════════════════════╝
 
 - Respond in the same language the user writes in (Vietnamese or English).
-- When recommending products, you MUST return a JSON object:
+- MANDATORY: If you mention or recommend any specific products from the catalog, you MUST wrap your response in this JSON structure. DO NOT use plain text lists for products.
+- FORMAT EXAMPLE:
   {
-    "text": "<your warm, expert explanation>",
+    "text": "Dựa trên sở thích của bạn, tôi xin gợi ý 3 chai nước hoa tuyệt vời sau đây...",
     "recommendations": [
       {
-        "productId": "<exact ID from IN-STOCK catalog>",
-        "name": "<exact product name>",
-        "reason": "<why this suits them, mentioning scent family/notes>",
-        "price": <lowest variant price as number>
+        "productId": "prod_123",
+        "name": "Bleu de Chanel",
+        "reason": "Hương thơm mạnh mẽ, nam tính với nốt hương bưởi và gỗ đàn hương.",
+        "price": 2800000,
+        "imageUrl": "https://example.com/image.jpg"
       }
     ]
   }
-- If the question is general (e.g. greetings, fragrance knowledge), reply in plain text only.
+- If the question is general (e.g. greetings, fragrance knowledge) without specific product mentions, reply in plain text only.
 - Be concise, warm, and knowledgeable – speak like a luxury fragrance house advisor.
 
 ╔══════════════════════════════════════════════════════════╗
@@ -653,11 +660,12 @@ YÊU CẦU:
 - Chọn 3-5 sản phẩm phù hợp nhất dựa trên thông tin khách hàng.
 - CHỈ ĐƯỢC CHỌN sản phẩm từ danh mục CÒN HÀNG. TUYỆT ĐỐI KHÔNG chọn sản phẩm hết hàng.
 - Chiến lược: Nếu không tìm thấy sản phẩm khớp tất cả tiêu chí (đặc biệt là ngân sách thấp), hãy ưu tiên PHÙ HỢP HƠN về nhóm hương và dịp dùng, đồng thời giải thích rõ lý do.
-- Trả kết quả dạng JSON object: {
+- MANDATORY: Trả kết quả DUY NHẤT dưới dạng JSON object: 
+{
     "analysis": "<Đoạn văn ngắn 2-3 câu phân tích hồ sơ mùi hương của khách hàng theo phong cách sang trọng, tinh tế>",
-    "recommendations": [{"productId": "<ID từ catalog>", "name": "<tên chính xác>", "reason": "<giải thích ngắn gọn bằng tiếng Việt>", "price": <giá thấp nhất số>}]
-  }
-- Chỉ trả JSON, không thêm text ngoài.`;
+    "recommendations": [{"productId": "<ID từ catalog>", "name": "<tên chính xác>", "reason": "<giải thích ngắn gọn bằng tiếng Việt>", "price": <giá thấp nhất số>, "imageUrl": "<URL hình ảnh từ catalog>"}]
+}
+- KHÔNG thêm bất kỳ văn bản nào ngoài JSON.`;
 
       const response = await this.ai.models.generateContent({
         model: this.model,
@@ -666,7 +674,7 @@ YÊU CẦU:
 
     const text = response.text ?? '{}';
     let analysis = 'Dựa trên hồ sơ của bạn, chúng tôi đã tinh chọn những mùi hương phản chiếu đúng cá tính và không gian sống của bạn nhất.';
-    let recommendations: Array<{ productId: string; name: string; reason: string; price: number }> = [];
+    let recommendations: Array<{ productId: string; name: string; reason: string; price: number; imageUrl?: string }> = [];
 
       try {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -702,13 +710,26 @@ YÊU CẦU:
             },
           },
         },
-        select: { id: true },
+        select: { 
+          id: true,
+          brand: { select: { name: true } },
+          images: { take: 1, select: { url: true } },
+        },
       });
 
-      const validIds = new Set(validProducts.map((p) => p.id));
+      const productMap = new Map(validProducts.map((p) => [p.id, p]));
       const beforeCount = recommendations.length;
 
-      recommendations = recommendations.filter((r) => validIds.has(r.productId));
+      recommendations = recommendations
+        .filter((r) => productMap.has(r.productId))
+        .map((r) => {
+          const p = productMap.get(r.productId);
+          return {
+            ...r,
+            brand: p?.brand?.name ?? '',
+            imageUrl: p?.images?.[0]?.url ?? '',
+          };
+        });
 
       if (recommendations.length < beforeCount) {
         this.logger.warn(

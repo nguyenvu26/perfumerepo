@@ -932,8 +932,9 @@ export default function AdminProducts() {
                                         <input
                                           type="number"
                                           className="w-32 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                          value={v.price === 0 && !editId ? '' : v.price}
+                                          value={v.price || ''}
                                           onChange={(e) => updateVariant(i, { price: e.target.value === '' ? 0 : Number(e.target.value) })}
+                                          onFocus={(e) => e.target.select()}
                                         />
                                       </div>
                                     </td>
@@ -941,8 +942,9 @@ export default function AdminProducts() {
                                       <input
                                         type="number"
                                         className="w-24 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                        value={v.stock === 0 && !editId ? '' : v.stock}
+                                        value={v.stock || ''}
                                         onChange={(e) => updateVariant(i, { stock: e.target.value === '' ? 0 : Number(e.target.value) })}
+                                        onFocus={(e) => e.target.select()}
                                       />
                                     </td>
                                     <td className="px-10 py-8 text-right">

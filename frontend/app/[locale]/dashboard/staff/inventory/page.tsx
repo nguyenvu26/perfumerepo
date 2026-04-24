@@ -427,6 +427,7 @@ export default function StaffInventory() {
                       onChange={(e) =>
                         setAdjustDelta(Number(e.target.value) || 0)
                       }
+                      onFocus={(e) => e.target.select()}
                       className="w-full text-xs rounded-xl border border-border bg-background px-3 py-2 outline-none focus:border-gold/60"
                       placeholder="e.g. -2 or 5"
                     />
@@ -591,6 +592,7 @@ export default function StaffInventory() {
                           onChange={(e) =>
                             setImportQty(Number(e.target.value) || 0)
                           }
+                          onFocus={(e) => e.target.select()}
                           className="w-full text-sm rounded-xl border border-border bg-background px-4 py-2.5 outline-none focus:border-gold/60"
                           placeholder="e.g. 10"
                           min={1}

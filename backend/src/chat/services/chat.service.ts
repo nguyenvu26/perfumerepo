@@ -100,7 +100,9 @@ export class ChatService {
         let aiMsgType: MessageType = MessageType.TEXT;
 
         try {
-          const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
+          // Clean up common AI markdown artifacts
+          let cleaned = aiResponseText.replace(/```json/g, '').replace(/```/g, '').trim();
+          const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
             if (
@@ -118,8 +120,9 @@ export class ChatService {
               };
             }
           }
-        } catch {
-          // Not JSON – keep as plain text
+        } catch (parseErr) {
+          this.logger.warn(`Failed to parse AI JSON response: ${parseErr.message}. Falling back to plain text.`);
+          this.logger.debug(`Raw AI response: ${aiResponseText}`);
         }
 
         aiMessage = await this.messageService.create({

@@ -217,15 +217,18 @@ export const Sidebar = ({
                                 const isActive = getIsActive(item.href);
 
                                 return (
-                                    <div key={item.href} className="group/item relative">
+                                    <div key={item.href} className="group/item relative flex justify-center">
                                         <Link
                                             href={item.href}
                                             className={cn(
-                                                'group flex min-h-[58px] items-center gap-3 rounded-2xl px-3 py-3 transition-all duration-300',
-                                                isActive
-                                                    ? 'bg-gold text-luxury-black shadow-[0_22px_44px_-24px_rgba(197,160,89,0.75)]'
+                                                'group flex items-center transition-all duration-300',
+                                                isCollapsed 
+                                                    ? 'h-14 w-14 justify-center rounded-xl' 
+                                                    : 'min-h-[58px] w-full gap-3 rounded-2xl px-3 py-3',
+                                                !isCollapsed && isActive
+                                                    ? 'bg-gold text-luxury-black shadow-[0_15px_30px_-10px_rgba(197,160,89,0.5)]'
                                                     : 'text-stone-600 hover:bg-white/85 hover:text-foreground dark:text-stone-300 dark:hover:bg-white/[0.06]',
-                                                isDrawer ? 'px-6' : isCollapsed ? 'justify-center px-0' : '',
+                                                isDrawer && 'px-6',
                                             )}
                                             onClick={() => {
                                                 if (onClose) onClose();
@@ -233,10 +236,10 @@ export const Sidebar = ({
                                         >
                                             <div
                                                 className={cn(
-                                                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-all',
+                                                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all',
                                                     isActive
-                                                        ? 'border-black/8 bg-white/55 text-luxury-black'
-                                                        : 'border-black/6 bg-white/85 text-gold dark:border-white/10 dark:bg-white/[0.05]',
+                                                        ? 'bg-gold text-luxury-black shadow-[0_10px_20px_-5px_rgba(197,160,89,0.4)]'
+                                                        : 'border border-black/6 bg-white/85 text-gold dark:border-white/10 dark:bg-white/[0.05]',
                                                 )}
                                             >
                                                 <item.icon className="h-5 w-5" />

@@ -679,6 +679,7 @@ export default function AdminStockRedesignPage() {
                                         ),
                                       );
                                     }}
+                                    onFocus={(e) => e.target.select()}
                                     className="w-20 bg-background border border-border rounded-xl px-3 py-2 text-center font-heading text-xs focus:border-gold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
                                   />
                                 </div>
@@ -947,6 +948,7 @@ export default function AdminStockRedesignPage() {
                                       ),
                                     );
                                   }}
+                                  onFocus={(e) => e.target.select()}
                                   className="w-20 bg-background border border-border rounded-xl px-3 py-2 text-center font-heading text-xs focus:border-gold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
                                 />
                               </div>

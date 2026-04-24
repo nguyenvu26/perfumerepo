@@ -74,9 +74,10 @@ export default function PosPage() {
     const [aiNotes, setAiNotes] = useState('');
     const [aiLoading, setAiLoading] = useState(false);
     const [aiResults, setAiResults] = useState<{
-        productId: string; productName: string; variantId?: string; variantName?: string; price: number; stock: number; reason: string;
+        productId: string; productName: string; variantId?: string; variantName?: string; price: number; stock: number; reason: string; imageUrl?: string;
     }[]>([]);
     const [aiError, setAiError] = useState<string | null>(null);
+    const [showAiModal, setShowAiModal] = useState(false);
     const [cameraScannerOpen, setCameraScannerOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [activeTab, setActiveTab] = useState<'catalog' | 'cart'>('catalog');
@@ -353,6 +354,7 @@ export default function PosPage() {
                 storeId: selectedStoreId || undefined,
             });
             setAiResults(res.recommendations);
+            if (res.recommendations.length > 0) setShowAiModal(true);
             if (res.recommendations.length === 0) setAiError(t('ai.no_results'));
         } catch (e: any) {
             setAiError(e?.response?.data?.message || e.message || 'AI consultation failed');
@@ -432,7 +434,7 @@ export default function PosPage() {
 
                 {/* ═══════════ Catalog Area ═══════════ */}
                 <div className={`flex-1 flex flex-col border-r border-border min-w-0 ${activeTab !== 'catalog' ? 'hidden lg:flex' : 'flex'}`}>
-                    <header className="p-4 md:p-8 border-b border-border flex flex-col gap-2 bg-secondary/10 shrink-0">
+                    <header className="p-4 md:p-6 border-b border-border flex flex-col gap-2 bg-secondary/10 shrink-0">
                         <div className="flex flex-wrap justify-between items-center gap-4">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4 flex-1 min-w-0">
                                 <div className="flex items-center gap-2 shrink-0">
@@ -492,7 +494,7 @@ export default function PosPage() {
                     </header>
 
                     {/* Product Grid */}
-                    <div className="flex-1 overflow-y-auto p-4 md:p-8 grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6 custom-scrollbar">
                         {loadingProducts ? (
                             <div className="col-span-full text-center text-muted-foreground text-sm">{t('loading_products')}</div>
                         ) : products.length === 0 ? (
@@ -577,38 +579,13 @@ export default function PosPage() {
                                             </select>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
-                                            <input type="number" value={aiBudget || ''} onChange={e => setAiBudget(Number(e.target.value) || 0)} placeholder={t('ai.budget')} className="text-xs rounded-xl border border-border bg-background px-3 py-2 outline-none focus:border-gold/60" />
+                                            <input type="number" value={aiBudget || ''} onChange={e => setAiBudget(Number(e.target.value) || 0)} onFocus={e => e.target.select()} placeholder={t('ai.budget')} className="text-xs rounded-xl border border-border bg-background px-3 py-2 outline-none focus:border-gold/60" />
                                             <input type="text" value={aiNotes} onChange={e => setAiNotes(e.target.value)} placeholder={t('ai.notes')} className="text-xs rounded-xl border border-border bg-background px-3 py-2 outline-none focus:border-gold/60" />
                                         </div>
                                         <button onClick={handleAiConsult} disabled={aiLoading} className="w-full py-2.5 rounded-full bg-gold text-primary-foreground text-[10px] font-heading uppercase tracking-widest disabled:opacity-50 flex items-center justify-center gap-2">
                                             {aiLoading ? <><Loader2 className="w-3 h-3 animate-spin" /> {t('ai.consulting')}</> : <><Sparkles className="w-3 h-3" /> {t('ai.consult_btn')}</>}
                                         </button>
                                         {aiError && <p className="text-[10px] text-red-500">{aiError}</p>}
-                                        {aiResults.length > 0 && (
-                                            <div className="space-y-2 pt-2">
-                                                <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-heading">{t('ai.results_title')}</p>
-                                                {aiResults.map((r, i) => (
-                                                    <div key={i} className="glass rounded-2xl p-3 border-border space-y-1">
-                                                        <div className="flex justify-between items-start">
-                                                            <div>
-                                                                <p className="font-heading text-[10px] uppercase tracking-widest">{r.productName}</p>
-                                                                <div className="flex items-center gap-2">
-                                                                    {r.variantName && <p className="text-[9px] text-muted-foreground">{r.variantName}</p>}
-                                                                    <span className={`text-[8px] px-1.5 py-0.5 rounded-full border ${r.stock > 0 ? 'bg-success/5 text-success border-success/20' : 'bg-error/5 text-error border-error/20'}`}>
-                                                                        Stock: {r.stock}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <span className="font-heading text-gold text-sm">{formatVND(r.price)}</span>
-                                                        </div>
-                                                        <p className="text-[10px] text-muted-foreground italic">{r.reason}</p>
-                                                        <button onClick={() => handleAddAiRecommendation(r.variantId)} disabled={!r.variantId || isOrderCompleted || r.stock <= 0} className="text-[9px] font-heading uppercase tracking-widest text-gold hover:text-foreground transition-colors disabled:opacity-50 flex items-center gap-1 pt-1">
-                                                            <Plus className="w-3 h-3" /> {t('ai.add_to_bill')}
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
                                     </div>
                                 </motion.div>
                             )}
@@ -617,8 +594,8 @@ export default function PosPage() {
                 </div>
 
                 {/* ═══════════ Cart Area ═══════════ */}
-                <div className={`w-full lg:w-[420px] flex flex-col bg-secondary/10 shrink-0 p-4 md:p-8 shadow-2xl z-10 transition-all ${activeTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
-                    <div className="flex items-center gap-3 mb-4 md:mb-6">
+                <div className={`w-full lg:w-[420px] flex flex-col bg-secondary/10 shrink-0 p-4 md:p-6 shadow-2xl z-10 transition-all ${activeTab !== 'cart' ? 'hidden lg:flex' : 'flex'}`}>
+                    <div className="flex items-center gap-3 mb-4">
                         <ShoppingCart className="w-5 h-5 md:w-6 h-6 text-gold" />
                         <h2 className="font-heading text-sm md:text-lg uppercase tracking-[0.2em]">{t('cart.title')}</h2>
                         {isOrderCompleted && (
@@ -629,7 +606,7 @@ export default function PosPage() {
                     </div>
 
                     {/* Customer Phone / Loyalty Section */}
-                    <div className="mb-4 md:mb-6 space-y-3">
+                    <div className="mb-4 space-y-3">
                         <div className="flex items-center gap-2">
                             <Phone className="w-3.5 h-3.5 text-gold" />
                             <span className="text-[9px] md:text-[10px] uppercase tracking-widest text-muted-foreground font-heading">{t('cart.customer')}</span>
@@ -642,12 +619,12 @@ export default function PosPage() {
                                     onChange={e => { setCustomerPhone(e.target.value); setLoyaltyInfo(null); }}
                                     placeholder={t('cart.phone_placeholder')}
                                     disabled={isOrderCompleted}
-                                    className="flex-1 bg-background border border-border rounded-xl py-2 md:py-2.5 px-3 md:px-4 text-[10px] md:text-xs outline-none focus:border-gold/50 transition-all font-body"
+                                    className="flex-1 bg-background border border-border rounded-xl py-1.5 md:py-2 px-3 md:px-4 text-[10px] md:text-xs outline-none focus:border-gold/50 transition-all font-body"
                                 />
                                 <button
                                     onClick={handleSetCustomer}
                                     disabled={!customerPhone.trim() || isOrderCompleted || lookingUpCustomer}
-                                    className="px-3 md:px-4 py-2 rounded-xl bg-gold/10 text-gold text-[8px] md:text-[9px] font-heading uppercase tracking-widest hover:bg-gold/20 disabled:opacity-50 transition-all flex items-center gap-1 shrink-0"
+                                    className="px-3 md:px-4 py-1.5 rounded-xl bg-gold/10 text-gold text-[8px] md:text-[9px] font-heading uppercase tracking-widest hover:bg-gold/20 disabled:opacity-50 transition-all flex items-center gap-1 shrink-0"
                                 >
                                     {lookingUpCustomer ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
                                     {t('cart.lookup_btn')}
@@ -697,7 +674,7 @@ export default function PosPage() {
                     )}
 
                     {/* Cart Items */}
-                    <div className="flex-1 space-y-3 overflow-y-auto custom-scrollbar mb-6 md:mb-8 pr-1 md:pr-2">
+                    <div className="flex-1 space-y-2.5 overflow-y-auto custom-scrollbar mb-3 pr-1 md:pr-2 min-h-[120px]">
                         <AnimatePresence>
                             {order?.items.map(item => (
                                 <motion.div
@@ -705,27 +682,75 @@ export default function PosPage() {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
-                                    className="glass p-3 md:p-5 rounded-xl md:rounded-2xl border-border flex gap-3 md:gap-4 hover:border-gold/20 transition-colors"
+                                    className="glass group p-3.5 rounded-2xl border-border flex gap-4 hover:border-gold/30 hover:bg-gold/[0.03] transition-all relative overflow-hidden"
                                 >
-                                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl bg-secondary border border-border shrink-0 overflow-hidden">
-                                        {/* Item thumbnail — future: load from variant.product.images */}
-                                        <div className="w-full h-full flex items-center justify-center opacity-20">
-                                            <Package className="w-6 h-6" />
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 overflow-hidden">
-                                        <p className="font-heading text-[9px] md:text-[10px] uppercase tracking-widest truncate">
-                                            {item.variant.product?.name ?? 'Product'} — {item.variant.name}
-                                        </p>
-                                        <div className="flex justify-between items-center mt-2 md:mt-4">
-                                            <div className="flex items-center gap-2 md:gap-3 glass rounded-lg p-1 border-border bg-background/40">
-                                                <button onClick={() => handleChangeQuantity(item.variantId, -1)} disabled={isOrderCompleted} className="p-1 hover:text-gold transition-colors disabled:opacity-50"><Minus className="w-2.5 h-2.5 md:w-3 h-3" /></button>
-                                                <span className="text-[10px] md:text-xs font-heading w-3 md:w-4 text-center">{item.quantity}</span>
-                                                <button onClick={() => handleChangeQuantity(item.variantId, 1)} disabled={isOrderCompleted} className="p-1 hover:text-gold transition-colors disabled:opacity-50"><Plus className="w-2.5 h-2.5 md:w-3 h-3" /></button>
+                                    {/* Image Section */}
+                                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-xl bg-secondary border border-border shrink-0 overflow-hidden relative">
+                                        {item.variant.product?.images?.[0]?.url ? (
+                                            <img
+                                                src={item.variant.product.images[0].url}
+                                                alt={item.variant.product.name}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center opacity-20">
+                                                <Package className="w-8 h-8" strokeWidth={1.5} />
                                             </div>
-                                            <span className="font-heading text-xs md:text-sm text-gold">{formatVND(item.totalPrice)}</span>
+                                        )}
+                                    </div>
+
+                                    {/* Content Section */}
+                                    <div className="flex-1 flex flex-col min-w-0">
+                                        <div className="pr-6">
+                                            <p className="text-[9px] text-gold uppercase tracking-[0.25em] font-black mb-1">
+                                                {item.variant.product?.brand?.name ?? 'Aura Perfume'}
+                                            </p>
+                                            <h3 className="font-heading text-xs uppercase tracking-tight text-foreground line-clamp-1 leading-tight mb-1">
+                                                {item.variant.product?.name ?? 'Product'}
+                                            </h3>
+                                            <p className="text-[10px] text-muted-foreground/60 font-medium tracking-wide">
+                                                {item.variant.name}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex justify-between items-end mt-auto pt-2">
+                                            <div className="flex items-center gap-1.5 p-1 glass rounded-full border-border bg-background/60 shadow-sm">
+                                                <button
+                                                    onClick={() => handleChangeQuantity(item.variantId, -1)}
+                                                    disabled={isOrderCompleted}
+                                                    className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-colors disabled:opacity-50"
+                                                >
+                                                    <Minus className="w-3 h-3" />
+                                                </button>
+                                                <span className="text-[11px] font-heading w-6 text-center text-foreground">{item.quantity}</span>
+                                                <button
+                                                    onClick={() => handleChangeQuantity(item.variantId, 1)}
+                                                    disabled={isOrderCompleted}
+                                                    className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-gold/20 hover:text-gold transition-colors disabled:opacity-50"
+                                                >
+                                                    <Plus className="w-3 h-3" />
+                                                </button>
+                                            </div>
+
+                                            <div className="text-right">
+                                                <p className="text-[9px] text-muted-foreground/50 font-medium mb-0.5">
+                                                    {formatVND(item.unitPrice)}/1
+                                                </p>
+                                                <span className="font-heading text-sm text-gold tracking-tighter">
+                                                    {formatVND(item.totalPrice)}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+
+                                    {/* Delete Button */}
+                                    <button
+                                        onClick={() => handleChangeQuantity(item.variantId, 0, true)}
+                                        disabled={isOrderCompleted}
+                                        className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-background/80 border border-border opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30 disabled:hidden z-10"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
                                 </motion.div>
                             ))}
                         </AnimatePresence>
@@ -735,7 +760,7 @@ export default function PosPage() {
                     </div>
 
                     {/* Totals & Payment */}
-                    <div className="space-y-4 border-t border-border pt-8 mt-auto">
+                    <div className="space-y-2 border-t border-border pt-4 mt-auto">
                         <div className="flex justify-between text-muted-foreground text-[10px] uppercase tracking-widest font-heading">
                             <span>{t('cart.subtotal')}</span><span>{formatVND(subtotal)}</span>
                         </div>
@@ -751,35 +776,35 @@ export default function PosPage() {
 
                         {isOrderCompleted ? (
                             <div className="grid grid-cols-2 gap-4 mt-6">
-                                <button onClick={() => { setCompletedOrder(order); setShowReceipt(true); }} className="py-4 glass border-border rounded-2xl font-heading text-[9px] uppercase tracking-[0.2em] hover:border-gold/50 transition-all flex flex-col items-center gap-2">
+                                <button onClick={() => { setCompletedOrder(order); setShowReceipt(true); }} className="py-3 glass border-border rounded-2xl font-heading text-[9px] uppercase tracking-[0.2em] hover:border-gold/50 transition-all flex flex-col items-center gap-2">
                                     <Printer className="w-4 h-4 text-gold" /> {t('cart.receipt_btn')}
                                 </button>
-                                <button onClick={handleNewOrder} className="py-4 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex flex-col items-center gap-2">
+                                <button onClick={handleNewOrder} className="py-3 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex flex-col items-center gap-2">
                                     <Plus className="w-4 h-4" /> {t('cart.new_order_btn')}
                                 </button>
                             </div>
                         ) : (
                             <>
-                                <div className="mt-6 flex gap-2 text-[9px] font-heading uppercase tracking-[0.2em]">
-                                    <button type="button" onClick={() => setPaymentMethod('CASH')} className={`flex-1 py-2 rounded-full border ${paymentMethod === 'CASH' ? 'border-gold bg-gold/10 text-gold shadow-[0_4px_12px_rgba(197,160,89,0.1)]' : 'border-border text-muted-foreground'}`}>{t('cart.cash_btn')}</button>
-                                    <button type="button" onClick={() => setPaymentMethod('QR')} className={`flex-1 py-2 rounded-full border flex items-center justify-center gap-1 ${paymentMethod === 'QR' ? 'border-gold bg-gold/10 text-gold shadow-[0_4px_12px_rgba(197,160,89,0.1)]' : 'border-border text-muted-foreground'}`}><QrCode className="w-3 h-3" /> {t('cart.qr_btn')}</button>
+                                <div className="mt-4 flex gap-2 text-[8px] md:text-[9px] font-heading uppercase tracking-[0.2em]">
+                                    <button type="button" onClick={() => setPaymentMethod('CASH')} className={`flex-1 py-1.5 rounded-full border ${paymentMethod === 'CASH' ? 'border-gold bg-gold/10 text-gold shadow-[0_4px_12px_rgba(197,160,89,0.1)]' : 'border-border text-muted-foreground'}`}>{t('cart.cash_btn')}</button>
+                                    <button type="button" onClick={() => setPaymentMethod('QR')} className={`flex-1 py-1.5 rounded-full border flex items-center justify-center gap-1 ${paymentMethod === 'QR' ? 'border-gold bg-gold/10 text-gold shadow-[0_4px_12px_rgba(197,160,89,0.1)]' : 'border-border text-muted-foreground'}`}><QrCode className="w-3 h-3" /> {t('cart.qr_btn')}</button>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4 mt-6">
-                                    <button className="py-4 glass border-border rounded-2xl font-heading text-[9px] uppercase tracking-[0.2em] hover:border-gold/50 transition-all flex flex-col items-center gap-2" disabled>
-                                        <Receipt className="w-4 h-4 text-gold" /> {t('cart.hold_btn')}
+                                <div className="grid grid-cols-2 gap-3 mt-4">
+                                    <button className="py-2.5 glass border-border rounded-2xl font-heading text-[9px] uppercase tracking-[0.2em] hover:border-gold/50 transition-all flex flex-col items-center gap-1.5" disabled>
+                                        <Receipt className="w-3.5 h-3.5 text-gold" /> {t('cart.hold_btn')}
                                     </button>
                                     {paymentMethod === 'CASH' ? (
-                                        <button onClick={handlePayCash} disabled={!order || !order.items.length || paying} className="py-4 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex flex-col items-center gap-2 disabled:opacity-50">
-                                            <CreditCard className="w-4 h-4" /> {paying ? t('cart.processing') : t('cart.charge_cash')}
+                                        <button onClick={handlePayCash} disabled={!order || !order.items.length || paying} className="py-2.5 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex flex-col items-center gap-1.5 disabled:opacity-50">
+                                            <CreditCard className="w-3.5 h-3.5" /> {paying ? t('cart.processing') : t('cart.charge_cash')}
                                         </button>
                                     ) : (
-                                        <button onClick={handleCreateQrPayment} disabled={!order || !order.items.length || paying} className="py-4 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex flex-col items-center gap-2 disabled:opacity-50">
-                                            <QrCode className="w-4 h-4" /> {paying ? t('cart.generating') : qrPayment ? t('cart.show_qr_again') : t('cart.generate_qr')}
+                                        <button onClick={handleCreateQrPayment} disabled={!order || !order.items.length || paying} className="py-2.5 bg-gold text-primary-foreground font-heading font-bold rounded-2xl text-[9px] uppercase tracking-[0.2em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 flex flex-col items-center gap-1.5 disabled:opacity-50">
+                                            <QrCode className="w-3.5 h-3.5" /> {paying ? t('cart.generating') : qrPayment ? t('cart.show_qr_again') : t('cart.generate_qr')}
                                         </button>
                                     )}
                                 </div>
                                 {paymentMethod === 'QR' && qrPayment && (
-                                    <div className="mt-6 space-y-2 text-[10px]">
+                                    <div className="mt-4 space-y-2 text-[10px]">
                                         <div className="flex items-center gap-2 text-success">
                                             <span className="inline-block w-2 h-2 rounded-full bg-success animate-pulse" />
                                             <span className="font-heading uppercase tracking-[0.2em]">{t('cart.waiting_payment')}</span>
@@ -809,6 +834,120 @@ export default function PosPage() {
                     title={t('scan_camera_title')}
                     description={t('scan_camera_desc')}
                 />
+
+                {/* AI Results Modal */}
+                <AnimatePresence>
+                    {showAiModal && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                className="glass w-full max-w-3xl max-h-[85vh] rounded-[2.5rem] border-border shadow-2xl flex flex-col overflow-hidden"
+                            >
+                                {/* Modal Header */}
+                                <div className="p-6 md:p-8 border-b border-border flex justify-between items-center bg-secondary/10 shrink-0">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-xl bg-gold/10 text-gold">
+                                            <Sparkles className="w-5 h-5 md:w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h2 className="font-heading text-sm md:text-lg uppercase tracking-[0.2em]">{t('ai.results_title')}</h2>
+                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t('ai.desc')}</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => setShowAiModal(false)}
+                                        className="p-2 rounded-full hover:bg-secondary transition-colors"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+
+                                {/* Modal Content - Scrollable */}
+                                <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pb-4">
+                                        {aiResults.map((r, i) => (
+                                            <motion.div
+                                                key={i}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: i * 0.1 }}
+                                                className="glass group p-4 md:p-6 rounded-[2rem] border-border hover:border-gold/30 transition-all flex flex-col justify-between"
+                                            >
+                                                <div>
+                                                    <div className="flex gap-4 mb-4">
+                                                        {/* Product Image */}
+                                                        <div className="relative w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-2xl overflow-hidden bg-secondary/50 border border-border group-hover:border-gold/40 transition-colors">
+                                                            {r.imageUrl ? (
+                                                                <img 
+                                                                    src={r.imageUrl} 
+                                                                    alt={r.productName}
+                                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                                                    <Package className="w-8 h-8 opacity-20" />
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex justify-between items-start mb-1">
+                                                                <p className="text-[9px] text-gold uppercase tracking-[0.2em] font-black">Expert Choice</p>
+                                                                <div className={`px-2 py-0.5 rounded-lg text-[8px] md:text-[9px] uppercase font-heading border ${r.stock > 0 ? 'bg-success/5 text-success border-success/20' : 'bg-error/5 text-error border-error/20'}`}>
+                                                                    Stock: {r.stock}
+                                                                </div>
+                                                            </div>
+                                                            <h4 className="font-heading text-sm md:text-base uppercase tracking-tight text-foreground line-clamp-2 leading-tight mb-1">
+                                                                {r.productName}
+                                                            </h4>
+                                                            {r.variantName && (
+                                                                <p className="text-[10px] md:text-xs text-muted-foreground font-medium">
+                                                                    {r.variantName}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="p-3 md:p-4 rounded-2xl bg-secondary/30 border border-border/50 mb-4 group-hover:bg-gold/5 transition-colors">
+                                                        <p className="text-[10px] md:text-xs text-foreground/80 italic leading-relaxed">
+                                                            "{r.reason}"
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-between items-center mt-2">
+                                                    <span className="font-heading text-xs md:text-lg text-gold">{formatVND(r.price)}</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            handleAddAiRecommendation(r.variantId);
+                                                        }}
+                                                        disabled={r.stock <= 0 || isOrderCompleted}
+                                                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 text-gold hover:bg-gold hover:text-primary-foreground transition-all text-[9px] md:text-[10px] font-heading uppercase tracking-widest disabled:opacity-50"
+                                                    >
+                                                        <Plus className="w-3.5 h-3.5" />
+                                                        {t('cart.add_btn') || 'Add to Cart'}
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Modal Footer */}
+                                <div className="p-6 border-t border-border bg-secondary/5 flex justify-end">
+                                    <button 
+                                        onClick={() => setShowAiModal(false)}
+                                        className="px-8 py-2 rounded-full border border-border text-[10px] font-heading uppercase tracking-widest hover:bg-secondary transition-all"
+                                    >
+                                        {t('cart.receipt_close') || 'Close'}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>
             </div>
         </AuthGuard>
     );

@@ -268,7 +268,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
                                         </button>
                                         <button
                                             onClick={() => handleReport(review.id)}
-                                            className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[.4em] text-muted-foreground hover:text-red-500 transition-all duration-500 opacity-0 group-hover:opacity-100 hover:tracking-[.6em]"
+                                            className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[.4em] text-muted-foreground/60 hover:text-red-500 transition-all duration-500 hover:tracking-[.6em]"
                                         >
                                             <Flag size={16} />
                                             {t('report')}

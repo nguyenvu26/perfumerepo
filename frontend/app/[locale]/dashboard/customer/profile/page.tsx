@@ -357,6 +357,7 @@ export default function ProfilePage() {
                                                             budgetMin: e.target.value ? Number(e.target.value) : '',
                                                         }))
                                                     }
+                                                    onFocus={(e) => e.target.select()}
                                                     className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
                                                 />
                                             ) : (
@@ -381,6 +382,7 @@ export default function ProfilePage() {
                                                             budgetMax: e.target.value ? Number(e.target.value) : '',
                                                         }))
                                                     }
+                                                    onFocus={(e) => e.target.select()}
                                                     className="w-full px-3 py-2 rounded-xl border border-border bg-background text-sm"
                                                 />
                                             ) : (

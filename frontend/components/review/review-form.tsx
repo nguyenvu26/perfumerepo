@@ -133,35 +133,33 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="glass dark:bg-zinc-900 rounded-[2.5rem] p-8 md:p-12 border-border space-y-10 animate-in fade-in zoom-in-95 duration-700">
+        <form onSubmit={handleSubmit} className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 border border-black/5 dark:border-white/5 shadow-2xl space-y-10 animate-in fade-in zoom-in-95 duration-700">
             <div className="space-y-3 text-center md:text-left">
                 <h3 className="text-3xl font-serif text-foreground italic capitalize tracking-tight">{tReview('form.title')}</h3>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">{tReview('form.reviewing_label')} <span className="text-gold italic">{productName}</span></p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="space-y-8">
-                    <div className="space-y-4">
-                        <label className="text-[10px] font-bold uppercase tracking-[.4em] text-muted-foreground ml-1">{tReview('form.rating_label')}</label>
-                        <div className="flex items-center gap-6 glass px-6 py-4 rounded-2xl border-gold/10">
-                            <StarRating rating={rating} onChange={setRating} size={32} />
-                            <span className="text-sm font-serif text-gold italic border-l border-gold/20 pl-6">
-                                {getRatingDesc(rating)}
-                            </span>
-                        </div>
-                    </div>
+            <div className="space-y-4">
+                <label className="text-[10px] font-bold uppercase tracking-[.4em] text-muted-foreground ml-1">{tReview('form.rating_label', { rating })}</label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 bg-black/[0.03] dark:bg-white/[0.03] px-8 py-6 rounded-[2.5rem] border border-gold/10 transition-all duration-500 hover:border-gold/20 shadow-sm">
+                    <StarRating rating={rating} onChange={setRating} size={36} className="shrink-0" />
+                    <span className="text-lg font-serif text-gold italic border-t sm:border-t-0 sm:border-l border-gold/20 pt-4 sm:pt-0 sm:pl-10 min-h-[2rem] flex items-center tracking-wide">
+                        {getRatingDesc(rating)}
+                    </span>
+                </div>
+            </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     <div className="space-y-4">
                         <label className="text-[10px] font-bold uppercase tracking-[.4em] text-muted-foreground ml-1">{tReview('form.description_label')}</label>
                         <textarea
-                            className="w-full h-44 bg-foreground/5 dark:bg-white/[0.02] border border-border rounded-3xl p-6 text-sm font-serif italic focus:outline-none focus:ring-1 focus:ring-gold/30 transition-all resize-none custom-scrollbar"
+                            className="w-full h-44 bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 rounded-3xl p-6 text-sm font-serif italic focus:outline-none focus:ring-1 focus:ring-gold/30 transition-all resize-none custom-scrollbar placeholder:text-muted-foreground/50"
                             placeholder={tReview('form.description_placeholder')}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             required
                         />
                     </div>
-                </div>
 
                 <div className="space-y-6">
                     <label className="text-[10px] font-bold uppercase tracking-[.4em] text-muted-foreground flex justify-between ml-1">
@@ -204,9 +202,9 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
                         className="hidden"
                     />
 
-                    <div className="p-6 rounded-3xl bg-gold/5 border border-gold/10 flex gap-4 shadow-inner">
+                    <div className="p-6 rounded-3xl bg-gold/5 border border-gold/10 flex gap-4 shadow-sm">
                         <AlertCircle size={20} className="text-gold shrink-0 mt-1" />
-                        <p className="text-[10px] text-muted-foreground leading-relaxed italic opacity-80">
+                        <p className="text-[10px] text-muted-foreground leading-relaxed italic opacity-90">
                             {tReview('form.visual_desc')}
                         </p>
                     </div>

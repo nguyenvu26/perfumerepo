@@ -127,13 +127,13 @@ export default function PromotionsAdmin() {
           <table className="w-full text-left font-body text-sm border-collapse">
             <thead className="bg-secondary/10 text-muted-foreground border-b border-border">
               <tr>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.code')}</th>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.discount')}</th>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.conditions')}</th>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.redeemed')}</th>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.validity')}</th>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.status')}</th>
-                <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading text-right">{t('table.actions')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.code')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.discount')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.conditions')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.redeemed')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.validity')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading text-center">{t('table.status')}</th>
+                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading text-right">{t('table.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -145,8 +145,8 @@ export default function PromotionsAdmin() {
                   </td>
                 </tr>
               ) : promos.map((p) => (
-                <tr key={p.id} className="hover:bg-white/5 transition-colors group">
-                  <td className="px-10 py-10">
+                <tr key={p.id} className="group hover:bg-gold/[0.03] transition-all duration-500">
+                  <td className="px-6 py-6 group">
                     <span className="font-heading text-lg tracking-wider text-foreground group-hover:text-gold transition-colors">{p.code}</span>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-[8px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${p.isPublic ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-gold/10 text-gold border-gold/20'}`}>
@@ -155,44 +155,50 @@ export default function PromotionsAdmin() {
                     </div>
                     <p className="text-[9px] text-muted-foreground font-mono mt-2 opacity-60 truncate max-w-[150px] italic">{p.description}</p>
                   </td>
-                  <td className="px-10 py-10">
+                  <td className="px-6 py-6">
                     <span className="text-xl font-serif text-gold italic">
                       {p.discountType === 'PERCENTAGE' ? `${p.discountValue}%` : `-${format.number(p.discountValue, { style: 'currency', currency: tFeatured('currency_code') || 'VND', maximumFractionDigits: 0 })}`}
                     </span>
                   </td>
-                  <td className="px-10 py-10">
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                  <td className="px-6 py-6">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] whitespace-nowrap">
                        {p.usedCount} / {p.usageLimit ?? '∞'}
                     </span>
                   </td>
-                  <td className="px-10 py-10">
-                    <div className="w-full max-w-[80px] h-1.5 bg-secondary/50 rounded-full overflow-hidden shadow-inner">
+                  <td className="px-6 py-6">
+                    <div className="w-full max-w-[80px] h-1 bg-secondary/50 rounded-full overflow-hidden">
                        <div 
-                         className="h-full bg-gold shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-1000 ease-out" 
+                         className="h-full bg-gold transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(212,175,55,0.4)]" 
                          style={{
                            width: `${p.usageLimit ? Math.min((p.usedCount / p.usageLimit) * 100, 100) : 0}%`,
                          }}
                        />
                     </div>
                   </td>
-                  <td className="px-10 py-10">
+                  <td className="px-6 py-6 min-w-[160px]">
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-foreground font-mono">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-foreground font-mono whitespace-nowrap">
                         {format.dateTime(new Date(p.startDate), { dateStyle: 'medium' })}
                       </span>
-                      <span className="text-[9px] text-muted-foreground font-mono opacity-60">→ {format.dateTime(new Date(p.endDate), { dateStyle: 'medium' })}</span>
+                      <div className="flex items-center gap-2 opacity-60">
+                        <span className="text-[8px] text-muted-foreground font-mono">→</span>
+                        <span className="text-[10px] text-muted-foreground font-mono whitespace-nowrap">
+                          {format.dateTime(new Date(p.endDate), { dateStyle: 'medium' })}
+                        </span>
+                      </div>
                     </div>
                   </td>
-                  <td className="px-10 py-10">
-                    <span className={`px-4 py-1.5 rounded-full text-[8px] uppercase tracking-[.2em] font-bold border transition-colors ${
+                  <td className="px-6 py-6 text-center">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[8px] uppercase tracking-[.15em] font-black border transition-all whitespace-nowrap ${
                       isExpired(p.endDate) 
                         ? 'bg-stone-500/10 text-stone-500 border-border' 
-                        : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
+                        : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                     }`}>
+                      <span className={`w-1 h-1 rounded-full mr-2 ${isExpired(p.endDate) ? 'bg-stone-500' : 'bg-emerald-500 animate-pulse'}`} />
                       {isExpired(p.endDate) ? t('status.expired') : t('status.active')}
                     </span>
                   </td>
-                  <td className="px-10 py-10 text-right">
+                  <td className="px-6 py-6 text-right">
                     <button
                       onClick={() => handleDelete(p.id)}
                       className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100 active:scale-90"
@@ -337,8 +343,9 @@ export default function PromotionsAdmin() {
                             <input
                               type="number"
                               required
-                              value={form.discountValue}
-                              onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
+                              value={form.discountValue || ''}
+                              onChange={(e) => setForm({ ...form, discountValue: e.target.value === '' ? 0 : Number(e.target.value) })}
+                              onFocus={(e) => e.target.select()}
                               className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
@@ -347,8 +354,9 @@ export default function PromotionsAdmin() {
                             <input
                               type="number"
                               required
-                              value={form.usageLimit}
-                              onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
+                              value={form.usageLimit || ''}
+                              onChange={(e) => setForm({ ...form, usageLimit: e.target.value === '' ? 0 : Number(e.target.value) })}
+                              onFocus={(e) => e.target.select()}
                               className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
@@ -400,8 +408,9 @@ export default function PromotionsAdmin() {
                               <input
                                 type="number"
                                 required
-                                value={form.pointsCost}
-                                onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
+                                value={form.pointsCost || ''}
+                                onChange={(e) => setForm({ ...form, pointsCost: e.target.value === '' ? 0 : Number(e.target.value) })}
+                                onFocus={(e) => e.target.select()}
                                 className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </div>

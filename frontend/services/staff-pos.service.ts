@@ -10,7 +10,7 @@ export type PosOrderItem = {
   quantity: number;
   totalPrice: number;
   variant: ProductVariant & {
-    product?: Pick<Product, 'id' | 'name'>;
+    product?: Pick<Product, 'id' | 'name' | 'images' | 'brand'>;
   };
 };
 

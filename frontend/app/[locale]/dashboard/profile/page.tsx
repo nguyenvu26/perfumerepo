@@ -498,6 +498,7 @@ export default function ProfilePage() {
                             budgetMin: e.target.value ? Number(e.target.value) : '',
                           }))
                         }
+                        onFocus={(e) => e.target.select()}
                         className="mt-3 w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
                       />
                     ) : (
@@ -519,6 +520,7 @@ export default function ProfilePage() {
                             budgetMax: e.target.value ? Number(e.target.value) : '',
                           }))
                         }
+                        onFocus={(e) => e.target.select()}
                         className="mt-3 w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
                       />
                     ) : (

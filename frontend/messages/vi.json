@@ -130,7 +130,7 @@
       "recommendations": "Gợi Ý Từ AI",
       "history": "Lịch sử giao dịch",
       "loyalty": "Điểm thưởng",
-      "promotions": "Quản Lý Ưu Đãi",
+      "promotions": "Cửa hàng Ưu đãi",
       "consultation": "Tư Vấn AI",
       "subscription": "Gói Hội Viên",
       "returns": "Yêu cầu Đổi trả"
@@ -149,7 +149,7 @@
       "analytics": "Trí Tuệ Hệ Thống",
       "logs": "Nhật Ký & Log AI",
       "marketing": "Trợ lý Tiếp thị AI",
-      "promotions": "Quản Lý Ưu Đãi",
+      "promotions": "Cửa hàng Ưu đãi",
       "promotion_singular": "ưu đãi",
       "stores": "Hệ thống Cửa hàng",
       "stock": "Số lượng",
@@ -415,7 +415,7 @@
       "no_results_desc": "Hệ thống chưa tìm thấy sản phẩm phù hợp. Hãy thử điều chỉnh lựa chọn của bạn.",
       "retake": "Thực Hiện Lại Bước",
       "ai_picked": "Gợi Ý Bởi Perfume GPT",
-      "title": "Bản Vẽ Khứu Giác Của Bạn (Blueprint)",
+      "title": "Đã tìm thấy nước hoa phù hợp với bạn",
       "subtitle": "Dựa trên hồ sơ AI, hệ thống của chúng tôi đã tuyển chọn những sản phẩm này với mức độ phù hợp 98.4%.",
       "view_detail": "Xem chi tiết"
     },
@@ -930,7 +930,7 @@
         "gender": "Giới tính",
         "occasion": "Dịp sử dụng",
         "budget": "Ngân sách (VNĐ)",
-        "notes": "Ghi chú / Vibes",
+        "notes": "Ghi chú",
         "consult_btn": "Tìm Sản Phẩm Phù Hợp",
         "consulting": "Đang tìm...",
         "no_results": "Không tìm thấy sản phẩm phù hợp.",
@@ -977,7 +977,9 @@
         "processing": "ĐANG CHUẨN BỊ",
         "generating": "Đang tạo...",
         "waiting_payment": "Đang chờ thanh toán...",
-        "open_payos": "Mở cổng thanh toán PayOS"
+        "open_payos": "Mở cổng thanh toán PayOS",
+        "add_btn": "Thêm vào giỏ",
+        "receipt_close": "Đóng"
       },
       "receipt": {
         "complete": "Thanh Toán Hoàn Tất",
@@ -1975,7 +1977,7 @@
         "confirm_show": "Hiện sản phẩm này lên trang công khai?"
       },
       "promotions": {
-        "title": "Quản Lý Ưu Đãi",
+        "title": "Cửa hàng Ưu đãi",
         "subtitle": "Tạo và quản lý các mã giảm giá, chương trình khuyến mãi.",
         "search_placeholder": "Tìm theo mã ưu đãi...",
         "stats": {
@@ -2585,92 +2587,6 @@
           "adjust_failed": "Điều chỉnh tồn kho thất bại"
         }
       },
-      "pos": {
-        "store": "Phân bổ Boutique",
-        "select_store": "Vui lòng chọn quầy để xem sản phẩm.",
-        "search_placeholder": "Tìm sản phẩm, thương hiệu...",
-        "loading_products": "Đang tải sản phẩm...",
-        "no_products": {
-          "empty_store": "Không có sản phẩm nào trong quầy này.",
-          "select_store": "Vui lòng chọn quầy để xem sản phẩm."
-        },
-        "out_of_stock": "Hết hàng",
-        "low_stock_warning": "Chỉ còn {count} sản phẩm trong kho!",
-        "product_out_warning": "Sản phẩm đã hết hàng!",
-        "ai": {
-          "title": "Tư Vấn Mùi Hương AI",
-          "desc": "Nhập thông tin để AI gợi ý sản phẩm phù hợp cho khách.",
-          "gender": "Giới tính",
-          "genders": {
-            "male": "Nam (Masculine)",
-            "female": "Nữ (Feminine)",
-            "unisex": "Unisex (Equilibrium)"
-          },
-          "occasion": "Dịp sử dụng",
-          "occasions": {
-            "daily": "Hàng ngày",
-            "office": "Văn phòng",
-            "date": "Hẹn hò",
-            "party": "Tiệc tùng",
-            "gift": "Quà tặng",
-            "sport": "Thể thao"
-          },
-          "budget": "Ngân sách (VNĐ)",
-          "notes": "Ghi chú / Vibes",
-          "consult_btn": "Khởi tạo Đồng bộ",
-          "consulting": "Đang đồng bộ...",
-          "no_results": "Không tìm thấy sự phù hợp nào.",
-          "results_title": "Kết quả gợi ý:",
-          "add_to_bill": "Thêm vào đơn"
-        },
-        "cart": {
-          "title": "Giỏ Hàng Tại Quầy",
-          "paid": "ĐÃ THANH TOÁN",
-          "customer": "Khách Hàng",
-          "phone_placeholder": "Nhập số điện thoại khách hàng...",
-          "lookup_btn": "Tra cứu",
-          "member": "Thành viên",
-          "guest": "Khách vãng lai",
-          "guest_desc": "Điểm sẽ được tích khi thanh toán. Đăng ký để sử dụng.",
-          "points": "{count} điểm tích lũy",
-          "pending_points": "{count} điểm đang chờ",
-          "no_items": "Chưa có sản phẩm nào trong giỏ hàng.",
-          "subtotal": "Tổng Tiền Hàng",
-          "total": "Tổng Thanh Toán",
-          "receipt_btn": "Xem hóa đơn",
-          "new_order_btn": "Đơn mới",
-          "cash_btn": "Tiền mặt",
-          "qr_btn": "Quét mã QR",
-          "hold_btn": "Tạm giữ",
-          "charge_cash": "Thanh toán tiền mặt",
-          "generate_qr": "Tạo mã QR",
-          "show_qr_again": "Hiện lại mã QR",
-          "generating": "Đang tạo...",
-          "processing": "ĐANG CHUẨN BỊ",
-          "waiting_payment": "Đang chờ thanh toán...",
-          "open_payos": "Mở cổng thanh toán PayOS"
-        },
-        "receipt": {
-          "complete": "Thanh Toán Hoàn Tất",
-          "order": "Đơn Hàng",
-          "subtotal": "Tổng Tiền Hàng",
-          "discount": "Giảm Giá",
-          "total": "Tổng Thanh Toán",
-          "earned_points": "+{count} điểm tích lũy",
-          "reg_to_use": "(đăng ký để sử dụng)",
-          "close_btn": "Đóng",
-          "new_order_btn": "Đơn mới"
-        },
-        "errors": {
-          "load_products": "Không tải được sản phẩm",
-          "create_draft": "Lỗi tạo đơn nháp",
-          "add_item": "Lỗi thêm sản phẩm",
-          "update_qty": "Lỗi cập nhật số lượng",
-          "pay_cash": "Lỗi thanh toán tiền mặt",
-          "create_qr": "Lỗi tạo mã QR",
-          "lookup_customer": "Lỗi tra cứu khách hàng"
-        }
-      },
       "kpi": {
         "title": "Hiệu Suất Ngày",
         "subtitle_prefix": "KPI Hôm Nay —",
@@ -2733,9 +2649,12 @@
         "detail": {
           "title": "Chi Tiết Đơn Hàng",
           "staff": "Nhân Viên",
-          "store": "Boutique",
+          "store": "Phân bổ Boutique",
           "items": "Sản Phẩm",
-          "total": "Tổng Thanh Toán"
+          "subtotal": "Tổng Tiền Hàng",
+          "discount": "Giảm Giá",
+          "total": "Tổng Thanh Toán",
+          "payments": "LỊCH SỬ THANH TOÁN"
         }
       }
     }

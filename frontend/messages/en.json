@@ -468,7 +468,7 @@
     "form": {
       "title": "Share Your Experience",
       "reviewing_label": "Reviewing:",
-      "rating_label": "Your Rating",
+      "rating_label": "Your Rating: {rating}/5",
       "description_label": "Your Story",
       "description_placeholder": "Describe the scent, the longevity, or the compliments you received...",
       "visual_label": "Visual Memories",
@@ -952,7 +952,9 @@
         "processing": "Processing...",
         "generating": "Generating...",
         "waiting_payment": "Waiting for payment...",
-        "open_payos": "Open PayOS Checkout"
+        "open_payos": "Open PayOS Checkout",
+        "add_btn": "Add to Bill",
+        "receipt_close": "Close"
       },
       "receipt": {
         "complete": "Payment Complete",
@@ -2533,92 +2535,6 @@
           "adjust_failed": "Adjustment operation failed."
         }
       },
-      "pos": {
-        "store": "BOUTIQUE",
-        "select_store": "— Select Store —",
-        "search_placeholder": "Search products...",
-        "loading_products": "Loading catalog...",
-        "no_products": {
-          "empty_store": "No products found for this boutique.",
-          "select_store": "Select a boutique to load products."
-        },
-        "out_of_stock": "Out of Stock",
-        "low_stock_warning": "Only {count} left",
-        "product_out_warning": "This product is out of stock.",
-        "ai": {
-          "title": "AI Consultation",
-          "desc": "Let our neural engine find the perfect scent for your customer.",
-          "gender": "— Gender —",
-          "genders": {
-            "male": "Male",
-            "female": "Female",
-            "unisex": "Unisex"
-          },
-          "occasion": "— Occasion —",
-          "occasions": {
-            "daily": "Daily Wear",
-            "office": "Office",
-            "date": "Date Night",
-            "party": "Party",
-            "gift": "Gift",
-            "sport": "Sport"
-          },
-          "budget": "Budget (VND)",
-          "notes": "Additional notes...",
-          "consult_btn": "Get Recommendations",
-          "consulting": "Consulting AI...",
-          "no_results": "No recommendations found for the given criteria.",
-          "results_title": "AI Recommendations",
-          "add_to_bill": "Add to Bill"
-        },
-        "cart": {
-          "title": "Current Bill",
-          "paid": "PAID",
-          "customer": "CUSTOMER",
-          "phone_placeholder": "Customer phone...",
-          "lookup_btn": "Look Up",
-          "member": "MEMBER",
-          "guest": "GUEST",
-          "guest_desc": "Register to earn GPT Credits.",
-          "points": "{count} GPT Credits",
-          "pending_points": "{count} pts (pending registration)",
-          "no_items": "No items in the bill yet.",
-          "subtotal": "Subtotal",
-          "total": "Total",
-          "receipt_btn": "View Receipt",
-          "new_order_btn": "New Order",
-          "cash_btn": "Cash",
-          "qr_btn": "QR",
-          "hold_btn": "Hold",
-          "charge_cash": "Charge Cash",
-          "generate_qr": "Generate QR",
-          "show_qr_again": "Show QR Again",
-          "generating": "Generating...",
-          "processing": "Processing...",
-          "waiting_payment": "Awaiting Payment...",
-          "open_payos": "Open PayOS Link"
-        },
-        "receipt": {
-          "complete": "Order Complete",
-          "order": "Order",
-          "subtotal": "Subtotal",
-          "discount": "Discount",
-          "total": "Total",
-          "earned_points": "+{count} GPT Credits earned",
-          "reg_to_use": "(register to redeem)",
-          "close_btn": "Close",
-          "new_order_btn": "New Order"
-        },
-        "errors": {
-          "load_products": "Failed to load product catalog.",
-          "create_draft": "Failed to create order draft.",
-          "add_item": "Failed to add item to order.",
-          "update_qty": "Failed to update item quantity.",
-          "pay_cash": "Cash payment processing failed.",
-          "create_qr": "QR payment generation failed.",
-          "lookup_customer": "Customer lookup failed."
-        }
-      },
       "kpi": {
         "title": "Performance Matrix",
         "subtitle_prefix": "Today's KPIs —",
@@ -2681,7 +2597,10 @@
           "staff": "STAFF RESONANCE",
           "store": "BOUTIQUE NODE",
           "items": "ACQUIRED UNITS",
-          "total": "FINAL VALUATION"
+          "subtotal": "Subtotal",
+          "discount": "Incentive Deduction",
+          "total": "FINAL VALUATION",
+          "payments": "PAYMENT RECORDS"
         }
       }
     }

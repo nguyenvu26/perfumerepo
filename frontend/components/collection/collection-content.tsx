@@ -23,7 +23,7 @@ type PriceFilter = 'P1' | 'P2' | 'P3' | 'P4' | null;
 type SeasonFilter = 'XUAN' | 'HA' | 'THU' | 'DONG' | null;
 type SortMode = 'price_desc' | 'price_asc';
 
-export default function CollectionPage() {
+export function CollectionContent() {
   const locale = useLocale();
   const format = useFormatter();
   const tCommon = useTranslations('common');
@@ -36,101 +36,101 @@ export default function CollectionPage() {
     () =>
       isVi
         ? {
-          title: 'B\u1ed9 s\u01b0u t\u1eadp n\u01b0\u1edbc hoa',
-          subtitle:
-            'Kh\u00e1m ph\u00e1 nh\u1eefng m\u00f9i h\u01b0\u01a1ng \u0111\u01b0\u1ee3c s\u1eafp x\u1ebfp r\u00f5 r\u00e0ng, d\u1ec5 t\u00ecm ki\u1ebfm v\u00e0 d\u1ec5 l\u1ef1a ch\u1ecdn h\u01a1n cho t\u1eebng phong c\u00e1ch.',
-          badge: 'Tuy\u1ec3n ch\u1ecdn cao c\u1ea5p',
-          resultCount: 'S\u1ea3n ph\u1ea9m hi\u1ec7n c\u00f3',
-          brandCount: 'Th\u01b0\u01a1ng hi\u1ec7u',
-          filterCount: 'B\u1ed9 l\u1ecdc \u0111ang b\u1eadt',
-          directoryHint: 'T\u00ecm nhanh theo t\u00ean, th\u01b0\u01a1ng hi\u1ec7u, nh\u00f3m h\u01b0\u01a1ng v\u00e0 m\u1ee9c gi\u00e1.',
-          searchPlaceholder: 'T\u00ecm theo t\u00ean n\u01b0\u1edbc hoa, th\u01b0\u01a1ng hi\u1ec7u ho\u1eb7c nh\u00f3m h\u01b0\u01a1ng...',
-          sortLabel: 'S\u1eafp x\u1ebfp gi\u00e1',
-          sortHighLow: 'Cao \u0111\u1ebfn th\u1ea5p',
-          sortLowHigh: 'Th\u1ea5p \u0111\u1ebfn cao',
-          filterLabel: 'B\u1ed9 l\u1ecdc',
-          mobileFilterTitle: 'B\u1ed9 l\u1ecdc s\u1ea3n ph\u1ea9m',
-          clearFilters: 'X\u00f3a t\u1ea5t c\u1ea3 b\u1ed9 l\u1ecdc',
-          brandSearch: 'Tìm nhanh thương hiệu',
-          all: 'Tất cả',
-          categorySection: 'Danh mục',
-          genderSection: 'Giới tính',
-          male: 'Nam',
-          female: 'Nữ',
-          unisex: 'Unisex',
-          priceSection: 'M\u1ee9c gi\u00e1',
-          scentSection: 'Nh\u00f3m h\u01b0\u01a1ng',
-          seasonSection: 'M\u00f9a s\u1eed d\u1ee5ng',
-          spring: 'Xu\u00e2n',
-          summer: 'H\u1ea1',
-          autumn: 'Thu',
-          winter: '\u0110\u00f4ng',
-          activeFilters: 'B\u1ed9 l\u1ecdc \u0111ang \u00e1p d\u1ee5ng',
-          productGridTitle: 'Danh s\u00e1ch s\u1ea3n ph\u1ea9m',
-          productGridDesc: 'B\u1ed1 c\u1ee5c r\u00f5 r\u00e0ng, d\u1ec5 \u0111\u1ecdc v\u00e0 t\u1ed1i \u01b0u cho vi\u1ec7c so s\u00e1nh nhanh.',
-          loading: '\u0110ang t\u1ea3i b\u1ed9 s\u01b0u t\u1eadp...',
-          emptyTitle: 'Ch\u01b0a t\u00ecm th\u1ea5y s\u1ea3n ph\u1ea9m ph\u00f9 h\u1ee3p',
-          emptyDesc: 'Th\u1eed \u0111\u1ed5i t\u1eeb kh\u00f3a t\u00ecm ki\u1ebfm ho\u1eb7c b\u1ed9 l\u1ecdc \u0111\u1ec3 xem th\u00eam g\u1ee3i \u00fd.',
-          prev: 'Tr\u01b0\u1edbc',
-          next: 'Sau',
-          page: 'Trang',
-          detail: 'Xem chi ti\u1ebft',
-          from: 'T\u1eeb',
-          noPrice: 'Li\u00ean h\u1ec7',
-          allBrands: 'T\u1ea5t c\u1ea3 th\u01b0\u01a1ng hi\u1ec7u',
-          heroCardTitle: 'L\u1ef1a ch\u1ecdn d\u1ec5 d\u00e0ng h\u01a1n',
-          heroCardDesc:
-            'Trang \u0111\u01b0\u1ee3c s\u1eafp x\u1ebfp l\u1ea1i \u0111\u1ec3 ng\u01b0\u1eddi d\u00f9ng t\u00ecm s\u1ea3n ph\u1ea9m nhanh h\u01a1n v\u00e0 theo d\u00f5i th\u00f4ng tin r\u00f5 r\u00e0ng h\u01a1n.',
-          heroCardNote: 'T\u1eadp trung v\u00e0o filter, search v\u00e0 card s\u1ea3n ph\u1ea9m d\u1ec5 \u0111\u1ecdc.',
-        }
+            title: 'Bộ sưu tập nước hoa',
+            subtitle:
+              'Khám phá những mùi hương được sắp xếp rõ ràng, dễ tìm kiếm và dễ lựa chọn hơn cho từng phong cách.',
+            badge: 'Tuyển chọn cao cấp',
+            resultCount: 'Sản phẩm hiện có',
+            brandCount: 'Thương hiệu',
+            filterCount: 'Bộ lọc đang bật',
+            directoryHint: 'Tìm nhanh theo tên, thương hiệu, nhóm hương và mức giá.',
+            searchPlaceholder: 'Tìm theo tên nước hoa, thương hiệu hoặc nhóm hương...',
+            sortLabel: 'Sắp xếp giá',
+            sortHighLow: 'Cao đến thấp',
+            sortLowHigh: 'Thấp đến cao',
+            filterLabel: 'Bộ lọc',
+            mobileFilterTitle: 'Bộ lọc sản phẩm',
+            clearFilters: 'Xóa tất cả bộ lọc',
+            brandSearch: 'Tìm nhanh thương hiệu',
+            all: 'Tất cả',
+            categorySection: 'Danh mục',
+            genderSection: 'Giới tính',
+            male: 'Nam',
+            female: 'Nữ',
+            unisex: 'Unisex',
+            priceSection: 'Mức giá',
+            scentSection: 'Nhóm hương',
+            seasonSection: 'Mùa sử dụng',
+            spring: 'Xuân',
+            summer: 'Hạ',
+            autumn: 'Thu',
+            winter: 'Đông',
+            activeFilters: 'Bộ lọc đang áp dụng',
+            productGridTitle: 'Danh sách sản phẩm',
+            productGridDesc: 'Bố cục rõ ràng, dễ đọc và tối ưu cho việc so sánh nhanh.',
+            loading: 'Đang tải bộ sưu tập...',
+            emptyTitle: 'Chưa tìm thấy sản phẩm phù hợp',
+            emptyDesc: 'Thử đổi từ khóa tìm kiếm hoặc bộ lọc để xem thêm gợi ý.',
+            prev: 'Trước',
+            next: 'Sau',
+            page: 'Trang',
+            detail: 'Xem chi tiết',
+            from: 'Từ',
+            noPrice: 'Liên hệ',
+            allBrands: 'Tất cả thương hiệu',
+            heroCardTitle: 'Lựa chọn dễ dàng hơn',
+            heroCardDesc:
+              'Trang được sắp xếp lại để người dùng tìm sản phẩm nhanh hơn và theo dõi thông tin rõ ràng hơn.',
+            heroCardNote: 'Tập trung vào filter, search và card sản phẩm dễ đọc.',
+          }
         : {
-          title: 'Fragrance Collection',
-          subtitle:
-            'Discover fragrances through a cleaner layout, larger type, and a clearer premium browsing experience.',
-          badge: 'Curated selection',
-          resultCount: 'Available products',
-          brandCount: 'Brands',
-          filterCount: 'Active filters',
-          directoryHint: 'Search faster by product name, brand, scent family, and price.',
-          searchPlaceholder: 'Search by fragrance name, brand, or scent family...',
-          sortLabel: 'Sort by price',
-          sortHighLow: 'High to low',
-          sortLowHigh: 'Low to high',
-          filterLabel: 'Filters',
-          mobileFilterTitle: 'Product filters',
-          clearFilters: 'Clear all filters',
-          brandSearch: 'Search brands',
-          all: 'All',
-          categorySection: 'Category',
-          genderSection: 'Gender',
-          male: 'Male',
-          female: 'Female',
-          unisex: 'Unisex',
-          priceSection: 'Price',
-          scentSection: 'Scent family',
-          seasonSection: 'Season',
-          spring: 'Spring',
-          summer: 'Summer',
-          autumn: 'Autumn',
-          winter: 'Winter',
-          activeFilters: 'Applied filters',
-          productGridTitle: 'Product archive',
-          productGridDesc: 'A clearer layout built for quick comparison and easier browsing.',
-          loading: 'Loading collection...',
-          emptyTitle: 'No products matched your filters',
-          emptyDesc: 'Try adjusting your search or filters to explore more options.',
-          prev: 'Previous',
-          next: 'Next',
-          page: 'Page',
-          detail: 'View details',
-          from: 'From',
-          noPrice: 'Contact us',
-          allBrands: 'All brands',
-          heroCardTitle: 'Designed for easier discovery',
-          heroCardDesc:
-            'This layout emphasizes readability, cleaner controls, and more polished product presentation.',
-          heroCardNote: 'Search, filters, and cards now feel more structured and premium.',
-        },
+            title: 'Fragrance Collection',
+            subtitle:
+              'Discover fragrances through a cleaner layout, larger type, and a clearer premium browsing experience.',
+            badge: 'Curated selection',
+            resultCount: 'Available products',
+            brandCount: 'Brands',
+            filterCount: 'Active filters',
+            directoryHint: 'Search faster by product name, brand, scent family, and price.',
+            searchPlaceholder: 'Search by fragrance name, brand, or scent family...',
+            sortLabel: 'Sort by price',
+            sortHighLow: 'High to low',
+            sortLowHigh: 'Low to high',
+            filterLabel: 'Filters',
+            mobileFilterTitle: 'Product filters',
+            clearFilters: 'Clear all filters',
+            brandSearch: 'Search brands',
+            all: 'All',
+            categorySection: 'Category',
+            genderSection: 'Gender',
+            male: 'Male',
+            female: 'Female',
+            unisex: 'Unisex',
+            priceSection: 'Price',
+            scentSection: 'Scent family',
+            seasonSection: 'Season',
+            spring: 'Spring',
+            summer: 'Summer',
+            autumn: 'Autumn',
+            winter: 'Winter',
+            activeFilters: 'Applied filters',
+            productGridTitle: 'Product archive',
+            productGridDesc: 'A clearer layout built for quick comparison and easier browsing.',
+            loading: 'Loading collection...',
+            emptyTitle: 'No products matched your filters',
+            emptyDesc: 'Try adjusting your search or filters to explore more options.',
+            prev: 'Previous',
+            next: 'Next',
+            page: 'Page',
+            detail: 'View details',
+            from: 'From',
+            noPrice: 'Contact us',
+            allBrands: 'All brands',
+            heroCardTitle: 'Designed for easier discovery',
+            heroCardDesc:
+              'This layout emphasizes readability, cleaner controls, and more polished product presentation.',
+            heroCardNote: 'Search, filters, and cards now feel more structured and premium.',
+          },
     [isVi]
   );
 
@@ -355,36 +355,36 @@ export default function CollectionPage() {
     selectedScent ? { key: 'scent', label: selectedScent } : null,
     gender
       ? {
-        key: 'gender',
-        label:
-          gender === 'MALE' ? labels.male : gender === 'FEMALE' ? labels.female : labels.unisex,
-      }
+          key: 'gender',
+          label:
+            gender === 'MALE' ? labels.male : gender === 'FEMALE' ? labels.female : labels.unisex,
+        }
       : null,
     priceRange
       ? {
-        key: 'price',
-        label:
-          priceRange === 'P1'
-            ? '< 1.500.000'
-            : priceRange === 'P2'
-              ? '1.500.000 - 3.000.000'
-              : priceRange === 'P3'
-                ? '3.000.000 - 5.000.000'
-                : '> 5.000.000',
-      }
+          key: 'price',
+          label:
+            priceRange === 'P1'
+              ? '< 1.500.000'
+              : priceRange === 'P2'
+                ? '1.500.000 - 3.000.000'
+                : priceRange === 'P3'
+                  ? '3.000.000 - 5.000.000'
+                  : '> 5.000.000',
+        }
       : null,
     selectedSeason
       ? {
-        key: 'season',
-        label:
-          selectedSeason === 'XUAN'
-            ? labels.spring
-            : selectedSeason === 'HA'
-              ? labels.summer
-              : selectedSeason === 'THU'
-                ? labels.autumn
-                : labels.winter,
-      }
+          key: 'season',
+          label:
+            selectedSeason === 'XUAN'
+              ? labels.spring
+              : selectedSeason === 'HA'
+                ? labels.summer
+                : selectedSeason === 'THU'
+                  ? labels.autumn
+                  : labels.winter,
+        }
       : null,
   ].filter(Boolean) as Array<{ key: string; label: string }>;
 

@@ -377,7 +377,7 @@ export default function StaffOrdersPage() {
                                             <h3 className="font-heading text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">{t('detail.items')}</h3>
                                             <div className="space-y-2">
                                                 {selectedOrder.items.map((item) => (
-                                                        <div className="flex items-center gap-4 border-b border-border/20 pb-4">
+                                                        <div key={item.id} className="flex items-center gap-4 border-b border-border/20 pb-4">
                                                             <div className="w-12 h-12 rounded-xl border border-border/50 overflow-hidden glass flex-shrink-0">
                                                                 {item.variant?.product?.images?.[0]?.url ? (
                                                                     <img src={item.variant.product.images[0].url} alt="" className="w-full h-full object-cover" />

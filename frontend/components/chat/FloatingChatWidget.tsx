@@ -148,7 +148,7 @@ export function FloatingChatWidget() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed bottom-6 right-6 z-50 w-[380px] h-[560px] rounded-3xl overflow-hidden flex flex-col border border-border/50 shadow-2xl bg-background"
+                        className="fixed bottom-6 right-6 z-50 w-[420px] h-[620px] rounded-3xl overflow-hidden flex flex-col border border-border/50 shadow-2xl bg-background"
                     >
                         {/* Header */}
                         <div className="bg-luxury-black px-5 py-4 flex items-center justify-between shrink-0">
@@ -262,23 +262,42 @@ export function FloatingChatWidget() {
                                                                 <Link
                                                                     key={idx}
                                                                     href={`/products/${rec.productId}`}
-                                                                    className="mt-2 p-3 rounded-xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
+                                                                    className="mt-3 p-0 rounded-2xl bg-background/60 border border-border/50 overflow-hidden block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
                                                                 >
-                                                                    <div className="flex items-start justify-between gap-2">
-                                                                        <div className="flex-1 min-w-0">
-                                                                            <p className="font-medium text-sm group-hover:text-gold transition-colors">
-                                                                                {rec.name}
-                                                                            </p>
-                                                                            <p className="text-xs text-muted-foreground mt-1">
-                                                                                {rec.reason}
-                                                                            </p>
+                                                                    <div className="flex">
+                                                                        {/* Thumbnail */}
+                                                                        <div className="w-24 h-32 shrink-0 bg-secondary/30 relative overflow-hidden border-r border-border/50">
+                                                                            {rec.imageUrl ? (
+                                                                                <img 
+                                                                                    src={rec.imageUrl} 
+                                                                                    alt={rec.name}
+                                                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                                                />
+                                                                            ) : (
+                                                                                <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                                                                                    <Sparkles size={20} />
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+
+                                                                        <div className="flex-1 min-w-0 p-3.5 flex flex-col justify-between">
+                                                                            <div>
+                                                                                <div className="flex items-start justify-between gap-1">
+                                                                                    <p className="font-heading text-xs uppercase tracking-tight text-foreground line-clamp-1 group-hover:text-gold transition-colors">
+                                                                                        {rec.name}
+                                                                                    </p>
+                                                                                    <ExternalLink size={10} className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-0.5" />
+                                                                                </div>
+                                                                                <p className="text-[11px] text-muted-foreground mt-1.5 italic leading-relaxed">
+                                                                                    "{rec.reason}"
+                                                                                </p>
+                                                                            </div>
                                                                             {rec.price && (
-                                                                                <p className="text-xs font-semibold text-gold mt-1">
+                                                                                <p className="text-xs font-bold text-gold mt-3">
                                                                                     {Number(rec.price).toLocaleString()}₫
                                                                                 </p>
                                                                             )}
                                                                         </div>
-                                                                        <ExternalLink size={12} className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-1" />
                                                                     </div>
                                                                 </Link>
                                                             )

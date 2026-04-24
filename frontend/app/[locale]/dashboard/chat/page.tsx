@@ -455,18 +455,43 @@ export default function DashboardChatPage() {
                             <Link
                               key={idx}
                               href={`/products/${rec.productId}`}
-                              className="mt-2 p-3 rounded-xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
+                              className="mt-3 p-0 rounded-2xl bg-background/60 border border-border/50 overflow-hidden block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
                             >
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-sm group-hover:text-gold transition-colors">
-                                    {rec.name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {rec.reason}
-                                  </p>
+                              <div className="flex">
+                                {/* Thumbnail */}
+                                <div className="w-20 h-24 shrink-0 bg-secondary/30 relative overflow-hidden border-r border-border/50">
+                                  {rec.imageUrl ? (
+                                    <img 
+                                      src={rec.imageUrl} 
+                                      alt={rec.name}
+                                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                                      <Sparkles size={20} />
+                                    </div>
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+
+                                <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
+                                  <div>
+                                    <div className="flex items-start justify-between gap-1">
+                                      <p className="font-heading text-[11px] uppercase tracking-tight text-foreground line-clamp-1 group-hover:text-gold transition-colors">
+                                        {rec.name}
+                                      </p>
+                                      <ExternalLink
+                                        size={10}
+                                        className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-0.5"
+                                      />
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground line-clamp-2 mt-1 italic leading-tight">
+                                      "{rec.reason}"
+                                    </p>
+                                  </div>
+                                  
                                   {rec.price && (
-                                    <p className="text-xs font-semibold text-gold mt-1">
+                                    <p className="text-xs font-bold text-gold mt-2">
                                       {format.number(Number(rec.price), {
                                         style: "currency",
                                         currency:
@@ -476,10 +501,6 @@ export default function DashboardChatPage() {
                                     </p>
                                   )}
                                 </div>
-                                <ExternalLink
-                                  size={12}
-                                  className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-1"
-                                />
                               </div>
                             </Link>
                           ),

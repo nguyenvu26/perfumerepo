@@ -22,7 +22,7 @@ import {
   RotateCcw,
   Check,
 } from "lucide-react";
-import ReviewForm from "@/components/review/review-form";
+import ReviewModal from "@/components/review/review-modal";
 import { CreateReturnModal } from "@/components/returns/CreateReturnModal";
 import { AlertTriangle } from "lucide-react";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
@@ -365,20 +365,7 @@ export default function CustomerOrderDetailPage() {
                               </div>
                             </div>
 
-                            {reviewingItemId === item.id && (
-                              <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
-                                <ReviewForm
-                                  productId={item.product?.id || ""}
-                                  orderItemId={item.id}
-                                  productName={item.product?.name || ""}
-                                  onCancel={() => setReviewingItemId(null)}
-                                  onSuccess={() => {
-                                    setReviewingItemId(null);
-                                    fetchOrder();
-                                  }}
-                                />
-                              </div>
-                            )}
+
                           </div>
                         </div>
                       </div>
@@ -848,6 +835,19 @@ export default function CustomerOrderDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={!!reviewingItemId}
+        onClose={() => setReviewingItemId(null)}
+        productId={order.items?.find(i => i.id === reviewingItemId)?.product?.id || ""}
+        orderItemId={reviewingItemId || 0}
+        productName={order.items?.find(i => i.id === reviewingItemId)?.product?.name || ""}
+        onSuccess={() => {
+          setReviewingItemId(null);
+          fetchOrder();
+        }}
+      />
     </AuthGuard>
   );
 }
