@@ -105,6 +105,32 @@ export const AdminReturnManagement = ({
   const getStatusLabel = (status: ReturnStatus) => {
     return t(`status.${status}`);
   };
+
+  const tReasons = useTranslations(
+    "dashboard.customer.returns.create_modal.reasons",
+  );
+
+  const getReasonLabel = (reason: string | undefined): string => {
+    if (!reason) return "";
+    // Check for reason + note format: "[KEY] | Note"
+    if (reason.includes(" | ")) {
+      const [main, ...rest] = reason.split(" | ");
+      const note = rest.join(" | ");
+      return `${getReasonLabel(main)} | ${note}`;
+    }
+
+    // Check for [KEY] format
+    const match = reason.match(/^\[(.*)\]$/);
+    if (match) {
+      const key = match[1].toLowerCase();
+      try {
+        return tReasons(key);
+      } catch {
+        return reason;
+      }
+    }
+    return reason;
+  };
   const [data, setData] = useState<{ data: ReturnRequest[]; total: number }>({
     data: [],
     total: 0,
@@ -209,10 +235,10 @@ export const AdminReturnManagement = ({
       });
       if (res.data && res.data.length > 0) {
         setReceiptImageUrl(res.data[0]);
-        toast.success("Tải ảnh hóa đơn thành công");
+        toast.success(t("toasts.upload_receipt_success"));
       }
     } catch {
-      toast.error("Lỗi tải ảnh lên");
+      toast.error(t("toasts.upload_receipt_error"));
     } finally {
       setIsUploadingReceipt(false);
       // Reset input value to allow selecting the same file again if it was removed
@@ -247,7 +273,7 @@ export const AdminReturnManagement = ({
       const resp = await returnsService.listAll(0, 50, undefined, undefined, startDate, endDate);
       setData(resp as any);
     } catch (err: any) {
-      toast.error("Lỗi tải danh sách trả hàng", { description: err.message });
+      toast.error(t("toasts.error_fetch"), { description: err.message });
     } finally {
       setLoading(false);
     }
@@ -276,12 +302,12 @@ export const AdminReturnManagement = ({
     try {
       await returnsService.reviewReturn(selectedReturn.id, { action, note });
       toast.success(
-        action === "approve" ? "Đã duyệt yêu cầu" : "Đã từ chối yêu cầu",
+        action === "approve" ? t("toasts.approved") : t("toasts.rejected"),
       );
       setIsReviewOpen(false);
       loadData();
     } catch (err: any) {
-      toast.error("Lỗi duyệt yêu cầu", {
+      toast.error(t("toasts.error_review"), {
         description: err?.response?.data?.message || err.message,
       });
     } finally {
@@ -293,7 +319,7 @@ export const AdminReturnManagement = ({
     if (!selectedReturn || submittingReceive) return;
     const hasCompromised = Object.values(receiveItemsState).some((s) => !s.sealIntact);
     if (hasCompromised && evidenceImages.length === 0) {
-      toast.error("Vui lòng upload ít nhất 1 ảnh bằng chứng khi đánh dấu hàng lỗi/hư");
+      toast.error(t("toasts.evidence_required_toast"));
       return;
     }
     setSubmittingReceive(true);
@@ -311,14 +337,14 @@ export const AdminReturnManagement = ({
       });
       toast.success(
         hasCompromised
-          ? "Đã từ chối - Hàng lỗi. Vui lòng tạo vận đơn gửi trả khách."
-          : "Đã xác nhận thao tác nhận hàng"
+          ? t("toasts.receive_rejected_toast")
+          : t("toasts.receive_confirm_toast")
       );
       setIsReceiveOpen(false);
       setEvidenceImages([]);
       loadData();
     } catch (err: any) {
-      toast.error("Lỗi nhận hàng", {
+      toast.error(t("toasts.receive_error"), {
         description: err?.response?.data?.message || err.message,
       });
     } finally {
@@ -338,10 +364,10 @@ export const AdminReturnManagement = ({
       });
       if (res.data && res.data.length > 0) {
         setEvidenceImages((prev) => [...prev, ...res.data]);
-        toast.success(`Đã upload ${res.data.length} ảnh bằng chứng`);
+        toast.success(t("toasts.upload_evidence_success", { count: res.data.length }));
       }
     } catch {
-      toast.error("Lỗi tải ảnh lên");
+      toast.error(t("dialogs.upload_error"));
     } finally {
       setIsUploadingEvidence(false);
       e.target.value = "";
@@ -356,13 +382,13 @@ export const AdminReturnManagement = ({
         courier: shipBackCourier || undefined,
         trackingNumber: shipBackTracking,
       });
-      toast.success("Đã lưu mã vận đơn gửi trả hàng");
+      toast.success(t("toasts.ship_back_success"));
       setIsShipBackOpen(false);
       setShipBackCourier("");
       setShipBackTracking("");
       loadData();
     } catch (err: any) {
-      toast.error("Lỗi lưu vận đơn", {
+      toast.error(t("toasts.ship_back_error"), {
         description: err?.response?.data?.message || err.message,
       });
     } finally {
@@ -375,11 +401,11 @@ export const AdminReturnManagement = ({
     setSubmittingAutomated(true);
     try {
       const res = await returnsService.shipBackAutomated(selectedReturn.id);
-      toast.success(`Đã tạo vận đơn GHN: ${res.orderCode}. Phí ship sẽ do khách trả.`);
+      toast.success(t("toasts.ship_back_automated_success", { code: res.orderCode }));
       setIsShipBackOpen(false);
       loadData();
     } catch (err: any) {
-      toast.error("Lỗi tạo vận đơn tự động", {
+      toast.error(t("toasts.ship_back_automated_error"), {
         description: err?.response?.data?.message || err.message,
       });
     } finally {
@@ -395,9 +421,9 @@ export const AdminReturnManagement = ({
       setSelectedReturn((prev) =>
         prev ? { ...prev, refundAmount: res.suggestedAmount } : null,
       );
-      toast.success("Đã tính toán số tiền hoàn dựa trên thực nhận");
+      toast.success(t("toasts.auto_calc_success"));
     } catch (err: any) {
-      toast.error("Lỗi tính toán số tiền", { description: err.message });
+      toast.error(t("toasts.auto_calc_error"), { description: err.message });
     } finally {
       setCalculatingRefund(false);
     }
@@ -722,7 +748,7 @@ export const AdminReturnManagement = ({
                         )}
                       </TableCell>
                       <TableCell className="max-w-[240px] text-sm leading-7">
-                        {req.reason || (
+                        {getReasonLabel(req.reason) || (
                           <span className="text-muted-foreground/50 italic">
                             {t("table.no_reason")}
                           </span>
@@ -739,7 +765,7 @@ export const AdminReturnManagement = ({
                                     <a
                                       href={
                                         isAutomated
-                                          ? `https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`
+                                          ? `https://donhang.ghn.vn/?order_code=${s.trackingNumber}`
                                           : "#"
                                       }
                                       target="_blank"
@@ -968,7 +994,7 @@ export const AdminReturnManagement = ({
                     <div className="space-y-1">
                       <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-tight block">Lý do:</span>
                       <p className="text-[11px] text-foreground/80 bg-muted/40 p-2 rounded-lg italic">
-                        {req.reason || "Không có lý do chi tiết"}
+                        {getReasonLabel(req.reason) || "Không có lý do chi tiết"}
                       </p>
                     </div>
                   </div>
@@ -1094,10 +1120,10 @@ export const AdminReturnManagement = ({
               <div className="px-8 py-6 md:px-12 md:py-8 flex justify-between items-center border-b border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20 shrink-0">
                 <div>
                   <h2 className="text-xl md:text-2xl font-heading gold-gradient uppercase tracking-tighter italic leading-none mb-1">
-                    Xét duyệt yêu cầu đổi trả
+                    {t("dialogs.review_title")}
                   </h2>
                   <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
-                    Thẩm định tình trạng và quyết định phương án
+                    {t("dialogs.review_subtitle_short", { defaultValue: "Thẩm định tình trạng và quyết định phương án" })}
                   </p>
                 </div>
                 <button
@@ -1113,7 +1139,7 @@ export const AdminReturnManagement = ({
                 <div className="bg-muted/40 p-4 rounded-xl border border-border/50 flex flex-col sm:flex-row justify-between gap-4">
                   <div>
                     <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
-                      Mã yêu cầu
+                      {t("dialogs.request_id")}
                     </p>
                     <strong className="font-mono text-foreground text-lg">
                       {selectedReturn?.id.substring(0, 8)}
@@ -1147,7 +1173,7 @@ export const AdminReturnManagement = ({
                 {/* Refund Total Info */}
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground bg-gold/5 p-3 rounded-lg border border-gold/10">
                   <span className="text-gold font-medium">{t("dialogs.reason_general")}</span>
-                  <span>{selectedReturn?.reason || t("dialogs.no_reason_general")}</span>
+                  <span>{getReasonLabel(selectedReturn?.reason) || t("dialogs.no_reason_general")}</span>
                 </div>
 
                 <div>
@@ -1176,7 +1202,7 @@ export const AdminReturnManagement = ({
                                   "Sản phẩm không xác định"}
                               </p>
                               <p className="text-xs text-muted-foreground mt-0.5">
-                                Variant:{" "}
+                                {t("dialogs.variant")}
                                 <span className="font-mono text-gold/80">
                                   {item.variantId.substring(0, 8).toUpperCase()}
                                 </span>
@@ -1284,7 +1310,7 @@ export const AdminReturnManagement = ({
                 </Button>
               </>
             ) : (
-              <Button variant="outline" onClick={() => setIsReviewOpen(false)}>Đóng</Button>
+              <Button variant="outline" onClick={() => setIsReviewOpen(false)}>{t("dialogs.btn_close")}</Button>
             )}
           </div>
             </motion.div>
@@ -1299,7 +1325,7 @@ export const AdminReturnManagement = ({
         <DialogContent className="glass border-orange-500/30 w-full sm:max-w-md shadow-2xl sm:rounded-2xl flex flex-col p-0 overflow-hidden">
           <DialogHeader className="border-b border-border/50 px-6 pt-6 pb-4 shrink-0">
             <DialogTitle className="text-xl text-orange-400 font-heading">
-              Gửi trả hàng cho khách
+              {t("dialogs.ship_back.title")}
             </DialogTitle>
           </DialogHeader>
           
@@ -1307,12 +1333,11 @@ export const AdminReturnManagement = ({
             {/* Automated Option */}
             <div className="space-y-3">
               <label className="text-[10px] font-black uppercase tracking-widest text-orange-500/70 block">
-                Cách 1: Tự động qua GHN (Khuyên dùng)
+                {t("dialogs.ship_back.method_automated_title")}
               </label>
               <div className="bg-orange-500/5 border border-orange-500/20 p-4 rounded-2xl space-y-4">
                 <p className="text-[11px] text-orange-200/60 leading-relaxed">
-                  Hệ thống sẽ tự động tạo đơn GHN gửi từ kho đến địa chỉ của khách. 
-                  <strong> Khách hàng sẽ trả phí ship khi nhận hàng (COD phí ship).</strong>
+                  {t("dialogs.ship_back.method_automated_desc")}
                 </p>
                 <Button
                   onClick={handleShipBackAutomated}
@@ -1324,7 +1349,7 @@ export const AdminReturnManagement = ({
                   ) : (
                     <RefreshCcw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
                   )}
-                  Tạo vận đơn GHN tự động
+                  {t("dialogs.ship_back.btn_create_automated")}
                 </Button>
               </div>
             </div>
@@ -1334,18 +1359,18 @@ export const AdminReturnManagement = ({
                 <span className="w-full border-t border-white/5"></span>
               </div>
               <div className="relative flex justify-center text-[9px] uppercase tracking-widest font-black">
-                <span className="bg-[#0c0c0c] px-4 text-muted-foreground/40">Hoặc</span>
+                <span className="bg-[#0c0c0c] px-4 text-muted-foreground/40">{t("dialogs.ship_back.or_label")}</span>
               </div>
             </div>
 
             {/* Manual Option */}
             <div className="space-y-4">
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 block">
-                Cách 2: Nhập mã vận đơn thủ công
+                {t("dialogs.ship_back.method_manual_title")}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Đơn vị</span>
+                  <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">{t("dialogs.ship_back.courier_label")}</span>
                   <Input
                     value={shipBackCourier}
                     onChange={(e) => setShipBackCourier(e.target.value)}
@@ -1354,7 +1379,7 @@ export const AdminReturnManagement = ({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">Mã vận đơn</span>
+                  <span className="text-[9px] font-bold text-muted-foreground uppercase ml-1">{t("dialogs.ship_back.tracking_label")}</span>
                   <Input
                     value={shipBackTracking}
                     onChange={(e) => setShipBackTracking(e.target.value)}
@@ -1374,7 +1399,7 @@ export const AdminReturnManagement = ({
                 ) : (
                   <Send className="w-4 h-4 mr-2" />
                 )}
-                Lưu mã vận đơn thủ công
+                {t("dialogs.ship_back.btn_save_manual")}
               </Button>
             </div>
           </div>
@@ -1385,7 +1410,7 @@ export const AdminReturnManagement = ({
               onClick={() => setIsShipBackOpen(false)}
               className="text-[10px] font-bold uppercase tracking-widest"
             >
-              Đóng
+              {t("dialogs.ship_back.close")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1420,7 +1445,7 @@ export const AdminReturnManagement = ({
                     {t("dialogs.receive_title")}
                   </h2>
                   <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
-                    Nhập kho và kiểm tra tình trạng niêm phong
+                    {t("dialogs.receive_subtitle")}
                   </p>
                 </div>
                 <button
@@ -1437,8 +1462,8 @@ export const AdminReturnManagement = ({
                   <p className="text-sm text-teal-700 dark:text-teal-200/80 leading-relaxed">
                     {t("dialogs.receive_desc", {
                       target: selectedReturn?.origin === "POS"
-                        ? "tại quầy (POS)"
-                        : "cho cửa hàng chính"
+                        ? t("dialogs.receive_target_pos")
+                        : t("dialogs.receive_target_store")
                     })}
                   </p>
                 </div>
@@ -1529,11 +1554,10 @@ export const AdminReturnManagement = ({
                   <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle className="w-4 h-4 text-red-400" />
-                      <span className="text-sm font-bold text-red-400">Bắt buộc: Ảnh bằng chứng</span>
+                      <span className="text-sm font-bold text-red-400">{t("dialogs.evidence_required_title")}</span>
                     </div>
                     <p className="text-[11px] text-red-300/70 leading-relaxed">
-                      Vui lòng chụp ảnh hoặc quay video cảnh mở hộp (unboxing) và tình trạng hàng hóa thực tế. 
-                      Bằng chứng này sẽ được gửi cho khách hàng kèm thông báo từ chối.
+                      {t("dialogs.evidence_required_desc")}
                     </p>
                   </div>
 
@@ -1547,7 +1571,7 @@ export const AdminReturnManagement = ({
                   />
                   {isUploadingEvidence && (
                     <div className="flex items-center text-xs text-red-400 font-medium">
-                      <Loader2 className="w-3 h-3 mr-2 animate-spin" /> Đang tải ảnh lên...
+                      <Loader2 className="w-3 h-3 mr-2 animate-spin" /> {t("dialogs.uploading")}
                     </div>
                   )}
                   {evidenceImages.length > 0 && (
@@ -1567,7 +1591,7 @@ export const AdminReturnManagement = ({
                     </div>
                   )}
                   {evidenceImages.length === 0 && !isUploadingEvidence && (
-                    <p className="text-[10px] text-red-400/60 italic">Chưa có ảnh bằng chứng. Vui lòng upload ít nhất 1 ảnh.</p>
+                    <p className="text-[10px] text-red-400/60 italic">{t("dialogs.no_evidence_uploaded")}</p>
                   )}
                 </div>
               )}
@@ -1591,7 +1615,7 @@ export const AdminReturnManagement = ({
                   ) : Object.values(receiveItemsState).some((s) => !s.sealIntact) ? (
                     <AlertTriangle className="w-4 h-4 mr-2" />
                   ) : null}
-                  {submittingReceive ? "Đang xử lý..." : Object.values(receiveItemsState).some((s) => !s.sealIntact) ? "Từ chối & Ghi nhận" : t("dialogs.btn_receive")}
+                  {submittingReceive ? t("dialogs.processing") : Object.values(receiveItemsState).some((s) => !s.sealIntact) ? t("dialogs.btn_reject_and_record") : t("dialogs.btn_receive")}
                 </Button>
               </div>
             </motion.div>
@@ -1626,7 +1650,7 @@ export const AdminReturnManagement = ({
                     {t("dialogs.refund_title")}
                   </h2>
                   <p className="text-[8px] md:text-[9px] text-muted-foreground uppercase tracking-[.4em] font-bold opacity-60">
-                    Thanh toán và kết thúc quy trình trả hàng
+                    {t("dialogs.refund_subtitle")}
                   </p>
                 </div>
                 <button
@@ -1664,7 +1688,7 @@ export const AdminReturnManagement = ({
                     >
                       <option value="cash">{t("dialogs.cash")}</option>
                       <option value="bank_transfer">{t("dialogs.bank_transfer")}</option>
-                      <option value="gateway">Cổng thanh toán</option>
+                      <option value="gateway">{t("dialogs.gateway")}</option>
                     </select>
                   </div>
                 </div>

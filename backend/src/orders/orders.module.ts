@@ -6,6 +6,8 @@ import { PromotionsModule } from '../promotions/promotions.module';
 import { LoyaltyModule } from '../loyalty/loyalty.module';
 import { ShippingModule } from '../shipping/shipping.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
     LoyaltyModule,
     ShippingModule,
     NotificationsModule,
+    CloudinaryModule,
+    MailModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

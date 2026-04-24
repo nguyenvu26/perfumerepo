@@ -6,12 +6,14 @@ import {
     Receipt, Search, Filter, Eye, Printer,
     CheckCircle2, Clock, Truck, PackageCheck,
     XCircle, ChevronRight, User, MapPin, Phone,
-    CreditCard, Loader2, ArrowLeft, Calendar
+    CreditCard, Loader2, ArrowLeft, Calendar,
+    Upload, Image as ImageIcon, Trash2, Check
 } from 'lucide-react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { orderService, type Order } from '@/services/order.service';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function AdminOrders() {
     const t = useTranslations('dashboard.admin.orders');
@@ -44,6 +46,8 @@ export default function AdminOrders() {
     const [refundInfo, setRefundInfo] = useState<any>(null);
     const [loadingRefundInfo, setLoadingRefundInfo] = useState(false);
     const [filterDate, setFilterDate] = useState('');
+    const [uploadingEvidence, setUploadingEvidence] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const printRef = useRef<HTMLDivElement>(null);
 
     const fetchOrders = useCallback(async () => {
@@ -161,6 +165,34 @@ export default function AdminOrders() {
         }
     };
 
+    const handleUploadEvidence = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !selectedOrder) return;
+
+        setUploadingEvidence(true);
+        try {
+            const res = await orderService.submitRefundEvidence(selectedOrder.id, file);
+            if (res.success) {
+                // Refresh refund info
+                const data = await orderService.getRefundBankInfoAdmin(selectedOrder.id);
+                setRefundInfo(data);
+                
+                // Update local orders list to reflect the new status
+                setOrders(prev => prev.map(o => o.id === selectedOrder.id ? { ...o, hasRefundEvidence: true } : o));
+                
+                alert('Tải bằng chứng hoàn tiền thành công!');
+            } else {
+                throw new Error(res.message || 'Upload failed');
+            }
+        } catch (error: any) {
+            console.error('Upload failed:', error);
+            alert('Lỗi tải bằng chứng: ' + (error.message || 'Có lỗi xảy ra'));
+        } finally {
+            setUploadingEvidence(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
     const handlePrint = () => {
         const content = printRef.current?.innerHTML;
         if (!content) return;
@@ -232,7 +264,9 @@ export default function AdminOrders() {
     const filteredOrders = baseFilteredOrders.filter((o) => {
         if (activeTab === 'ALL') return true;
         if (activeTab === 'REFUND_REQUIRED') {
-            return o.status === 'CANCELLED' && (o.paymentStatus === 'PAID' || o.paymentStatus === 'PARTIALLY_REFUNDED');
+            return o.status === 'CANCELLED' && 
+                   (o.paymentStatus === 'PAID' || o.paymentStatus === 'PARTIALLY_REFUNDED') &&
+                   !o.hasRefundEvidence;
         }
         return o.status === activeTab;
     });
@@ -693,34 +727,91 @@ export default function AdminOrders() {
                                     {/* Refund Bank Info (only cancelled + paid) */}
                                     {selectedOrder.status === 'CANCELLED' &&
                                         (selectedOrder.paymentStatus === 'PAID' ||
-                                            selectedOrder.paymentStatus === 'PARTIALLY_REFUNDED') && (
+                                            selectedOrder.paymentStatus === 'PARTIALLY_REFUNDED' || 
+                                            selectedOrder.paymentStatus === 'REFUNDED') && (
                                             <section className="glass p-6 rounded-3xl border border-red-500/20 bg-red-500/5">
-                                                <h3 className="text-[10px] font-bold uppercase tracking-[.3em] text-red-500 mb-4">
-                                                    Thông tin nhận hoàn tiền
-                                                </h3>
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <h3 className="text-[10px] font-bold uppercase tracking-[.3em] text-red-500">
+                                                        Thông tin nhận hoàn tiền
+                                                    </h3>
+                                                    {refundInfo && (
+                                                        <button
+                                                            onClick={() => fileInputRef.current?.click()}
+                                                            disabled={uploadingEvidence}
+                                                            className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-widest text-gold hover:text-gold/80 transition disabled:opacity-50"
+                                                        >
+                                                            {uploadingEvidence ? (
+                                                                <Loader2 size={12} className="animate-spin" />
+                                                            ) : (
+                                                                <Upload size={12} />
+                                                            )}
+                                                            {refundInfo.refundEvidence ? 'Cập nhật minh chứng' : 'Tải minh chứng'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                
+                                                <input 
+                                                    type="file" 
+                                                    ref={fileInputRef} 
+                                                    onChange={handleUploadEvidence} 
+                                                    accept="image/*" 
+                                                    className="hidden" 
+                                                />
+
                                                 {loadingRefundInfo ? (
                                                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
                                                         <Loader2 size={12} className="animate-spin" />
                                                         Đang tải thông tin
                                                     </div>
                                                 ) : refundInfo ? (
-                                                    <div className="space-y-2 text-xs">
-                                                        <div className="flex justify-between gap-4">
-                                                            <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Ngân hàng</span>
-                                                            <span className="font-bold text-foreground">{refundInfo.bankName || '—'}</span>
+                                                    <div className="space-y-4">
+                                                        <div className="space-y-2 text-xs">
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Ngân hàng</span>
+                                                                <span className="font-bold text-foreground">{refundInfo.bankName || '—'}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Số tài khoản</span>
+                                                                <span className="font-bold text-foreground">{refundInfo.accountNumber || '—'}</span>
+                                                            </div>
+                                                            <div className="flex justify-between gap-4">
+                                                                <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Chủ tài khoản</span>
+                                                                <span className="font-bold text-foreground">{refundInfo.accountHolder || '—'}</span>
+                                                            </div>
+                                                            {refundInfo.note && (
+                                                                <div className="pt-2 border-t border-white/5 mt-2">
+                                                                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Ghi chú</p>
+                                                                    <p className="text-xs text-foreground">{refundInfo.note}</p>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <div className="flex justify-between gap-4">
-                                                            <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Số tài khoản</span>
-                                                            <span className="font-bold text-foreground">{refundInfo.accountNumber || '—'}</span>
-                                                        </div>
-                                                        <div className="flex justify-between gap-4">
-                                                            <span className="text-muted-foreground uppercase tracking-wider text-[10px]">Chủ tài khoản</span>
-                                                            <span className="font-bold text-foreground">{refundInfo.accountHolder || '—'}</span>
-                                                        </div>
-                                                        {refundInfo.note && (
-                                                            <div className="pt-2 border-t border-border mt-2">
-                                                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Ghi chú</p>
-                                                                <p className="text-xs text-foreground">{refundInfo.note}</p>
+
+                                                        {refundInfo.refundEvidence && (
+                                                            <div className="space-y-2 pt-4 border-t border-white/5">
+                                                                <p className="text-[10px] uppercase tracking-[.3em] font-bold text-emerald-500 flex items-center gap-2">
+                                                                    <Check size={12} /> Minh chứng hoàn tiền
+                                                                </p>
+                                                                <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 group shadow-lg">
+                                                                    <Image 
+                                                                        src={refundInfo.refundEvidence} 
+                                                                        alt="Refund Evidence" 
+                                                                        fill 
+                                                                        className="object-cover transition-transform group-hover:scale-105" 
+                                                                    />
+                                                                    <a 
+                                                                        href={refundInfo.refundEvidence} 
+                                                                        target="_blank" 
+                                                                        rel="noopener noreferrer"
+                                                                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-widest"
+                                                                    >
+                                                                        Xem ảnh lớn
+                                                                    </a>
+                                                                </div>
+                                                                {refundInfo.evidenceSubmittedAt && (
+                                                                    <p className="text-[8px] text-muted-foreground italic">
+                                                                        Tải lên lúc: {format.dateTime(new Date(refundInfo.evidenceSubmittedAt))}
+                                                                    </p>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>

@@ -9,6 +9,8 @@ import { PromotionsService } from '../promotions/promotions.service';
 import { LoyaltyService } from '../loyalty/loyalty.service';
 import { ShippingService } from '../shipping/shipping.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { MailService } from '../mail/mail.service';
 import { InventoryLogType, Prisma, PaymentProvider, PaymentStatus } from '@prisma/client';
 
 @Injectable()
@@ -19,6 +21,8 @@ export class OrdersService {
     private readonly loyaltyService: LoyaltyService,
     private readonly shippingService: ShippingService,
     private readonly notificationsService: NotificationsService,
+    private readonly cloudinaryService: CloudinaryService,
+    private readonly mailService: MailService,
   ) {}
 
   async createFromCart(userId: string, dto: CreateOrderDto) {
@@ -308,8 +312,20 @@ export class OrdersService {
       this.prisma.order.count({ where }),
     ]);
 
+    const orderIds = rawData.map(o => o.id);
+    const evidenceLogs = await this.prisma.auditLog.findMany({
+      where: {
+        action: 'REFUND_EVIDENCE_SUBMITTED',
+        entity: 'ORDER',
+        entityId: { in: orderIds },
+      },
+      select: { entityId: true },
+    });
+    const evidenceSet = new Set(evidenceLogs.map(l => l.entityId));
+
     const data = rawData.map((order) => ({
       ...order,
+      hasRefundEvidence: evidenceSet.has(order.id),
       items: order.items.map((item) => ({
         ...item,
         product: item.variant.product,
@@ -401,6 +417,65 @@ export class OrdersService {
     return { success: true };
   }
 
+  async submitRefundEvidence(
+    adminId: string,
+    orderId: string,
+    file: Express.Multer.File,
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const upload = await this.cloudinaryService.uploadImage(file.buffer, 'refunds');
+
+    await this.prisma.auditLog.create({
+      data: {
+        userId: adminId,
+        action: 'REFUND_EVIDENCE_SUBMITTED',
+        entity: 'ORDER',
+        entityId: orderId,
+        metadata: JSON.stringify({
+          imageUrl: upload.url,
+          publicId: upload.publicId,
+          submittedAt: new Date().toISOString(),
+        }),
+      },
+    });
+
+    // Notify user about refund confirmation
+    if (order.userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: order.userId },
+        select: { fullName: true, email: true },
+      });
+
+      if (user) {
+        // Create in-app notification
+        await this.notificationsService.create({
+          userId: order.userId,
+          type: 'ORDER',
+          title: 'Hoàn tiền đơn hàng đã hủy',
+          content: `Chào bạn, PerfumeGPT đã hoàn tất thủ tục hoàn tiền cho đơn hàng ${order.code} mà quý khách đã hủy. Quý khách vui lòng kiểm tra chi tiết đơn hàng để xem minh chứng chuyển khoản. Trân trọng cảm ơn!`,
+          data: { orderId: order.id, orderCode: order.code },
+          sendEmail: false,
+        }).catch(() => {});
+
+        // Send confirmation email
+        if (user.email) {
+          await this.mailService.sendRefundConfirmationMail(
+            user.email,
+            user.fullName || 'Quý khách',
+            order.code,
+            Number(order.finalAmount)
+          ).catch(() => {});
+        }
+      }
+    }
+
+    return { success: true, imageUrl: upload.url };
+  }
+
   async getRefundBankInfo(orderId: string, userId?: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
@@ -411,7 +486,7 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    const log = await this.prisma.auditLog.findFirst({
+    const infoLog = await this.prisma.auditLog.findFirst({
       where: {
         action: 'REFUND_BANK_INFO_SUBMITTED',
         entity: 'ORDER',
@@ -419,11 +494,27 @@ export class OrdersService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    if (!log) return null;
+
+    const evidenceLog = await this.prisma.auditLog.findFirst({
+      where: {
+        action: 'REFUND_EVIDENCE_SUBMITTED',
+        entity: 'ORDER',
+        entityId: orderId,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!infoLog && !evidenceLog) return null;
+
+    const info = infoLog?.metadata ? JSON.parse(infoLog.metadata) : {};
+    const evidence = evidenceLog?.metadata ? JSON.parse(evidenceLog.metadata) : {};
+
     return {
-      id: log.id,
-      createdAt: log.createdAt,
-      ...(log.metadata ? JSON.parse(log.metadata) : {}),
+      id: infoLog?.id || evidenceLog?.id,
+      createdAt: infoLog?.createdAt || evidenceLog?.createdAt,
+      ...info,
+      refundEvidence: evidence.imageUrl || null,
+      evidenceSubmittedAt: evidence.submittedAt || null,
     };
   }
 

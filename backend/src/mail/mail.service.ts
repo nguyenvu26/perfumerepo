@@ -138,4 +138,82 @@ export class MailService {
     `;
         return this.sendMail(email, `Ưu đãi mới dành cho bạn: ${promoCode} - PerfumeGPT`, html);
     }
+
+    async sendRefundConfirmationMail(email: string, userName: string, orderCode: string, amount: number) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #333; text-align: center;">Hoàn tiền thành công</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p><strong>PerfumeGPT</strong> đã hoàn tất việc chuyển khoản hoàn tiền cho đơn hàng của bạn:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center;">
+          <p style="font-size: 18px; color: #000; margin: 0;">Mã đơn hàng: <strong>${orderCode}</strong></p>
+          <p style="font-size: 18px; color: #d4af37; margin: 10px 0;">Số tiền: <strong>${amount.toLocaleString('vi-VN')} VND</strong></p>
+          <p style="font-size: 14px; color: #666; margin-top: 10px;">Trạng thái: <strong>ĐÃ HOÀN TIỀN</strong></p>
+        </div>
+        <p>Quý khách vui lòng kiểm tra chi tiết đơn hàng để xem biên lai chuyển khoản và đối chiếu thông tin tài khoản.</p>
+        <p>Hy vọng sớm được phục vụ bạn với những mùi hương tinh tế khác.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Hoàn tiền thành công đơn hàng ${orderCode} - PerfumeGPT`, html);
+    }
+
+    async sendReturnApprovedMail(email: string, userName: string, orderCode: string) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #2E7D32; text-align: center;">Yêu cầu trả hàng đã được chấp thuận</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p>Yêu cầu trả hàng cho đơn hàng <strong>${orderCode}</strong> đã được đội ngũ chuyên gia của <strong>PerfumeGPT</strong> xem xét và chấp thuận.</p>
+        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+            <p><strong>Các bước tiếp theo:</strong></p>
+            <ul>
+                <li>Đóng gói sản phẩm cẩn thận (bao gồm quà tặng kèm nếu có).</li>
+                <li>Shipper từ GHN sẽ liên hệ với bạn để lấy hàng (nếu chọn thu hồi tự động).</li>
+                <li>Hoặc gửi về Showroom theo địa chỉ trong ứng dụng.</li>
+            </ul>
+        </div>
+        <p>Vui lòng theo dõi hành trình trả hàng tại mục "Đơn hàng của tôi" trên ứng dụng.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Yêu cầu trả hàng ${orderCode} đã được duyệt - PerfumeGPT`, html);
+    }
+
+    async sendReturnRejectedMail(email: string, userName: string, orderCode: string, reason: string) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #C62828; text-align: center;">Phản hồi về yêu cầu trả hàng</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p>Chúng tôi đã xem xét yêu cầu trả hàng cho đơn hàng <strong>${orderCode}</strong> của bạn.</p>
+        <p>Rất tiếc, yêu cầu này hiện tại <strong>chưa thể được chấp thuận</strong> với lý do:</p>
+        <div style="background-color: #ffebee; padding: 15px; border-radius: 4px; margin: 20px 0;">
+            <p style="color: #C62828; margin: 0;"><strong>Lý do từ chối:</strong> ${reason}</p>
+        </div>
+        <p>Bạn có thể kiểm tra chi tiết phản hồi hoặc liên hệ với bộ phận hỗ trợ nếu cần thêm thông tin.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Phản hồi yêu cầu trả hàng ${orderCode} - PerfumeGPT`, html);
+    }
+
+    async sendReturnRejectedAfterReceiptMail(email: string, userName: string, orderCode: string) {
+        const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h2 style="color: #C62828; text-align: center;">Thông báo kiểm tra hàng hoàn trả</h2>
+        <p>Xin chào <strong>${userName}</strong>,</p>
+        <p>Chúng tôi đã nhận và tiến hành kiểm tra kỹ lưỡng các sản phẩm hoàn trả của đơn hàng <strong>${orderCode}</strong>.</p>
+        <div style="background-color: #fff3e0; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #ff9800;">
+            <p>Rất tiếc, chúng tôi không thể tiến hành hoàn tiền do sản phẩm <strong>không đáp ứng đủ điều kiện nhập kho</strong> (mất seal, hư hại hoặc không còn nguyên vẹn).</p>
+        </div>
+        <p>Chúng tôi sẽ tiến hành <strong>gửi trả lại sản phẩm</strong> này cho bạn qua đơn vị vận chuyển. Quý khách vui lòng kiểm tra ứng dụng để theo dõi mã vận đơn mới.</p>
+        <p>Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ với bộ phận CSKH để được hỗ trợ.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">PerfumeGPT - Hệ thống tư vấn và bán nước hoa AI</p>
+      </div>
+    `;
+        return this.sendMail(email, `Cập nhật quan trọng về đơn hàng hoàn trả ${orderCode} - PerfumeGPT`, html);
+    }
 }

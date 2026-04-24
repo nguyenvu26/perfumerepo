@@ -6,9 +6,10 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { ShippingModule } from '../shipping/shipping.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [PrismaModule, NotificationsModule, CloudinaryModule, ShippingModule],
+  imports: [PrismaModule, NotificationsModule, CloudinaryModule, ShippingModule, MailModule],
   controllers: [ReturnsController, ReturnsAdminController],
   providers: [ReturnsService],
   exports: [ReturnsService],

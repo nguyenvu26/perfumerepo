@@ -31,7 +31,7 @@ import {
   PackageSearch
 } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useFormatter } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -47,6 +47,7 @@ type TabType = "overview" | "batch-import" | "transfer" | "requests";
 
 export default function AdminStockRedesignPage() {
   const t = useTranslations("dashboard.admin.stock");
+  const format = useFormatter();
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [overview, setOverview] = useState<StockOverview | null>(null);
   const [storeList, setStoreList] = useState<Store[]>([]);
@@ -123,7 +124,7 @@ export default function AdminStockRedesignPage() {
     setReviewingId(id);
     try {
       await adminInventoryRequestService.approve(id);
-      setSuccess("Request approved successfully.");
+      setSuccess(t("requests.success_approve"));
       fetchRequests();
       fetchData();
       setTimeout(() => setSuccess(null), 3000);
@@ -139,7 +140,7 @@ export default function AdminStockRedesignPage() {
     setReviewingId(id);
     try {
       await adminInventoryRequestService.reject(id, rejectNote.trim());
-      setSuccess("Request rejected.");
+      setSuccess(t("requests.success_reject"));
       setShowRejectModal(null);
       setRejectNote("");
       fetchRequests();
@@ -248,10 +249,10 @@ export default function AdminStockRedesignPage() {
           storeId: importStoreId,
           variantId: item.variantId,
           quantity: item.quantity,
-          reason: importReason || "Batch Import Session",
+          reason: importReason || t("import.default_reason"),
         });
       }
-      setSuccess(`Successfully imported ${importItems.length} items.`);
+      setSuccess(t("import.success", { count: importItems.length }));
       setImportItems([]);
       setImportReason("");
       fetchData();
@@ -274,10 +275,10 @@ export default function AdminStockRedesignPage() {
           toStoreId: transferToId,
           variantId: item.variantId,
           quantity: item.quantity,
-          reason: transferReason || "Batch Transfer Session",
+          reason: transferReason || t("transfer.default_reason"),
         });
       }
-      setSuccess(`Successfully transferred ${transferItems.length} items.`);
+      setSuccess(t("transfer.success", { count: transferItems.length }));
       setTransferItems([]);
       setTransferReason("");
       fetchData();
@@ -306,25 +307,25 @@ export default function AdminStockRedesignPage() {
                 onClick={() => setActiveTab("overview")}
                 className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "overview" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
               >
-                <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Global View
+                <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {t('tabs.overview')}
               </button>
               <button
                 onClick={() => setActiveTab("batch-import")}
                 className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "batch-import" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
               >
-                <FileInput className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Batch Import
+                <FileInput className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {t('tabs.import')}
               </button>
               <button
                 onClick={() => setActiveTab("transfer")}
                 className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === "transfer" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
               >
-                <ArrowRightLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Transfer
+                <ArrowRightLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {t('tabs.transfer')}
               </button>
               <button
                 onClick={() => setActiveTab("requests")}
                 className={`flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all relative ${activeTab === "requests" ? "bg-white dark:bg-zinc-900 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground hover:bg-white/5"}`}
               >
-                <ClipboardCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Approval
+                <ClipboardCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> {t('tabs.requests')}
               </button>
             </div>
           </div>
@@ -362,7 +363,7 @@ export default function AdminStockRedesignPage() {
                 <div className="flex flex-col items-center justify-center py-40 gap-6">
                   <Loader2 className="w-12 h-12 animate-spin text-gold/40" />
                   <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse italic">
-                    Syncing Global Assets...
+                    {t('status.syncing')}
                   </p>
                 </div>
               ) : (
@@ -380,7 +381,7 @@ export default function AdminStockRedesignPage() {
                           </h3>
                         </div>
                         <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[0.3em] pl-8 font-black opacity-40">
-                          Boutique ID: {storeData.store.code || "SYS-DEFAULT"}
+                          {t('boutique.id_label')} {storeData.store.code || "SYS-DEFAULT"}
                         </p>
                       </div>
                       <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-10 bg-black/5 dark:bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-2xl sm:rounded-none">
@@ -389,7 +390,7 @@ export default function AdminStockRedesignPage() {
                             {storeData.totalUnits}
                           </p>
                           <p className="text-[8px] sm:text-[9px] text-muted-foreground uppercase tracking-widest mt-2 font-black opacity-30">
-                            Total SKU Units
+                            {t('boutique.total_units')}
                           </p>
                         </div>
                       </div>
@@ -400,17 +401,17 @@ export default function AdminStockRedesignPage() {
                       <table className="w-full text-left border-collapse">
                         <thead>
                           <tr className="border-b border-border/20 text-muted-foreground bg-foreground/[0.01]">
-                            <th className="pl-12 pr-4 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 w-24">Media</th>
-                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40"> Olfactory Asset / Identifier</th>
-                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-center">Edition / Size</th>
-                            <th className="px-12 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-right">Available Inventory</th>
+                            <th className="pl-12 pr-4 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 w-24">{t('table.media')}</th>
+                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40"> {t('table.identifier')}</th>
+                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-center">{t('table.edition')}</th>
+                            <th className="px-12 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-right">{t('table.inventory')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border/10">
                           {storeData.variants.length === 0 ? (
                             <tr>
                               <td colSpan={4} className="px-12 py-32 text-center text-muted-foreground italic font-serif text-2xl opacity-20">
-                                Empty Boutique. No inventory records established.
+                                {t('status.empty_boutique')}
                               </td>
                             </tr>
                           ) : (
@@ -461,7 +462,7 @@ export default function AdminStockRedesignPage() {
                     {/* MOBILE CARD VIEW */}
                     <div className="md:hidden p-6 space-y-4">
                         {storeData.variants.length === 0 ? (
-                            <div className="py-20 text-center opacity-20 italic font-serif">Empty Boutique</div>
+                            <div className="py-20 text-center opacity-20 italic font-serif">{t('status.empty_boutique')}</div>
                         ) : (
                             storeData.variants.map((v) => (
                                 <div key={v.variantId} className="flex items-center gap-5 p-5 rounded-[2rem] bg-secondary/10 dark:bg-white/[0.02] border border-border/5">
@@ -492,14 +493,14 @@ export default function AdminStockRedesignPage() {
               <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border-stone-200 dark:border-white/10 flex flex-col lg:flex-row gap-8 sm:gap-12 items-stretch lg:items-center shadow-xl">
                 <div className="flex-1">
                   <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
-                    Destination Boutique
+                    {t('import.destination')}
                   </label>
                   <select
                     value={importStoreId}
                     onChange={(e) => setImportStoreId(e.target.value)}
                     className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer hover:bg-gold/[0.03]"
                   >
-                    <option value="">-- Choose Target Store --</option>
+                    <option value="">{t('import.choose_target')}</option>
                     {storeList.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name} ({s.code || "POS"})
@@ -509,13 +510,13 @@ export default function AdminStockRedesignPage() {
                 </div>
                 <div className="flex-[2]">
                   <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
-                    Import Metadata / Reason
+                    {t('import.metadata_label')}
                   </label>
                   <input
                     type="text"
                     value={importReason}
                     onChange={(e) => setImportReason(e.target.value)}
-                    placeholder="e.g. Q1 Seasonal Restock"
+                    placeholder={t('import.reason_placeholder')}
                     className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-8 py-4 sm:py-5 text-sm font-serif italic outline-none focus:border-gold transition-all shadow-sm"
                   />
                 </div>
@@ -528,7 +529,7 @@ export default function AdminStockRedesignPage() {
                     <div className="flex items-center gap-3 mb-6">
                       <PackageSearch className="w-5 h-5 text-gold" />
                       <h3 className="font-heading text-sm uppercase tracking-widest">
-                        Universal Product Catalog
+                        {t('import.catalog_title')}
                       </h3>
                     </div>
                     <div className="relative">
@@ -537,7 +538,7 @@ export default function AdminStockRedesignPage() {
                         type="text"
                         value={importSearch}
                         onChange={(e) => setImportSearch(e.target.value)}
-                        placeholder="Filter by name, brand or sku..."
+                        placeholder={t('import.filter_placeholder')}
                         className="w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm outline-none focus:border-gold transition-all"
                       />
                     </div>
@@ -579,7 +580,7 @@ export default function AdminStockRedesignPage() {
                                 <span
                                   className={`text-[8px] font-heading px-2 py-0.5 rounded-full ${v.stock === 0 ? "bg-destructive/10 text-destructive" : v.stock <= 5 ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}
                                 >
-                                  Stock: {v.stock}
+                                  {t('import.stock_label', { count: v.stock })}
                                 </span>
                               </div>
                             </div>
@@ -597,13 +598,13 @@ export default function AdminStockRedesignPage() {
                 <div className="lg:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border flex justify-between items-center bg-secondary/10">
                     <h3 className="font-heading text-sm uppercase tracking-widest">
-                      Staging Manifest ({importItems.length})
+                      {t('import.staging_manifest', { count: importItems.length })}
                     </h3>
                     <button
                       onClick={() => setImportItems([])}
                       className="px-4 py-2 rounded-xl text-[9px] uppercase tracking-widest font-heading text-muted-foreground hover:text-destructive transition-all"
                     >
-                      Flush Session
+                      {t('import.flush_session')}
                     </button>
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -611,7 +612,7 @@ export default function AdminStockRedesignPage() {
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30 gap-6">
                         <FileInput className="w-20 h-20 stroke-[0.5px]" />
                         <p className="text-xs uppercase tracking-[0.5em] font-heading text-center max-w-xs leading-relaxed">
-                          Search and add products to begin
+                          {t('import.empty_manifest')}
                         </p>
                       </div>
                     ) : (
@@ -660,7 +661,7 @@ export default function AdminStockRedesignPage() {
                               <div className="flex items-center gap-4">
                                 <div className="flex flex-col items-end">
                                   <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
-                                    Qty
+                                    {t('import.qty_label')}
                                   </label>
                                   <input
                                     type="number"
@@ -711,7 +712,7 @@ export default function AdminStockRedesignPage() {
                       ) : (
                         <Save className="w-5 h-5" />
                       )}
-                      {saving ? "Processing..." : "Confirm Import Session"}
+                      {saving ? t('import.processing') : t('import.confirm_import')}
                     </button>
                   </div>
                 </div>
@@ -726,14 +727,14 @@ export default function AdminStockRedesignPage() {
               <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] border-stone-200 dark:border-white/10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 sm:gap-12 items-center shadow-xl">
                 <div className="space-y-4">
                   <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block font-black opacity-50 ml-2 leading-none">
-                    Source Boutique
+                    {t('transfer.source')}
                   </label>
                   <select
                     value={transferFromId}
                     onChange={(e) => setTransferFromId(e.target.value)}
                     className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
                   >
-                    <option value="">-- Choose Origin --</option>
+                    <option value="">{t('transfer.choose_origin')}</option>
                     {storeList.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name}
@@ -750,14 +751,14 @@ export default function AdminStockRedesignPage() {
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block font-black opacity-50 ml-2 leading-none">
-                    Target Boutique
+                    {t('transfer.target')}
                   </label>
                   <select
                     value={transferToId}
                     onChange={(e) => setTransferToId(e.target.value)}
                     className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
                   >
-                    <option value="">-- Choose Destination --</option>
+                    <option value="">{t('transfer.choose_dest')}</option>
                     {storeList.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name}
@@ -774,7 +775,7 @@ export default function AdminStockRedesignPage() {
                     <div className="flex items-center gap-3 mb-6">
                       <Search className="w-5 h-5 text-gold" />
                       <h3 className="font-heading text-sm uppercase tracking-widest">
-                        Asset Finder
+                        {t('transfer.asset_finder')}
                       </h3>
                     </div>
                     <div className="relative">
@@ -785,8 +786,8 @@ export default function AdminStockRedesignPage() {
                         onChange={(e) => setTransferSearch(e.target.value)}
                         placeholder={
                           transferFromId
-                            ? "Search in source..."
-                            : "Select source first..."
+                            ? t('transfer.search_source')
+                            : t('transfer.select_source_first')
                         }
                         disabled={!transferFromId}
                         className="w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm outline-none focus:border-gold disabled:opacity-50 transition-all"
@@ -798,14 +799,14 @@ export default function AdminStockRedesignPage() {
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30">
                         <ArrowRightLeft className="w-12 h-12 mb-4 opacity-20" />
                         <p className="text-[10px] uppercase tracking-widest font-heading">
-                          Select Source Boutique
+                          {t('transfer.select_source_prompt')}
                         </p>
                       </div>
                     ) : filteredVariantsTransfer.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30">
                         <PackageSearch className="w-12 h-12 mb-4 opacity-20" />
                         <p className="text-[10px] uppercase tracking-widest font-heading">
-                          No assets found
+                          {t('transfer.no_assets')}
                         </p>
                       </div>
                     ) : (
@@ -848,7 +849,7 @@ export default function AdminStockRedesignPage() {
                                     {v.variantName}
                                   </span>
                                   <span className="text-[8px] text-muted-foreground group-hover:text-gold">
-                                    In Stock: {v.quantity}
+                                    {t('transfer.in_stock', { count: v.quantity })}
                                   </span>
                                 </div>
                               </div>
@@ -865,13 +866,13 @@ export default function AdminStockRedesignPage() {
                 <div className="lg:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border flex justify-between items-center bg-secondary/10">
                     <h3 className="font-heading text-sm uppercase tracking-widest">
-                      Relocation Manifest ({transferItems.length})
+                      {t('transfer.relocation_manifest', { count: transferItems.length })}
                     </h3>
                     <button
                       onClick={() => setTransferItems([])}
                       className="text-[9px] uppercase tracking-widest font-heading text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      Clear All
+                      {t('transfer.clear_all')}
                     </button>
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -879,7 +880,7 @@ export default function AdminStockRedesignPage() {
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30 gap-6 opacity-50">
                         <ArrowRightLeft className="w-20 h-20 stroke-[0.5px]" />
                         <p className="text-xs uppercase tracking-[0.5em] font-heading">
-                          Declare assets for movement
+                          {t('transfer.declare_assets')}
                         </p>
                       </div>
                     ) : (
@@ -928,7 +929,7 @@ export default function AdminStockRedesignPage() {
                             <div className="flex items-center gap-4">
                               <div className="flex flex-col items-end">
                                 <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
-                                  Move
+                                  {t('transfer.move_label')}
                                 </label>
                                 <input
                                   type="number"
@@ -981,7 +982,7 @@ export default function AdminStockRedesignPage() {
                       ) : (
                         <Send className="w-5 h-5" />
                       )}
-                      {saving ? "Processing..." : "Confirm Movement"}
+                      {saving ? t('import.processing') : t('transfer.confirm_movement')}
                     </button>
                   </div>
                 </div>
@@ -996,7 +997,7 @@ export default function AdminStockRedesignPage() {
               <div className="glass p-8 rounded-[3rem] border-border flex items-center gap-6">
                 <ClipboardCheck className="w-6 h-6 text-gold" />
                 <h3 className="font-heading text-sm uppercase tracking-widest mr-auto">
-                  Inventory Requests
+                  {t('requests.title')}
                 </h3>
                 <div className="flex gap-2 bg-secondary/20 p-1 rounded-xl border border-border">
                   {(["PENDING", "APPROVED", "REJECTED", ""] as const).map(
@@ -1006,7 +1007,7 @@ export default function AdminStockRedesignPage() {
                         onClick={() => setRequestFilter(s)}
                         className={`px-5 py-2 rounded-lg text-[9px] font-heading uppercase tracking-widest transition-all ${requestFilter === s ? "bg-background shadow-lg text-gold" : "text-muted-foreground hover:text-foreground"}`}
                       >
-                        {s || "All"}
+                        {t('status.' + (s.toLowerCase() || "all"))}
                       </button>
                     ),
                   )}
@@ -1019,14 +1020,18 @@ export default function AdminStockRedesignPage() {
                   <div className="flex flex-col items-center justify-center py-32 gap-6">
                     <Loader2 className="w-12 h-12 animate-spin text-gold/50" />
                     <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse">
-                      Loading requests...
+                      {t('status.loading_requests')}
                     </p>
                   </div>
                 ) : requests.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-32 gap-6 text-muted-foreground/30">
                     <ClipboardCheck className="w-20 h-20 stroke-[0.5px]" />
                     <p className="text-xs uppercase tracking-[0.5em] font-heading">
-                      No {requestFilter.toLowerCase() || ""} requests found
+                      {t('status.no_requests', { 
+                        filter: requestFilter 
+                          ? t('status.' + requestFilter.toLowerCase()) 
+                          : t('status.all') 
+                      })}
                     </p>
                   </div>
                 ) : (
@@ -1036,28 +1041,28 @@ export default function AdminStockRedesignPage() {
                         <tr className="border-b border-border/50 text-muted-foreground">
                           <th className="pl-10 pr-4 py-5 text-[10px] uppercase tracking-widest font-heading w-16"></th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
-                            Product / Variant
+                            {t('table.product_variant')}
                           </th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
-                            Store
+                            {t('table.store')}
                           </th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
-                            Type
+                            {t('table.type')}
                           </th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
-                            Quantity
+                            {t('table.quantity')}
                           </th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
-                            Reason
+                            {t('table.reason')}
                           </th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
-                            Staff
+                            {t('table.staff')}
                           </th>
                           <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
-                            Status
+                            {t('table.status')}
                           </th>
                           <th className="px-10 py-5 text-[10px] uppercase tracking-widest font-heading text-right">
-                            Actions
+                            {t('table.actions')}
                           </th>
                         </tr>
                       </thead>
@@ -1101,8 +1106,8 @@ export default function AdminStockRedesignPage() {
                                 className={`text-[9px] px-3 py-1 rounded-full font-heading uppercase tracking-widest ${r.type === "IMPORT" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"}`}
                               >
                                 {r.type === "IMPORT"
-                                  ? "Nhập kho"
-                                  : "Điều chỉnh"}
+                                  ? t('requests.import_type')
+                                  : t('requests.adjust_type')}
                               </span>
                             </td>
                             <td className="px-4 py-4 text-center">
@@ -1123,23 +1128,26 @@ export default function AdminStockRedesignPage() {
                                 {r.staff?.name || r.staff?.email}
                               </p>
                               <p className="text-[9px] text-muted-foreground">
-                                {new Date(r.createdAt).toLocaleString("vi-VN")}
+                                {format.dateTime(new Date(r.createdAt), {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })}
                               </p>
                             </td>
                             <td className="px-4 py-4 text-center">
                               {r.status === "PENDING" && (
                                 <span className="text-[9px] px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 font-heading uppercase tracking-widest animate-pulse">
-                                  Pending
+                                  {t('status.pending')}
                                 </span>
                               )}
                               {r.status === "APPROVED" && (
                                 <div>
                                   <span className="text-[9px] px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-heading uppercase tracking-widest">
-                                    Approved
+                                    {t('status.approved')}
                                   </span>
                                   {r.reviewer && (
                                     <p className="text-[8px] text-muted-foreground mt-1">
-                                      by {r.reviewer.name || r.reviewer.email}
+                                      {t("requests.reviewer_by")} {r.reviewer.name || r.reviewer.email}
                                     </p>
                                   )}
                                 </div>
@@ -1147,7 +1155,7 @@ export default function AdminStockRedesignPage() {
                               {r.status === "REJECTED" && (
                                 <div>
                                   <span className="text-[9px] px-3 py-1 rounded-full bg-destructive/10 text-destructive font-heading uppercase tracking-widest">
-                                    Rejected
+                                    {t('status.rejected')}
                                   </span>
                                   {r.reviewNote && (
                                     <p
@@ -1173,7 +1181,7 @@ export default function AdminStockRedesignPage() {
                                     ) : (
                                       <Check className="w-3 h-3" />
                                     )}
-                                    Approve
+                                    {t('requests.approve')}
                                   </button>
                                   <button
                                     onClick={() => {
@@ -1184,7 +1192,7 @@ export default function AdminStockRedesignPage() {
                                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive hover:text-white text-[9px] font-heading uppercase tracking-widest transition-all disabled:opacity-50"
                                   >
                                     <X className="w-3 h-3" />
-                                    Reject
+                                    {t('requests.reject')}
                                   </button>
                                 </div>
                               )}
@@ -1215,16 +1223,15 @@ export default function AdminStockRedesignPage() {
                       className="bg-background/98 dark:bg-zinc-900 rounded-[2rem] border border-border max-w-lg w-full p-10 shadow-2xl"
                     >
                       <h3 className="font-heading text-lg uppercase tracking-widest mb-2 text-destructive">
-                        Reject Request
+                        {t('requests.reject_modal_title')}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-6">
-                        Provide a reason for rejection. This will be visible to
-                        the staff member.
+                        {t('requests.reject_modal_desc')}
                       </p>
                       <textarea
                         value={rejectNote}
                         onChange={(e) => setRejectNote(e.target.value)}
-                        placeholder="Reason for rejection..."
+                        placeholder={t('requests.reject_reason_placeholder')}
                         rows={3}
                         className="w-full bg-secondary/30 border border-border rounded-2xl px-6 py-4 text-sm font-body outline-none focus:border-destructive transition-all resize-none mb-6"
                       />
@@ -1233,7 +1240,7 @@ export default function AdminStockRedesignPage() {
                           onClick={() => setShowRejectModal(null)}
                           className="flex-1 py-4 border border-border rounded-full text-[10px] font-heading uppercase tracking-widest hover:bg-secondary/20 transition-all"
                         >
-                          Cancel
+                          {t('requests.cancel')}
                         </button>
                         <button
                           onClick={() => handleReject(showRejectModal)}
@@ -1248,7 +1255,7 @@ export default function AdminStockRedesignPage() {
                           ) : (
                             <X className="w-4 h-4" />
                           )}
-                          Confirm Rejection
+                          {t('requests.confirm_reject')}
                         </button>
                       </div>
                     </motion.div>

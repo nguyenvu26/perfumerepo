@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MailService } from '../mail/mail.service';
 import { ShippingService } from '../shipping/shipping.service';
 import {
   ReturnStatus,
@@ -58,6 +59,7 @@ export class ReturnsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly mailService: MailService,
     private readonly shippingService: ShippingService,
   ) { }
 
@@ -708,24 +710,37 @@ export class ReturnsService {
     });
 
     // Notify customer
-    if (ret.userId) {
-      const msg =
-        dto.action === 'approve'
-          ? 'Yêu cầu trả hàng đã được duyệt. Vui lòng gửi hàng về và cung cấp mã vận đơn.'
-          : `Yêu cầu trả hàng bị từ chối. ${dto.note || ''}`;
+    if (ret.userId && ret.user) {
+      const isApprove = dto.action === 'approve';
+      const orderCode = ret.order?.code || 'unknown';
+      const userName = ret.user.fullName || 'Quý khách';
+
+      const title = isApprove
+        ? 'Yêu cầu trả hàng đã được chấp thuận'
+        : 'Phản hồi về yêu cầu trả hàng';
+
+      const content = isApprove
+        ? `Chào bạn, yêu cầu trả hàng cho đơn ${orderCode} đã được đội ngũ chuyên gia của PerfumeGPT chấp thuận. Vui lòng kiểm tra ứng dụng để xem hướng dẫn gửi hàng.`
+        : `Rất tiếc, yêu cầu trả hàng cho đơn ${orderCode} hiện chưa thể được chấp thuận. Lý do: ${dto.note || 'Không đạt điều kiện chính sách'}.`;
 
       this.notificationsService
         .create({
           userId: ret.userId,
           type: 'ORDER',
-          title:
-            dto.action === 'approve'
-              ? 'Yêu cầu trả hàng được duyệt'
-              : 'Yêu cầu trả hàng bị từ chối',
-          content: msg,
+          title,
+          content,
           data: { returnRequestId: id },
         })
         .catch(() => { });
+
+      // Send Email
+      if (ret.user.email) {
+        if (isApprove) {
+          this.mailService.sendReturnApprovedMail(ret.user.email, userName, orderCode).catch(() => { });
+        } else {
+          this.mailService.sendReturnRejectedMail(ret.user.email, userName, orderCode, dto.note || 'Không đạt điều kiện chính sách').catch(() => { });
+        }
+      }
     }
 
     // ─────────── AUTOMATED GHN PICKUP ───────────
@@ -740,7 +755,7 @@ export class ReturnsService {
           ret.reason?.includes("[DAMAGED]") ||
           ret.reason?.includes("[WRONG_ITEM]") ||
           ret.reason?.includes("[EXPIRED]");
-        const paymentTypeId = isShopFault ? 1 : 2;
+        const paymentTypeId = isShopFault ? 2 : 1;
 
         const pickupResult = await this.shippingService.createGhnReturnPickup(
           id,
@@ -926,19 +941,31 @@ export class ReturnsService {
     });
 
     // Notify customer
-    if (ret.userId) {
+    if (ret.userId && ret.user) {
+      const orderCode = ret.order?.code || 'unknown';
+      const userName = ret.user.fullName || 'Quý khách';
+
+      const title = hasCompromisedItem
+        ? 'Thông báo quan trọng về việc kiểm tra hàng hoàn trả'
+        : 'Đã nhận thành công sản phẩm hoàn trả';
+
       const msg = hasCompromisedItem
-        ? 'Yêu cầu trả hàng bị từ chối do sản phẩm không còn nguyên seal hoặc bị hư hại. Cửa hàng sẽ gửi trả sản phẩm lại cho bạn.'
-        : 'Hàng trả về đã được nhận. Đang xử lý hoàn tiền.';
+        ? `Chào bạn, sau khi kiểm tra kỹ lưỡng, sản phẩm của đơn ${orderCode} không đáp ứng đủ điều kiện nhập kho (mất seal hoặc hư hại). Chúng tôi sẽ gửi trả lại sản phẩm cho bạn.`
+        : `Hàng trả về của đơn ${orderCode} đã được chúng tôi nhận và kiểm tra thành công. Hệ thống đang tiến hành các bước hoàn tiền tiếp theo.`;
+
       this.notificationsService
         .create({
           userId: ret.userId,
           type: 'ORDER',
-          title: hasCompromisedItem ? 'Yêu cầu trả hàng bị từ chối' : 'Đã nhận hàng trả',
+          title,
           content: msg,
           data: { returnRequestId: id, evidenceImages: dto.evidenceImages || [] },
         })
         .catch(() => { });
+
+      if (ret.user.email && hasCompromisedItem) {
+        this.mailService.sendReturnRejectedAfterReceiptMail(ret.user.email, userName, orderCode).catch(() => { });
+      }
     }
 
     return result;
@@ -1137,19 +1164,23 @@ export class ReturnsService {
     });
 
     // Notify
-    if (ret.userId) {
+    if (ret.userId && ret.user && refundStatus === RefundStatus.SUCCESS) {
+      const orderCode = ret.order?.code || 'unknown';
+      const userName = ret.user.fullName || 'Quý khách';
+
       this.notificationsService
         .create({
           userId: ret.userId,
           type: 'ORDER',
-          title:
-            refundStatus === RefundStatus.SUCCESS
-              ? 'Hoàn tiền thành công'
-              : 'Hoàn tiền đang xử lý',
-          content: `Đã hoàn (hoặc đang xử lý) ${refundAmount.toLocaleString('vi-VN')}đ.`,
+          title: 'Hoàn tiền thành công',
+          content: `PerfumeGPT đã hoàn tất việc chuyển khoản ${refundAmount.toLocaleString('vi-VN')}đ cho đơn hàng ${orderCode}. Cảm ơn bạn đã tin tưởng dịch vụ.`,
           data: { returnRequestId: id, refundAmount },
         })
         .catch(() => { });
+
+      if (ret.user.email) {
+        this.mailService.sendRefundConfirmationMail(ret.user.email, userName, orderCode, refundAmount).catch(() => { });
+      }
     }
 
     return result;

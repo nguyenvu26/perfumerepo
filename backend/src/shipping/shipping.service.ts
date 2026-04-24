@@ -294,7 +294,7 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       height: 10,
       serviceId: ret.order.shippingServiceId ?? 0,
       serviceTypeId: 2,
-      paymentTypeId, // 1: Shop (Receiver) pays, 2: Customer (Sender) pays
+      paymentTypeId, // 1: Customer (Sender) pays, 2: Shop (Receiver) pays
       codAmount: 0,
       insuranceValue: ret.totalAmount ?? 0,
       content: `Thu hồi đơn hàng ${ret.order.code} - Return ID: ${ret.id}`,

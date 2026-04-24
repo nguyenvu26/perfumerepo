@@ -1029,12 +1029,14 @@
           "refund": "Hoàn trả Tinh chất",
           "referral": "Giới thiệu thành viên",
           "bonus": "Điểm thưởng đặc biệt",
-          "redeem": "Quy đổi voucher",
+          "redeem": "Đổi mã ưu đãi",
           "order_completed": "Đơn hàng hoàn tất",
           "order": "Tích điểm từ đơn hàng",
           "earned_from_order": "Tích lũy từ đơn hàng #{id}",
-          "exchanged_for_voucher": "Quy đổi mã giảm giá",
-          "exchanged_for_voucher_generic": "Quy đổi mã giảm giá {code}",
+          "exchanged_for_voucher": "Đổi mã ưu đãi",
+          "exchanged_for_voucher_generic": "Đổi mã ưu đãi {code}",
+          "redeemed_for_order_voucher_redeem_generic": "Sử dụng mã ưu đãi {code} cho đơn hàng",
+          "redeemed_for_order_voucher_redeem": "Sử dụng ưu đãi cho đơn hàng",
           "redeemed_for_order_voucher_redeem_freeship_max": "Sử dụng ưu đãi Miễn phí vận chuyển"
         },
         "history": "Lịch Sử Điểm Thưởng",
@@ -1164,7 +1166,8 @@
         "confirm_cancel_desc": "Bạn có chắc chắn muốn hủy đơn hàng này không? Hành động này không thể hoàn tác.",
         "cancel_success": "Đơn hàng đã được hủy thành công.",
         "cancel_error": "Không thể hủy đơn hàng này.",
-        "status_refunding": "Đang hoàn tiền"
+        "status_refunding": "Đang hoàn tiền",
+        "refund_info_submitted": "Đã gửi thông tin nhận tiền"
       },
       "returns": {
         "title": "Yêu Cầu Đổi Trả",
@@ -1175,7 +1178,12 @@
         "return_id": "Mã yêu cầu",
         "order_ref": "Đơn hàng liên quan",
         "items_count": "{count} sản phẩm",
+        "items_label": "sản phẩm",
+        "refund_label": "Hoàn tiền",
         "view_detail": "Xem chi tiết",
+        "category_label": "Phân loại:",
+        "created_at_label": "Ngày tạo:",
+        "reason_label": "Lý do:",
         "status": {
           "REQUESTED": "Yêu cầu mới",
           "AWAITING_CUSTOMER": "Chờ phản hồi khách",
@@ -1211,12 +1219,74 @@
           "submit_shipment": "Xác nhận đã gửi hàng",
           "submitting": "Đang xử lý...",
           "shipment_added": "Đã cập nhật thông tin vận chuyển",
+          "shipment_confirmed": "Đã xác nhận bàn giao hàng cho shipper",
+          "shipment_error": "Lỗi cập nhật thông tin",
+          "handover_error": "Lỗi xác nhận bàn giao",
           "cancel_btn": "Hủy",
           "cancel_confirm": "Bạn có chắc muốn hủy yêu cầu này?",
           "cancel_reason_placeholder": "Lý do hủy (tùy chọn)...",
           "cancelling": "Đang hủy...",
           "cancelled": "ĐÃ HỦY",
-          "not_found": "Không tìm thấy yêu cầu đổi trả"
+          "cancel_error": "Lỗi khi hủy yêu cầu",
+          "not_found": "Không tìm thấy yêu cầu đổi trả",
+          "status_label": "Trạng thái:",
+          "timeline_title": "Lộ trình xử lý",
+          "admin_feedback_title": "Phản hồi từ quản trị viên",
+          "seal_status_intact": "Hàng nguyên seal",
+          "seal_status_broken": "Hàng bóc seal",
+          "view_evidence": "Xem chi tiết",
+          "shipping_info_title": "Thông tin vận chuyển",
+          "pickup_support": "Hỗ trợ Pickup",
+          "pickup_scheduled": "Hệ thống đã đặt lịch thu hồi tận nơi",
+          "shipping_fee_responsibility": "Trách nhiệm phí vận chuyển hoàn trả",
+          "shipping_fee_shop": "Shop chi trả 100% phí thu hồi",
+          "shipping_fee_customer": "Người mua chi trả phí vận chuyển",
+          "shipping_fee_customer_rejected": "Khách hàng thanh toán phí ship gửi trả khi nhận hàng",
+          "pickup_instruction": "Shipper của GHN sẽ liên hệ với bạn qua số điện thoại <strong>{phone}</strong> để đến lấy hàng tại địa chỉ của đơn hàng gốc. Vui lòng đóng gói hàng cẩn thận và chờ shipper liên hệ.",
+          "tracking_number_ghn": "Mã vận đơn GHN",
+          "tracking_btn": "Theo dõi hành trình",
+          "confirm_handover": "Xác nhận bàn giao hàng cho shipper",
+          "tracking_number_submitted": "Mã vận đơn đã gửi",
+          "received_status": "Đã nhận hàng",
+          "system_update": "Cập nhật bởi hệ thống",
+          "shipping_instruction_manual": "Để hoàn tất quá trình, vui lòng gửi sản phẩm về địa chỉ bên dưới và cung cấp mã vận đơn để chúng tôi theo dõi.",
+          "showroom_address_title": "Địa chỉ nhận hàng (Showroom)",
+          "showroom_name": "Cửa hàng Perfume GPT Luxury",
+          "showroom_address_detail": "123 Nguyễn Huệ, P. Bến Nghé, Quận 1 \n Thành phố Hồ Chí Minh \n Hotline: 0123 456 789",
+          "refund_confirmation_title": "Xác Nhận Hoàn Tiền Thành Công",
+          "refund_confirmation_desc": "Admin đã chuyển khoản vào tài khoản của bạn",
+          "refund_success_badge": "Thành công",
+          "refunded_amount_label": "Số tiền đã hoàn",
+          "timestamp_label": "Thời gian",
+          "admin_message_label": "Lời nhắn từ cửa hàng",
+          "receipt_image_label": "Hình ảnh hóa đơn chuyển khoản",
+          "receipt_view_full": "Nhấn để xem toàn màn hình",
+          "no_receipt_image": "Không có hình ảnh hóa đơn",
+          "rejected_title": "Yêu cầu bị từ chối",
+          "rejected_subtitle": "Sản phẩm không đạt yêu cầu nhập kho",
+          "rejected_desc": "Sản phẩm hoàn trả không còn nguyên seal hoặc bị hư hại. Theo chính sách, cửa hàng sẽ gửi trả lại sản phẩm cho bạn. Phí vận chuyển sẽ do người mua chi trả.",
+          "store_evidence_label": "Bằng chứng từ cửa hàng ({count} ảnh)",
+          "sending_back_label": "Hàng đang gửi trả lại bạn",
+          "tracking_number_courier": "Mã vận đơn {courier}",
+          "preparing_return_desc": "Cửa hàng đang chuẩn bị gửi trả sản phẩm cho bạn. Vui lòng chờ cập nhật.",
+          "payment_info_title": "Thông tin nhận hoàn tiền",
+          "bank_name_label": "Ngân hàng:",
+          "account_holder_label": "Chủ tài khoản:",
+          "account_number_label": "Số tài khoản:",
+          "status_descriptions": {
+            "requested": "Yêu cầu trả hàng đã được tạo và đang chờ hệ thống xem xét.",
+            "reviewing": "Chúng tôi đã tiếp nhận yêu cầu và đang tiến hành kiểm tra thông tin.",
+            "approved": "Yêu cầu đã được chấp thuận. Vui lòng gửi hàng về địa chỉ của cửa hàng.",
+            "returning": "Hàng đang trong quá trình vận chuyển về kho của chúng tôi.",
+            "received": "Chúng tôi đã nhận được hàng và đang kiểm tra tình trạng thực tế.",
+            "refunding": "Hệ thống đang tiến hành hoàn tiền cho bạn thông qua phương thức đã chọn.",
+            "completed": "Quy trình đổi trả đã hoàn tất thành công.",
+            "rejected": "Rất tiếc, yêu cầu của bạn đã bị từ chối. Vui lòng xem phản hồi từ quản trị viên.",
+            "cancelled": "Yêu cầu đã bị hủy bởi người dùng hoặc hệ thống.",
+            "rejected_after_return": "Yêu cầu đã bị từ chối sau khi chúng tôi kiểm tra hàng hóa thực tế.",
+            "awaiting_customer": "Vui lòng cập nhật thông tin bổ sung để chúng tôi tiếp tục xử lý.",
+            "unknown": "Đang cập nhật trạng thái..."
+          }
         },
         "create_modal": {
           "title": "Tạo Yêu Cầu Đổi Trả",
@@ -1243,9 +1313,31 @@
           "submitting": "Đang xử lý...",
           "cancel_btn": "Hủy",
           "success": "Gửi yêu cầu đổi trả thành công!",
+          "reason_selection_title": "Chọn Lý Do Đổi Trả (Bắt buộc)",
+          "store_fault_title": "Lỗi từ Cửa hàng (Hoàn tiền 100% + Phí ship)",
+          "customer_fault_title": "Lý do khác (Hoàn tiền sản phẩm, không hoàn ship)",
+          "refund_full": "Hoàn tiền toàn bộ (bao gồm phí vận chuyển ban đầu)",
+          "refund_product_only": "Chỉ hoàn tiền sản phẩm (không bao gồm phí ship)",
+          "additional_note_label": "Ghi chú bổ sung (Tùy chọn)",
+          "additional_note_placeholder": "Nhập thêm chi tiết...",
+          "no_reason_note_placeholder": "Vui lòng chọn lý do trước",
+          "bank_info_title": "Thông tin hoàn tiền (Bắt buộc)",
+          "bank_info_notice": "* Các đơn hàng thanh toán trực tuyến sẽ được hoàn tiền thủ công qua chuyển khoản.",
+          "bank_name_label": "Tên ngân hàng",
+          "bank_account_label": "Số tài khoản",
+          "bank_holder_label": "Chủ tài khoản",
           "error_no_items": "Vui lòng chọn ít nhất 1 sản phẩm.",
           "error_qty": "Số lượng trả phải lớn hơn 0.",
-          "uploading": "Đang tải ảnh..."
+          "uploading": "Đang tải ảnh...",
+          "reasons": {
+            "damaged": "Hàng hư hỏng / Bể vỡ",
+            "wrong_item": "Giao sai sản phẩm",
+            "expired": "Sản phẩm hết hạn",
+            "scent_mismatch": "Mùi hương không đúng sở thích",
+            "color_mismatch": "Màu sắc/Chất lượng không như ý",
+            "quality_issue": "Chất lượng không đảm bảo",
+            "personal_change": "Khách đổi ý / Không còn nhu cầu"
+          }
         }
       },
       "notifications": {
@@ -1567,8 +1659,96 @@
         }
       },
       "stock": {
-        "title": "Quản Lý Tồn Kho",
-        "subtitle": "Kiểm soát và phân bổ lượng hàng trên toàn hệ thống boutique."
+        "title": "Quản lý Tồn kho",
+        "subtitle": "Kiểm soát và phân bổ lượng hàng trên toàn hệ thống boutique.",
+        "tabs": {
+          "overview": "Tổng quan",
+          "import": "Nhập kho lô",
+          "transfer": "Điều chuyển",
+          "requests": "Phê duyệt"
+        },
+        "status": {
+          "syncing": "Đang đồng bộ tài sản...",
+          "empty_boutique": "Boutique trống. Chưa có bản ghi tồn kho nào.",
+          "loading_requests": "Đang tải yêu cầu...",
+          "no_requests": "Không tìm thấy yêu cầu {filter} nào",
+          "approving": "Đang phê duyệt...",
+          "rejecting": "Đang từ chối...",
+          "all": "Tất cả",
+          "pending": "Chờ duyệt",
+          "approved": "Đã duyệt",
+          "rejected": "Đã từ chối"
+        },
+        "table": {
+          "media": "Hình ảnh",
+          "identifier": "Sản phẩm / Định danh",
+          "edition": "Phiên bản / Kích cỡ",
+          "inventory": "Tồn kho sẵn có",
+          "product_variant": "Sản phẩm / Biến thể",
+          "store": "Cửa hàng",
+          "type": "Loại",
+          "quantity": "Số lượng",
+          "reason": "Lý do",
+          "staff": "Nhân viên",
+          "status": "Trạng thái",
+          "actions": "Thao tác"
+        },
+        "boutique": {
+          "id_label": "Mã Boutique:",
+          "total_units": "Tổng đơn vị SKU"
+        },
+        "import": {
+          "destination": "Boutique đích",
+          "choose_target": "-- Chọn cửa hàng đích --",
+          "metadata_label": "Thông tin nhập / Lý do",
+          "reason_placeholder": "VD: Nhập hàng định kỳ Q1",
+          "catalog_title": "Danh mục sản phẩm chung",
+          "filter_placeholder": "Lọc theo tên, thương hiệu hoặc sku...",
+          "staging_manifest": "Danh sách chờ nhập ({count})",
+          "flush_session": "Xóa phiên",
+          "empty_manifest": "Tìm kiếm và thêm sản phẩm để bắt đầu",
+          "confirm_import": "Xác nhận nhập kho",
+          "processing": "Đang xử lý...",
+          "qty_label": "Số lượng",
+          "success": "Đã nhập thành công {count} sản phẩm.",
+          "stock_label": "Kho: {count}",
+          "default_reason": "Phiên nhập kho lô"
+        },
+        "transfer": {
+          "source": "Boutique nguồn",
+          "target": "Boutique đích",
+          "choose_origin": "-- Chọn nguồn --",
+          "choose_dest": "-- Chọn đích --",
+          "asset_finder": "Tìm kiếm tài sản",
+          "search_source": "Tìm trong nguồn...",
+          "select_source_first": "Chọn nguồn trước...",
+          "no_assets": "Không tìm thấy tài sản nào",
+          "select_source_prompt": "Vui lòng chọn Boutique nguồn",
+          "relocation_manifest": "Danh sách điều chuyển ({count})",
+          "clear_all": "Xóa tất cả",
+          "declare_assets": "Khai báo tài sản cần điều chuyển",
+          "confirm_movement": "Xác nhận điều chuyển",
+          "success": "Đã điều chuyển thành công {count} sản phẩm.",
+          "move_label": "Chuyển",
+          "in_stock": "Tồn kho: {count}",
+          "default_reason": "Phiên điều chuyển lô"
+        },
+        "requests": {
+          "title": "Yêu cầu tồn kho",
+          "filter_status": "Trạng thái:",
+          "approve": "Duyệt",
+          "reject": "Từ chối",
+          "reject_modal_title": "Từ chối yêu cầu",
+          "reject_modal_desc": "Cung cấp lý do từ chối. Lý do này sẽ hiển thị cho nhân viên.",
+          "reject_reason_placeholder": "Lý do từ chối...",
+          "cancel": "Hủy",
+          "confirm_reject": "Xác nhận từ chối",
+          "success_approve": "Đã duyệt yêu cầu thành công.",
+          "success_reject": "Đã từ chối yêu cầu.",
+          "import_type": "Nhập kho",
+          "adjust_type": "Điều chỉnh",
+          "reviewer_by": "bởi"
+        }
       },
       "returns": {
         "title": "Quản Lý Đổi Trả",
@@ -1612,8 +1792,14 @@
         },
         "dialogs": {
           "review_title": "Xét duyệt Yêu cầu Đổi Trả",
+          "review_subtitle_short": "Thẩm định tình trạng và quyết định phương án",
           "receive_title": "Xác nhận Nhận Hàng",
           "refund_title": "Xử Lý Hoàn Tiền",
+          "refund_subtitle": "Thanh toán và kết thúc quy trình trả hàng",
+          "receive_subtitle": "Nhập kho và kiểm tra tình trạng niêm phong",
+          "receive_target_pos": "tại quầy (POS)",
+          "receive_target_store": "cho cửa hàng chính",
+          "gateway": "Cổng thanh toán",
           "request_id": "Mã Yêu Cầu",
           "order_id": "Mã Đơn Hàng",
           "source": "Nguồn",
@@ -1643,9 +1829,16 @@
           "upload_error": "Lỗi tải ảnh lên",
           "btn_refund": "Xác Nhận Hoàn Tiền",
           "btn_cancel": "Hủy",
+          "btn_close": "Đóng",
           "note_label_receive": "Ghi chú tình trạng hàng nhập kho",
           "note_placeholder_receive": "Ví dụ: Đã kiểm tra nguyên seal...",
           "btn_receive_success": "Nhập Kho Thành Công",
+          "evidence_required_title": "Bắt buộc: Ảnh bằng chứng",
+          "evidence_required_desc": "Vui lòng chụp ảnh hoặc quay video cảnh mở hộp (unboxing) và tình trạng hàng hóa thực tế. Bằng chứng này sẽ được gửi cho khách hàng kèm thông báo từ chối.",
+          "uploading": "Đang tải ảnh lên...",
+          "no_evidence_uploaded": "Chưa có ảnh bằng chứng. Vui lòng upload ít nhất 1 ảnh.",
+          "processing": "Đang xử lý...",
+          "btn_reject_and_record": "Từ chối & Ghi nhận",
           "tracking_label": "Vận đơn:",
           "cash_refund_desc": "Xác nhận hoàn tiền bằng tiền mặt trực tiếp tại quầy. Nhân viên vui lòng kiểm tra kỹ số tiền trả cho khách hàng.",
           "refund_note_placeholder_cash": "Ví dụ: Đã trả tiền mặt cho khách...",
@@ -1659,7 +1852,19 @@
           "bank_name": "Ngân hàng:",
           "account_name": "Chủ tài khoản:",
           "copy_info": "Sao chép",
-          "actual_refund": "Thực hoàn:"
+          "actual_refund": "Thực hoàn:",
+          "ship_back": {
+            "title": "Gửi trả hàng cho khách",
+            "method_automated_title": "Cách 1: Tự động qua GHN (Khuyên dùng)",
+            "method_automated_desc": "Hệ thống sẽ tự động tạo đơn GHN gửi từ kho đến địa chỉ của khách. Khách hàng sẽ trả phí ship khi nhận hàng (COD phí ship).",
+            "btn_create_automated": "Tạo vận đơn GHN tự động",
+            "or_label": "Hoặc",
+            "method_manual_title": "Cách 2: Nhập mã vận đơn thủ công",
+            "courier_label": "Đơn vị",
+            "tracking_label": "Mã vận đơn",
+            "btn_save_manual": "Lưu mã vận đơn thủ công",
+            "close": "Đóng"
+          }
         },
         "pos": {
           "error_not_found": "Không tìm thấy đơn hàng. Kiểm tra lại mã đơn POS.",
@@ -1702,7 +1907,17 @@
           "cancel_success": "Hủy yêu cầu thành công",
           "cancel_error": "Lỗi khi hủy yêu cầu",
           "cancel_reason_default": "Hủy yêu cầu bởi nhân viên/cửa hàng",
-          "copied": "Đã sao chép vào bộ nhớ tạm"
+          "copied": "Đã sao chép vào bộ nhớ tạm",
+          "upload_receipt_success": "Tải ảnh hóa đơn thành công",
+          "upload_receipt_error": "Lỗi tải ảnh hóa đơn lên",
+          "evidence_required_toast": "Vui lòng upload ít nhất 1 ảnh bằng chứng khi đánh dấu hàng lỗi/hư",
+          "receive_rejected_toast": "Đã từ chối - Hàng lỗi. Vui lòng tạo vận đơn gửi trả khách.",
+          "receive_confirm_toast": "Đã xác nhận thao tác nhận hàng",
+          "upload_evidence_success": "Đã upload {count} ảnh bằng chứng",
+          "ship_back_success": "Đã lưu mã vận đơn gửi trả hàng",
+          "ship_back_error": "Lỗi lưu vận đơn",
+          "ship_back_automated_success": "Đã tạo vận đơn GHN: {code}. Phí ship sẽ do khách trả.",
+          "ship_back_automated_error": "Lỗi tạo vận đơn tự động"
         }
       },
       "products": {
@@ -2222,11 +2437,6 @@
               "DAMAGE": "Hàng hóa hư hỏng"
             }
           },
-          "returns": {
-            "details": {
-              "confirm_handover": "Xác nhận đã bàn giao hàng"
-            }
-          },
           "notifications": {
             "title": "Thông Báo",
             "subtitle": "Cập nhật mới nhất về đơn hàng và ưu đãi dành cho bạn.",
@@ -2244,6 +2454,9 @@
             }
           },
           "returns": {
+            "details": {
+              "confirm_handover": "Xác nhận đã bàn giao hàng"
+            },
             "create_modal": {
               "title": "Tạo Yêu Cầu Đổi Trả",
               "subtitle": "Cung cấp thông tin để chúng tôi xử lý yêu cầu của bạn nhanh chóng.",

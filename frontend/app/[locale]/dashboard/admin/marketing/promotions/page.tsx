@@ -339,7 +339,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.discountValue}
                               onChange={(e) => setForm({ ...form, discountValue: Number(e.target.value) })}
-                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
                           <div className="space-y-2">
@@ -349,7 +349,7 @@ export default function PromotionsAdmin() {
                               required
                               value={form.usageLimit}
                               onChange={(e) => setForm({ ...form, usageLimit: Number(e.target.value) })}
-                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                           </div>
 
@@ -402,7 +402,7 @@ export default function PromotionsAdmin() {
                                 required
                                 value={form.pointsCost}
                                 onChange={(e) => setForm({ ...form, pointsCost: Number(e.target.value) })}
-                                className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all"
+                                className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               />
                             </div>
                           )}

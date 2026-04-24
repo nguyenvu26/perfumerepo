@@ -96,6 +96,32 @@ export default function CustomerReturnDetailPage() {
   const params = useParams();
   const returnId = params?.id as string;
 
+  const tReasons = useTranslations(
+    "dashboard.customer.returns.create_modal.reasons",
+  );
+
+  const getReasonLabel = (reason: string | undefined): string => {
+    if (!reason) return "";
+    // Check for reason + note format: "[KEY] | Note"
+    if (reason.includes(" | ")) {
+      const [main, ...rest] = reason.split(" | ");
+      const note = rest.join(" | ");
+      return `${getReasonLabel(main)} | ${note}`;
+    }
+
+    // Check for [KEY] format
+    const match = reason.match(/^\[(.*)\]$/);
+    if (match) {
+      const key = match[1].toLowerCase();
+      try {
+        return tReasons(key);
+      } catch {
+        return reason;
+      }
+    }
+    return reason;
+  };
+
   const [returnReq, setReturnReq] = useState<ReturnRequest | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -150,7 +176,7 @@ export default function CustomerReturnDetailPage() {
       setTrackingNumber("");
       fetchReturn();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Lỗi cập nhật thông tin");
+      toast.error(err?.response?.data?.message || t("shipment_error"));
     } finally {
       setSubmittingShipment(false);
     }
@@ -164,7 +190,7 @@ export default function CustomerReturnDetailPage() {
       setShowCancelConfirm(false);
       fetchReturn();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Lỗi hủy yêu cầu");
+      toast.error(err?.response?.data?.message || t("cancel_error"));
     } finally {
       setCancelling(false);
     }
@@ -174,10 +200,10 @@ export default function CustomerReturnDetailPage() {
     setConfirmingHandover(true);
     try {
       await returnsService.handoverReturn(returnId);
-      toast.success("Đã xác nhận bàn giao hàng cho shipper");
+      toast.success(t("shipment_confirmed"));
       fetchReturn();
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Lỗi xác nhận bàn giao");
+      toast.error(err?.response?.data?.message || t("handover_error"));
     } finally {
       setConfirmingHandover(false);
     }
@@ -237,6 +263,43 @@ export default function CustomerReturnDetailPage() {
           </p>
         </header>
 
+        {/* Reason & Responsibility Summary */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass bg-black/40 shadow-2xl rounded-[2rem] p-6 border border-gold/20 backdrop-blur-md flex flex-col md:flex-row items-start md:items-center gap-6"
+        >
+          <div className="flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gold/60 mb-2">
+              {t("reason")}
+            </p>
+            <p className="text-base font-bold text-foreground">
+              {getReasonLabel(returnReq.reason)}
+            </p>
+          </div>
+          
+          <div className="hidden md:block h-12 w-px bg-gold/10" />
+
+          <div className="flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gold/60 mb-2">
+              {t("shipping_fee_responsibility")}
+            </p>
+            <div className="flex items-center gap-2">
+              {['[DAMAGED]', '[WRONG_ITEM]', '[EXPIRED]'].some(r => returnReq.reason?.includes(r)) ? (
+                <>
+                  <CheckCircle size={16} className="text-emerald-400" />
+                  <p className="text-sm font-bold text-emerald-400">{t("shipping_fee_shop")}</p>
+                </>
+              ) : (
+                <>
+                  <AlertCircle size={16} className="text-amber-400" />
+                  <p className="text-sm font-bold text-amber-400">{t("shipping_fee_customer")}</p>
+                </>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-8">
@@ -268,7 +331,7 @@ export default function CustomerReturnDetailPage() {
                         </p>
                         {item.reason && (
                           <p className="text-[11px] text-muted-foreground mt-1 italic">
-                            "{item.reason}"
+                            "{getReasonLabel(item.reason)}"
                           </p>
                         )}
                       </div>
@@ -367,7 +430,7 @@ export default function CustomerReturnDetailPage() {
                   {returnReq.origin === "ONLINE" &&
                     returnReq.shipments?.some((s) => s.courier === "GHN") && (
                       <Badge className="ml-auto bg-blue-500 text-white border-none text-[8px] font-black tracking-[0.2em] px-3">
-                        Hỗ trợ Pickup
+                        {t("pickup_support")}
                       </Badge>
                     )}
                 </div>
@@ -378,37 +441,33 @@ export default function CustomerReturnDetailPage() {
                   <div className="space-y-6">
                     <div className="bg-blue-500/5 border border-blue-500/10 p-5 rounded-3xl animate-in fade-in zoom-in-95">
                       <p className="text-sm font-bold text-blue-300 mb-2 flex items-center gap-2">
-                        <CheckCircle size={14} /> Hệ thống đã đặt lịch thu hồi
-                        tận nơi
+                        <CheckCircle size={14} /> {t("pickup_scheduled")}
                       </p>
                       
                       {/* Shipping Fee Responsibility Notice */}
                       <div className={cn(
                         "mt-3 mb-4 p-3 rounded-2xl border flex items-center gap-3",
-                        ['DAMAGED', 'WRONG_ITEM', 'EXPIRED'].includes(returnReq.reason || '')
+                        ['[DAMAGED]', '[WRONG_ITEM]', '[EXPIRED]'].includes(returnReq.reason || '')
                           ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                           : "bg-amber-500/10 border-amber-500/20 text-amber-400"
                       )}>
-                        {['DAMAGED', 'WRONG_ITEM', 'EXPIRED'].includes(returnReq.reason || '') ? (
+                        {['[DAMAGED]', '[WRONG_ITEM]', '[EXPIRED]'].includes(returnReq.reason || '') ? (
                           <CheckCircle size={14} />
                         ) : (
                           <AlertCircle size={14} />
                         )}
                         <p className="text-[10px] font-bold uppercase tracking-widest">
-                          {['DAMAGED', 'WRONG_ITEM', 'EXPIRED'].includes(returnReq.reason || '')
-                            ? "Phí vận chuyển hoàn trả sẽ do Shop chi trả"
-                            : "Vui lòng thanh toán phí vận chuyển cho bưu tá khi lấy hàng"}
+                          {['[DAMAGED]', '[WRONG_ITEM]', '[EXPIRED]'].includes(returnReq.reason || '')
+                            ? t("shipping_fee_shop")
+                            : t("shipping_fee_customer")}
                         </p>
                       </div>
 
                       <p className="text-[11px] text-blue-200/60 leading-relaxed mb-4">
-                        Shipper của <strong>GHN</strong> sẽ liên hệ với bạn qua
-                        số điện thoại{" "}
-                        <strong>
-                          {returnReq.order?.phone || "đã đăng ký"}
-                        </strong>{" "}
-                        để đến lấy hàng tại địa chỉ của đơn hàng gốc. Vui lòng
-                        đóng gói hàng cẩn thận và chờ shipper liên hệ.
+                        {t.rich("pickup_instruction", {
+                          phone: returnReq.order?.phone || "đã đăng ký",
+                          strong: (chunks) => <strong>{chunks}</strong>
+                        })}
                       </p>
 
                       {returnReq.shipments
@@ -420,21 +479,19 @@ export default function CustomerReturnDetailPage() {
                           >
                             <div>
                               <p className="text-[9px] font-black uppercase tracking-widest text-blue-500/70 mb-1">
-                                Mã vận đơn GHN
+                                {t("tracking_number_ghn")}
                               </p>
                               <p className="font-mono text-base font-bold text-blue-400 select-all group-hover:text-blue-300 transition-colors uppercase">
                                 {s.trackingNumber}
                               </p>
                             </div>
                             <a
-                              href={`https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`}
+                              href={`https://donhang.ghn.vn/?order_code=${s.trackingNumber}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all w-fit"
                             >
-                              {t("tracking_btn", {
-                                defaultValue: "Theo dõi hành trình",
-                              })}
+                              {t("tracking_btn")}
                               <ArrowLeft size={10} className="rotate-180" />
                             </a>
                           </div>
@@ -467,7 +524,7 @@ export default function CustomerReturnDetailPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">
-                              Mã vận đơn đã gửi
+                              {t("tracking_number_submitted")}
                             </p>
                             <p className="text-sm font-mono font-bold text-foreground uppercase tracking-widest">
                               {s.trackingNumber}
@@ -485,10 +542,10 @@ export default function CustomerReturnDetailPage() {
                         {s.receivedAt && (
                           <div className="mt-3 pt-3 border-t border-border/30 flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-green-500/80">
-                              <Clock size={12} /> Đã nhận hàng
+                              <CheckCircle size={12} /> {t("received_status")}
                             </div>
                             <span className="text-[9px] text-muted-foreground italic font-mono uppercase">
-                              Cập nhật bởi hệ thống
+                              {t("system_update")}
                             </span>
                           </div>
                         )}
@@ -499,24 +556,19 @@ export default function CustomerReturnDetailPage() {
                   /* Form to add shipment (Manual) */
                   <>
                     <p className="text-[11px] text-muted-foreground mb-6 leading-relaxed">
-                      Để hoàn tất quá trình, vui lòng gửi sản phẩm về địa chỉ
-                      bên dưới và cung cấp mã vận đơn để chúng tôi theo dõi.
+                      {t("shipping_instruction_manual")}
                     </p>
 
                     <div className="bg-background/40 p-5 rounded-3xl border border-border/50 mb-6 group hover:border-gold/20 transition-all">
                       <p className="text-[10px] font-black uppercase tracking-widest text-gold mb-3">
-                        Địa chỉ nhận hàng (Showroom)
+                        {t("showroom_address_title")}
                       </p>
                       <div className="space-y-1">
                         <p className="text-sm text-foreground font-black uppercase tracking-tight">
-                          Cửa hàng Perfume GPT Luxury
+                          {t("showroom_name")}
                         </p>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          123 Nguyễn Huệ, P. Bến Nghé, Quận 1 <br />
-                          Thành phố Hồ Chí Minh <br />
-                          <span className="text-gold/80 font-bold">
-                            Hotline: 0123 456 789
-                          </span>
+                        <p className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-line">
+                          {t("showroom_address_detail")}
                         </p>
                       </div>
                     </div>
@@ -660,14 +712,14 @@ export default function CustomerReturnDetailPage() {
                       </div>
                       <div>
                         <h2 className="text-base font-heading uppercase tracking-widest text-emerald-300">
-                          Xác Nhận Hoàn Tiền Thành Công
+                          {t("refund_confirmation_title")}
                         </h2>
                         <p className="text-[9px] text-emerald-500/70 font-bold uppercase tracking-widest mt-0.5">
-                          Admin đã chuyển khoản vào tài khoản của bạn
+                          {t("refund_confirmation_desc")}
                         </p>
                       </div>
                       <span className="ml-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-[9px] font-black text-emerald-400 uppercase tracking-widest">
-                        <CheckCircle size={10} /> Thành công
+                        <CheckCircle size={10} /> {t("refund_success_badge")}
                       </span>
                     </div>
 
@@ -675,7 +727,7 @@ export default function CustomerReturnDetailPage() {
                     <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-2xl p-4 mb-5 flex items-center justify-between gap-4">
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-1">
-                          Số tiền đã hoàn
+                          {t("refunded_amount_label")}
                         </p>
                         <p className="text-2xl font-heading text-emerald-300">
                           {formatCurrency(latestRefund.amount)}
@@ -684,7 +736,7 @@ export default function CustomerReturnDetailPage() {
                       {latestRefund.createdAt && (
                         <div className="text-right">
                           <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-1">
-                            Thời gian
+                            {t("timestamp_label")}
                           </p>
                           <p className="text-xs text-emerald-300/80 font-mono">
                             {new Date(latestRefund.createdAt).toLocaleString(
@@ -699,7 +751,7 @@ export default function CustomerReturnDetailPage() {
                     {latestRefund.note && (
                       <div className="mb-5 bg-black/30 border border-emerald-500/15 rounded-2xl p-4">
                         <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-2">
-                          Lời nhắn từ cửa hàng
+                          {t("admin_message_label")}
                         </p>
                         <p className="text-sm text-emerald-100/90 leading-relaxed italic">
                           &ldquo;{latestRefund.note}&rdquo;
@@ -711,7 +763,7 @@ export default function CustomerReturnDetailPage() {
                     {latestRefund.receiptImage ? (
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-widest text-emerald-500/80 mb-3">
-                          Hình ảnh hóa đơn chuyển khoản
+                          {t("receipt_image_label")}
                         </p>
                         <a
                           href={latestRefund.receiptImage}
@@ -727,14 +779,14 @@ export default function CustomerReturnDetailPage() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
                             <span className="text-[9px] font-bold text-white uppercase tracking-widest">
-                              Nhấn để xem toàn màn hình
+                              {t("receipt_view_full")}
                             </span>
                           </div>
                         </a>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2 text-emerald-500/50 text-[10px] font-bold uppercase tracking-widest">
-                        <ImageIcon size={12} /> Không có hình ảnh hóa đơn
+                        <ImageIcon size={12} /> {t("no_receipt_image")}
                       </div>
                     )}
                   </motion.div>
@@ -768,10 +820,10 @@ export default function CustomerReturnDetailPage() {
                     </div>
                     <div>
                       <h2 className="text-base font-heading uppercase tracking-widest text-red-300">
-                        Yêu cầu bị từ chối
+                        {t("rejected_title")}
                       </h2>
                       <p className="text-[9px] text-red-500/70 font-bold uppercase tracking-widest mt-0.5">
-                        Sản phẩm không đạt yêu cầu nhập kho
+                        {t("rejected_subtitle")}
                       </p>
                     </div>
                   </div>
@@ -779,15 +831,30 @@ export default function CustomerReturnDetailPage() {
                   <div className="bg-red-900/20 border border-red-500/20 rounded-2xl p-4">
                     <p className="text-[11px] text-red-200/80 leading-relaxed">
                       Sản phẩm hoàn trả không còn nguyên seal hoặc bị hư hại. Theo chính sách,
-                      cửa hàng sẽ gửi trả lại sản phẩm cho bạn. Phí vận chuyển sẽ do người mua chi trả.
+                      cửa hàng sẽ gửi trả lại sản phẩm cho bạn.
                     </p>
+                  </div>
+
+                  {/* Shipping Fee Responsibility Transparency Block */}
+                  <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                      <AlertCircle size={16} className="text-amber-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-amber-500/80 mb-0.5">
+                        {t("shipping_fee_responsibility")}
+                      </p>
+                      <p className="text-xs font-bold text-amber-400">
+                        {t("shipping_fee_customer_rejected")}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Evidence photos from admin */}
                   {evidenceImages.length > 0 && (
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-widest text-red-500/80 mb-3">
-                        Bằng chứng từ cửa hàng ({evidenceImages.length} ảnh)
+                        {t("store_evidence_label", { count: evidenceImages.length })}
                       </p>
                       <div className="flex gap-3 flex-wrap">
                         {evidenceImages.map((url: string, idx: number) => (
@@ -814,7 +881,7 @@ export default function CustomerReturnDetailPage() {
                   {returnShipments.length > 0 && (
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-widest text-orange-400/80 mb-3">
-                        Hàng đang gửi trả lại bạn
+                        {t("sending_back_label")}
                       </p>
                       {returnShipments.map((s) => (
                         <div
@@ -823,7 +890,7 @@ export default function CustomerReturnDetailPage() {
                         >
                           <div>
                             <p className="text-[9px] font-black uppercase tracking-widest text-orange-500/70 mb-1">
-                              Mã vận đơn {s.courier || ""}
+                              {t("tracking_number_courier", { courier: s.courier || "" })}
                             </p>
                             <p className="font-mono text-base font-bold text-orange-400 select-all uppercase">
                               {s.trackingNumber}
@@ -831,12 +898,12 @@ export default function CustomerReturnDetailPage() {
                           </div>
                           {s.courier === "GHN" && s.trackingNumber && (
                             <a
-                              href={`https://ghn.vn/blogs/trang-thai-don-hang?order_code=${s.trackingNumber}`}
+                              href={`https://donhang.ghn.vn/?order_code=${s.trackingNumber}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-2 px-4 py-2 bg-orange-500/10 text-orange-400 border border-orange-500/30 rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-all w-fit"
                             >
-                              Theo dõi hành trình
+                              {t("tracking_btn")}
                               <ArrowLeft size={10} className="rotate-180" />
                             </a>
                           )}
@@ -849,7 +916,7 @@ export default function CustomerReturnDetailPage() {
                     <div className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4">
                       <p className="text-[11px] text-orange-300/70 leading-relaxed flex items-center gap-2">
                         <Truck size={14} className="text-orange-400" />
-                        Cửa hàng đang chuẩn bị gửi trả sản phẩm cho bạn. Vui lòng chờ cập nhật.
+                        {t("preparing_return_desc")}
                       </p>
                     </div>
                   )}
@@ -914,7 +981,7 @@ export default function CustomerReturnDetailPage() {
                     {t("reason")}
                   </p>
                   <p className="text-sm text-foreground italic whitespace-pre-wrap">
-                    "{returnReq.reason}"
+                    "{getReasonLabel(returnReq.reason)}"
                   </p>
                 </div>
               )}
@@ -922,22 +989,22 @@ export default function CustomerReturnDetailPage() {
               {returnReq.paymentInfo && (
                 <div className="bg-indigo-900/20 border border-indigo-500/20 p-4 rounded-xl mt-2">
                   <p className="text-[9px] font-bold text-indigo-300 uppercase tracking-widest mb-2">
-                    Thông tin nhận hoàn tiền
+                    {t("payment_info_title")}
                   </p>
                   <p className="text-xs text-white">
-                    Ngân hàng:{" "}
+                    {t("bank_name_label")}{" "}
                     <span className="font-semibold text-indigo-200">
                       {returnReq.paymentInfo.bankName}
                     </span>
                   </p>
                   <p className="text-xs text-white mt-1">
-                    Chủ tài khoản:{" "}
+                    {t("account_holder_label")}{" "}
                     <span className="font-semibold text-indigo-200">
                       {returnReq.paymentInfo.accountName}
                     </span>
                   </p>
                   <p className="text-xs text-white mt-1">
-                    Số tài khoản:{" "}
+                    {t("account_number_label")}{" "}
                     <span className="font-mono bg-black/30 px-2 py-0.5 rounded text-indigo-200">
                       {returnReq.paymentInfo.accountNumber}
                     </span>

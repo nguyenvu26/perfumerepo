@@ -201,13 +201,13 @@ export function ReturnList() {
                           {t("items_count", { count: ret.items.length })}
                         </p>
                         <p className="text-[10px] md:text-[11px] font-bold text-foreground uppercase tracking-tighter">
-                          {ret.items.length} {t("items_label") || "sản phẩm"}
+                          {ret.items.length} {t("items_label")}
                         </p>
                       </div>
                       {ret.refundAmount != null && (
                         <div className="col-span-2 sm:col-span-1 border-t sm:border-t-0 border-gold/5 pt-3 sm:pt-0">
                           <p className="text-[8px] md:text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
-                            {t("refund_label") || "Hoàn tiền"}
+                            {t("refund_label")}
                           </p>
                           <p className="text-base md:text-sm font-heading font-bold text-gold">
                             {formatCurrency(ret.refundAmount)}

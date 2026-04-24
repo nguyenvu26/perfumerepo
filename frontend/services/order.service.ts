@@ -29,6 +29,7 @@ export type Order = {
   }[];
   createdAt?: string;
   updatedAt?: string;
+  hasRefundEvidence?: boolean;
   returnRequests?: {
     id: string;
     status: string;
@@ -47,6 +48,8 @@ export type RefundBankInfo = {
   accountHolder: string;
   note?: string | null;
   submittedAt?: string;
+  refundEvidence?: string | null;
+  evidenceSubmittedAt?: string | null;
 };
 
 export type OrderListResponse = {
@@ -127,5 +130,15 @@ export const orderService = {
     return api
       .post<{ shipmentId: string; orderCode: string; fee: number }>(`/shipping/admin/${id}/create-ghn`)
       .then((r) => r.data);
+  },
+  submitRefundEvidence(id: string, file: File) {
+    const form = new FormData();
+    form.append('file', file);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    return fetch(api.defaults.baseURL + `/orders/admin/${id}/refund-evidence`, {
+      method: 'POST',
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+      body: form,
+    }).then((r) => r.json());
   },
 };

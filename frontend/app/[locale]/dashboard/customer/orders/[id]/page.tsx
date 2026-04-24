@@ -20,6 +20,7 @@ import {
   PackageCheck,
   XCircle,
   RotateCcw,
+  Check,
 } from "lucide-react";
 import ReviewForm from "@/components/review/review-form";
 import { CreateReturnModal } from "@/components/returns/CreateReturnModal";
@@ -456,9 +457,56 @@ export default function CustomerOrderDetailPage() {
                   </button>
                 )}
                 {submittedRefundInfo && (
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
-                    Đã gửi thông tin nhận hoàn tiền
-                  </p>
+                  <div className="mt-4 pt-4 border-t border-stone-100 dark:border-white/5 space-y-4">
+                    <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-bold uppercase tracking-widest">
+                      <Check size={12} /> {tDetail("refund_info_submitted", { defaultValue: "Đã gửi thông tin nhận tiền" })}
+                    </div>
+                    
+                    <div className="p-4 rounded-2xl bg-stone-50 dark:bg-zinc-800/50 border border-stone-100 dark:border-white/5 space-y-2">
+                      <div className="flex justify-between gap-4 text-[10px]">
+                        <span className="text-stone-400 uppercase tracking-wider">Ngân hàng</span>
+                        <span className="font-bold text-stone-900 dark:text-stone-100">{submittedRefundInfo.bankName}</span>
+                      </div>
+                      <div className="flex justify-between gap-4 text-[10px]">
+                        <span className="text-stone-400 uppercase tracking-wider">Số tài khoản</span>
+                        <span className="font-bold text-stone-900 dark:text-stone-100">{submittedRefundInfo.accountNumber}</span>
+                      </div>
+                      <div className="flex justify-between gap-4 text-[10px]">
+                        <span className="text-stone-400 uppercase tracking-wider">Chủ tài khoản</span>
+                        <span className="font-bold text-stone-900 dark:text-stone-100">{submittedRefundInfo.accountHolder}</span>
+                      </div>
+                    </div>
+
+                    {submittedRefundInfo.refundEvidence && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-2">
+                          <Check size={12} /> Minh chứng hoàn tiền từ Shop
+                        </p>
+                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-stone-200 dark:border-white/10 group shadow-sm bg-stone-100 dark:bg-zinc-800">
+                          <Image 
+                            src={submittedRefundInfo.refundEvidence} 
+                            alt="Refund Evidence" 
+                            fill 
+                            className="object-cover transition-transform group-hover:scale-105" 
+                            sizes="(max-width: 768px) 100vw, 300px"
+                          />
+                          <a 
+                            href={submittedRefundInfo.refundEvidence} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-widest"
+                          >
+                            Xem ảnh lớn
+                          </a>
+                        </div>
+                        {submittedRefundInfo.evidenceSubmittedAt && (
+                          <p className="text-[8px] text-stone-400 italic">
+                            Xác nhận lúc: {format.dateTime(new Date(submittedRefundInfo.evidenceSubmittedAt))}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 

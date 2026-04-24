@@ -931,7 +931,7 @@ export default function AdminProducts() {
                                         <span className="text-muted-foreground text-sm font-serif italic">₫</span>
                                         <input
                                           type="number"
-                                          className="w-32 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all"
+                                          className="w-32 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                           value={v.price === 0 && !editId ? '' : v.price}
                                           onChange={(e) => updateVariant(i, { price: e.target.value === '' ? 0 : Number(e.target.value) })}
                                         />
@@ -940,7 +940,7 @@ export default function AdminProducts() {
                                     <td className="px-10 py-8">
                                       <input
                                         type="number"
-                                        className="w-24 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all text-center"
+                                        className="w-24 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                         value={v.stock === 0 && !editId ? '' : v.stock}
                                         onChange={(e) => updateVariant(i, { stock: e.target.value === '' ? 0 : Number(e.target.value) })}
                                       />

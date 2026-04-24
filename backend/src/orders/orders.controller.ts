@@ -11,6 +11,8 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadedFile, UseInterceptors } from '@nestjs/common';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -87,6 +89,16 @@ export class OrdersController {
   @Get('admin/:id/refund-bank-info')
   async getRefundBankInfoAdmin(@Param('id') id: string) {
     return this.ordersService.getRefundBankInfo(id);
+  }
+
+  @Post('admin/:id/refund-evidence')
+  @UseInterceptors(FileInterceptor('file'))
+  async submitRefundEvidence(
+    @Req() req: any,
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.ordersService.submitRefundEvidence(req.user.userId, id, file);
   }
 
   @Post('admin/:id/status')

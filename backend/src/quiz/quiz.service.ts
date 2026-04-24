@@ -85,7 +85,7 @@ export class QuizService {
 
         return results.map(r => ({
             ...r,
-            recommendation: r.recommendation,
+            recommendation: r.recommendation as unknown as QuizRecommendation[],
         }));
     }
 
@@ -97,14 +97,10 @@ export class QuizService {
 
         if (!result) throw new Error('Quiz result not found');
 
-        return result;
-    }
-
-    async getHistory(userId: string) {
-        return this.prisma.quizResult.findMany({
-            where: { userId },
-            orderBy: { createdAt: 'desc' },
-        });
+        return {
+            ...result,
+            recommendation: result.recommendation as unknown as QuizRecommendation[],
+        };
     }
 
     private async enrichRecommendations(

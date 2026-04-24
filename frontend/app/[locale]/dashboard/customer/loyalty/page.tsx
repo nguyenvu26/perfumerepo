@@ -208,6 +208,12 @@ export default function LoyaltyDashboard() {
                                                                 const code = tx.reason.split('_').pop()?.toUpperCase();
                                                                 return t('reasons.exchanged_for_voucher_generic', { code });
                                                             }
+                                                            if (r.startsWith('redeemed_for_order_voucher_redeem')) {
+                                                                const code = tx.reason.split('_').pop()?.toUpperCase();
+                                                                // Special case for freeship_max if we want to keep it pretty
+                                                                if (code === 'MAX') return t('reasons.redeemed_for_order_voucher_redeem_freeship_max');
+                                                                return t('reasons.redeemed_for_order_voucher_redeem_generic', { code });
+                                                            }
                                                             try {
                                                                 return t(`reasons.${r}`);
                                                             } catch (e) {

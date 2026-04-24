@@ -267,8 +267,8 @@ export default function CheckoutPage() {
     const checkoutStepLabels = locale === 'vi'
         ? ['Địa chỉ', 'Thanh toán', 'Xác nhận']
         : ['Address', 'Payment', 'Confirm'];
-    const codTitle = locale === 'vi' ? 'Thanh toán khi nhận hàng' : t('cod_label');
-    const onlineTitle = locale === 'vi' ? 'Thanh toán trực tiếp' : t('online_payment_label');
+    const codTitle = t('cod_label');
+    const onlineTitle = t('online_payment_label');
     const pageTitle = locale === 'vi' ? 'Thanh toán' : 'Checkout';
     const stepHint = locale === 'vi'
         ? {
