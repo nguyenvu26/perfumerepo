@@ -128,7 +128,13 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       orderBy: { createdAt: 'asc' },
     });
 
-    // Identify if this order was intended to be paid online by checking for any online payment records
+    const codPayment = await this.prisma.payment.findFirst({
+      where: {
+        orderId,
+        provider: PaymentProvider.COD,
+      },
+    });
+
     const onlinePaymentAttempts = await this.prisma.payment.findMany({
       where: {
         orderId,
@@ -140,6 +146,7 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
       order.channel === 'ONLINE' &&
       order.paymentStatus !== 'PAID' &&
       !paidOnlinePayment &&
+      !codPayment &&
       onlinePaymentAttempts.length > 0
     ) {
       throw new BadRequestException(

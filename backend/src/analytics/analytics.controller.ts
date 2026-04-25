@@ -53,4 +53,9 @@ export class AnalyticsController {
       Number.isFinite(parsed) ? parsed : 8,
     );
   }
+
+  @Get('store-revenue')
+  async getStoreRevenue(@Query('storeId') storeId: string) {
+    return this.analyticsService.getStoreRevenue(storeId);
+  }
 }

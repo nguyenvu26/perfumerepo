@@ -51,6 +51,12 @@ export interface RecentOrderDto {
   createdAt: Date;
 }
 
+export interface StoreRevenueDto {
+  today: number;
+  week: number;
+  month: number;
+}
+
 @Injectable()
 export class AnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -402,5 +408,49 @@ export class AnalyticsService {
       channel: o.channel,
       createdAt: o.createdAt,
     }));
+  }
+
+  /**
+   * Get revenue breakdown for a specific store
+   */
+  async getStoreRevenue(storeId: string): Promise<StoreRevenueDto> {
+    const now = new Date();
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const paidStatuses: PaymentStatus[] = [
+      PaymentStatus.PAID,
+      PaymentStatus.PARTIALLY_REFUNDED,
+    ];
+
+    const [todayOrders, weekOrders, monthOrders] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { storeId, createdAt: { gte: startOfToday }, paymentStatus: { in: paidStatuses } },
+        select: { finalAmount: true, refundAmount: true },
+      }),
+      this.prisma.order.findMany({
+        where: { storeId, createdAt: { gte: startOfWeek }, paymentStatus: { in: paidStatuses } },
+        select: { finalAmount: true, refundAmount: true },
+      }),
+      this.prisma.order.findMany({
+        where: { storeId, createdAt: { gte: startOfMonth }, paymentStatus: { in: paidStatuses } },
+        select: { finalAmount: true, refundAmount: true },
+      }),
+    ]);
+
+    const calculate = (orders: any[]) =>
+      orders.reduce((acc, o) => acc + (o.finalAmount - o.refundAmount), 0);
+
+    return {
+      today: calculate(todayOrders),
+      week: calculate(weekOrders),
+      month: calculate(monthOrders),
+    };
   }
 }

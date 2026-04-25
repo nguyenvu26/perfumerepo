@@ -5,11 +5,12 @@ import {
   Body,
   Param,
   Delete,
+  Patch,
   UseGuards,
   Request,
 } from '@nestjs/common';
 import { PromotionsService } from './promotions.service';
-import { CreatePromotionDto, ValidatePromotionDto } from './dto/promotion.dto';
+import { CreatePromotionDto, ValidatePromotionDto, UpdatePromotionDto } from './dto/promotion.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -79,6 +80,13 @@ export class PromotionsController {
   @Roles('ADMIN', 'STAFF')
   async findOne(@Param('id') id: string) {
     return this.promotionsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async update(@Param('id') id: string, @Body() dto: UpdatePromotionDto) {
+    return this.promotionsService.update(id, dto);
   }
 
   @Delete(':id')

@@ -111,7 +111,7 @@ export default function LoyaltyDashboard() {
                             <div className="p-8 border-b border-white/5 flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <Wallet size={18} className="text-gold" />
-                                    <h3 className="font-heading uppercase tracking-widest">{tPromo('title')}</h3>
+                                    <h3 className="font-heading uppercase tracking-widest">{t('my_vouchers')}</h3>
                                 </div>
                             </div>
                             <div className="p-8">
@@ -137,8 +137,7 @@ export default function LoyaltyDashboard() {
                                                             <Tag size={16} />
                                                         </div>
                                                         {promo.endDate && (
-                                                            <div className="px-3 py-1.5 rounded-full bg-gold/5 border border-gold/10 text-gold text-[8px] uppercase tracking-widest font-bold flex items-center gap-2">
-                                                                <Timer size={12} />
+                                                            <div className="px-3 py-1.5 rounded-full bg-gold/5 border border-gold/10 text-gold text-[8px] uppercase tracking-widest font-bold flex items-center">
                                                                 {formatTimeRemaining(promo.endDate)}
                                                             </div>
                                                         )}

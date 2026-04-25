@@ -33,6 +33,7 @@ import { QuizModule } from './quiz/quiz.module';
 import { ReturnsModule } from './returns/returns.module';
 import { AiPreferencesModule } from './ai-preferences/ai-preferences.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { DailyClosingModule } from './daily-closing/daily-closing.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     ReturnsModule,
     AiPreferencesModule,
     AnalyticsModule,
+    DailyClosingModule,
   ],
 
   controllers: [AppController],

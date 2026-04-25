@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePromotionDto, ValidatePromotionDto } from './dto/promotion.dto';
+import { CreatePromotionDto, ValidatePromotionDto, UpdatePromotionDto } from './dto/promotion.dto';
 import { PromotionCode, UserPromotionStatus } from '@prisma/client';
 import { LoyaltyService } from '../loyalty/loyalty.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -277,6 +277,17 @@ export class PromotionsService {
     const promo = await this.prisma.promotionCode.findUnique({ where: { id } });
     if (!promo) throw new NotFoundException('Promotion not found');
     return promo;
+  }
+
+  async update(id: string, dto: UpdatePromotionDto) {
+    const data: any = { ...dto };
+    if (dto.startDate) data.startDate = new Date(dto.startDate);
+    if (dto.endDate) data.endDate = new Date(dto.endDate);
+
+    return this.prisma.promotionCode.update({
+      where: { id },
+      data,
+    });
   }
 
   async remove(id: string) {

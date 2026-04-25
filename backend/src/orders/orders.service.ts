@@ -305,6 +305,7 @@ export class OrdersService {
             },
           },
           user: true,
+          payments: true,
           promotions: { include: { promotionCode: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -535,6 +536,7 @@ export class OrdersService {
           },
         },
         user: true,
+        payments: true,
         promotions: { include: { promotionCode: true } },
         returnRequests: {
           where: { status: { not: 'CANCELLED' } },

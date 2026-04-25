@@ -58,6 +58,7 @@ model User {
   aiPreference              UserAiPreference?
   phoneOtps                PhoneOtpVerification[]
   profileCompletionBonusClaimed Boolean @default(false)
+  dailyClosings       DailyClosing[]
 }
 
 model UserAddress {
@@ -252,6 +253,7 @@ model Store {
   storeStocks StoreStock[]
   inventoryLogs InventoryLog[]
   inventoryRequests InventoryRequest[]
+  dailyClosings       DailyClosing[]
 }
 
 /// Gán nhân viên (STAFF) vào quầy – staff chỉ xem/sửa tồn quầy mình
@@ -794,6 +796,35 @@ enum ShipmentStatus {
   DELIVERED
   FAILED
   RETURNED
+}
+
+model DailyClosing {
+  id              String   @id @default(cuid())
+  storeId         String
+  staffId         String
+  closingDate     DateTime @default(now())
+  
+  // Doanh thu hệ thống
+  systemTotal     Int      // Tổng doanh thu hệ thống tính toán
+  systemCash      Int      // Tiền mặt theo hệ thống
+  systemTransfer  Int      // Chuyển khoản theo hệ thống
+  
+  // Doanh thu thực tế nhân viên nhập
+  actualCash      Int      // Tiền mặt thực tế nhân viên kiểm kê
+  actualTransfer  Int?     // Chuyển khoản thực tế (thường khớp nhưng có thể nhập đối soát)
+  
+  // Chênh lệch
+  difference      Int      // Chênh lệch (actualCash - systemCash)
+  note            String?  @db.Text
+  
+  // Metadata
+  orderCount      Int      // Số lượng đơn hàng trong ngày
+  createdAt       DateTime @default(now())
+  
+  store           Store    @relation(fields: [storeId], references: [id])
+  staff           User     @relation(fields: [staffId], references: [id])
+
+  @@index([storeId, closingDate])
 }
 
 enum PromotionDiscountType {

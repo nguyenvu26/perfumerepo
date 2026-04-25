@@ -30,6 +30,8 @@ export default function PromotionsAdmin() {
     discountType: 'PERCENTAGE',
     discountValue: 0,
     usageLimit: 0,
+    minOrderAmount: 0,
+    maxDiscount: 0,
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     isPublic: true,
@@ -64,6 +66,8 @@ export default function PromotionsAdmin() {
         ...form,
         discountValue: Number(form.discountValue),
         usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
+        minOrderAmount: form.minOrderAmount ? Number(form.minOrderAmount) : null,
+        maxDiscount: form.maxDiscount ? Number(form.maxDiscount) : null,
         pointsCost: Number(form.pointsCost),
         startDate: new Date(form.startDate).toISOString(),
         endDate: new Date(form.endDate).toISOString(),
@@ -95,6 +99,8 @@ export default function PromotionsAdmin() {
       discountType: promo.discountType,
       discountValue: promo.discountValue,
       usageLimit: promo.usageLimit,
+      minOrderAmount: promo.minOrderAmount || 0,
+      maxDiscount: promo.maxDiscount || 0,
       startDate: new Date(promo.startDate).toISOString().split('T')[0],
       endDate: new Date(promo.endDate).toISOString().split('T')[0],
       isPublic: promo.isPublic,
@@ -167,6 +173,8 @@ export default function PromotionsAdmin() {
                   discountType: 'PERCENTAGE',
                   discountValue: 0,
                   usageLimit: 0,
+                  minOrderAmount: 0,
+                  maxDiscount: 0,
                   startDate: new Date().toISOString().split('T')[0],
                   endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                   isPublic: true,
@@ -188,7 +196,7 @@ export default function PromotionsAdmin() {
           {[
             { label: t('stats.total'), value: promos.length, icon: Tag, color: 'text-stone-400' },
             { label: t('stats.active'), value: promos.filter(p => !isExpired(p.endDate)).length, icon: ShieldCheck, color: 'text-emerald-500' },
-            { label: t('stats.redemptions'), value: promos.reduce((acc, p) => acc + (p.redemptionsCount || 0), 0), icon: TrendingUp, color: 'text-gold' },
+            { label: t('stats.redemptions'), value: promos.reduce((acc, p) => acc + (p.usedCount || 0), 0), icon: TrendingUp, color: 'text-gold' },
           ].map((stat, i) => (
              <div key={i} className={`glass p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-stone-200 dark:border-white/5 relative overflow-hidden group shadow-sm ${i === 2 ? 'col-span-2 md:col-span-1' : ''}`}>
                 <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gold/5 blur-[40px] sm:blur-[60px] pointer-events-none" />
@@ -208,7 +216,6 @@ export default function PromotionsAdmin() {
                 <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.code')}</th>
                 <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.discount')}</th>
                 <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.conditions')}</th>
-                <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.redeemed')}</th>
                 <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading">{t('table.validity')}</th>
                 <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading text-center">{t('table.status')}</th>
                 <th className="px-6 py-5 text-[10px] uppercase tracking-widest font-heading text-right">{t('table.actions')}</th>
@@ -217,7 +224,7 @@ export default function PromotionsAdmin() {
             <tbody className="divide-y divide-border/50">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="px-10 py-24 text-center">
+                  <td colSpan={6} className="px-10 py-24 text-center">
                     <Loader2 className="w-8 h-8 animate-spin text-gold mx-auto" strokeWidth={1} />
                     <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground mt-4 italic opacity-40">Syncing Ledger...</p>
                   </td>
@@ -243,16 +250,7 @@ export default function PromotionsAdmin() {
                        {p.usedCount} / {p.usageLimit ?? '∞'}
                     </span>
                   </td>
-                  <td className="px-6 py-6">
-                    <div className="w-full max-w-[80px] h-1 bg-secondary/50 rounded-full overflow-hidden">
-                       <div 
-                         className="h-full bg-gold transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(212,175,55,0.4)]" 
-                         style={{
-                           width: `${p.usageLimit ? Math.min((p.usedCount / p.usageLimit) * 100, 100) : 0}%`,
-                         }}
-                       />
-                    </div>
-                  </td>
+
                   <td className="px-6 py-6 min-w-[160px]">
                     <div className="flex flex-col gap-1">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-foreground font-mono whitespace-nowrap">
@@ -491,6 +489,29 @@ export default function PromotionsAdmin() {
                               onFocus={(e) => e.target.select()}
                               className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               placeholder="∞"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-muted-foreground ml-1">Đơn tối thiểu</label>
+                            <input
+                              type="number"
+                              value={form.minOrderAmount || ''}
+                              onChange={(e) => setForm({ ...form, minOrderAmount: e.target.value === '' ? 0 : Number(e.target.value) })}
+                              onFocus={(e) => e.target.select()}
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-muted-foreground ml-1">Giảm tối đa</label>
+                            <input
+                              type="number"
+                              value={form.maxDiscount || ''}
+                              onChange={(e) => setForm({ ...form, maxDiscount: e.target.value === '' ? 0 : Number(e.target.value) })}
+                              onFocus={(e) => e.target.select()}
+                              className="w-full h-14 bg-zinc-50 dark:bg-white/5 border border-border/50 rounded-2xl px-6 text-sm font-bold outline-none focus:border-gold/50 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              placeholder="0"
                             />
                           </div>
 
