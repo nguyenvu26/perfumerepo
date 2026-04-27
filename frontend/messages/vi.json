@@ -799,9 +799,7 @@
       "avoided_tab": "Nốt hương muốn tránh",
       "search_placeholder": "Tìm kiếm và thêm nốt hương {type}...",
       "search_preferred": "yêu thích",
-      "search_avoided": "muốn tránh"
-    },
-    "scent_dna_details": {
+      "search_avoided": "muốn tránh",
       "your_list_title": "Danh sách {type} của bạn",
       "preferred_label": "Yêu thích",
       "avoided_label": "Muốn tránh",

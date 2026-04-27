@@ -182,12 +182,16 @@ export default function PosPage() {
         loadProducts(value, selectedStoreId || undefined);
     };
 
+    const isProcessingRef = useRef(false);
+
     const handleAddVariant = async (variantId: string, variantStock: number) => {
+        if (isProcessingRef.current) return;
         if (variantStock <= 0) {
             setStockWarning(t('product_out_warning'));
             setTimeout(() => setStockWarning(null), 3000);
             return;
         }
+        isProcessingRef.current = true;
         try {
             const current = await ensureOrder();
             const existingItem = current.items?.find(i => i.variantId === variantId);
@@ -195,6 +199,7 @@ export default function PosPage() {
             if (nextQty > variantStock) {
                 setStockWarning(t('low_stock_warning', { count: variantStock }));
                 setTimeout(() => setStockWarning(null), 3000);
+                isProcessingRef.current = false;
                 return;
             }
             const updated = await staffPosService.upsertItem(current.id, variantId, nextQty);
@@ -207,12 +212,14 @@ export default function PosPage() {
             } else {
                 setError(e?.response?.data?.message || e.message || t('errors.add_item'));
             }
+        } finally {
+            isProcessingRef.current = false;
         }
     };
 
     const tryAddByBarcode = async (rawCode: string) => {
         const code = rawCode.trim();
-        if (!code) return;
+        if (!code || isProcessingRef.current) return;
         if (!selectedStoreId) {
             setError(t('errors.barcode_no_store'));
             return;

@@ -636,10 +636,12 @@ export class ProductsService {
     if (variantId) where.variantId = variantId;
     if (type) {
       if (type === 'SALE') {
-        where.type = { in: ['SALE_POS', 'SALE_ONLINE'] };
+        where.type = 'SALE_ONLINE';
       } else {
         where.type = type;
       }
+    } else {
+      where.type = { not: 'SALE_POS' };
     }
 
     const [items, total] = await Promise.all([
