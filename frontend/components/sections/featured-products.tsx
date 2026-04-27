@@ -8,6 +8,7 @@ import { ArrowRight } from 'lucide-react';
 
 import { Link } from '@/lib/i18n';
 import { productService, Product } from '@/services/product.service';
+import { ScentDNABadge } from '@/components/product/scent-dna-badge';
 
 type ProductSection = {
     title: string;
@@ -89,6 +90,10 @@ export const FeaturedProducts = () => {
 
                                         <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-sm font-medium text-foreground backdrop-blur dark:border-white/12 dark:bg-black/35 dark:text-white">
                                             {(perfume as any).scentFamily?.name || perfume.notes?.[0]?.note?.name || 'Signature'}
+                                        </div>
+
+                                        <div className="absolute right-4 top-4">
+                                            <ScentDNABadge product={perfume} />
                                         </div>
                                     </div>
 

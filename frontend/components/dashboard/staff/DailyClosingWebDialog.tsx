@@ -12,18 +12,21 @@ interface Props {
     report: {
         totalRevenue: number;
         totalOrders: number;
+        cashRevenue?: number;
+        transferRevenue?: number;
     };
     onSuccess?: () => void;
+    storeId?: string;
 }
 
-export function DailyClosingWebDialog({ isOpen, onClose, report, onSuccess }: Props) {
+export function DailyClosingWebDialog({ isOpen, onClose, report, onSuccess, storeId }: Props) {
     const [actualCash, setActualCash] = useState('');
     const [note, setNote] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Demo logic: Giả định 40% tiền mặt, 60% chuyển khoản
-    const systemCash = report.totalRevenue * 0.4;
-    const systemTransfer = report.totalRevenue * 0.6;
+    // Use real values from report if available, fallback to 0
+    const systemCash = report.cashRevenue ?? 0;
+    const systemTransfer = report.transferRevenue ?? 0;
     
     const actualCashNum = parseFloat(actualCash) || 0;
     const difference = actualCashNum - systemCash;
@@ -40,7 +43,7 @@ export function DailyClosingWebDialog({ isOpen, onClose, report, onSuccess }: Pr
                 difference: difference,
                 note: note,
                 orderCount: report.totalOrders,
-                // storeId sẽ được backend lấy từ user nếu không truyền
+                storeId: storeId,
             });
             onSuccess?.();
             onClose();

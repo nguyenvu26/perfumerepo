@@ -25,6 +25,7 @@ import {
     ClipboardList,
     BarChart3,
     MoreHorizontal,
+    Dna,
 } from 'lucide-react';
 import { Link, usePathname } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
@@ -58,6 +59,7 @@ export const Sidebar = ({
 }) => {
     const commonT = useTranslations('common');
     const navT = useTranslations('navigation');
+    const dashboardT = useTranslations('dashboard');
     const tUser = useTranslations('dashboard.user');
     const { user, logout } = useAuth();
     const pathname = usePathname();
@@ -86,6 +88,7 @@ export const Sidebar = ({
 
     const customerItems: SidebarItem[] = [
         { icon: Heart, label: commonT('favorites'), href: '/dashboard/customer/favorite' },
+        { icon: Dna, label: dashboardT('scent_dna.badge'), href: '/dashboard/customer/scent-dna' },
         { icon: ClipboardList, label: commonT('orders'), href: '/dashboard/customer/orders' },
         { icon: RotateCcw, label: navT('customer.returns'), href: '/dashboard/customer/returns' },
         { icon: Coins, label: navT('customer.loyalty'), href: '/dashboard/customer/loyalty' },

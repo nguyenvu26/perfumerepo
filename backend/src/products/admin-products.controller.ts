@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -16,6 +17,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UploadImagesDto } from './dto/upload-images.dto';
+import { ImportWarehouseDto } from './dto/import-warehouse.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -33,8 +35,30 @@ export class AdminProductsController {
   }
 
   @Post()
-  create(@Body() dto: CreateProductDto) {
-    return this.productsService.create(dto);
+  create(@Req() req: any, @Body() dto: CreateProductDto) {
+    const userId = req.user.userId;
+    return this.productsService.create(dto, userId);
+  }
+
+  @Post('import')
+  async importToWarehouse(@Req() req: any, @Body() dto: ImportWarehouseDto) {
+    const userId = req.user.userId;
+    return this.productsService.importToWarehouse(dto.variantId, dto.quantity, userId, dto.reason);
+  }
+
+  @Get('inventory-logs')
+  async getInventoryLogs(
+    @Query('variantId') variantId?: string,
+    @Query('type') type?: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.productsService.getInventoryLogs({
+      variantId,
+      type,
+      skip: skip ? parseInt(skip) : 0,
+      take: take ? parseInt(take) : 20,
+    });
   }
 
   @Get(':id')
@@ -43,8 +67,9 @@ export class AdminProductsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
-    return this.productsService.update(id, dto);
+  update(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateProductDto) {
+    const userId = req.user.userId;
+    return this.productsService.update(id, dto, userId);
   }
 
   @Delete(':id')

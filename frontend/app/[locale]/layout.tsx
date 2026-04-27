@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/common/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { beVietnamPro } from '@/lib/fonts';
 import { Metadata } from 'next';
+import { ScentDNAInitializer } from '@/components/product/scent-dna-initializer';
 
 export const metadata: Metadata = {
     title: {
@@ -106,6 +107,7 @@ export default async function LocaleLayout({
                         disableTransitionOnChange
                     >
                         {children}
+                        <ScentDNAInitializer />
                         <Toaster />
                     </ThemeProvider>
                 </NextIntlClientProvider>

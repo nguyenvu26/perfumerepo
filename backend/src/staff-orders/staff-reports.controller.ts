@@ -11,12 +11,17 @@ export class StaffReportsController {
     constructor(private readonly staffReportsService: StaffReportsService) { }
 
     @Get('daily')
-    getDailyReport(@Req() req: any, @Query('date') date?: string) {
+    getDailyReport(
+        @Req() req: any, 
+        @Query('date') date?: string,
+        @Query('storeId') storeId?: string,
+    ) {
         const user = req.user as { userId: string; role: string };
         return this.staffReportsService.getDailyReport(
             user.userId,
             (user.role as 'STAFF' | 'ADMIN') || 'STAFF',
             date,
+            storeId,
         );
     }
 

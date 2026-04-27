@@ -5,6 +5,8 @@ import { OrderChannel, PaymentStatus } from '@prisma/client';
 export interface DailyReport {
   date: string;
   totalRevenue: number;
+  cashRevenue: number;
+  transferRevenue: number;
   totalOrders: number;
   completedOrders: number;
   cancelledOrders: number;
@@ -35,6 +37,7 @@ export class StaffReportsService {
     userId: string,
     role: 'STAFF' | 'ADMIN',
     dateStr?: string,
+    storeId?: string,
   ): Promise<DailyReport> {
     const today = dateStr ? new Date(dateStr) : new Date();
     const startOfDay = new Date(today);
@@ -42,11 +45,29 @@ export class StaffReportsService {
     const endOfDay = new Date(today);
     endOfDay.setHours(23, 59, 59, 999);
 
+    let finalStartOfDay = startOfDay;
+
+    // Shift-based reset: If storeId is provided, start from last closing today
+    if (storeId) {
+      const lastClosing = await this.prisma.dailyClosing.findFirst({
+        where: {
+          storeId,
+          closingDate: { gte: startOfDay, lte: endOfDay },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (lastClosing) {
+        finalStartOfDay = lastClosing.createdAt;
+      }
+    }
+
     const where: any = {
-      createdAt: { gte: startOfDay, lte: endOfDay },
+      createdAt: { gte: finalStartOfDay, lte: endOfDay },
     };
 
-    if (role === 'STAFF') {
+    if (storeId) {
+      where.storeId = storeId;
+    } else if (role === 'STAFF') {
       const userStores = await this.prisma.userStore.findMany({
         where: { userId },
         select: { storeId: true },
@@ -58,6 +79,7 @@ export class StaffReportsService {
     const orders = await this.prisma.order.findMany({
       where,
       include: {
+        payments: true,
         items: {
           include: { 
             variant: { 
@@ -99,6 +121,22 @@ export class StaffReportsService {
       (acc, order) => acc + (order.finalAmount - order.refundAmount),
       0,
     );
+
+    let cashRevenue = 0;
+    let transferRevenue = 0;
+
+    for (const order of paidOrders) {
+      for (const payment of order.payments) {
+        if (payment.status === PaymentStatus.PAID) {
+          // In this system, COD is used for Cash in POS
+          if (payment.provider === 'COD') {
+            cashRevenue += payment.amount;
+          } else {
+            transferRevenue += payment.amount;
+          }
+        }
+      }
+    }
 
     const totalRefundedAmount = orders.reduce((acc, order) => acc + order.refundAmount, 0);
 
@@ -171,6 +209,8 @@ export class StaffReportsService {
     return {
       date: startOfDay.toISOString().slice(0, 10),
       totalRevenue,
+      cashRevenue,
+      transferRevenue,
       totalOrders,
       completedOrders: successful.length,
       cancelledOrders: cancelled.length,

@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History } from 'lucide-react';
 import { productService, type Product } from '@/services/product.service';
 import { catalogService } from '@/services/catalog.service';
 import { useEffect, useState, useCallback } from 'react';
@@ -27,6 +27,7 @@ function slugify(s: string) {
 
 export default function AdminProducts() {
   const t = useTranslations('dashboard.admin.products');
+  const tInventory = useTranslations('inventory');
   const tFeatured = useTranslations('featured');
   const format = useFormatter();
   const locale = useLocale();
@@ -395,6 +396,22 @@ export default function AdminProducts() {
             >
               <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
               {t('add_new')}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/${locale}/dashboard/admin/inventory/import`)}
+              className="flex-1 lg:flex-none bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-gold hover:text-white transition-all shadow-lg"
+            >
+              <Database className="w-5 h-5 opacity-60" />
+              {tInventory('import_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/${locale}/dashboard/admin/inventory/history`)}
+              className="flex-1 lg:flex-none bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-gold hover:text-white transition-all shadow-lg"
+            >
+              <History className="w-5 h-5 opacity-60" />
+              {tInventory('history_title')}
             </button>
             <button
               type="button"

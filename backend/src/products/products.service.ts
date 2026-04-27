@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { InventoryLogType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueryProductsDto } from './dto/query-products.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -159,22 +160,28 @@ export class ProductsService {
       }
     }
 
+    // [MODIFIED] Disabled strict avoidance filtering at database level 
+    // to allow Penalty System visualization on Mobile.
+    /*
     if (avoidedNotes.length > 0) {
       where.AND.push({
         NOT: {
           notes: {
             some: {
               note: {
-                name: {
-                  in: avoidedNotes,
-                  mode: 'insensitive',
-                },
+                OR: avoidedNotes.map((note) => ({
+                  name: {
+                    startsWith: note.split(' (')[0],
+                    mode: 'insensitive',
+                  },
+                })),
               },
             },
           },
         },
       });
     }
+    */
 
     // Strict Filter for "Classic" mode (Low Risk Level < 0.35)
     // If user has preferred notes and riskLevel is low, ONLY show matching products
@@ -182,12 +189,14 @@ export class ProductsService {
       where.AND.push({
         notes: {
           some: {
-            note: {
-              name: {
-                in: preferredNotes,
-                mode: 'insensitive',
+              note: {
+                OR: preferredNotes.map((note) => ({
+                  name: {
+                    startsWith: note.split(' (')[0],
+                    mode: 'insensitive',
+                  },
+                })),
               },
-            },
           },
         },
       });
@@ -229,15 +238,14 @@ export class ProductsService {
     if (shouldScoring) {
       finalItems = items
         .sort((a, b) => {
+          const clean = (s: string) => s.split(' (')[0].toLowerCase().trim();
+          const preferredCleans = preferredNotes.map(clean);
+
           const scoreA = a.notes.filter((pn) =>
-            preferredNotes.some(
-              (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
-            ),
+            preferredCleans.includes(clean(pn.note.name)),
           ).length;
           const scoreB = b.notes.filter((pn) =>
-            preferredNotes.some(
-              (un) => un.toLowerCase() === pn.note.name.toLowerCase(),
-            ),
+            preferredCleans.includes(clean(pn.note.name)),
           ).length;
           return scoreB - scoreA;
         })
@@ -345,7 +353,7 @@ export class ProductsService {
 
   // Admin operations
 
-  create(dto: CreateProductDto) {
+  create(dto: CreateProductDto, userId?: string) {
     return this.prisma.$transaction(async (tx) => {
       const { variants, scentNotes, ...productData } = dto;
       const product = await tx.product.create({
@@ -374,11 +382,27 @@ export class ProductsService {
         }
       }
 
+      if (product.variants.length > 0 && userId) {
+        for (const variant of product.variants) {
+          if (variant.stock > 0) {
+            await tx.inventoryLog.create({
+              data: {
+                variantId: variant.id,
+                staffId: userId,
+                type: InventoryLogType.IMPORT,
+                quantity: variant.stock,
+                reason: 'Initial stock on product creation',
+              },
+            });
+          }
+        }
+      }
+
       return product;
     });
   }
 
-  update(id: string, dto: UpdateProductDto) {
+  update(id: string, dto: UpdateProductDto, userId?: string) {
     return this.prisma.$transaction(async (tx) => {
       const { variants, scentNotes, ...productData } = dto;
 
@@ -430,6 +454,23 @@ export class ProductsService {
             if (!existingIds.has(variant.id)) {
               throw new NotFoundException('Variant not found');
             }
+
+            const currentVariant = await tx.productVariant.findUnique({
+              where: { id: variant.id },
+            });
+
+            if (currentVariant && currentVariant.stock !== variant.stock && userId) {
+              await tx.inventoryLog.create({
+                data: {
+                  variantId: variant.id,
+                  staffId: userId,
+                  type: InventoryLogType.ADJUST,
+                  quantity: variant.stock - currentVariant.stock,
+                  reason: `Admin updated stock from ${currentVariant.stock} to ${variant.stock}`,
+                },
+              });
+            }
+
             await tx.productVariant.update({
               where: { id: variant.id },
               data: {
@@ -441,7 +482,7 @@ export class ProductsService {
               },
             });
           } else {
-            await tx.productVariant.create({
+            const newVariant = await tx.productVariant.create({
               data: {
                 productId: id,
                 name: variant.name,
@@ -451,6 +492,18 @@ export class ProductsService {
                 isActive: true,
               },
             });
+
+            if (newVariant.stock > 0 && userId) {
+              await tx.inventoryLog.create({
+                data: {
+                  variantId: newVariant.id,
+                  staffId: userId,
+                  type: InventoryLogType.IMPORT,
+                  quantity: newVariant.stock,
+                  reason: 'Initial stock for new variant',
+                },
+              });
+            }
           }
         }
       }
@@ -550,5 +603,70 @@ export class ProductsService {
     });
 
     return { success: true };
+  }
+
+  async importToWarehouse(variantId: string, quantity: number, userId: string, reason?: string) {
+    if (quantity <= 0) {
+      throw new BadRequestException('Quantity must be greater than 0');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const variant = await tx.productVariant.update({
+        where: { id: variantId },
+        data: { stock: { increment: quantity } },
+      });
+
+      await tx.inventoryLog.create({
+        data: {
+          variantId,
+          staffId: userId,
+          type: InventoryLogType.IMPORT,
+          quantity,
+          reason: reason || 'Warehouse Restock',
+        },
+      });
+
+      return variant;
+    });
+  }
+
+  async getInventoryLogs(query: { variantId?: string; type?: any; skip?: number; take?: number }) {
+    const { variantId, type, skip = 0, take = 20 } = query;
+    const where: any = {};
+    if (variantId) where.variantId = variantId;
+    if (type) {
+      if (type === 'SALE') {
+        where.type = { in: ['SALE_POS', 'SALE_ONLINE'] };
+      } else {
+        where.type = type;
+      }
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.inventoryLog.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          variant: {
+            include: {
+              product: {
+                include: {
+                  images: { take: 1 },
+                  brand: true,
+                },
+              },
+            },
+          },
+          staff: {
+            select: { fullName: true, email: true },
+          },
+        },
+      }),
+      this.prisma.inventoryLog.count({ where }),
+    ]);
+
+    return { items, total, skip, take };
   }
 }

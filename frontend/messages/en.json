@@ -42,6 +42,7 @@
     "loyalty_reason": "Loyalty reward for your continued patronage."
   },
   "common": {
+    "back": "Back",
     "title": "Perfume GPT | Personalized Luxury Perfume",
     "consultation": "AI Consultation",
     "membership": "Membership",
@@ -157,7 +158,8 @@
       "manage_journal": "Manage Journal",
       "manage_banner": "Manage Banners",
       "ai_logs": "AI Performance",
-      "returns": "Return Requests"
+      "returns": "Return Requests",
+      "inventory": "Inventory Import"
     },
     "shared": {
       "chat": "Perfume GPT Chat"
@@ -594,9 +596,16 @@
     "kpi": {
       "title": "Performance Matrix",
       "subtitle_prefix": "Today's KPIs —",
+      "action_close": "CLOSE SHIFT",
+      "analytics_label": "PERFORMANCE ANALYTICS",
+      "all_stores": "GLOBAL NETWORK",
+      "history_title": "SHIFT HISTORY",
+      "history_empty": "NO SHIFT HISTORY FOUND",
       "loading": "Loading report...",
       "cards": {
         "revenue": "Today's Revenue",
+        "cash": "CASH FLOW",
+        "transfer": "DIGITAL TRANSFER",
         "total_orders": "Total Orders",
         "avg_order_value": "Avg Order Value",
         "completion_rate": "Completion Rate",
@@ -614,6 +623,11 @@
       },
       "errors": {
         "load_failed": "Failed to load report."
+      },
+      "history": {
+        "matched": "MATCHED",
+        "discrepant": "DISCREPANT",
+        "actual_revenue": "ACTUAL REVENUE"
       }
     },
     "profile": {
@@ -749,6 +763,63 @@
         "set_default": "Unable to update primary status.",
         "generic": "A structural error has occurred."
       }
+    },
+    "scent_dna": {
+      "badge": "AI Scent DNA",
+      "title_line1": "Personalize Your",
+      "title_line2": "Olfactory Profile",
+      "description": "Our AI uses your DNA profile to calculate compatibility with every fragrance in our collection.",
+      "reset_profile": "Reset Profile",
+      "preferred_tab": "Preferred Notes",
+      "avoided_tab": "Avoided Notes",
+      "search_placeholder": "Search and add a {type} note...",
+      "search_preferred": "preferred",
+      "search_avoided": "avoided",
+      "your_list_title": "Your {type} List",
+      "preferred_label": "Preferred",
+      "avoided_label": "Avoided",
+      "notes_count": "{count} notes",
+      "no_notes": "No {type} notes added yet.",
+      "start_typing": "Start typing in the search bar above to build your profile.",
+      "how_it_works": "How it works",
+      "how_it_works_desc": "Our AI analysis engine checks every product against your profile.",
+      "base_match": "Base Match (70%)",
+      "base_match_desc": "Matching at least one preferred note gives you a strong foundation.",
+      "bonus_score": "Bonus Score (+10%)",
+      "bonus_score_desc": "Each additional matching preferred note increases the compatibility score.",
+      "penalty_system": "Penalty System (-40%)",
+      "penalty_system_desc": "Found an avoided note? We lower the score significantly to warn you.",
+      "pro_tip": "Pro Tip",
+      "pro_tip_desc": "Adding more specific notes like \"Bergamot\" instead of just \"Citrus\" helps the AI provide more accurate compatibility ratings.",
+      "reset_confirm": "Are you certain you wish to reset your Scent DNA? This will clear all your preferences.",
+      "reset_success": "Scent DNA profile has been reset",
+      "add_success": "{note} added to your {type} list",
+      "remove_info": "{note} removed",
+      "analysis_title": "Scent DNA Analysis",
+      "personalized_matching": "Personalized Matching",
+      "excellent_desc": "This fragrance aligns perfectly with your scent profile. The combination of notes matches your top preferences.",
+      "caution_desc": "Mostly compatible with your tastes, though it may contain some unfamiliar olfactory patterns.",
+      "warning_desc": "Exercise caution: this fragrance contains elements you typically avoid in your profile.",
+      "preferred_found": "Preferred Notes Found",
+      "conflicting_found": "Conflicting Notes",
+      "ai_prediction": "AI Prediction",
+      "ai_prediction_desc": "Based on your {count} favorite notes and history, we predict this will be a {result} for you.",
+      "must_have": "must-have",
+      "safe_buy": "safe blind buy",
+      "tester_recommended": "tester recommended",
+      "badge_tooltip_title": "AI Scent Compatibility",
+      "badge_tooltip_desc_excellent": "This fragrance perfectly matches your DNA profile. A highly recommended choice for your collection.",
+      "badge_tooltip_desc_caution": "Mostly compatible, but some notes might differ from your usual preferences. Worth a sample.",
+      "badge_tooltip_desc_warning": "This fragrance contains notes you usually avoid. We recommend checking the details carefully.",
+      "suggestions_title": "Suggestions for you",
+      "view_all": "View all",
+      "scent_profile_chart": "Scent Profile Chart",
+      "classic": "Classic",
+      "daring": "Breakthrough",
+      "suggestion_mode": "Suggestion Mode",
+      "ai_safe_suggestion": "Safe Suggestion: Focuses on familiar scents you love.",
+      "ai_balanced_suggestion": "Balanced Suggestion: Explore new scents while staying comfortable.",
+      "ai_daring_suggestion": "Breakthrough Suggestion: Prioritize unique and entirely new experiences."
     },
     "ai_logs": {
       "title": "AI System Performance",
@@ -3021,5 +3092,32 @@
     "digital_title_line2": "",
     "digital_desc": "An invitation to our AI-powered consultation. The gift of a bespoke molecular signature delivered instantly via the digital registry.",
     "digital_cta": "Send Digital Pass • 5.500.000đ"
+  },
+  "inventory": {
+    "title": "Inventory Import",
+    "subtitle": "Update stock for the Central Warehouse.",
+    "import_btn": "Import Stock",
+    "select_variant": "Select Product Variant",
+    "quantity": "Quantity",
+    "reason": "Reason",
+    "reason_placeholder": "e.g. Stock from supplier...",
+    "success": "Stock imported successfully!",
+    "error": "Failed to import stock. Please try again.",
+    "search_placeholder": "Search product to import...",
+    "current_stock": "Current Stock: {count}",
+    "import_confirm": "Confirm import of {quantity} units to warehouse?",
+    "history_title": "Inventory History",
+    "history_subtitle": "Logs of warehouse imports and adjustments.",
+    "type_import": "Import",
+    "type_adjust": "Adjust",
+    "type_sale": "Sale",
+    "type_return": "Return",
+    "table_product": "Product",
+    "table_type": "Type",
+    "table_quantity": "Qty",
+    "table_staff": "Staff",
+    "table_date": "Date",
+    "table_reason": "Reason",
+    "empty_history": "No inventory movement logs found."
   }
 }

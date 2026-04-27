@@ -74,6 +74,8 @@ interface IProductService {
   adminGetById(id: string): Promise<Product>;
   adminUploadImages(productId: string, files: File[]): Promise<Product>;
   adminDeleteImage(productId: string, imageId: number | string): Promise<{ success: boolean }>;
+  adminImportWarehouse(dto: { variantId: string; quantity: number; reason?: string }): Promise<ProductVariant>;
+  adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number }): Promise<{ items: any[]; total: number }>;
 }
 
 export const productService: IProductService = {
@@ -132,5 +134,11 @@ export const productService: IProductService = {
   },
   adminDeleteImage(productId: string, imageId: number | string) {
     return api.delete<{ success: boolean }>('/admin/products/' + productId + '/images/' + imageId).then((r) => r.data);
+  },
+  adminImportWarehouse(dto: { variantId: string; quantity: number; reason?: string }) {
+    return api.post<ProductVariant>('/admin/products/import', dto).then((r) => r.data);
+  },
+  adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number }) {
+    return api.get<{ items: any[]; total: number }>('/admin/products/inventory-logs', { params }).then((r) => r.data);
   },
 };

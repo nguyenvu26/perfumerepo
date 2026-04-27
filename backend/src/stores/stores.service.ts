@@ -286,11 +286,23 @@ export class StoresService {
     if (!store) throw new NotFoundException('Store not found');
     const variant = await this.prisma.productVariant.findUnique({
       where: { id: variantId },
-      include: { product: true },
     });
     if (!variant) throw new NotFoundException('Variant not found');
 
+    if (variant.stock < quantity) {
+      throw new BadRequestException(
+        `Số lượng tồn kho tổng không đủ. (Hiện có: ${variant.stock}, yêu cầu: ${quantity})`,
+      );
+    }
+
     await this.prisma.$transaction(async (tx) => {
+      // 1. Decrement from central warehouse
+      await tx.productVariant.update({
+        where: { id: variantId },
+        data: { stock: { decrement: quantity } },
+      });
+
+      // 2. Increment store stock
       await tx.storeStock.upsert({
         where: {
           storeId_variantId: { storeId, variantId },
@@ -298,6 +310,8 @@ export class StoresService {
         create: { storeId, variantId, quantity },
         update: { quantity: { increment: quantity }, updatedAt: new Date() },
       });
+
+      // 3. Log
       await tx.inventoryLog.create({
         data: {
           variantId,
@@ -305,7 +319,7 @@ export class StoresService {
           storeId,
           type: InventoryLogType.IMPORT,
           quantity,
-          reason: reason ?? 'Admin import',
+          reason: reason ?? 'Admin import from warehouse',
         },
       });
     });
@@ -342,7 +356,7 @@ export class StoresService {
     const available = fromStock?.quantity ?? 0;
     if (available < quantity) {
       throw new BadRequestException(
-        `Insufficient stock at source store. Available: ${available}, requested: ${quantity}`,
+        `Số lượng tồn tại quầy nguồn không đủ. (Hiện có: ${available}, yêu cầu: ${quantity})`,
       );
     }
 
@@ -399,21 +413,40 @@ export class StoresService {
       return this.getStockOverview(dto.storeId);
     }
 
-    // Validate variants exist first (single query)
+    // Validate variants and check stock (single query)
     const variants = await this.prisma.productVariant.findMany({
       where: { id: { in: items.map((i) => i.variantId) } },
-      select: { id: true },
+      select: { id: true, stock: true },
     });
-    const existing = new Set(variants.map((v) => v.id));
-    const missing = items
-      .filter((i) => !existing.has(i.variantId))
-      .map((i) => i.variantId);
-    if (missing.length) {
-      throw new BadRequestException(`Variant not found: ${missing.join(', ')}`);
+    const variantMap = new Map(variants.map((v) => [v.id, v.stock]));
+    
+    const errors: string[] = [];
+    for (const item of items) {
+      if (!variantMap.has(item.variantId)) {
+        errors.push(`Variant not found: ${item.variantId}`);
+        continue;
+      }
+      const available = variantMap.get(item.variantId)!;
+      if (available < item.quantity) {
+        errors.push(
+          `Sản phẩm ${item.variantId} không đủ tồn kho tổng. (Hiện có: ${available}, yêu cầu: ${item.quantity})`,
+        );
+      }
+    }
+
+    if (errors.length) {
+      throw new BadRequestException(errors.join('; '));
     }
 
     await this.prisma.$transaction(async (tx) => {
       for (const it of items) {
+        // 1. Decrement from central warehouse
+        await tx.productVariant.update({
+          where: { id: it.variantId },
+          data: { stock: { decrement: it.quantity } },
+        });
+
+        // 2. Increment store stock
         await tx.storeStock.upsert({
           where: {
             storeId_variantId: {
@@ -431,6 +464,8 @@ export class StoresService {
             updatedAt: new Date(),
           },
         });
+
+        // 3. Log
         await tx.inventoryLog.create({
           data: {
             variantId: it.variantId,
@@ -438,7 +473,7 @@ export class StoresService {
             storeId: dto.storeId,
             type: InventoryLogType.IMPORT,
             quantity: it.quantity,
-            reason: dto.reason ?? 'Batch import',
+            reason: dto.reason ?? 'Batch import from warehouse',
           },
         });
       }

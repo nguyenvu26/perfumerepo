@@ -116,7 +116,7 @@ export class StaffOrdersService {
         items: {
           include: {
             variant: {
-              include: { product: true },
+              include: { product: { include: { images: { take: 1 } } } },
             },
           },
         },
@@ -161,7 +161,7 @@ export class StaffOrdersService {
         items: {
           include: {
             variant: {
-              include: { product: true },
+              include: { product: { include: { images: { take: 1 } } } },
             },
           },
         },

@@ -42,6 +42,7 @@
     "loyalty_reason": "Phần thưởng tri ân khách hàng thân thiết."
   },
   "common": {
+    "back": "Quay lại",
     "title": "Perfume GPT",
     "consultation": "Tư Vấn AI",
     "membership": "Hội Viên",
@@ -75,7 +76,7 @@
     "my_profile": "Hồ Sơ Của Tôi",
     "member": "Thành viên",
     "anonymous_user": "Khách Ẩn Danh",
-    "all": "Tất cả thương hiệu",
+    "all": "Tất cả",
     "loading": "Đang tải...",
     "processing": "ĐANG CHUẨN BỊ",
     "view_options": "Xem Chi Tiết",
@@ -158,7 +159,8 @@
       "manage_journal": "Quản lý Tạp chí",
       "manage_banner": "Quản lý Banner",
       "ai_logs": "Hiệu Suất AI",
-      "returns": "Yêu cầu Đổi trả"
+      "returns": "Yêu cầu Đổi trả",
+      "inventory": "Quản lý Nhập hàng"
     },
     "shared": {
       "chat": "Trò chuyện Perfume GPT"
@@ -619,9 +621,16 @@
     "kpi": {
       "title": "Hiệu Suất Ngày",
       "subtitle_prefix": "KPI Hôm Nay —",
+      "action_close": "CHỐT DOANH THU",
+      "analytics_label": "PHÂN TÍCH HIỆU SUẤT",
+      "all_stores": "TẤT CẢ CỬA HÀNG",
+      "history_title": "LỊCH SỬ CHỐT CA",
+      "history_empty": "CHƯA CÓ LỊCH SỬ CHỐT CA",
       "loading": "Đang tải...",
       "cards": {
         "revenue": "Tổng Doanh thu",
+        "cash": "TIỀN MẶT",
+        "transfer": "CHUYỂN KHOẢN",
         "total_orders": "Tổng Đơn Hàng",
         "avg_order_value": "Giá Trị Đơn Trung Bình",
         "completion_rate": "Tỉ Lệ Hoàn Tất",
@@ -639,6 +648,11 @@
       },
       "errors": {
         "load_failed": "Không tải được danh sách đơn hàng"
+      },
+      "history": {
+        "matched": "KHỚP",
+        "discrepant": "LỆCH",
+        "actual_revenue": "THỰC THU"
       }
     },
     "profile": {
@@ -775,6 +789,65 @@
         "generic": "Đã có lỗi xảy ra."
       }
     },
+    "scent_dna": {
+      "badge": "AI Scent DNA",
+      "title_line1": "Cá Nhân Hóa",
+      "title_line2": "Hồ Sơ Mùi Hương",
+      "description": "AI của chúng tôi sử dụng hồ sơ DNA của bạn để tính toán độ tương thích với mọi loại nước hoa trong bộ sưu tập.",
+      "reset_profile": "Đặt lại hồ sơ",
+      "preferred_tab": "Nốt hương yêu thích",
+      "avoided_tab": "Nốt hương muốn tránh",
+      "search_placeholder": "Tìm kiếm và thêm nốt hương {type}...",
+      "search_preferred": "yêu thích",
+      "search_avoided": "muốn tránh"
+    },
+    "scent_dna_details": {
+      "your_list_title": "Danh sách {type} của bạn",
+      "preferred_label": "Yêu thích",
+      "avoided_label": "Muốn tránh",
+      "notes_count": "{count} nốt hương",
+      "no_notes": "Chưa có nốt hương {type} nào.",
+      "start_typing": "Bắt đầu nhập vào thanh tìm kiếm phía trên để xây dựng hồ sơ của bạn.",
+      "how_it_works": "Cách thức hoạt động",
+      "how_it_works_desc": "Công cụ phân tích AI của chúng tôi kiểm tra mọi sản phẩm dựa trên hồ sơ của bạn.",
+      "base_match": "Khớp cơ bản (70%)",
+      "base_match_desc": "Khớp ít nhất một nốt hương yêu thích sẽ mang lại cho bạn một nền tảng vững chắc.",
+      "bonus_score": "Điểm thưởng (+10%)",
+      "bonus_score_desc": "Mỗi nốt hương yêu thích khớp thêm sẽ làm tăng điểm tương thích.",
+      "penalty_system": "Hệ thống phạt (-40%)",
+      "penalty_system_desc": "Tìm thấy một nốt hương muốn tránh? Chúng tôi sẽ giảm điểm đáng kể để cảnh báo bạn.",
+      "pro_tip": "Mẹo nhỏ",
+      "pro_tip_desc": "Thêm các nốt hương cụ thể hơn như \"Cam Bergamot\" thay vì chỉ \"Hương cam chanh\" sẽ giúp AI cung cấp xếp hạng tương thích chính xác hơn.",
+      "reset_confirm": "Bạn có chắc chắn muốn đặt lại Scent DNA không? Hành động này sẽ xóa tất cả sở thích của bạn.",
+      "reset_success": "Hồ sơ Scent DNA đã được đặt lại",
+      "add_success": "Đã thêm {note} vào danh sách {type}",
+      "remove_info": "Đã xóa {note}",
+      "analysis_title": "Phân tích Scent DNA",
+      "personalized_matching": "Mức độ tương thích",
+      "excellent_desc": "Hương thơm này hoàn toàn phù hợp với hồ sơ mùi hương của bạn. Sự kết hợp các nốt hương khớp với sở thích hàng đầu của bạn.",
+      "caution_desc": "Hầu hết là tương thích với sở thích của bạn, mặc dù nó có thể chứa một số thành phần mùi hương chưa quen thuộc.",
+      "warning_desc": "Hãy thận trọng: loại nước hoa này chứa các thành phần bạn thường tránh trong hồ sơ của mình.",
+      "preferred_found": "Nốt hương yêu thích tìm thấy",
+      "conflicting_found": "Nốt hương xung đột",
+      "ai_prediction": "Dự đoán từ AI",
+      "ai_prediction_desc": "Dựa trên {count} nốt hương yêu thích và lịch sử của bạn, chúng tôi dự đoán đây sẽ là một {result} dành cho bạn.",
+      "must_have": "lựa chọn phải có",
+      "safe_buy": "lựa chọn mua an toàn",
+      "tester_recommended": "nên dùng thử trước",
+      "badge_tooltip_title": "Độ tương thích AI",
+      "badge_tooltip_desc_excellent": "Hương thơm này khớp hoàn hảo với hồ sơ DNA của bạn. Một lựa chọn rất đáng cân nhắc cho bộ sưu tập của bạn.",
+      "badge_tooltip_desc_caution": "Hầu hết là tương thích, nhưng một số nốt hương có thể khác với sở thích thông thường của bạn. Đáng để thử mẫu.",
+      "badge_tooltip_desc_warning": "Nước hoa này chứa các nốt hương bạn thường tránh. Chúng tôi khuyên bạn nên kiểm tra kỹ các chi tiết.",
+      "suggestions_title": "Gợi ý dành cho bạn",
+      "view_all": "Xem tất cả",
+      "scent_profile_chart": "Biểu đồ Hồ sơ Mùi hương",
+      "classic": "Cổ điển",
+      "daring": "Phá cách",
+      "suggestion_mode": "Chế độ gợi ý",
+      "ai_safe_suggestion": "Gợi ý an toàn: Tập trung vào các mùi hương quen thuộc với bạn.",
+      "ai_balanced_suggestion": "Gợi ý cân bằng: Khám phá mùi hương mới nhưng vẫn giữ nét quen thuộc.",
+      "ai_daring_suggestion": "Gợi ý phá cách: Ưu tiên trải nghiệm độc đáo và mới lạ hoàn toàn."
+    },
     "ai_logs": {
       "title": "Hiệu Suất Hệ Thống AI",
       "subtitle": "Giám sát hiệu suất, độ trễ và tỉ lệ lỗi của các mô hình AI.",
@@ -798,6 +871,7 @@
         "status": "Trạng Thái",
         "duration": "Thời Gian",
         "time": "Thời Điểm",
+        "error_rate": "Tỉ Lệ Lỗi",
         "user": "Người Dùng",
         "actions": "Thao Tác"
       },
@@ -823,6 +897,7 @@
       "showing_count": "Hiển thị {start}-{end} trên tổng số {total}",
       "no_logs": "Không tìm thấy nhật ký phù hợp với bộ lọc"
     },
+
     "inventory": {
       "title": "Quản Lý Tồn Kho",
       "subtitle": "Theo dõi và cập nhật số lượng hàng tồn kho tại các boutique.",
@@ -3083,5 +3158,32 @@
       "title_line2": "Của Nước Hoa.",
       "button": "Khám Phá Mùi Hương Của Tôi"
     }
+  },
+  "inventory": {
+    "title": "Quản lý Nhập hàng",
+    "subtitle": "Cập nhật tồn kho cho kho tổng (Central Warehouse).",
+    "import_btn": "Nhập hàng",
+    "select_variant": "Chọn phiên bản sản phẩm",
+    "quantity": "Số lượng nhập",
+    "reason": "Lý do nhập",
+    "reason_placeholder": "Ví dụ: Nhập hàng từ nhà cung cấp...",
+    "success": "Đã nhập hàng thành công!",
+    "error": "Nhập hàng thất bại. Vui lòng thử lại.",
+    "search_placeholder": "Tìm kiếm sản phẩm để nhập hàng...",
+    "current_stock": "Tồn kho hiện tại: {count}",
+    "import_confirm": "Xác nhận nhập {quantity} sản phẩm vào kho?",
+    "history_title": "Lịch sử Kho",
+    "history_subtitle": "Nhật ký nhập hàng và điều chỉnh tồn kho.",
+    "type_import": "Nhập hàng",
+    "type_adjust": "Điều chỉnh",
+    "type_sale": "Bán hàng",
+    "type_return": "Trả hàng",
+    "table_product": "Sản phẩm",
+    "table_type": "Loại",
+    "table_quantity": "Số lượng",
+    "table_staff": "Nhân viên",
+    "table_date": "Ngày thực hiện",
+    "table_reason": "Lý do",
+    "empty_history": "Chưa có lịch sử biến động kho."
   }
 }

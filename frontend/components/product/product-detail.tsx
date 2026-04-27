@@ -11,6 +11,9 @@ import {
   ChevronRight,
   ZoomIn,
   X,
+  Brain,
+  Dna,
+  AlertCircle,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
@@ -21,6 +24,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { cartService } from '@/services/cart.service';
 import { favoriteService } from '@/services/favorite.service';
 import { type Product, type ProductVariant } from '@/services/product.service';
+import { ScentDNABadge } from './scent-dna-badge';
+import { calculateScentDNA } from '@/lib/scent-dna';
+import { useScentDNAStore } from '@/store/scent-dna.store';
+import { cn } from '@/lib/utils';
 
 import ReviewList from '../review/review-list';
 import ReviewSummaryView from '../review/review-summary';
@@ -30,6 +37,7 @@ export default function ProductDetail({ product }: { product: Product }) {
   const t = useTranslations('product_detail');
   const tCommon = useTranslations('common');
   const tFeatured = useTranslations('featured');
+  const tScent = useTranslations('dashboard.scent_dna');
   const locale = useLocale();
   const format = useFormatter();
   const { isAuthenticated } = useAuth();
@@ -93,6 +101,12 @@ export default function ProductDetail({ product }: { product: Product }) {
   const [success, setSuccess] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const { preferences } = useScentDNAStore();
+
+  const dnaResult = useMemo(() => {
+    if (!preferences) return null;
+    return calculateScentDNA(product, preferences.preferredNotes, preferences.avoidedNotes);
+  }, [product, preferences]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -404,6 +418,12 @@ export default function ProductDetail({ product }: { product: Product }) {
               {product.name}
             </h1>
 
+            {dnaResult && (
+              <div className="mt-6">
+                 <ScentDNABadge product={product} />
+              </div>
+            )}
+
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <StarRating rating={rating} readOnly size={15} />
@@ -541,6 +561,92 @@ export default function ProductDetail({ product }: { product: Product }) {
                 </div>
               </div>
             </div>
+
+            {dnaResult && (
+              <div className="rounded-[2.2rem] border border-black/6 bg-card p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10 md:col-span-2">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className={cn("flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg", dnaResult.color === 'gold' ? 'bg-gold text-black' : dnaResult.color === 'amber' ? 'bg-amber-500 text-white' : 'bg-red-500 text-white')}>
+                      <Dna size={32} className={cn(dnaResult.status === 'excellent' && "animate-pulse")} />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-black tracking-tight">{tScent('analysis_title')}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                          <div className={cn("h-2 w-2 rounded-full animate-pulse", dnaResult.color === 'gold' ? 'bg-gold' : dnaResult.color === 'amber' ? 'bg-amber-500' : 'bg-red-500')} />
+                          <span className="text-sm font-bold opacity-70 uppercase tracking-widest">{tScent('personalized_matching')}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="ml-auto">
+                      <span className={cn("text-3xl font-black", dnaResult.color === 'gold' ? 'text-gold' : dnaResult.color === 'amber' ? 'text-amber-500' : 'text-red-500')}>
+                        {dnaResult.score}%
+                      </span>
+                  </div>
+                </div>
+
+                <div className="mt-8 grid gap-10 md:grid-cols-2">
+                   <div className="space-y-6">
+                      <div className="p-6 rounded-[2rem] bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                        <p className="text-lg leading-relaxed italic opacity-80">
+                          {dnaResult.status === 'excellent' && tScent('excellent_desc')}
+                          {dnaResult.status === 'caution' && tScent('caution_desc')}
+                          {dnaResult.status === 'warning' && tScent('warning_desc')}
+                        </p>
+                      </div>
+
+                      <div className="relative overflow-hidden p-8 rounded-[2rem] border border-gold/20 bg-gold/5">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                          <Brain size={80} />
+                        </div>
+                        <h4 className="text-xl font-bold mb-2 flex items-center gap-2">
+                          <Sparkles size={20} className="text-gold" />
+                          {tScent('ai_prediction')}
+                        </h4>
+                        <p className="text-muted-foreground leading-relaxed relative z-10">
+                          {tScent('ai_prediction_desc', { 
+                            count: dnaResult.matchingNotes.length,
+                            result: dnaResult.score > 90 ? tScent('must_have') : dnaResult.score > 75 ? tScent('safe_buy') : tScent('tester_recommended')
+                          })}
+                        </p>
+                      </div>
+                   </div>
+
+                   <div className="space-y-8">
+                      {dnaResult.matchingNotes.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="flex items-center gap-2 font-bold text-sm uppercase tracking-widest opacity-60">
+                            <Sparkles size={16} className="text-gold" />
+                            {tScent('preferred_found')}
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {dnaResult.matchingNotes.map(note => (
+                              <span key={note} className="px-4 py-2 rounded-xl bg-gold/10 text-gold border border-gold/20 font-bold text-sm">
+                                {note}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {dnaResult.avoidedNotesFound.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="flex items-center gap-2 font-bold text-sm uppercase tracking-widest opacity-60">
+                            <AlertCircle size={16} className="text-red-500" />
+                            {tScent('conflicting_found')}
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {dnaResult.avoidedNotesFound.map(note => (
+                              <span key={note} className="px-4 py-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 font-bold text-sm">
+                                {note}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                   </div>
+                </div>
+              </div>
+            )}
           </section>
 
           {noteGroups.length > 0 && (

@@ -285,6 +285,19 @@ export class StaffInventoryService {
       );
     }
 
+    // For IMPORT, validate warehouse stock
+    if (request.type === InventoryLogType.IMPORT) {
+      const variant = await this.prisma.productVariant.findUnique({
+        where: { id: request.variantId },
+      });
+      if (!variant) throw new NotFoundException('Variant not found');
+      if (variant.stock < request.quantity) {
+        throw new BadRequestException(
+          `Số lượng tồn kho tổng không đủ. (Hiện có: ${variant.stock}, yêu cầu: ${request.quantity})`,
+        );
+      }
+    }
+
     // For ADJUST, validate resulting stock won't be negative
     if (request.type === InventoryLogType.ADJUST) {
       const current = await this.prisma.storeStock.findUnique({
@@ -318,6 +331,13 @@ export class StaffInventoryService {
 
       // Apply stock change
       if (request.type === InventoryLogType.IMPORT) {
+        // 1. Decrement from central warehouse
+        await tx.productVariant.update({
+          where: { id: request.variantId },
+          data: { stock: { decrement: request.quantity } },
+        });
+
+        // 2. Increment store stock
         await tx.storeStock.upsert({
           where: {
             storeId_variantId: {

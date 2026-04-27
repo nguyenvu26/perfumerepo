@@ -13,6 +13,9 @@ export const catalogService = {
   getPublicBrands() {
     return api.get<CatalogItem[]>('/catalog/brands').then((r) => r.data);
   },
+  getScentNotes() {
+    return api.get<string[]>('/catalog/scent-notes').then((r) => r.data);
+  },
 
   // Brands (Admin)
   getBrands() {

@@ -17,6 +17,7 @@ import { Breadcrumb } from '@/components/common/breadcrumb';
 import { Link, usePathname, useRouter } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { productService, type Product, type ProductListRes } from '@/services/product.service';
+import { ScentDNABadge } from '@/components/product/scent-dna-badge';
 
 type GenderFilter = 'MALE' | 'FEMALE' | 'UNISEX' | null;
 type PriceFilter = 'P1' | 'P2' | 'P3' | 'P4' | null;
@@ -738,6 +739,9 @@ export function CollectionContent() {
                                     {scent}
                                   </span>
                                 )}
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                  <ScentDNABadge product={product} />
+                                </div>
                               </div>
                             </div>
 

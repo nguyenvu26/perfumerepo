@@ -17,11 +17,14 @@ import { Breadcrumb } from '@/components/common/breadcrumb';
 import { Link, usePathname, useRouter } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { productService, type Product, type ProductListRes } from '@/services/product.service';
+import { ScentDNABadge } from '@/components/product/scent-dna-badge';
+import { useScentDNAStore } from '@/store/scent-dna.store';
+import { calculateScentDNA } from '@/lib/scent-dna';
 
 type GenderFilter = 'MALE' | 'FEMALE' | 'UNISEX' | null;
 type PriceFilter = 'P1' | 'P2' | 'P3' | 'P4' | null;
 type SeasonFilter = 'XUAN' | 'HA' | 'THU' | 'DONG' | null;
-type SortMode = 'price_desc' | 'price_asc';
+type SortMode = 'price_desc' | 'price_asc' | 'dna_desc';
 
 export default function CollectionPage() {
   const locale = useLocale();
@@ -48,6 +51,7 @@ export default function CollectionPage() {
           sortLabel: 'S\u1eafp x\u1ebfp gi\u00e1',
           sortHighLow: 'Cao \u0111\u1ebfn th\u1ea5p',
           sortLowHigh: 'Th\u1ea5p \u0111\u1ebfn cao',
+          dnaSortLabel: 'T\u01b0\u01a1ng th\u00edch AI',
           filterLabel: 'B\u1ed9 l\u1ecdc',
           mobileFilterTitle: 'B\u1ed9 l\u1ecdc s\u1ea3n ph\u1ea9m',
           clearFilters: 'X\u00f3a t\u1ea5t c\u1ea3 b\u1ed9 l\u1ecdc',
@@ -96,6 +100,7 @@ export default function CollectionPage() {
           sortLabel: 'Sort by price',
           sortHighLow: 'High to low',
           sortLowHigh: 'Low to high',
+          dnaSortLabel: 'AI Compatibility',
           filterLabel: 'Filters',
           mobileFilterTitle: 'Product filters',
           clearFilters: 'Clear all filters',
@@ -144,13 +149,16 @@ export default function CollectionPage() {
   const [gender, setGender] = useState<GenderFilter>(null);
   const [priceRange, setPriceRange] = useState<PriceFilter>(null);
   const [selectedSeason, setSelectedSeason] = useState<SeasonFilter>(null);
-  const [sort, setSort] = useState<SortMode>('price_desc');
+  const [sort, setSort] = useState<SortMode>('dna_desc');
   const [page, setPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const pageSize = 20;
 
+  const { preferences, fetchPreferences } = useScentDNAStore();
+
   useEffect(() => {
+    fetchPreferences();
     productService
       .list({ take: 100 })
       .then((response: ProductListRes) => {
@@ -158,7 +166,7 @@ export default function CollectionPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [fetchPreferences]);
 
   useEffect(() => {
     const brandFromQuery = searchParams.get('brand');
@@ -321,11 +329,22 @@ export default function CollectionPage() {
     }
 
     return [...filtered].sort((first, second) => {
+      if (sort === 'dna_desc' && preferences) {
+        const firstDNA = calculateScentDNA(first, preferences.preferredNotes, preferences.avoidedNotes);
+        const secondDNA = calculateScentDNA(second, preferences.preferredNotes, preferences.avoidedNotes);
+        const firstScore = firstDNA?.score ?? -1;
+        const secondScore = secondDNA?.score ?? -1;
+        
+        if (firstScore !== secondScore) {
+          return secondScore - firstScore;
+        }
+      }
+
       const firstPrice = getMinPrice(first) ?? 0;
       const secondPrice = getMinPrice(second) ?? 0;
-      return sort === 'price_desc' ? secondPrice - firstPrice : firstPrice - secondPrice;
+      return sort === 'price_asc' ? firstPrice - secondPrice : secondPrice - firstPrice;
     });
-  }, [gender, priceRange, products, searchQuery, selectedBrand, selectedBrandId, selectedCategory, selectedScent, selectedSeason, sort]);
+  }, [gender, priceRange, products, searchQuery, selectedBrand, selectedBrandId, selectedCategory, selectedScent, selectedSeason, sort, preferences]);
 
   useEffect(() => {
     setPage(1);
@@ -645,11 +664,19 @@ export default function CollectionPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSort((current) => (current === 'price_desc' ? 'price_asc' : 'price_desc'))}
-                    className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-black/8 bg-background px-5 text-sm font-semibold text-foreground transition-all hover:border-gold hover:text-gold dark:border-white/10"
+                    onClick={() => {
+                      setSort((current) => {
+                        if (current === 'dna_desc') return 'price_desc';
+                        if (current === 'price_desc') return 'price_asc';
+                        return preferences ? 'dna_desc' : 'price_desc';
+                      });
+                    }}
+                    className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full border border-black/8 bg-background px-6 text-sm font-semibold text-foreground transition-all hover:border-gold hover:text-gold dark:border-white/10"
                   >
                     <span>{labels.sortLabel}:</span>
-                    <span>{sort === 'price_desc' ? labels.sortHighLow : labels.sortLowHigh}</span>
+                    <span className="text-gold">
+                      {sort === 'dna_desc' ? labels.dnaSortLabel : sort === 'price_desc' ? labels.sortHighLow : labels.sortLowHigh}
+                    </span>
                     <ChevronDown className={cn('h-4 w-4 transition-transform', sort === 'price_asc' && 'rotate-180')} />
                   </button>
                 </div>
@@ -738,6 +765,10 @@ export default function CollectionPage() {
                                     {scent}
                                   </span>
                                 )}
+                              </div>
+
+                              <div className="absolute bottom-4 left-4">
+                                <ScentDNABadge product={product} className="backdrop-blur-md shadow-lg" />
                               </div>
                             </div>
 
