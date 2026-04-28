@@ -45,6 +45,12 @@ export interface ReviewListRes {
   total: number;
 }
 
+export interface ReviewStats {
+  average: number;
+  total: number;
+  distribution: Record<number, number>;
+}
+
 export const reviewService = {
   create(dto: {
     productId: string;
@@ -75,6 +81,12 @@ export const reviewService = {
   getSummary(productId: string) {
     return api
       .get<ReviewSummary>(`/reviews/product/${productId}/summary`)
+      .then((r) => r.data);
+  },
+
+  getStats(productId: string) {
+    return api
+      .get<ReviewStats>(`/reviews/product/${productId}/stats`)
       .then((r) => r.data);
   },
 

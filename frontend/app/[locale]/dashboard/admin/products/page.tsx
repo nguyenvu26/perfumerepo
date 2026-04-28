@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History, AlertTriangle, XCircle } from 'lucide-react';
 import { productService, type Product } from '@/services/product.service';
 import { catalogService } from '@/services/catalog.service';
 import { useEffect, useState, useCallback } from 'react';
@@ -44,17 +44,27 @@ export default function AdminProducts() {
   const [activeTab, setActiveTab] = useState('identity');
   const [showModal, setShowModalState] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [lowStockFilter, setLowStockFilter] = useState(false);
+  const [stats, setStats] = useState<{
+    totalProducts: number;
+    activeProducts: number;
+    inactiveProducts: number;
+    totalStock: number;
+    lowStockVariants: number;
+    outOfStockVariants: number;
+  } | null>(null);
 
   const handleSetShowModal = (open: boolean) => {
     setShowModalState(open);
     setModalOpen(open);
   };
 
-  const isFiltered = search !== '' || brandFilter !== '' || categoryFilter !== '';
+  const isFiltered = search !== '' || brandFilter !== '' || categoryFilter !== '' || lowStockFilter;
   const clearFilters = () => {
     setSearch('');
     setBrandFilter('');
     setCategoryFilter('');
+    setLowStockFilter(false);
     setSkip(0);
   };
   const [loadingProduct, setLoadingProduct] = useState(false);
@@ -89,6 +99,7 @@ export default function AdminProducts() {
         search: search || undefined,
         brandId: brandFilter || undefined,
         categoryId: categoryFilter || undefined,
+        lowStock: lowStockFilter || undefined,
         skip,
         take,
       });
@@ -99,7 +110,16 @@ export default function AdminProducts() {
     } finally {
       setLoading(false);
     }
-  }, [search, skip, take]);
+  }, [search, skip, take, brandFilter, categoryFilter, lowStockFilter]);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const s = await productService.adminStats();
+      setStats(s);
+    } catch (e) {
+      console.error('Failed to fetch stats:', e);
+    }
+  }, []);
 
   const fetchCatalog = useCallback(async () => {
     try {
@@ -122,11 +142,12 @@ export default function AdminProducts() {
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+    fetchStats();
+  }, [fetchProducts, fetchStats]);
 
   useEffect(() => {
     setSkip(0);
-  }, [search, brandFilter, categoryFilter, take]);
+  }, [search, brandFilter, categoryFilter, take, lowStockFilter]);
 
   useEffect(() => {
     if (showModal && editId) {
@@ -381,14 +402,14 @@ export default function AdminProducts() {
   return (
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-4 sm:p-6 md:p-10 max-w-[1600px] mx-auto min-h-screen">
-        <header className="mb-10 md:mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
-          <div className="space-y-3">
+        <header className="mb-8 md:mb-12 flex flex-wrap items-start 2xl:items-end justify-between gap-6">
+          <div className="space-y-3 min-w-[300px]">
             <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
             <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
               {t('subtitle')}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch gap-4 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch gap-4 w-full 2xl:w-auto">
             <button
               type="button"
               onClick={openCreate}
@@ -424,6 +445,31 @@ export default function AdminProducts() {
           </div>
         </header>
 
+        {/* Statistics Cards */}
+        <section className="grid grid-cols-2 2xl:grid-cols-4 gap-4 mb-10">
+          {[
+            { label: 'Tổng Sản Phẩm', value: stats?.totalProducts ?? 0, icon: Box, color: 'text-gold' },
+            { label: 'Tổng Đơn Vị Tồn', value: stats?.totalStock ?? 0, icon: Database, color: 'text-blue-500' },
+            { label: 'Sắp Hết Hàng', value: stats?.lowStockVariants ?? 0, icon: AlertTriangle, color: 'text-amber-500' },
+            { label: 'Đã Hết Hàng', value: stats?.outOfStockVariants ?? 0, icon: XCircle, color: 'text-red-500' },
+          ].map((stat, i) => (
+            <div key={i} className="glass group/stat p-5 rounded-[2rem] border border-white/10 flex flex-col gap-3 relative overflow-hidden transition-all duration-500 hover:border-gold/20">
+              <div className="absolute -right-4 -top-4 w-24 h-24 bg-gold/5 rounded-full blur-2xl group-hover/stat:bg-gold/10 transition-all duration-700" />
+              
+              <div className="flex items-center justify-between relative z-10">
+                <div className={cn("p-2.5 rounded-xl bg-white/5 border border-white/5", stat.color)}>
+                  <stat.icon className="w-4 h-4" />
+                </div>
+              </div>
+
+              <div className="space-y-0.5 relative z-10">
+                <p className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground opacity-60">{stat.label}</p>
+                <h4 className="text-2xl font-heading tracking-tighter italic gold-gradient">{stat.value.toLocaleString()}</h4>
+              </div>
+            </div>
+          ))}
+        </section>
+
         <div className="flex flex-col md:flex-row gap-4 mb-10 bg-secondary/5 dark:bg-white/[0.02] p-4 rounded-[2rem] border border-border/50 backdrop-blur-sm">
           <div className="flex-1 relative group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-gold transition-colors" />
@@ -456,11 +502,23 @@ export default function AdminProducts() {
                 <option key={c.id} value={c.id} className="bg-background">{c.name}</option>
               ))}
             </select>
+            <button
+              onClick={() => setLowStockFilter(!lowStockFilter)}
+              className={cn(
+                "px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 border",
+                lowStockFilter 
+                  ? "bg-amber-500/10 border-amber-500/50 text-amber-500" 
+                  : "bg-white dark:bg-zinc-950/50 border-border/50 text-muted-foreground hover:border-gold/50"
+              )}
+            >
+              <AlertTriangle className={cn("w-3.5 h-3.5", lowStockFilter ? "animate-pulse" : "opacity-60")} />
+              Sắp Hết Hàng
+            </button>
 
             {isFiltered && (
               <button
                 onClick={clearFilters}
-                className="bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-muted-foreground px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 group"
+                className="bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-muted-foreground px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 group border border-transparent"
               >
                 <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
                 Reset
@@ -482,7 +540,7 @@ export default function AdminProducts() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {products.map((p, index) => (
                 <div
                   key={p.id}
@@ -493,14 +551,14 @@ export default function AdminProducts() {
                   )}
                 >
                   {/* Visual Container */}
-                  <div className="aspect-[4/5] relative overflow-hidden bg-zinc-100 dark:bg-zinc-950">
+                  <div className="aspect-square relative overflow-hidden bg-zinc-100 dark:bg-zinc-950">
                     {p.images?.length ? (
                       <Image
                         src={p.images[0].url}
                         alt={p.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, (max-width: 1536px) 33vw, 25vw"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -508,82 +566,107 @@ export default function AdminProducts() {
                       </div>
                     )}
 
-                    {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                     {/* Status Badges */}
-                    <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
-                      <div className="flex flex-col gap-2">
-                        {!p.isActive && (
-                          <div className="bg-zinc-900/80 backdrop-blur-md text-zinc-400 text-[8px] px-3 py-1.5 rounded-full uppercase tracking-widest font-black border border-white/5">
-                            {t('status.hidden')}
-                          </div>
-                        )}
-                        {getTotalStock(p) <= 5 && p.isActive && (
-                          <div className="bg-amber-500/90 backdrop-blur-md text-white text-[8px] px-3 py-1.5 rounded-full uppercase tracking-[.2em] font-black border border-amber-400/20 shadow-lg animate-pulse">
-                            {"Sắp Hết Hàng"}
-                          </div>
-                        )}
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
-                        <span className="text-[8px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
-                      </div>
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                      {!p.isActive && (
+                        <div className="bg-zinc-950/80 backdrop-blur-md text-zinc-400 text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-white/5">
+                          {t('status.hidden')}
+                        </div>
+                      )}
+                      {p.variants?.some(v => v.stock > 0 && v.stock <= 10) && p.isActive && (
+                        <div className="bg-amber-500/90 backdrop-blur-md text-white text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-amber-400/20 shadow-lg animate-pulse">
+                          {"Low Stock"}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/10 px-2 py-1 rounded-full">
+                      <span className="text-[7px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
                     </div>
 
                     {/* Quick Actions Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0">
+                    <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           openEdit(p.id);
                         }}
-                        className="w-12 h-12 bg-white text-zinc-950 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
+                        className="w-10 h-10 bg-white text-zinc-950 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
                       >
-                        <Pencil className="w-5 h-5" />
+                        <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleToggleVisibility(p.id, p.isActive);
                         }}
-                        className="w-12 h-12 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform border border-white/10"
+                        className="w-10 h-10 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-white/10"
                       >
-                        {p.isActive ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {p.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
 
                   {/* Metadata Container */}
-                  <div className="p-8">
-                    <div className="mb-4">
-                      <p className="text-[10px] text-gold uppercase tracking-[.4em] font-black mb-2 opacity-60">{p.brand?.name ?? 'Chưa Có Thương Hiệu'}</p>
-                      <h3 className="font-heading text-xl md:text-2xl text-foreground line-clamp-1 leading-tight">{p.name}</h3>
+                  <div className="p-5">
+                    <div className="mb-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-[9px] text-gold uppercase tracking-widest font-bold opacity-60 truncate">{p.brand?.name ?? '—'}</p>
+                        <div className="flex items-center gap-1">
+                           <div className={cn("w-1 h-1 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
+                           <span className={cn("text-[8px] font-bold uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
+                             {p.isActive ? "Active" : "Hidden"}
+                           </span>
+                        </div>
+                      </div>
+                      <h3 className="font-heading text-base text-foreground line-clamp-1 leading-tight group-hover:text-gold transition-colors">{p.name}</h3>
                     </div>
 
-                    <div className="flex items-center gap-4 mb-6">
-                      <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground bg-secondary/30 px-2 py-1 rounded">
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
                         {p.concentration || "Parfum"}
                       </span>
-                      <span className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground bg-secondary/30 px-2 py-1 rounded">
+                      <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
                         {p.scentFamily?.name || "Floral"}
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-end pt-6 border-t border-white/5">
-                      <div className="space-y-1">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Giá Bán</p>
-                        <span className="text-lg font-serif italic text-gold">
-                          {getPriceRange(p)}
-                        </span>
-                      </div>
-                      <div className="text-right space-y-1">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-[.2em] font-bold">Trạng Thái</p>
-                        <div className="flex items-center gap-2 justify-end">
-                           <div className={cn("w-1.5 h-1.5 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
-                           <span className={cn("text-[10px] font-black tracking-widest uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
-                             {p.isActive ? "Hoạt Động" : "Ẩn"}
-                           </span>
+                    <div className="space-y-3 pt-4 border-t border-white/5">
+                      <div className="flex justify-between items-end">
+                        <div className="space-y-0.5">
+                          <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Stock</p>
+                          <div className="flex items-baseline gap-1">
+                            <span className={cn("text-base font-heading italic", getTotalStock(p) === 0 ? "text-red-500" : getTotalStock(p) <= 10 ? "text-amber-500" : "text-foreground")}>
+                              {getTotalStock(p)}
+                            </span>
+                            <span className="text-[8px] text-muted-foreground uppercase font-bold">Qty</span>
+                          </div>
                         </div>
+                        <div className="text-right space-y-0.5">
+                          <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Price Range</p>
+                          <span className="text-xs font-serif italic text-gold">
+                            {getPriceRange(p)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="bg-secondary/10 rounded-xl p-2 flex flex-wrap gap-1.5 items-center justify-center">
+                        {p.variants?.slice(0, 3).map((v) => (
+                          <div key={v.id} className="flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-lg border border-white/5">
+                            <span className="text-[7px] text-muted-foreground uppercase font-bold opacity-50">{v.name}</span>
+                            <span className={cn(
+                              "text-[8px] font-heading",
+                              v.stock === 0 ? "text-red-500" : v.stock <= 10 ? "text-amber-500" : "text-foreground"
+                            )}>
+                              {v.stock}
+                            </span>
+                          </div>
+                        ))}
+                        {(p.variants?.length ?? 0) > 3 && (
+                          <span className="text-[7px] text-muted-foreground font-bold opacity-30">+{ (p.variants?.length ?? 0) - 3 }</span>
+                        )}
                       </div>
                     </div>
                   </div>

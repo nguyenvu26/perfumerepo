@@ -125,7 +125,7 @@ export default function DashboardLayout({
                             {/* Removed role and segment title as per user request */}
 
 
-                            <div className="hidden min-h-[52px] items-center gap-3 rounded-[1.25rem] border border-gold/15 bg-white/80 px-4 shadow-[0_20px_40px_-28px_rgba(15,23,42,0.4)] dark:bg-white/[0.04] md:flex">
+                            <div className="hidden min-h-[52px] items-center gap-3 rounded-[1.25rem] border border-gold/15 bg-white/80 px-4 shadow-[0_20px_40px_-28px_rgba(15,23,42,0.45)] dark:bg-white/[0.04] xl:flex">
                                 <div className="h-2.5 w-2.5 rounded-full bg-gold shadow-[0_0_12px_rgba(197,160,89,0.55)]" />
                                 <span className="text-sm font-medium text-stone-500 dark:text-stone-300">
                                     {new Date().toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', {
@@ -138,7 +138,7 @@ export default function DashboardLayout({
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 md:gap-4">
+                        <div className="flex items-center gap-2 md:gap-4 shrink-0">
                             <div className="mx-1 h-8 w-px bg-border/50 md:mx-2 md:h-10" />
                             <ThemeToggle />
                         </div>
@@ -149,7 +149,7 @@ export default function DashboardLayout({
                         initial={{ opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="dashboard-shell flex-1 overflow-y-auto custom-scrollbar px-4 py-6 md:px-6 md:py-8"
+                        className="dashboard-shell flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar px-4 py-6 md:px-6 md:py-8"
                     >
                         <div className="mx-auto max-w-[1700px]">
                             {children}

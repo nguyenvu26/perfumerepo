@@ -4,6 +4,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 interface ChannelDonutChartProps {
     online: number;
     pos: number;
@@ -13,27 +15,32 @@ interface ChannelDonutChartProps {
 const COLORS = ['#C5A059', '#6366f1'];
 
 const CustomTooltip = ({ active, payload }: any) => {
+    const t = useTranslations('admin_dashboard');
     if (!active || !payload?.length) return null;
     return (
         <div className="glass bg-background/90 border border-border rounded-2xl p-3 shadow-xl">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{payload[0].name}</p>
-            <p className="text-sm font-heading text-foreground mt-1">{payload[0].value} orders</p>
+            <p className="text-sm font-heading text-foreground mt-1">{t('orders', { count: payload[0].value })}</p>
         </div>
     );
 };
 
-const CustomLabel = ({ cx, cy, total }: { cx: number; cy: number; total: number }) => (
-    <>
-        <text x={cx} y={cy - 8} textAnchor="middle" fill="#fff" fontSize={22} fontWeight={700} fontFamily="inherit">
-            {total}
-        </text>
-        <text x={cx} y={cy + 12} textAnchor="middle" fill="#888" fontSize={9} fontFamily="inherit" textLength="50" letterSpacing="2">
-            TOTAL
-        </text>
-    </>
-);
+const CustomLabel = ({ cx, cy, total }: { cx: number; cy: number; total: number }) => {
+    const t = useTranslations('admin_dashboard');
+    return (
+        <>
+            <text x={cx} y={cy - 8} textAnchor="middle" fill="#fff" fontSize={22} fontWeight={700} fontFamily="inherit">
+                {total}
+            </text>
+            <text x={cx} y={cy + 12} textAnchor="middle" fill="#888" fontSize={9} fontFamily="inherit" textLength="50" letterSpacing="2">
+                {t('total')}
+            </text>
+        </>
+    );
+};
 
 export function ChannelDonutChart({ online, pos, loading }: ChannelDonutChartProps) {
+    const t = useTranslations('admin_dashboard');
     const total = online + pos;
     const chartData = [
         { name: 'Online', value: online },
@@ -45,15 +52,15 @@ export function ChannelDonutChart({ online, pos, loading }: ChannelDonutChartPro
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="glass bg-background/40 rounded-[3rem] border border-border p-8 md:p-10"
+            className="glass bg-background/40 rounded-[2rem] border border-border p-6 md:p-8"
         >
             <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-2xl bg-secondary text-foreground">
                     <ShoppingBag className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">Sales Channel</h3>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">Online vs In-store · 30D</p>
+                    <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">{t('sales_channel')}</h3>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{t('sales_channel_subtitle')}</p>
                 </div>
             </div>
 
@@ -63,7 +70,7 @@ export function ChannelDonutChart({ online, pos, loading }: ChannelDonutChartPro
                 </div>
             ) : total === 0 ? (
                 <div className="h-[200px] flex items-center justify-center">
-                    <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">No data yet.</p>
+                    <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">{t('no_data')}</p>
                 </div>
             ) : (
                 <>

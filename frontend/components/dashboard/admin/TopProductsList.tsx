@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Package, ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 
+import { useTranslations } from 'next-intl';
+
 export interface TopProductDto {
     productId: string;
     productName: string;
@@ -25,6 +27,7 @@ interface TopProductsListProps {
 }
 
 export function TopProductsList({ data, loading }: TopProductsListProps) {
+    const t = useTranslations('admin_dashboard');
     const maxQty = data[0]?.totalQuantity ?? 1;
 
     return (
@@ -32,7 +35,7 @@ export function TopProductsList({ data, loading }: TopProductsListProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="glass bg-background/40 rounded-[3rem] border border-border p-8 md:p-10 flex flex-col"
+            className="glass bg-background/40 rounded-[2rem] border border-border p-6 md:p-8 flex flex-col"
         >
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
@@ -42,10 +45,10 @@ export function TopProductsList({ data, loading }: TopProductsListProps) {
                     </div>
                     <div>
                         <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">
-                            Top Products
+                            {t('top_products')}
                         </h3>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
-                            Last 30 days · By units sold
+                            {t('top_products_subtitle')}
                         </p>
                     </div>
                 </div>
@@ -58,7 +61,7 @@ export function TopProductsList({ data, loading }: TopProductsListProps) {
                 </div>
             ) : data.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center">
-                    <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">No data yet.</p>
+                    <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">{t('no_data')}</p>
                 </div>
             ) : (
                 <div className="space-y-5 flex-1">
@@ -100,7 +103,7 @@ export function TopProductsList({ data, loading }: TopProductsListProps) {
                                         {product.productName}
                                     </p>
                                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                                        {product.totalQuantity} units · {formatVND(product.totalRevenue)}
+                                        {t('units', { count: product.totalQuantity })} · {formatVND(product.totalRevenue)}
                                     </p>
                                 </div>
 

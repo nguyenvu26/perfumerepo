@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import ReviewList from '../review/review-list';
 import ReviewSummaryView from '../review/review-summary';
 import StarRating from '../review/star-rating';
+import { reviewService, type ReviewStats } from '@/services/review.service';
 
 export default function ProductDetail({ product }: { product: Product }) {
   const t = useTranslations('product_detail');
@@ -101,6 +102,7 @@ export default function ProductDetail({ product }: { product: Product }) {
   const [success, setSuccess] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [stats, setStats] = useState<ReviewStats | null>(null);
   const { preferences } = useScentDNAStore();
 
   const dnaResult = useMemo(() => {
@@ -125,6 +127,12 @@ export default function ProductDetail({ product }: { product: Product }) {
       mounted = false;
     };
   }, [isAuthenticated, product.id]);
+
+  useEffect(() => {
+    reviewService.getStats(product.id)
+      .then(setStats)
+      .catch(err => console.error("Failed to fetch product stats", err));
+  }, [product.id]);
 
   const handleAddToCart = async () => {
     if (!isAuthenticated) {
@@ -203,7 +211,7 @@ export default function ProductDetail({ product }: { product: Product }) {
     return 'Unisex';
   };
 
-  const rating = 4.5;
+  const rating = stats?.average || 0;
   const activeImage = product.images?.[activeImageIndex]?.url || product.images?.[0]?.url;
   const scentFamily = product.scentFamily?.name || 'Signature';
   const gender = getGenderLabel(product.gender);
@@ -427,7 +435,11 @@ export default function ProductDetail({ product }: { product: Product }) {
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
                 <StarRating rating={rating} readOnly size={15} />
-                <span className="text-sm text-muted-foreground">{t('rating_label', { rating })}</span>
+                <span className="text-sm text-muted-foreground">
+                  {stats?.total && stats.total > 0 
+                    ? t('rating_label', { rating }) 
+                    : locale === 'vi' ? 'Chưa có đánh giá' : 'No reviews yet'}
+                </span>
               </div>
               <span className="rounded-full border border-black/8 bg-background px-3 py-1.5 text-sm text-foreground dark:border-white/10">
                 {labels.performance}

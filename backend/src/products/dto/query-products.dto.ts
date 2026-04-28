@@ -42,6 +42,9 @@ export class QueryProductsDto {
   isBestseller?: any;
 
   @IsOptional()
+  lowStock?: any;
+
+  @IsOptional()
   @IsString()
   notes?: string;
 

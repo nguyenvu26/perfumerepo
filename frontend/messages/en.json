@@ -3119,5 +3119,43 @@
     "table_date": "Date",
     "table_reason": "Reason",
     "empty_history": "No inventory movement logs found."
+  },
+  "admin_dashboard": {
+    "sales_overview": "Sales Overview",
+    "revenue_trend": "Revenue & Orders Trend",
+    "top_products": "Top Products",
+    "top_products_subtitle": "Last 30 days · By units sold",
+    "sales_channel": "Sales Channel",
+    "sales_channel_subtitle": "Online vs In-store · 30D",
+    "low_stock_alerts": "Low Stock Alerts",
+    "low_stock_subtitle": "Variants with ≤ 10 units",
+    "recent_orders": "Recent Orders",
+    "live_order_feed": "Live order feed",
+    "view_all": "View all",
+    "no_data": "No data yet.",
+    "loading": "Loading data...",
+    "no_sales_data": "No sales data for this period.",
+    "units": "{count} units",
+    "total": "TOTAL",
+    "orders": "{count} orders",
+    "left_suffix": "{count} left",
+    "out_of_stock": "Out",
+    "all_stock_healthy": "All stock levels healthy.",
+    "guest": "Guest",
+    "status": {
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "processing": "Processing",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped"
+    },
+    "revenue_by_store": "Revenue by Store",
+    "revenue_by_store_subtitle": "Detailed statistics per branch",
+    "view_closing_history": "View closing history",
+    "today": "Today",
+    "this_week": "This week",
+    "this_month": "This month"
   }
 }
+

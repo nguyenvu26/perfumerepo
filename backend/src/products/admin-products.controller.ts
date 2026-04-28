@@ -27,7 +27,12 @@ import { QueryProductsDto } from './dto/query-products.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('ADMIN')
 export class AdminProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
+
+  @Get('stats')
+  stats() {
+    return this.productsService.adminStats();
+  }
 
   @Get()
   list(@Query() query: QueryProductsDto) {

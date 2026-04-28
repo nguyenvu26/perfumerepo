@@ -54,7 +54,7 @@ interface IProductService {
   list(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; isFeatured?: boolean | string; isBestseller?: boolean | string }): Promise<ProductListRes>;
   getTopSelling(take?: number): Promise<Product[]>;
   getById(id: string): Promise<Product>;
-  adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number }): Promise<ProductListRes>;
+  adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; lowStock?: boolean }): Promise<ProductListRes>;
   adminCreate(dto: {
     name: string;
     slug: string;
@@ -76,6 +76,14 @@ interface IProductService {
   adminDeleteImage(productId: string, imageId: number | string): Promise<{ success: boolean }>;
   adminImportWarehouse(dto: { variantId: string; quantity: number; reason?: string }): Promise<ProductVariant>;
   adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number }): Promise<{ items: any[]; total: number }>;
+  adminStats(): Promise<{
+    totalProducts: number;
+    activeProducts: number;
+    inactiveProducts: number;
+    totalStock: number;
+    lowStockVariants: number;
+    outOfStockVariants: number;
+  }>;
 }
 
 export const productService: IProductService = {
@@ -140,5 +148,8 @@ export const productService: IProductService = {
   },
   adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number }) {
     return api.get<{ items: any[]; total: number }>('/admin/products/inventory-logs', { params }).then((r) => r.data);
+  },
+  adminStats() {
+    return api.get('/admin/products/stats').then((r) => r.data);
   },
 };

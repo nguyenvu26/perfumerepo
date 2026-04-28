@@ -33,6 +33,14 @@ export class ProductsService {
     if (categoryId) {
       where.categoryId = categoryId;
     }
+    if (query.lowStock === 'true' || query.lowStock === true) {
+      where.variants = {
+        some: {
+          stock: { lte: 10 },
+          isActive: true,
+        },
+      };
+    }
 
     const [items, total] = await this.prisma.$transaction([
       this.prisma.product.findMany({
@@ -670,5 +678,42 @@ export class ProductsService {
     ]);
 
     return { items, total, skip, take };
+  }
+
+  async adminStats() {
+    const [
+      totalProducts,
+      activeProducts,
+      totalStock,
+      lowStockVariants,
+      outOfStockVariants,
+    ] = await Promise.all([
+      this.prisma.product.count(),
+      this.prisma.product.count({ where: { isActive: true } }),
+      this.prisma.productVariant.aggregate({
+        _sum: { stock: true },
+      }),
+      this.prisma.productVariant.count({
+        where: {
+          stock: { lte: 10, gt: 0 },
+          isActive: true,
+        },
+      }),
+      this.prisma.productVariant.count({
+        where: {
+          stock: 0,
+          isActive: true,
+        },
+      }),
+    ]);
+
+    return {
+      totalProducts,
+      activeProducts,
+      inactiveProducts: totalProducts - activeProducts,
+      totalStock: totalStock._sum.stock || 0,
+      lowStockVariants,
+      outOfStockVariants,
+    };
   }
 }

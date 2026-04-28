@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { AlertTriangle, Package } from 'lucide-react';
 import Image from 'next/image';
 
+import { useTranslations } from 'next-intl';
+
 export interface LowStockItemDto {
     variantId: string;
     productName: string;
@@ -18,20 +20,22 @@ interface LowStockWidgetProps {
 }
 
 export function LowStockWidget({ data, loading }: LowStockWidgetProps) {
+    const t = useTranslations('admin_dashboard');
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="glass bg-background/40 rounded-[3rem] border border-border p-8 md:p-10"
+            className="glass bg-background/40 rounded-[2rem] border border-border p-6 md:p-8"
         >
             <div className="flex items-center gap-3 mb-6">
                 <div className="p-3 rounded-2xl bg-red-500/10 text-red-500">
                     <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">Low Stock Alerts</h3>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">Variants with ≤ 10 units</p>
+                    <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">{t('low_stock_alerts')}</h3>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{t('low_stock_subtitle')}</p>
                 </div>
             </div>
 
@@ -44,7 +48,7 @@ export function LowStockWidget({ data, loading }: LowStockWidgetProps) {
                     <div className="text-emerald-500">
                         <Package className="w-6 h-6" />
                     </div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">All stock levels healthy.</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{t('all_stock_healthy')}</p>
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -91,7 +95,7 @@ export function LowStockWidget({ data, loading }: LowStockWidgetProps) {
                                     ? 'bg-orange-500/20 text-orange-400'
                                     : 'bg-yellow-500/10 text-yellow-500'
                                 }`}>
-                                {item.stock === 0 ? 'Out' : `${item.stock} left`}
+                                {item.stock === 0 ? t('out_of_stock') : t('left_suffix', { count: item.stock })}
                             </span>
                         </motion.div>
                     ))}

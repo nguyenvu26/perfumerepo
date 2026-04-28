@@ -28,8 +28,9 @@ import {
   X,
   ClipboardCheck,
   Tag,
-  PackageSearch
+  PackageSearch,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslations, useFormatter } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -293,7 +294,7 @@ export default function AdminStockRedesignPage() {
   return (
     <AuthGuard allowedRoles={["admin"]}>
       <main className="p-8 max-w-[1800px] mx-auto">
-        <header className="mb-8 md:mb-16 flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8">
+        <header className="mb-8 md:mb-16 flex flex-wrap items-start 2xl:items-end justify-between gap-8">
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
             <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
@@ -301,7 +302,7 @@ export default function AdminStockRedesignPage() {
             </p>
           </div>
           
-          <div className="w-full lg:w-auto overflow-x-auto no-scrollbar">
+          <div className="w-full 2xl:w-auto overflow-x-auto no-scrollbar">
             <div className="flex gap-2 bg-secondary/10 dark:bg-white/5 p-1.5 rounded-2xl sm:rounded-[2rem] border border-stone-200 dark:border-white/5 min-w-max">
               <button
                 onClick={() => setActiveTab("overview")}
@@ -370,29 +371,32 @@ export default function AdminStockRedesignPage() {
                 overview?.stores.map((storeData) => (
                   <section
                     key={storeData.store.id}
-                    className="glass rounded-[2.5rem] sm:rounded-[4rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-2xl backdrop-blur-3xl animate-in fade-in slide-in-from-bottom-4 duration-700"
+                    className="glass group/store rounded-[2rem] sm:rounded-[3rem] border border-white/10 overflow-hidden shadow-2xl transition-all duration-700 hover:border-gold/20"
                   >
-                    <div className="px-8 sm:px-12 py-8 sm:py-10 bg-secondary/10 dark:bg-white/[0.03] border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-4">
-                          <Tag className="w-4 h-4 text-gold opacity-50" />
-                          <h3 className="font-heading text-xl sm:text-3xl uppercase tracking-tighter text-foreground italic">
+                    <div className="px-8 sm:px-12 py-10 bg-white/5 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative overflow-hidden">
+                      <div className="absolute -right-10 -top-10 w-40 h-40 bg-gold/5 rounded-full blur-3xl group-hover/store:bg-gold/10 transition-all duration-700" />
+                      
+                      <div className="space-y-2 relative z-10">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-2xl bg-gold/10 flex items-center justify-center border border-gold/20">
+                            <Tag className="w-5 h-5 text-gold" />
+                          </div>
+                          <h3 className="font-heading text-2xl sm:text-3xl uppercase tracking-tighter text-foreground italic gold-gradient">
                             {storeData.store.name}
                           </h3>
                         </div>
-                        <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[0.3em] pl-8 font-black opacity-40">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] pl-14 font-black opacity-40">
                           {t('boutique.id_label')} {storeData.store.code || "SYS-DEFAULT"}
                         </p>
                       </div>
-                      <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-10 bg-black/5 dark:bg-white/5 sm:bg-transparent p-4 sm:p-0 rounded-2xl sm:rounded-none">
-                        <div className="text-right">
-                          <p className="font-heading text-3xl sm:text-4xl text-gold leading-none italic">
-                            {storeData.totalUnits}
-                          </p>
-                          <p className="text-[8px] sm:text-[9px] text-muted-foreground uppercase tracking-widest mt-2 font-black opacity-30">
-                            {t('boutique.total_units')}
-                          </p>
-                        </div>
+                      
+                      <div className="relative z-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 min-w-[160px] text-center sm:text-right">
+                        <p className="font-heading text-4xl text-gold leading-none italic mb-2">
+                          {storeData.totalUnits}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-60">
+                          {t('boutique.total_units')}
+                        </p>
                       </div>
                     </div>
 
@@ -400,14 +404,14 @@ export default function AdminStockRedesignPage() {
                     <div className="hidden md:block overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="border-b border-border/20 text-muted-foreground bg-foreground/[0.01]">
-                            <th className="pl-12 pr-4 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 w-24">{t('table.media')}</th>
-                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40"> {t('table.identifier')}</th>
-                            <th className="px-6 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-center">{t('table.edition')}</th>
-                            <th className="px-12 py-6 text-[9px] uppercase tracking-widest font-black opacity-40 text-right">{t('table.inventory')}</th>
+                          <tr className="text-muted-foreground bg-white/[0.02]">
+                            <th className="pl-12 pr-4 py-8 text-[10px] uppercase tracking-[.2em] font-black opacity-60 w-24">#{t('table.media')}</th>
+                            <th className="px-6 py-8 text-[10px] uppercase tracking-[.2em] font-black opacity-60">{t('table.identifier')}</th>
+                            <th className="px-6 py-8 text-[10px] uppercase tracking-[.2em] font-black opacity-60 text-center">{t('table.edition')}</th>
+                            <th className="px-12 py-8 text-[10px] uppercase tracking-[.2em] font-black opacity-60 text-right">{t('table.inventory')}</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-border/10">
+                        <tbody className="divide-y divide-white/5">
                           {storeData.variants.length === 0 ? (
                             <tr>
                               <td colSpan={4} className="px-12 py-32 text-center text-muted-foreground italic font-serif text-2xl opacity-20">
@@ -416,41 +420,47 @@ export default function AdminStockRedesignPage() {
                             </tr>
                           ) : (
                             storeData.variants.map((v) => (
-                              <tr key={v.variantId} className="group hover:bg-gold/[0.03] transition-all duration-500">
-                                <td className="pl-12 pr-4 py-5">
+                              <tr key={v.variantId} className="group/row hover:bg-white/[0.03] transition-all duration-500">
+                                <td className="pl-12 pr-4 py-6">
                                   {v.imageUrl ? (
-                                    <div className="w-16 h-16 rounded-2xl overflow-hidden border border-stone-200 dark:border-white/10 group-hover:scale-105 transition-all duration-700 shadow-md relative">
+                                    <div className="w-16 h-16 rounded-2xl overflow-hidden border border-white/10 group-hover/row:scale-105 transition-all duration-700 shadow-xl relative">
                                         <Image 
                                             src={v.imageUrl} 
                                             alt="" 
                                             fill
                                             sizes="64px"
-                                            className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" 
+                                            className="object-cover grayscale group-hover/row:grayscale-0 transition-all duration-1000" 
                                         />
                                     </div>
                                   ) : (
-                                    <div className="w-16 h-16 rounded-2xl bg-secondary/30 flex items-center justify-center border border-border/10">
+                                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
                                       <PackageSearch className="w-6 h-6 text-muted-foreground/20" />
                                     </div>
                                   )}
                                 </td>
-                                <td className="px-6 py-5">
-                                  <p className="font-heading text-base uppercase tracking-tight group-hover:text-gold transition-colors leading-tight italic">
+                                <td className="px-6 py-6">
+                                  <p className="font-heading text-lg uppercase tracking-tight group-hover/row:text-gold transition-colors leading-tight italic">
                                     {v.productName}
                                   </p>
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1 font-black opacity-40 italic">
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1.5 font-black opacity-40 italic">
                                     {v.brandName}
                                   </p>
                                 </td>
-                                <td className="px-6 py-5 text-center">
-                                  <span className="px-5 py-2 rounded-full bg-secondary/50 dark:bg-white/[0.03] text-[9px] uppercase tracking-widest font-black border border-border/10 group-hover:border-gold/30 transition-all">
+                                <td className="px-6 py-6 text-center">
+                                  <span className="px-5 py-2.5 rounded-2xl bg-white/5 text-[9px] uppercase tracking-widest font-black border border-white/10 group-hover/row:border-gold/30 transition-all">
                                     {v.variantName}
                                   </span>
                                 </td>
-                                <td className="px-12 py-5 text-right">
-                                  <span className={`font-heading text-2xl italic ${v.quantity === 0 ? "text-destructive" : v.quantity <= 5 ? "text-amber-500" : "text-foreground"}`}>
-                                    {v.quantity}
-                                  </span>
+                                <td className="px-12 py-6 text-right">
+                                  <div className="flex flex-col items-end">
+                                    <span className={cn(
+                                      "font-heading text-3xl italic",
+                                      v.quantity === 0 ? "text-red-500" : v.quantity <= 10 ? "text-amber-500" : "text-foreground"
+                                    )}>
+                                      {v.quantity}
+                                    </span>
+                                    <span className="text-[8px] uppercase font-black tracking-widest opacity-30 mt-1">Units</span>
+                                  </div>
                                 </td>
                               </tr>
                             ))
@@ -458,7 +468,7 @@ export default function AdminStockRedesignPage() {
                         </tbody>
                       </table>
                     </div>
-
+                    
                     {/* MOBILE CARD VIEW */}
                     <div className="md:hidden p-6 space-y-4">
                         {storeData.variants.length === 0 ? (
@@ -490,7 +500,7 @@ export default function AdminStockRedesignPage() {
           {activeTab === "batch-import" && (
             <div className="flex flex-col gap-8 sm:gap-12 animate-in fade-in duration-700">
               {/* Configuration Header */}
-              <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border-stone-200 dark:border-white/10 flex flex-col lg:flex-row gap-8 sm:gap-12 items-stretch lg:items-center shadow-xl">
+              <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border-stone-200 dark:border-white/10 flex flex-col 2xl:flex-row gap-8 sm:gap-12 items-stretch 2xl:items-center shadow-xl">
                 <div className="flex-1">
                   <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
                     {t('import.destination')}
@@ -522,9 +532,9 @@ export default function AdminStockRedesignPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-12 items-start">
+              <div className="grid grid-cols-1 2xl:grid-cols-5 gap-8 sm:gap-12 items-start">
                 {/* Product Selector */}
-                <div className="lg:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
+                <div className="2xl:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border bg-secondary/10">
                     <div className="flex items-center gap-3 mb-6">
                       <PackageSearch className="w-5 h-5 text-gold" />
@@ -595,7 +605,7 @@ export default function AdminStockRedesignPage() {
                 </div>
 
                 {/* Processing List */}
-                <div className="lg:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
+                <div className="2xl:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border flex justify-between items-center bg-secondary/10">
                     <h3 className="font-heading text-sm uppercase tracking-widest">
                       {t('import.staging_manifest', { count: importItems.length })}
@@ -769,9 +779,9 @@ export default function AdminStockRedesignPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 sm:gap-12 items-start">
+              <div className="grid grid-cols-1 2xl:grid-cols-5 gap-8 sm:gap-12 items-start">
                 {/* Asset Finder */}
-                <div className="lg:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
+                <div className="2xl:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border bg-secondary/10">
                     <div className="flex items-center gap-3 mb-6">
                       <Search className="w-5 h-5 text-gold" />
@@ -864,7 +874,7 @@ export default function AdminStockRedesignPage() {
                 </div>
 
                 {/* Manifest List */}
-                <div className="lg:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
+                <div className="2xl:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
                   <div className="p-8 border-b border-border flex justify-between items-center bg-secondary/10">
                     <h3 className="font-heading text-sm uppercase tracking-widest">
                       {t('transfer.relocation_manifest', { count: transferItems.length })}

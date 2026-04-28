@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { Review, reviewService } from '@/services/review.service';
+import { Review, ReviewStats, reviewService } from '@/services/review.service';
 import StarRating from './star-rating';
 import { ThumbsUp, Flag, CheckCircle2, Loader2, Filter, SortAsc, ChevronDown, User, Sparkles } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
@@ -32,6 +32,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
     const [skip, setSkip] = useState(0);
     const [ratingFilter, setRatingFilter] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState<'newest' | 'highest' | 'lowest' | 'helpful'>('newest');
+    const [stats, setStats] = useState<ReviewStats | null>(null);
 
     const take = 10;
 
@@ -52,19 +53,12 @@ const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
         fetchReviews();
     }, [productId, skip]);
 
-    const stats = useMemo(() => {
-        if (reviews.length === 0) return { avg: 0, distribution: [0, 0, 0, 0, 0] };
-        const distribution = [0, 0, 0, 0, 0];
-        let sum = 0;
-        reviews.forEach(r => {
-            sum += r.rating;
-            distribution[r.rating - 1]++;
-        });
-        return {
-            avg: (sum / reviews.length).toFixed(1),
-            distribution: distribution.reverse() // 5 to 1
-        };
-    }, [reviews]);
+    useEffect(() => {
+        reviewService.getStats(productId)
+            .then(setStats)
+            .catch(err => console.error("Failed to fetch review stats", err));
+    }, [productId]);
+
 
     const handleReact = async (reviewId: string) => {
         try {
@@ -122,20 +116,20 @@ const ReviewList: React.FC<ReviewListProps> = ({ productId }) => {
                 <div className="text-center lg:text-left space-y-6">
                     <h2 className="text-5xl font-serif text-foreground italic tracking-tight">{t('customer_reviews')}</h2>
                     <div className="flex items-center justify-center lg:justify-start gap-8 px-6 lg:px-0">
-                        <span className="text-7xl font-serif text-gold leading-none">{stats.avg}</span>
+                        <span className="text-7xl font-serif text-gold leading-none">{stats?.average || '0.0'}</span>
                         <div className="space-y-2 pt-1">
-                            <StarRating rating={Number(stats.avg)} readOnly size={20} />
+                            <StarRating rating={stats?.average || 0} readOnly size={20} />
                             <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-bold">
-                                {t('based_on_count', { total })}
+                                {t('based_on_count', { total: stats?.total || 0 })}
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div className="lg:col-span-2 space-y-4 max-w-xl mx-auto lg:ml-auto w-full glass p-8 rounded-[2rem] border-gold/10">
-                    {stats.distribution.map((count, i) => {
-                        const starNum = 5 - i;
-                        const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                    {[5, 4, 3, 2, 1].map((starNum) => {
+                        const count = stats?.distribution[starNum] || 0;
+                        const percentage = stats?.total && stats.total > 0 ? (count / stats.total) * 100 : 0;
                         return (
                             <div key={starNum} className="flex items-center gap-6 text-[10px]">
                                 <span className="w-20 text-muted-foreground font-bold uppercase tracking-widest">{t('stars', { count: starNum })}</span>

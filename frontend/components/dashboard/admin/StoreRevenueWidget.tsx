@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Store, TrendingUp, Calendar, Clock, ChevronDown, History } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/lib/i18n';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,7 @@ interface StoreRevenueData {
 }
 
 export function StoreRevenueWidget() {
+    const t = useTranslations('admin_dashboard');
     const [stores, setStores] = useState<StoreDto[]>([]);
     const [selectedStoreId, setSelectedStoreId] = useState<string>('');
     const [revenue, setRevenue] = useState<StoreRevenueData | null>(null);
@@ -70,7 +72,7 @@ export function StoreRevenueWidget() {
     );
 
     return (
-        <div className="glass bg-background/40 rounded-[2.5rem] border border-border p-8 hover:border-gold/20 transition-all flex flex-col gap-8">
+        <div className="glass bg-background/40 rounded-[2rem] border border-border p-6 md:p-8 hover:border-gold/20 transition-all flex flex-col gap-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="p-3.5 rounded-2xl bg-gold/10 text-gold shadow-lg shadow-gold/5">
@@ -78,10 +80,10 @@ export function StoreRevenueWidget() {
                     </div>
                     <div>
                         <h3 className="text-sm font-bold uppercase tracking-widest text-foreground/80">
-                            Doanh thu theo quầy
+                            {t('revenue_by_store')}
                         </h3>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium opacity-60">
-                            Thống kê chi tiết theo từng chi nhánh
+                            {t('revenue_by_store_subtitle')}
                         </p>
                     </div>
                 </div>
@@ -101,7 +103,7 @@ export function StoreRevenueWidget() {
                     <Link 
                         href="/dashboard/admin/daily-closing"
                         className="p-3 rounded-xl bg-gold text-black hover:bg-gold/80 transition-colors shadow-lg shadow-gold/20"
-                        title="Xem lịch sử chốt ca"
+                        title={t('view_closing_history')}
                     >
                         <History className="w-4 h-4" />
                     </Link>
@@ -117,21 +119,21 @@ export function StoreRevenueWidget() {
                     ) : revenue && (
                         <>
                             <RevenueCard 
-                                label="Hôm nay" 
+                                label={t('today')} 
                                 value={revenue.today} 
                                 icon={Clock} 
                                 color="text-emerald-400" 
                                 delay={0.1}
                             />
                             <RevenueCard 
-                                label="Tuần này" 
+                                label={t('this_week')} 
                                 value={revenue.week} 
                                 icon={Calendar} 
                                 color="text-gold" 
                                 delay={0.2}
                             />
                             <RevenueCard 
-                                label="Tháng này" 
+                                label={t('this_month')} 
                                 value={revenue.month} 
                                 icon={TrendingUp} 
                                 color="text-violet-400" 

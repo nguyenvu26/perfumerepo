@@ -219,7 +219,7 @@ export default function AdminDashboard() {
 
     return (
         <AuthGuard allowedRoles={['admin']}>
-            <div className="flex flex-col gap-6 md:gap-8 py-6 md:py-10 px-4 sm:px-6 md:px-10 max-w-[1600px] mx-auto">
+            <div className="flex flex-col gap-6 md:gap-7 py-6 md:py-8 px-4 sm:px-6 md:px-8 max-w-[1600px] mx-auto">
 
                 {/* ── Header ─────────────────────────────────────────────── */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-4">
@@ -257,23 +257,30 @@ export default function AdminDashboard() {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: i * 0.1 }}
-                                className="glass bg-background/40 rounded-[2rem] md:rounded-[2.5rem] border border-border p-6 sm:p-7 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5 transition-all group"
+                                className="glass bg-background/40 rounded-[2rem] border border-border p-6 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5 transition-all group flex flex-col justify-between min-h-[160px]"
                             >
-                                <div className="flex justify-between items-start mb-4 sm:mb-5">
-                                    <div className={`p-3 rounded-2xl sm:p-3.5 ${card.color} group-hover:scale-110 transition-transform`}>
-                                        <card.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <div className="flex justify-between items-center mb-6">
+                                    <div className={`p-3 rounded-xl ${card.color} group-hover:scale-110 transition-transform shadow-lg shadow-black/5`}>
+                                        <card.icon className="w-5 h-5" />
                                     </div>
                                     {card.change !== null && card.change !== undefined && (
                                         <ChangeChip value={card.change} />
                                     )}
                                 </div>
-                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1 opacity-80">
-                                    {card.label}
-                                </p>
-                                <p className="text-xl sm:text-2xl font-heading text-foreground tracking-tighter leading-tight">{card.value}</p>
-                                {card.subtext && (
-                                    <p className="text-[8px] sm:text-[9px] text-muted-foreground uppercase tracking-widest mt-1 opacity-60">{card.subtext}</p>
-                                )}
+                                
+                                <div>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-1 opacity-70">
+                                        {card.label}
+                                    </p>
+                                    <h4 className="text-2xl sm:text-3xl font-heading text-foreground tracking-tight leading-none mb-2">
+                                        {card.value}
+                                    </h4>
+                                    {card.subtext && (
+                                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-medium opacity-40">
+                                            {card.subtext}
+                                        </p>
+                                    )}
+                                </div>
                             </motion.div>
                         ))
                     }

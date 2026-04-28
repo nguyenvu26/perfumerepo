@@ -16,6 +16,8 @@ import { motion } from 'framer-motion';
 import { TrendingUp, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
+import { useTranslations } from 'next-intl';
+
 export interface SalesTrendPoint {
     date: string;
     revenue: number;
@@ -76,6 +78,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export function SalesChart({ data, period, onPeriodChange, loading }: SalesChartProps) {
+    const t = useTranslations('admin_dashboard');
     const [chartType, setChartType] = useState<'area' | 'bar'>('area');
 
     const formatted = data.map(d => ({
@@ -88,7 +91,7 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="glass bg-background/40 rounded-[3rem] border border-border p-8 md:p-10"
+            className="glass bg-background/40 rounded-[2rem] border border-border p-6 md:p-8"
         >
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -98,10 +101,10 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
                     </div>
                     <div>
                         <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">
-                            Sales Overview
+                            {t('sales_overview')}
                         </h3>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
-                            Revenue & Orders Trend
+                            {t('revenue_trend')}
                         </p>
                     </div>
                 </div>
@@ -149,14 +152,14 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
                     <div className="flex flex-col items-center gap-4">
                         <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
                         <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                            Loading data...
+                            {t('loading')}
                         </p>
                     </div>
                 </div>
             ) : data.length === 0 ? (
                 <div className="h-[300px] flex items-center justify-center">
                     <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">
-                        No sales data for this period.
+                        {t('no_sales_data')}
                     </p>
                 </div>
             ) : (

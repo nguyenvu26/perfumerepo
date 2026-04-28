@@ -3183,5 +3183,42 @@
     "table_date": "Ngày thực hiện",
     "table_reason": "Lý do",
     "empty_history": "Chưa có lịch sử biến động kho."
+  },
+  "admin_dashboard": {
+    "sales_overview": "Tổng quan doanh thu",
+    "revenue_trend": "Xu hướng doanh thu & đơn hàng",
+    "top_products": "Sản phẩm bán chạy",
+    "top_products_subtitle": "30 ngày qua · Theo số lượng bán",
+    "sales_channel": "Kênh bán hàng",
+    "sales_channel_subtitle": "Trực tuyến vs Tại cửa hàng · 30 ngày",
+    "low_stock_alerts": "Cảnh báo sắp hết hàng",
+    "low_stock_subtitle": "Các phiên bản còn ≤ 10 sản phẩm",
+    "recent_orders": "Đơn hàng gần đây",
+    "live_order_feed": "Cập nhật đơn hàng trực tiếp",
+    "view_all": "Xem tất cả",
+    "no_data": "Chưa có dữ liệu.",
+    "loading": "Đang tải dữ liệu...",
+    "no_sales_data": "Không có dữ liệu bán hàng trong giai đoạn này.",
+    "units": "{count} sản phẩm",
+    "total": "TỔNG CỘNG",
+    "orders": "{count} đơn hàng",
+    "left_suffix": "còn {count}",
+    "out_of_stock": "Hết hàng",
+    "all_stock_healthy": "Tất cả mức tồn kho ổn định.",
+    "guest": "Khách",
+    "status": {
+      "completed": "Hoàn thành",
+      "cancelled": "Đã hủy",
+      "processing": "Đang xử lý",
+      "pending": "Chờ duyệt",
+      "confirmed": "Đã xác nhận",
+      "shipped": "Đang giao"
+    },
+    "revenue_by_store": "Doanh thu theo quầy",
+    "revenue_by_store_subtitle": "Thống kê chi tiết theo từng chi nhánh",
+    "view_closing_history": "Xem lịch sử chốt ca",
+    "today": "Hôm nay",
+    "this_week": "Tuần này",
+    "this_month": "Tháng này"
   }
-}
+}
