@@ -57,6 +57,14 @@ export class StaffPosController {
     return this.staffPosService.searchCustomersByPhone(phone);
   }
 
+  @Get('customer-promotions')
+  getCustomerPromotions(
+    @Query('phone') phone?: string,
+    @Query('userId') userId?: string,
+  ) {
+    return this.staffPosService.getCustomerPromotions(phone, userId);
+  }
+
   @Post('orders')
   createDraftOrder(
     @Req() req: any,
@@ -104,6 +112,39 @@ export class StaffPosController {
     );
   }
 
+  @Patch('orders/:id/sync-items')
+  syncOrderItems(
+    @Req() req: any,
+    @Param('id') orderId: string,
+    @Body() body: { items: { variantId: string; quantity: number }[] },
+  ) {
+    const user = req.user as { userId: string };
+    return this.staffPosService.syncOrderItems(
+      user.userId,
+      orderId,
+      body.items,
+    );
+  }
+
+  @Post('orders/:id/apply-promotion')
+  applyPromotion(
+    @Req() req: any,
+    @Param('id') orderId: string,
+    @Body() body: { code: string },
+  ) {
+    const user = req.user as { userId: string };
+    return this.staffPosService.applyPromotion(
+      user.userId,
+      orderId,
+      body.code,
+    );
+  }
+
+  @Delete('orders/:id/promotion')
+  removePromotion(@Req() req: any, @Param('id') orderId: string) {
+    const user = req.user as { userId: string };
+    return this.staffPosService.removePromotion(user.userId, orderId);
+  }
 
   @Get('orders/:id')
   getOrder(@Req() req: any, @Param('id') orderId: string) {

@@ -1031,6 +1031,10 @@
         "phone_placeholder": "Nhập số điện thoại khách hàng...",
         "lookup_btn": "Tra cứu",
         "looking_up": "Đang tra cứu...",
+        "vouchers_btn": "Ưu đãi",
+        "available_vouchers": "Mã giảm giá khả dụng",
+        "apply_btn": "Áp dụng",
+        "no_vouchers": "Không có mã giảm giá nào",
         "member": "Thành viên",
         "guest": "Khách vãng lai",
         "points": "{count} điểm tích lũy",
@@ -3221,4 +3225,4 @@
     "this_week": "Tuần này",
     "this_month": "Tháng này"
   }
-}
+}

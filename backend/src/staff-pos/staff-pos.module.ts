@@ -8,6 +8,7 @@ import { PaymentsModule } from '../payments/payments.module';
 import { StoresModule } from '../stores/stores.module';
 import { LoyaltyModule } from '../loyalty/loyalty.module';
 import { OrdersModule } from '../orders/orders.module';
+import { PromotionsModule } from '../promotions/promotions.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OrdersModule } from '../orders/orders.module';
     StoresModule,
     LoyaltyModule,
     OrdersModule,
+    PromotionsModule,
   ],
   controllers: [StaffPosController, StaffAiController],
   providers: [StaffPosService, StaffAiService],

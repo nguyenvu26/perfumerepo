@@ -690,7 +690,8 @@
         "title": "Chat",
         "buttons": {
           "perfume_ai": "Perfume AI",
-          "marketing_ai": "Marketing AI"
+          "marketing_ai": "Marketing AI",
+          "send_image": "Send Image"
         },
         "placeholders": {
           "search": "Search...",
@@ -1003,6 +1004,10 @@
         "customer": "Customer",
         "phone_placeholder": "Enter customer phone...",
         "lookup_btn": "Lookup",
+        "vouchers_btn": "Vouchers",
+        "available_vouchers": "Available Vouchers",
+        "apply_btn": "Apply",
+        "no_vouchers": "No vouchers available",
         "looking_up": "Looking up...",
         "member": "Member",
         "guest": "Guest",

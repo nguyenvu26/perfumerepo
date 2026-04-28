@@ -11,11 +11,13 @@ import {
   PaymentProvider,
   PaymentStatus,
   Prisma,
+  UserPromotionStatus,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
 import { StoresService } from '../stores/stores.service';
 import { OrdersService } from '../orders/orders.service';
+import { PromotionsService } from '../promotions/promotions.service';
 
 import { LoyaltyService } from '../loyalty/loyalty.service';
 
@@ -27,6 +29,7 @@ export class StaffPosService {
     private readonly storesService: StoresService,
     private readonly loyaltyService: LoyaltyService,
     private readonly ordersService: OrdersService,
+    private readonly promotionsService: PromotionsService,
   ) { }
 
   /**
@@ -488,6 +491,61 @@ export class StaffPosService {
     return updatedOrder;
   }
 
+  async syncOrderItems(
+    staffUserId: string,
+    orderId: string,
+    items: { variantId: string; quantity: number }[],
+  ) {
+    const order = await this.getStaffOrderOrThrow(staffUserId, orderId);
+
+    // Filter out invalid items
+    const validItems = items.filter((it) => it.quantity > 0);
+
+    await this.prisma.$transaction(async (tx) => {
+      // 1. Delete all existing items for this order
+      await tx.orderItem.deleteMany({
+        where: { orderId: order.id },
+      });
+
+      // 2. Create new items
+      let totalAmount = 0;
+      for (const item of validItems) {
+        const variant = await tx.productVariant.findUnique({
+          where: { id: item.variantId },
+        });
+        if (!variant) continue;
+
+        const totalPrice = variant.price * item.quantity;
+        totalAmount += totalPrice;
+
+        await tx.orderItem.create({
+          data: {
+            orderId: order.id,
+            variantId: item.variantId,
+            quantity: item.quantity,
+            unitPrice: variant.price,
+            totalPrice,
+          },
+        });
+      }
+
+      // 3. Update order totals
+      const oldDiscount = order.discountAmount || 0;
+      const newDiscount = Math.min(oldDiscount, totalAmount);
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: {
+          totalAmount,
+          discountAmount: newDiscount,
+          finalAmount: totalAmount - newDiscount,
+        },
+      });
+    });
+
+    return this.getOrder(staffUserId, order.id);
+  }
+
   async payCash(staffUserId: string, orderId: string) {
     const order = await this.getStaffOrderOrThrow(staffUserId, orderId);
 
@@ -565,6 +623,26 @@ export class StaffPosService {
           status: OrderStatus.COMPLETED,
         },
       });
+
+      // Mark any applied promotions as used
+      const appliedPromos = await tx.appliedPromotion.findMany({
+        where: { orderId: order.id },
+      });
+      for (const ap of appliedPromos) {
+        if (ap.userPromotionId) {
+          await tx.userPromotion.update({
+            where: { id: ap.userPromotionId },
+            data: {
+              status: UserPromotionStatus.USED,
+              usedAt: new Date(),
+            },
+          });
+        }
+        await tx.promotionCode.update({
+          where: { id: ap.promotionCodeId },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
 
 
       // Award loyalty points (1 point per 10,000 VND)
@@ -1036,4 +1114,136 @@ export class StaffPosService {
     return { success: true, orderId: order.id };
   }
 
+  async getCustomerPromotions(phone?: string, userId?: string) {
+    let user;
+    
+    if (userId) {
+      user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+    } else if (phone) {
+      const p = phone.trim();
+      user = await this.prisma.user.findFirst({
+        where: { phone: p },
+        select: { id: true },
+      });
+    }
+
+    if (!user) return [];
+
+    return this.prisma.userPromotion.findMany({
+      where: {
+        userId: user.id,
+        status: 'UNUSED',
+        promotion: {
+          isActive: true,
+          endDate: { gte: new Date() },
+        },
+      },
+      include: {
+        promotion: true,
+      },
+    });
+  }
+
+  async applyPromotion(staffUserId: string, orderId: string, promoCode: string) {
+    const order = await this.getStaffOrderOrThrow(staffUserId, orderId);
+
+    // Validate promotion using existing PromotionsService
+    const promoData = await this.promotionsService.validate(
+      {
+        code: promoCode,
+        amount: order.totalAmount,
+      },
+      order.userId || undefined,
+    );
+
+    // Apply to order
+    const updated = await this.prisma.order.update({
+      where: { id: order.id },
+      data: {
+        discountAmount: promoData.discountAmount,
+        finalAmount: Math.max(0, order.totalAmount - promoData.discountAmount),
+        promotions: {
+          create: {
+            promotionCodeId: promoData.promoId,
+            discountAmount: promoData.discountAmount,
+            userPromotionId: promoData.userPromoId,
+          },
+        },
+      },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { take: 1, select: { url: true } },
+                    brand: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        store: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
+            loyaltyPoints: true,
+          },
+        },
+        promotions: { include: { promotionCode: true } },
+      },
+    });
+
+    return updated;
+  }
+
+  async removePromotion(staffUserId: string, orderId: string) {
+    const order = await this.getStaffOrderOrThrow(staffUserId, orderId);
+
+    const updated = await this.prisma.order.update({
+      where: { id: order.id },
+      data: {
+        discountAmount: 0,
+        finalAmount: order.totalAmount,
+        promotions: {
+          deleteMany: {}, // Clear all applied promotions
+        },
+      },
+      include: {
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    images: { take: 1, select: { url: true } },
+                    brand: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        store: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
+            loyaltyPoints: true,
+          },
+        },
+        promotions: { include: { promotionCode: true } },
+      },
+    });
+
+    return updated;
+  }
 }

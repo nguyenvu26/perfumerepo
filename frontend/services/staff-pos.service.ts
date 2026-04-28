@@ -137,4 +137,16 @@ export const staffPosService = {
       .post('/staff/pos/ai-consult', body)
       .then((r) => r.data);
   },
+
+  getCustomerPromotions(phone: string): Promise<any[]> {
+    return api
+      .get('/staff/pos/customer-promotions', { params: { phone } })
+      .then((r) => r.data);
+  },
+
+  applyPromotion(orderId: string, code: string): Promise<PosOrder> {
+    return api
+      .post(`/staff/pos/orders/${orderId}/apply-promotion`, { code })
+      .then((r) => r.data);
+  },
 };

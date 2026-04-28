@@ -82,6 +82,9 @@ export default function PosPage() {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [activeTab, setActiveTab] = useState<'catalog' | 'cart'>('catalog');
 
+    const [customerPromotions, setCustomerPromotions] = useState<any[]>([]);
+    const [showPromotions, setShowPromotions] = useState(false);
+
 
     const subtotal = order?.items?.reduce((acc, item) => acc + item.totalPrice, 0) ?? 0;
     const discount = order?.discountAmount ?? 0;
@@ -322,6 +325,8 @@ export default function PosPage() {
         setStockWarning(null);
         setCustomerPhone('');
         setLoyaltyInfo(null);
+        setCustomerPromotions([]);
+        setShowPromotions(false);
         // Reload products for current store
         if (selectedStoreId) loadProducts('', selectedStoreId);
     };
@@ -341,10 +346,28 @@ export default function PosPage() {
                 const updated = await staffPosService.setCustomer(order.id, customerPhone.trim());
                 setOrder(updated);
             }
+
+            // Fetch promotions
+            const promos = await staffPosService.getCustomerPromotions(customerPhone.trim());
+            setCustomerPromotions(promos);
         } catch (e: any) {
             setError(e?.response?.data?.message || e.message || t('errors.lookup_customer'));
         } finally {
             setLookingUpCustomer(false);
+        }
+    };
+
+    const handleApplyPromotion = async (code: string) => {
+        if (!order) return;
+        setCreatingOrder(true);
+        try {
+            const updated = await staffPosService.applyPromotion(order.id, code);
+            setOrder(updated);
+            setShowPromotions(false);
+        } catch (e: any) {
+            setError(e?.response?.data?.message || e.message || 'Apply promotion failed');
+        } finally {
+            setCreatingOrder(false);
         }
     };
 
@@ -672,9 +695,96 @@ export default function PosPage() {
                                         </>
                                     )}
                                 </div>
+
+                                {customerPromotions.length > 0 && (
+                                    <button
+                                        onClick={() => setShowPromotions(true)}
+                                        className="p-2 rounded-xl bg-gold/10 text-gold hover:bg-gold/20 transition-all shrink-0"
+                                        title={t('cart.vouchers_btn') || 'Vouchers'}
+                                    >
+                                        <Award className="w-4 h-4" />
+                                    </button>
+                                )}
+
+                                <button
+                                    onClick={() => {
+                                        setCustomerPhone('');
+                                        setLoyaltyInfo(null);
+                                        setCustomerPromotions([]);
+                                    }}
+                                    className="p-2 rounded-xl hover:bg-red-500/10 text-muted-foreground hover:text-red-500 transition-all shrink-0"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
                             </div>
                         )}
                     </div>
+
+                    {/* Promotions Modal */}
+                    <AnimatePresence>
+                        {showPromotions && (
+                            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="glass w-full max-w-md rounded-[2rem] border-border overflow-hidden flex flex-col max-h-[80vh]"
+                                >
+                                    <div className="p-6 border-b border-border flex items-center justify-between">
+                                        <h3 className="font-heading text-lg uppercase tracking-widest text-gold flex items-center gap-2">
+                                            <Award className="w-5 h-5" /> {t('cart.available_vouchers') || 'Mã giảm giá'}
+                                        </h3>
+                                        <button onClick={() => setShowPromotions(false)} className="p-2 hover:bg-secondary rounded-full transition-all">
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                                        {customerPromotions.map((up) => (
+                                            <div
+                                                key={up.id}
+                                                className="glass p-4 rounded-2xl border-border hover:border-gold/30 transition-all group relative overflow-hidden"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div>
+                                                        <p className="font-heading text-sm text-gold uppercase tracking-tighter">{up.promotion.code}</p>
+                                                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{up.promotion.description}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="font-heading text-gold text-sm">
+                                                            {up.promotion.discountType === 'PERCENTAGE' 
+                                                                ? `-${up.promotion.discountValue}%` 
+                                                                : `-${formatVND(up.promotion.discountValue)}`}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center justify-between mt-4">
+                                                    <div className="text-[8px] text-muted-foreground uppercase tracking-widest">
+                                                        Hết hạn: {new Date(up.promotion.endDate).toLocaleDateString('vi-VN')}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleApplyPromotion(up.promotion.code)}
+                                                        disabled={creatingOrder || (up.promotion.minOrderAmount > subtotal)}
+                                                        className="px-4 py-1.5 rounded-lg bg-gold text-primary-foreground text-[10px] font-heading uppercase tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                                                    >
+                                                        {up.promotion.minOrderAmount > subtotal 
+                                                            ? `Tối thiểu ${formatVND(up.promotion.minOrderAmount)}` 
+                                                            : t('cart.apply_btn') || 'Áp dụng'}
+                                                    </button>
+                                                </div>
+                                                {/* Decorative background circle */}
+                                                <div className="absolute -right-4 -bottom-4 w-12 h-12 bg-gold/5 rounded-full blur-xl group-hover:bg-gold/10 transition-all" />
+                                            </div>
+                                        ))}
+                                        {customerPromotions.length === 0 && (
+                                            <div className="text-center py-8 text-muted-foreground text-sm">
+                                                {t('cart.no_vouchers') || 'Không có mã giảm giá nào'}
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </AnimatePresence>
 
                     {error && (
                         <div className="mb-4 text-xs text-red-500 bg-red-500/5 border border-red-500/20 rounded-xl px-3 py-2">{error}</div>

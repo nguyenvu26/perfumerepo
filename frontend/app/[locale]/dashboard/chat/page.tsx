@@ -20,6 +20,8 @@ import {
   BrainCircuit,
   BarChart3,
   ExternalLink,
+  Paperclip,
+  Image as ImageIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -45,6 +47,7 @@ export default function DashboardChatPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Init ──
   useEffect(() => {
@@ -190,6 +193,38 @@ export default function DashboardChatPage() {
       setLoading(false);
     }
   }, [selected, newMessage]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selected) return;
+
+    setLoading(true);
+    try {
+      let convId = selected.id;
+      if (convId.startsWith("draft-")) {
+        const realConv = await chatService.createConversation({
+          type: selected.type,
+        });
+        convId = realConv.id;
+        setSelected(realConv);
+        setConversations((prev) => [
+          realConv,
+          ...prev.filter((c) => c.id !== realConv.id),
+        ]);
+      }
+
+      const { message } = await chatService.uploadImage(convId, file);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === message.id)) return prev;
+        return [...prev, message];
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   // ── Helpers ──
   const getOtherParticipant = (conv: Conversation) => {
@@ -449,6 +484,15 @@ export default function DashboardChatPage() {
                           {(msg.content as any)?.text}
                         </p>
                       )}
+                      {msg.type === "IMAGE" && (
+                        <div className="rounded-xl overflow-hidden mb-1">
+                          <img
+                            src={(msg.content as any)?.imageUrl}
+                            alt="Chat attachment"
+                            className="max-w-full h-auto object-cover max-h-[400px]"
+                          />
+                        </div>
+                      )}
                       {msg.type === "AI_RECOMMENDATION" &&
                         (msg.content as any)?.recommendations?.map(
                           (rec: any, idx: number) => (
@@ -537,7 +581,22 @@ export default function DashboardChatPage() {
 
             {/* Input */}
             <div className="p-4 border-t border-border/50 shrink-0 bg-background/60 backdrop-blur-xl">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={loading || !selected}
+                  className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center text-muted-foreground hover:text-gold hover:bg-gold/10 transition-all disabled:opacity-50"
+                  title={t("buttons.send_image")}
+                >
+                  <ImageIcon size={18} />
+                </button>
                 <input
                   ref={inputRef}
                   value={newMessage}

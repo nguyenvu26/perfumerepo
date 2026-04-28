@@ -155,6 +155,7 @@ export const AdminReturnManagement = ({
   const [receiptImageUrl, setReceiptImageUrl] = useState("");
   const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
   const [calculatingRefund, setCalculatingRefund] = useState(false);
+  const [isRefundHistoryOpen, setIsRefundHistoryOpen] = useState(false);
   const [receiveItemsState, setReceiveItemsState] = useState<
     Record<string, { qtyReceived: number; sealIntact: boolean }>
   >({});
@@ -547,13 +548,13 @@ export const AdminReturnManagement = ({
 
   const overviewStats = useMemo(() => {
     const newRequests = data.data.filter((req) =>
-      ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status),
+      ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status)
     ).length;
     const inHandling = data.data.filter((req) =>
-      ["APPROVED", "RETURNING", "RECEIVED", "REFUNDING", "REFUND_FAILED"].includes(req.status),
+      ["APPROVED", "RETURNING", "RECEIVED", "REFUNDING", "REFUND_FAILED"].includes(req.status)
     ).length;
     const resolved = data.data.filter((req) =>
-      ["COMPLETED", "REJECTED", "REJECTED_AFTER_RETURN", "CANCELLED"].includes(req.status),
+      ["COMPLETED", "REJECTED", "REJECTED_AFTER_RETURN", "CANCELLED"].includes(req.status)
     ).length;
 
     return { newRequests, inHandling, resolved };
@@ -869,6 +870,22 @@ export const AdminReturnManagement = ({
                                <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn tiền
                              </Button>
                            )}
+
+                           {req.refunds && req.refunds.length > 0 && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-8 w-8 p-0 rounded-lg border-indigo-500/30 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedReturn(req);
+                                  setIsRefundHistoryOpen(true);
+                                }}
+                                title="Xem lịch sử hoàn tiền"
+                              >
+                                <Camera className="w-4 h-4" />
+                              </Button>
+                            )}
                            
                            <Button
                               size="sm"
@@ -1217,8 +1234,8 @@ export const AdminReturnManagement = ({
                       </div>
                     ))}
                   </div>
+                </div>
               </div>
-            </div>
 
             {isAdmin && (
               <div className="space-y-2 pt-4 border-t border-border/50">
@@ -1375,7 +1392,105 @@ export const AdminReturnManagement = ({
         </DialogContent>
       </Dialog>
 
+      {/* Refund History Dialog */}
+      <Dialog open={isRefundHistoryOpen} onOpenChange={setIsRefundHistoryOpen}>
+        <DialogContent className="glass border-indigo-500/30 w-full sm:max-w-xl shadow-2xl sm:rounded-3xl flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="border-b border-white/10 px-8 pt-8 pb-6 shrink-0 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl -mr-16 -mt-16" />
+            <DialogTitle className="text-2xl text-indigo-400 font-heading flex items-center gap-3 relative z-10">
+              <div className="p-2 bg-indigo-500/20 rounded-xl">
+                <CreditCard className="w-6 h-6 text-indigo-400" />
+              </div>
+              Lịch sử hoàn tiền
+            </DialogTitle>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold mt-2 opacity-60">
+              Chi tiết các giao dịch tài chính liên quan
+            </p>
+          </DialogHeader>
 
+          <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar space-y-6">
+            {!selectedReturn?.refunds || selectedReturn.refunds.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 bg-muted/5 rounded-3xl border border-dashed border-border/50">
+                <div className="w-16 h-16 rounded-full bg-muted/10 flex items-center justify-center">
+                  <Banknote className="w-8 h-8 text-muted-foreground/30" />
+                </div>
+                <p className="text-sm text-muted-foreground font-medium">Chưa có thông tin hoàn tiền</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {selectedReturn.refunds.map((refund) => (
+                  <div key={refund.id} className="group relative bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-6 transition-all duration-300">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 text-[10px] h-5 font-bold uppercase tracking-wider">
+                            {refund.method}
+                          </Badge>
+                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] h-5">
+                            {refund.status}
+                          </Badge>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tracking-tighter">
+                          {formatVND(refund.amount)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Thời gian</p>
+                        <p className="text-xs font-medium text-foreground/80">
+                          {refund.createdAt && new Date(refund.createdAt).toLocaleString("vi-VN")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {refund.note && (
+                      <div className="mb-4 p-3 bg-black/20 rounded-xl border border-white/5">
+                        <p className="text-xs text-muted-foreground italic leading-relaxed">
+                          "{refund.note}"
+                        </p>
+                      </div>
+                    )}
+
+                    {refund.receiptImage && (
+                      <div className="space-y-2">
+                        <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest ml-1">Bằng chứng hoàn tiền</span>
+                        <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40 group/img">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img 
+                            src={refund.receiptImage.startsWith('http') ? refund.receiptImage : `${process.env.NEXT_PUBLIC_API_URL || ''}${refund.receiptImage}`} 
+                            alt="Minh chứng" 
+                            className="w-full h-full object-contain transition-transform duration-700 group-hover/img:scale-110" 
+                          />
+                          <a 
+                            href={refund.receiptImage.startsWith('http') ? refund.receiptImage : `${process.env.NEXT_PUBLIC_API_URL || ''}${refund.receiptImage}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300 backdrop-blur-sm"
+                          >
+                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2 border border-white/20">
+                              <Camera className="w-6 h-6 text-white" />
+                            </div>
+                            <span className="text-xs font-bold text-white uppercase tracking-widest">Xem ảnh gốc</span>
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="px-8 py-6 border-t border-white/10 bg-black/20">
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsRefundHistoryOpen(false)}
+              className="w-full sm:w-auto px-8 rounded-xl hover:bg-white/5 text-[11px] font-bold uppercase tracking-[0.2em]"
+            >
+              Đóng lại
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Receive Dialog */}
       <AnimatePresence>

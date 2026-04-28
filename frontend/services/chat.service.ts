@@ -2,7 +2,7 @@ import api from '@/lib/axios';
 
 export type ConversationType = 'CUSTOMER_ADMIN' | 'CUSTOMER_AI' | 'ADMIN_STAFF' | 'ADMIN_AI';
 export type SenderType = 'USER' | 'AI';
-export type MessageType = 'TEXT' | 'PRODUCT_CARD' | 'SYSTEM' | 'AI_RECOMMENDATION';
+export type MessageType = 'TEXT' | 'IMAGE' | 'PRODUCT_CARD' | 'SYSTEM' | 'AI_RECOMMENDATION';
 
 export type ConversationParticipantRole = 'CUSTOMER' | 'ADMIN' | 'STAFF' | 'AI';
 
@@ -56,6 +56,14 @@ export const chatService = {
   },
   sendMessage(dto: { conversationId: string; type: MessageType; content: any }): Promise<{ message: Message; aiMessage: Message | null }> {
     return api.post('/chat/messages', dto).then((r) => r.data);
+  },
+  uploadImage(conversationId: string, file: File): Promise<{ message: Message }> {
+    const formData = new FormData();
+    formData.append('conversationId', conversationId);
+    formData.append('file', file);
+    return api.post('/chat/messages/image-upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data);
   },
 };
 
