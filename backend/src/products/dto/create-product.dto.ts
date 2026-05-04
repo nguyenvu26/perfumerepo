@@ -47,6 +47,38 @@ export class CreateProductDto {
   @IsBoolean()
   isActive?: boolean;
 
+  @IsOptional()
+  @IsString()
+  sillage?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  seasons?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  timeOfDay?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  occasions?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  styles?: string[];
+
+  @IsOptional()
+  @IsString()
+  targetAge?: string;
+
+  @IsOptional()
+  @IsString()
+  ingredients?: string;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateProductVariantDto)

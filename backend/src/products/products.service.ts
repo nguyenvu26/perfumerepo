@@ -83,6 +83,11 @@ export class ProductsService {
       notes,
       minPrice,
       maxPrice,
+      sillage,
+      seasons,
+      occasions,
+      styles,
+      targetAge,
     } = query;
 
     const where: any = {
@@ -150,6 +155,22 @@ export class ProductsService {
 
     if (isBestseller === 'true' || isBestseller === true) {
       where.isBestseller = true;
+    }
+
+    if (sillage) {
+      where.sillage = sillage;
+    }
+    if (targetAge) {
+      where.targetAge = targetAge;
+    }
+    if (seasons) {
+      where.seasons = { hasSome: Array.isArray(seasons) ? seasons : [seasons] };
+    }
+    if (occasions) {
+      where.occasions = { hasSome: Array.isArray(occasions) ? occasions : [occasions] };
+    }
+    if (styles) {
+      where.styles = { hasSome: Array.isArray(styles) ? styles : [styles] };
     }
 
     // AI DNA Filtering

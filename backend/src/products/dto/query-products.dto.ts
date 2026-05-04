@@ -58,4 +58,21 @@ export class QueryProductsDto {
   @Type(() => Number)
   @IsInt()
   maxPrice?: number;
+
+  @IsOptional()
+  @IsString()
+  sillage?: string;
+
+  @IsOptional()
+  seasons?: string | string[];
+
+  @IsOptional()
+  occasions?: string | string[];
+
+  @IsOptional()
+  styles?: string | string[];
+
+  @IsOptional()
+  @IsString()
+  targetAge?: string;
 }

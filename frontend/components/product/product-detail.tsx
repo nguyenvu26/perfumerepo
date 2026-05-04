@@ -68,6 +68,14 @@ export default function ProductDetail({ product }: { product: Product }) {
             reviewSection: '\u0110\u00e1nh gi\u00e1 kh\u00e1ch h\u00e0ng',
             readMore: 'Xem th\u00eam',
             readLess: 'Thu g\u1ecdn',
+            sillage: '\u0110\u1ed9 t\u1ecfa h\u01b0\u01a1ng',
+            seasons: 'M\u00f9a khuy\u00ean d\u00f9ng',
+            timeOfDay: 'Th\u1eddi \u0111i\u1ec3m',
+            occasions: 'D\u1ecbp s\u1eed d\u1ee5ng',
+            styles: 'Phong c\u00e1ch',
+            targetAge: '\u0110\u1ed9 tu\u1ed5i',
+            ingredients: 'Th\u00e0nh ph\u1ea7n',
+            usageContext: 'G\u1ee3i \u00fd s\u1eed d\u1ee5ng',
           }
         : {
             description: 'Fragrance description',
@@ -89,6 +97,14 @@ export default function ProductDetail({ product }: { product: Product }) {
             reviewSection: 'Customer reviews',
             readMore: 'Read more',
             readLess: 'Show less',
+            sillage: 'Sillage',
+            seasons: 'Seasons',
+            timeOfDay: 'Time of Day',
+            occasions: 'Occasions',
+            styles: 'Styles',
+            targetAge: 'Target Age',
+            ingredients: 'Ingredients',
+            usageContext: 'Usage Context',
           },
     [isVi]
   );
@@ -273,24 +289,21 @@ export default function ProductDetail({ product }: { product: Product }) {
     }))
     .filter((group) => group.items.length > 0);
 
-  const productFacts = [
-    {
-      label: t('concentration'),
-      value: product.concentration || 'Eau de Parfum',
-    },
-    {
-      label: t('longevity'),
-      value: product.longevity || 'Long lasting',
-    },
-    {
-      label: labels.gender,
-      value: gender,
-    },
-    {
-      label: labels.scentFamily,
-      value: scentFamily,
-    },
-  ];
+  const basicFacts = [
+    { label: t('concentration'), value: product.concentration || 'Eau de Parfum' },
+    { label: t('longevity'), value: product.longevity || 'Long lasting' },
+    { label: labels.sillage, value: product.sillage },
+    { label: labels.gender, value: gender },
+    { label: labels.scentFamily, value: scentFamily },
+  ].filter((f) => f.value);
+
+  const contextFacts = [
+    { label: labels.styles, value: product.styles?.join(', ') },
+    { label: labels.occasions, value: product.occasions?.join(', ') },
+    { label: labels.seasons, value: product.seasons?.join(', ') },
+    { label: labels.timeOfDay, value: product.timeOfDay?.join(', ') },
+    { label: labels.targetAge, value: product.targetAge },
+  ].filter((f) => f.value);
 
   return (
     <div className="space-y-16 lg:space-y-24">
@@ -538,17 +551,34 @@ export default function ProductDetail({ product }: { product: Product }) {
             <div className="rounded-[2.2rem] border border-black/6 bg-card p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10">
               <p className="text-sm font-medium text-gold">{labels.productProfile}</p>
               <div className="mt-5 space-y-4">
-                {productFacts.map((fact) => (
+                {basicFacts.map((fact) => (
                   <div
                     key={fact.label}
                     className="flex items-center justify-between gap-4 rounded-[1.2rem] border border-black/6 bg-background px-4 py-4 dark:border-white/10"
                   >
                     <span className="text-sm text-muted-foreground">{fact.label}</span>
-                    <span className="text-sm font-semibold text-foreground">{fact.value}</span>
+                    <span className="text-sm font-semibold text-foreground text-right">{fact.value}</span>
                   </div>
                 ))}
               </div>
             </div>
+
+            {contextFacts.length > 0 && (
+              <div className="rounded-[2.2rem] border border-black/6 bg-card p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10">
+                <p className="text-sm font-medium text-gold">{labels.usageContext}</p>
+                <div className="mt-5 space-y-4">
+                  {contextFacts.map((fact) => (
+                    <div
+                      key={fact.label}
+                      className="flex items-center justify-between gap-4 rounded-[1.2rem] border border-black/6 bg-background px-4 py-4 dark:border-white/10"
+                    >
+                      <span className="text-sm text-muted-foreground">{fact.label}</span>
+                      <span className="text-sm font-semibold text-foreground text-right">{fact.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="rounded-[2.2rem] border border-black/6 bg-card p-6 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10">
               <p className="text-sm font-medium text-gold">{labels.craftsmanship}</p>
@@ -688,6 +718,17 @@ export default function ProductDetail({ product }: { product: Product }) {
                     <p className="text-sm leading-7 text-muted-foreground">{group.items.join(', ')}</p>
                   </motion.div>
                 ))}
+              </div>
+            </section>
+          )}
+
+          {product.ingredients && (
+            <section className="rounded-[2.6rem] border border-black/6 bg-card p-6 shadow-[0_28px_80px_-50px_rgba(15,23,42,0.25)] dark:border-white/10 md:p-8">
+              <div className="border-b border-border/60 pb-4">
+                <p className="text-sm font-medium text-gold">{labels.ingredients}</p>
+              </div>
+              <div className="mt-6">
+                <p className="text-sm leading-relaxed text-muted-foreground">{product.ingredients}</p>
               </div>
             </section>
           )}

@@ -132,7 +132,9 @@ export function RecommendationCards({ recommendations, analysis, onRetake }: Rec
 
           <div className="rounded-[1.5rem] border border-gold/20 bg-gold/10 px-5 py-5">
             <p className="text-[11px] uppercase tracking-[0.24em] text-gold">{copy.matchingLabel}</p>
-            <p className="mt-3 font-heading text-4xl leading-none tracking-[-0.04em] text-foreground">98.4%</p>
+            <p className="mt-3 font-heading text-4xl leading-none tracking-[-0.04em] text-foreground">
+              {featured.matchScore ? Math.min(99.9, Math.round((featured.matchScore / 120) * 100 * 10) / 10) : 98.4}%
+            </p>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">{copy.matchingDetail}</p>
           </div>
         </div>
@@ -260,8 +262,14 @@ export function RecommendationCards({ recommendations, analysis, onRetake }: Rec
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   {rec.brand ? (
-                    <div className="absolute left-4 top-4 rounded-full border border-white/14 bg-secondary px-3 py-1.5 text-sm text-foreground backdrop-blur">
+                    <div className="absolute left-4 top-4 rounded-full border border-white/14 bg-secondary px-3 py-1.5 text-sm text-foreground backdrop-blur shadow-md">
                       {rec.brand}
+                    </div>
+                  ) : null}
+                  {rec.matchScore ? (
+                    <div className="absolute right-4 top-4 rounded-full border border-gold/30 bg-gold/90 px-2.5 py-1 text-xs font-bold text-luxury-black backdrop-blur shadow-lg flex items-center gap-1">
+                      <Sparkles size={10} />
+                      {Math.min(99, Math.round((rec.matchScore / 120) * 100))}% Match
                     </div>
                   ) : null}
                 </div>

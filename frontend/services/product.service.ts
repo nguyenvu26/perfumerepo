@@ -34,6 +34,13 @@ export type Product = {
   longevity?: string | null;
   concentration?: string | null;
   isActive: boolean;
+  sillage?: string | null;
+  targetAge?: string | null;
+  seasons?: string[] | null;
+  timeOfDay?: string[] | null;
+  occasions?: string[] | null;
+  styles?: string[] | null;
+  ingredients?: string | null;
   brand?: { id: number; name: string };
   category?: { id: number; name: string } | null;
   images?: { id: number; url: string; order: number; publicId?: string }[];
@@ -66,6 +73,13 @@ interface IProductService {
     longevity?: string;
     concentration?: string;
     isActive?: boolean;
+    sillage?: string;
+    targetAge?: string;
+    seasons?: string[];
+    timeOfDay?: string[];
+    occasions?: string[];
+    styles?: string[];
+    ingredients?: string;
     variants: ProductVariantInput[];
     scentNotes?: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[];
   }): Promise<Product>;
@@ -113,6 +127,13 @@ export const productService: IProductService = {
     longevity?: string;
     concentration?: string;
     isActive?: boolean;
+    sillage?: string;
+    targetAge?: string;
+    seasons?: string[];
+    timeOfDay?: string[];
+    occasions?: string[];
+    styles?: string[];
+    ingredients?: string;
     variants: ProductVariantInput[];
     scentNotes?: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[];
   }) {

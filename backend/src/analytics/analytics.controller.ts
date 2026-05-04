@@ -58,4 +58,9 @@ export class AnalyticsController {
   async getStoreRevenue(@Query('storeId') storeId: string) {
     return this.analyticsService.getStoreRevenue(storeId);
   }
+
+  @Get('ai-conversion')
+  async getAiConversionRate() {
+    return this.analyticsService.getAiConversionRate();
+  }
 }

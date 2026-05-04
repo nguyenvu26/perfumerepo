@@ -18,6 +18,7 @@ export interface QuizRecommendation {
     imageUrl?: string;
     tags?: string[];
     variantId?: string;
+    matchScore?: number;
 }
 
 export interface QuizResult {

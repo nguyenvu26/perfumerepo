@@ -11,6 +11,7 @@ import { AuthGuard } from '@/components/auth/auth-guard';
 import { SalesChart, SalesTrendPoint } from '@/components/dashboard/admin/SalesChart';
 import { TopProductsList, TopProductDto } from '@/components/dashboard/admin/TopProductsList';
 import { ChannelDonutChart } from '@/components/dashboard/admin/ChannelDonutChart';
+import { AiConversionWidget } from '@/components/dashboard/admin/AiConversionWidget';
 import { LowStockWidget } from '@/components/dashboard/admin/LowStockWidget';
 import { RecentOrdersFeed, RecentOrderDto } from '@/components/dashboard/admin/RecentOrdersFeed';
 import { StoreRevenueWidget } from '@/components/dashboard/admin/StoreRevenueWidget';
@@ -81,6 +82,9 @@ export default function AdminDashboard() {
 
     const [recentOrders, setRecentOrders] = useState<RecentOrderDto[]>([]);
     const [recentLoading, setRecentLoading] = useState(true);
+
+    const [aiConversion, setAiConversion] = useState<any>(null);
+    const [aiConversionLoading, setAiConversionLoading] = useState(true);
 
     const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
@@ -157,6 +161,18 @@ export default function AdminDashboard() {
         }
     }, []);
 
+    const fetchAiConversion = useCallback(async () => {
+        try {
+            setAiConversionLoading(true);
+            const { data } = await api.get('/analytics/ai-conversion');
+            setAiConversion(data);
+        } catch (e) {
+            console.error('AI conversion error:', e);
+        } finally {
+            setAiConversionLoading(false);
+        }
+    }, []);
+
     const refreshAll = useCallback(() => {
         fetchOverview();
         fetchTrend(period);
@@ -164,8 +180,9 @@ export default function AdminDashboard() {
         fetchChannel();
         fetchLowStock();
         fetchRecentOrders();
+        fetchAiConversion();
         setLastRefreshed(new Date());
-    }, [fetchOverview, fetchTrend, period, fetchTopProducts, fetchChannel, fetchLowStock, fetchRecentOrders]);
+    }, [fetchOverview, fetchTrend, period, fetchTopProducts, fetchChannel, fetchLowStock, fetchRecentOrders, fetchAiConversion]);
 
     // Initial load
     useEffect(() => {
@@ -174,7 +191,8 @@ export default function AdminDashboard() {
         fetchChannel();
         fetchLowStock();
         fetchRecentOrders();
-    }, [fetchOverview, fetchTopProducts, fetchChannel, fetchLowStock, fetchRecentOrders]);
+        fetchAiConversion();
+    }, [fetchOverview, fetchTopProducts, fetchChannel, fetchLowStock, fetchRecentOrders, fetchAiConversion]);
 
     // Re-fetch when period changes
     useEffect(() => {
@@ -305,14 +323,19 @@ export default function AdminDashboard() {
                 </section>
 
                 {/* ── Channel + Low Stock + Recent Orders ───────────────── */}
-                <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     <ChannelDonutChart
                         online={channelData.online}
                         pos={channelData.pos}
                         loading={channelLoading}
                     />
+                    <AiConversionWidget data={aiConversion} loading={aiConversionLoading} />
+                    <div className="xl:col-span-2">
+                        <RecentOrdersFeed data={recentOrders} loading={recentLoading} />
+                    </div>
+                </section>
+                <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6">
                     <LowStockWidget data={lowStock} loading={lowStockLoading} />
-                    <RecentOrdersFeed data={recentOrders} loading={recentLoading} />
                 </section>
 
             </div>

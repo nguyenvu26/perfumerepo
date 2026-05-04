@@ -22,6 +22,7 @@ export interface QuizRecommendation {
     imageUrl?: string;
     tags?: string[];
     variantId?: string;
+    matchScore?: number;
 }
 
 @Injectable()
@@ -104,7 +105,7 @@ export class QuizService {
     }
 
     private async enrichRecommendations(
-        recommendations: Array<{ productId: string; name: string; reason: string; price: number }>,
+        recommendations: Array<{ productId: string; name: string; reason: string; price: number; matchScore?: number }>,
     ): Promise<QuizRecommendation[]> {
         const enriched = await Promise.all(
             recommendations.map(async (rec) => {

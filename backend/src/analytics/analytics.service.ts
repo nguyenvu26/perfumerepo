@@ -453,4 +453,38 @@ export class AnalyticsService {
       month: calculate(monthOrders),
     };
   }
+
+  /**
+   * AI Conversion tracking: How many sold items were recommended by AI
+   */
+  async getAiConversionRate() {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [totalItems, aiRecommendedItems, totalConsultations] = await Promise.all([
+      this.prisma.orderItem.aggregate({
+        where: { order: { createdAt: { gte: thirtyDaysAgo }, paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] } } },
+        _sum: { quantity: true }
+      }),
+      this.prisma.orderItem.aggregate({
+        where: { order: { createdAt: { gte: thirtyDaysAgo }, paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] } }, isAiRecommended: true },
+        _sum: { quantity: true }
+      }),
+      this.prisma.quizResult.count({
+        where: { createdAt: { gte: thirtyDaysAgo } }
+      })
+    ]);
+
+    const itemsCount = totalItems._sum.quantity || 0;
+    const aiItemsCount = aiRecommendedItems._sum.quantity || 0;
+
+    const conversionRate = itemsCount > 0 ? (aiItemsCount / itemsCount) * 100 : 0;
+
+    return {
+      totalConsultations,
+      totalItemsSold: itemsCount,
+      aiRecommendedItemsSold: aiItemsCount,
+      conversionRate: Math.round(conversionRate * 10) / 10
+    };
+  }
 }

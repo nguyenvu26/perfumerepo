@@ -199,6 +199,14 @@ model Product {
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
   scentAnalysis String?            @db.Text
+  sillage       String?
+  seasons       String[]
+  timeOfDay     String[]
+  occasions     String[]
+  styles        String[]
+  targetAge     String?
+  ingredients   String?            @db.Text
+
 
   brand         Brand              @relation(fields: [brandId], references: [id])
   category      Category?          @relation(fields: [categoryId], references: [id])
@@ -372,6 +380,9 @@ model OrderItem {
   unitPrice  Int
   quantity   Int
   totalPrice Int
+
+  isAiRecommended     Boolean @default(false)
+  aiRecommendationRef String? // Could be QuizResult ID or Chat Conversation ID
 
   order      Order          @relation(fields: [orderId], references: [id])
   variant    ProductVariant @relation(fields: [variantId], references: [id])

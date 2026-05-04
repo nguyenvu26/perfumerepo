@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { AiScoringService } from './ai-scoring.service';
 
 interface CatalogData {
   /** Products with at least one variant in stock */
@@ -24,6 +25,7 @@ export class AiService {
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly analyticsService: AnalyticsService,
+    private readonly aiScoringService: AiScoringService,
   ) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     this.model =
@@ -376,6 +378,26 @@ ${reviewTexts}`;
     return beforeJson + JSON.stringify(parsed) + afterJson;
   }
 
+  private formatScoredProduct(tp: any) {
+    const p = tp.product;
+    const prices = p.variants.map((v: any) => `${v.name}: ${v.price.toLocaleString()}₫ (còn ${v.stock})`).join(' | ');
+    const notes = p.notes.map((n: any) => `${n.note.type}: ${n.note.name}`).join(', ');
+    const feedback = p.reviewSummary?.summary ? `  Community Feedback: ${p.reviewSummary.summary} (Sentiment: ${p.reviewSummary.sentiment})` : '';
+    return [
+      `[ID: ${p.id}] ${p.name} (Match Score: ${tp.totalScore})`,
+      `  Brand: ${p.brand?.name || 'N/A'}`,
+      p.category ? `  Category: ${p.category.name}` : null,
+      p.scentFamily ? `  Scent Family: ${p.scentFamily.name}` : null,
+      p.gender ? `  Gender: ${p.gender}` : null,
+      notes ? `  Notes: ${notes}` : null,
+      `  Variants: ${prices}`,
+      p.description ? `  Description: ${p.description.slice(0, 150)}` : null,
+      feedback,
+      `  URL slug: ${p.slug}`,
+      p.images?.[0]?.url ? `  ImageUrl: ${p.images[0].url}` : null,
+    ].filter(Boolean).join('\n');
+  }
+
   async perfumeConsult(
     userMessage: string,
     history: Array<{ role: string; text: string }>,
@@ -388,7 +410,13 @@ ${reviewTexts}`;
   ): Promise<string> {
     const startTime = Date.now();
     try {
-      const catalog = await this.getProductCatalog();
+      const topProducts = await this.aiScoringService.calculateTopProducts(15, userId || undefined, undefined, dna);
+      const inStockCatalog = topProducts.map(tp => this.formatScoredProduct(tp)).join('\n\n');
+      const inStockCount = topProducts.length;
+
+      const fullCatalog = await this.getProductCatalog();
+      const outOfStockCatalog = fullCatalog.outOfStockCatalog;
+      const outOfStockCount = fullCatalog.outOfStockCount;
 
       let dnaContext = '';
       if (dna) {
@@ -464,14 +492,14 @@ When a customer requests a product that is OUT OF STOCK, follow this priority:
 Always explain the substitution logic to the customer so they feel confident.
 
 ═══════════════════════════════════════
-IN-STOCK CATALOG (${catalog.inStockCount} products available for recommendation):
+IN-STOCK CATALOG (${inStockCount} products available for recommendation):
 ═══════════════════════════════════════
-${catalog.inStockCatalog || '(No products currently in stock)'}
+${inStockCatalog || '(No products currently in stock)'}
 
 ═══════════════════════════════════════
-OUT-OF-STOCK LIST (${catalog.outOfStockCount} products – DO NOT recommend these as available):
+OUT-OF-STOCK LIST (${outOfStockCount} products – DO NOT recommend these as available):
 ═══════════════════════════════════════
-${catalog.outOfStockCatalog || '(None)'}
+${outOfStockCatalog || '(None)'}
 ═══════════════════════════════════════`;
 
       const contents = [
@@ -627,10 +655,14 @@ INSTRUCTIONS:
       longevity?: string;
     },
     userId?: string,
-  ): Promise<{ analysis: string; recommendations: Array<{ productId: string; name: string; reason: string; price: number }> }> {
+  ): Promise<{ analysis: string; recommendations: Array<{ productId: string; name: string; reason: string; price: number; matchScore?: number }> }> {
     const startTime = Date.now();
     try {
-      const catalog = await this.getProductCatalog();
+      const topProducts = await this.aiScoringService.calculateTopProducts(15, userId || undefined, answers);
+      const inStockCatalog = topProducts.map(tp => this.formatScoredProduct(tp)).join('\n\n');
+
+      const fullCatalog = await this.getProductCatalog();
+      const outOfStockCatalog = fullCatalog.outOfStockCatalog;
 
       const customerInfo: string[] = [];
       if (answers.gender) customerInfo.push(`Giới tính: ${answers.gender}`);
@@ -649,12 +681,12 @@ ${customerInfo.join('\n')}
 ═══════════════════════════════════════
 DANH MỤC SẢN PHẨM CÒN HÀNG (Chỉ chọn từ danh sách này):
 ═══════════════════════════════════════
-${catalog.inStockCatalog}
+${inStockCatalog}
 
 ═══════════════════════════════════════
 SẢN PHẨM HẾT HÀNG (KHÔNG được chọn từ danh sách này):
 ═══════════════════════════════════════
-${catalog.outOfStockCatalog || '(Không có)'}
+${outOfStockCatalog || '(Không có)'}
 
 YÊU CẦU:
 - Chọn 3-5 sản phẩm phù hợp nhất dựa trên thông tin khách hàng.
@@ -674,14 +706,20 @@ YÊU CẦU:
 
     const text = response.text ?? '{}';
     let analysis = 'Dựa trên hồ sơ của bạn, chúng tôi đã tinh chọn những mùi hương phản chiếu đúng cá tính và không gian sống của bạn nhất.';
-    let recommendations: Array<{ productId: string; name: string; reason: string; price: number; imageUrl?: string }> = [];
+    let recommendations: Array<{ productId: string; name: string; reason: string; price: number; imageUrl?: string; matchScore?: number }> = [];
 
       try {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsed = JSON.parse(jsonMatch[0]);
           analysis = parsed.analysis || analysis;
-          recommendations = Array.isArray(parsed.recommendations) ? parsed.recommendations.slice(0, 5) : [];
+          recommendations = Array.isArray(parsed.recommendations) ? parsed.recommendations.slice(0, 5).map((rec: any) => {
+            const scoreObj = topProducts.find(tp => tp.productId === rec.productId);
+            return {
+              ...rec,
+              matchScore: scoreObj ? scoreObj.totalScore : 0
+            };
+          }) : [];
         }
 
         await this.logRequest(

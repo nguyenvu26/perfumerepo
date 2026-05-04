@@ -89,6 +89,13 @@ export default function AdminProducts() {
     isActive: true,
     variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }] as VariantForm[],
     scentNotes: [] as { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[],
+    sillage: '',
+    seasons: '',
+    timeOfDay: '',
+    occasions: '',
+    styles: '',
+    targetAge: '',
+    ingredients: '',
   });
 
   const fetchProducts = useCallback(async () => {
@@ -169,6 +176,13 @@ export default function AdminProducts() {
               ? p.variants.map(v => ({ id: v.id, name: v.name, price: v.price, stock: v.stock, sku: v.sku ?? '' }))
               : [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
             scentNotes: p.notes?.map(n => ({ name: n.note.name, type: n.note.type })) ?? [],
+            sillage: p.sillage ?? '',
+            seasons: p.seasons?.join(', ') ?? '',
+            timeOfDay: p.timeOfDay?.join(', ') ?? '',
+            occasions: p.occasions?.join(', ') ?? '',
+            styles: p.styles?.join(', ') ?? '',
+            targetAge: p.targetAge ?? '',
+            ingredients: p.ingredients ?? '',
           });
           setExistingImages((p.images ?? []) as ExistingImage[]);
         })
@@ -214,6 +228,13 @@ export default function AdminProducts() {
       isActive: true,
       variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
       scentNotes: [],
+      sillage: '',
+      seasons: '',
+      timeOfDay: '',
+      occasions: '',
+      styles: '',
+      targetAge: '',
+      ingredients: '',
     });
     handleSetShowModal(true);
   };
@@ -326,7 +347,14 @@ export default function AdminProducts() {
     scentNotes: form.scentNotes.filter(n => n.name.trim()).map(n => ({
       name: n.name.trim(),
       type: n.type
-    }))
+    })),
+    sillage: form.sillage.trim() || undefined,
+    seasons: form.seasons ? form.seasons.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    timeOfDay: form.timeOfDay ? form.timeOfDay.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    occasions: form.occasions ? form.occasions.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    styles: form.styles ? form.styles.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    targetAge: form.targetAge.trim() || undefined,
+    ingredients: form.ingredients.trim() || undefined,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -915,6 +943,69 @@ export default function AdminProducts() {
                                 value={form.concentration}
                                 onChange={(e) => setForm((f) => ({ ...f, concentration: e.target.value }))}
                                 placeholder="Ví dụ: EXTRAIT DE PARFUM"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Độ Tỏa Hương (Sillage)</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.sillage}
+                                onChange={(e) => setForm((f) => ({ ...f, sillage: e.target.value }))}
+                                placeholder="Ví dụ: Moderate, Strong, Enormous"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Độ Tuổi (Target Age)</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.targetAge}
+                                onChange={(e) => setForm((f) => ({ ...f, targetAge: e.target.value }))}
+                                placeholder="Ví dụ: 20s, 30s, Mature"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Mùa Phù Hợp (Seasons)</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.seasons}
+                                onChange={(e) => setForm((f) => ({ ...f, seasons: e.target.value }))}
+                                placeholder="Cách nhau bằng dấu phẩy (VD: SPRING, SUMMER)"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Thời Điểm (Time of Day)</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.timeOfDay}
+                                onChange={(e) => setForm((f) => ({ ...f, timeOfDay: e.target.value }))}
+                                placeholder="Cách nhau bằng dấu phẩy (VD: DAY, NIGHT)"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Dịp Sử Dụng (Occasions)</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.occasions}
+                                onChange={(e) => setForm((f) => ({ ...f, occasions: e.target.value }))}
+                                placeholder="Cách nhau bằng dấu phẩy (VD: OFFICE, DATE, PARTY)"
+                              />
+                            </div>
+                            <div className="space-y-3">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Phong Cách (Styles)</label>
+                              <input
+                                className="w-full bg-secondary/10 border border-border rounded-2xl py-5 px-7 outline-none focus:border-gold transition-all text-xs font-bold placeholder:text-muted-foreground/30"
+                                value={form.styles}
+                                onChange={(e) => setForm((f) => ({ ...f, styles: e.target.value }))}
+                                placeholder="Cách nhau bằng dấu phẩy (VD: ELEGANT, SEXY, SPORTY)"
+                              />
+                            </div>
+                            <div className="space-y-3 md:col-span-2">
+                              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-black ml-1">Thành Phần (Ingredients)</label>
+                              <textarea
+                                className="w-full bg-secondary/10 border border-border rounded-[2rem] py-5 px-7 outline-none focus:border-gold min-h-[100px] transition-all text-xs font-bold leading-relaxed resize-none shadow-inner placeholder:text-muted-foreground/30"
+                                value={form.ingredients}
+                                onChange={(e) => setForm((f) => ({ ...f, ingredients: e.target.value }))}
+                                placeholder="Alcohol Denat, Aqua, Parfum..."
                               />
                             </div>
                           </div>

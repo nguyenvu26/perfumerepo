@@ -91,6 +91,15 @@ export class OrdersService {
       finalAmountBeforeLoyalty - loyaltyDiscount + shippingFee,
     );
     const actualDiscountAmount = discountAmount + loyaltyDiscount;
+
+    // Fetch latest QuizResult for AI tracking
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const latestQuizResult = await this.prisma.quizResult.findFirst({
+      where: { userId, createdAt: { gte: thirtyDaysAgo } },
+      orderBy: { createdAt: 'desc' },
+    });
+
     const order = await this.prisma.$transaction(async (tx) => {
       console.log(`[OrdersService] Creating order from cart. Payment method: ${dto.paymentMethod}`);
       const created = await tx.order.create({
@@ -109,12 +118,20 @@ export class OrdersService {
           recipientName: dto.recipientName,
           phone: dto.phone,
           items: {
-            create: itemsToProcess.map((item) => ({
-              variantId: item.variantId,
-              unitPrice: item.variant.price,
-              quantity: item.quantity,
-              totalPrice: item.quantity * item.variant.price,
-            })),
+            create: itemsToProcess.map((item) => {
+              const recommendedByQuiz = latestQuizResult?.recommendation && Array.isArray(latestQuizResult.recommendation) 
+                ? latestQuizResult.recommendation.find((r: any) => r.productId === item.variant.productId)
+                : null;
+              
+              return {
+                variantId: item.variantId,
+                unitPrice: item.variant.price,
+                quantity: item.quantity,
+                totalPrice: item.quantity * item.variant.price,
+                isAiRecommended: !!recommendedByQuiz,
+                aiRecommendationRef: recommendedByQuiz ? latestQuizResult?.id : null,
+              };
+            }),
           },
           promotions: promoData
             ? {
