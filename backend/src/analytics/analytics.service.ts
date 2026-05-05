@@ -363,7 +363,6 @@ export class AnalyticsService {
   async getLowStockItems(threshold = 10): Promise<LowStockItemDto[]> {
     const variants = await this.prisma.productVariant.findMany({
       where: {
-        stock: { lte: threshold },
         isActive: true,
         product: { isActive: true },
       },
@@ -373,18 +372,31 @@ export class AnalyticsService {
             images: { orderBy: { order: 'asc' }, take: 1 },
           },
         },
+        inventories: {
+          select: {
+            available: true,
+          },
+        },
       },
-      orderBy: { stock: 'asc' },
-      take: 10,
+      take: 50, // Get more then filter/sort in memory because we can't sum relation fields easily in Prisma where/orderBy
     });
 
-    return variants.map((v) => ({
-      variantId: v.id,
-      productName: v.product.name,
-      variantName: v.name,
-      stock: v.stock,
-      imageUrl: v.product.images[0]?.url ?? null,
-    }));
+    const lowStockItems = variants
+      .map((v: any) => {
+        const totalStock = v.inventories.reduce((sum: number, inv: any) => sum + inv.available, 0);
+        return {
+          variantId: v.id,
+          productName: v.product.name,
+          variantName: v.name,
+          stock: totalStock,
+          imageUrl: v.product.images[0]?.url ?? null,
+        };
+      })
+      .filter((v) => v.stock <= threshold)
+      .sort((a, b) => a.stock - b.stock)
+      .slice(0, 10);
+
+    return lowStockItems;
   }
 
   /**

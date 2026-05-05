@@ -17,12 +17,12 @@ export class StaffInventoryService {
     private readonly inventoryGateway: InventoryGateway,
   ) {}
 
-  /** List inventory overview for a store (StoreStock). storeId required for staff. */
+  /** List inventory overview for a store. storeId required for staff. */
   async listOverview(storeId: string, userId: string, role: string) {
     await this.storesService.ensureStaffCanAccessStore(userId, storeId, role);
 
-    const storeStocks = await this.prisma.storeStock.findMany({
-      where: { storeId },
+    const storeStocks = await this.prisma.inventory.findMany({
+      where: { warehouseId: storeId },
       include: {
         variant: {
           include: {
@@ -39,14 +39,14 @@ export class StaffInventoryService {
           },
         },
       },
-      orderBy: [{ quantity: 'asc' }, { updatedAt: 'desc' }],
+      orderBy: [{ onHand: 'asc' }, { updatedAt: 'desc' }],
       take: 200,
     });
 
-    const totalUnits = storeStocks.reduce((s, ss) => s + ss.quantity, 0);
+    const totalUnits = storeStocks.reduce((s, ss) => s + ss.onHand, 0);
     const lowStockThreshold = 5;
     const lowStockCount = storeStocks.filter(
-      (ss) => ss.quantity > 0 && ss.quantity <= lowStockThreshold,
+      (ss) => ss.available > 0 && ss.available <= lowStockThreshold,
     ).length;
 
     const latestImport = await this.prisma.inventoryLog.findFirst({
@@ -67,7 +67,7 @@ export class StaffInventoryService {
         brand: ss.variant.product.brand?.name ?? null,
         variantName: ss.variant.name,
         imageUrl: ss.variant.product.images?.[0]?.url ?? null,
-        stock: ss.quantity,
+        stock: ss.available,
         updatedAt: ss.updatedAt,
       })),
     };
@@ -287,28 +287,31 @@ export class StaffInventoryService {
 
     // For IMPORT, validate warehouse stock
     if (request.type === InventoryLogType.IMPORT) {
-      const variant = await this.prisma.productVariant.findUnique({
-        where: { id: request.variantId },
+      const centralWarehouse = await this.prisma.store.findFirst({ where: { type: 'CENTRAL' } });
+      if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
+
+      const centralInventory = await this.prisma.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId: request.variantId } },
       });
-      if (!variant) throw new NotFoundException('Variant not found');
-      if (variant.stock < request.quantity) {
+      const centralAvailable = centralInventory?.available ?? 0;
+      if (centralAvailable < request.quantity) {
         throw new BadRequestException(
-          `Số lượng tồn kho tổng không đủ. (Hiện có: ${variant.stock}, yêu cầu: ${request.quantity})`,
+          `Số lượng tồn kho tổng không đủ. (Hiện có: ${centralAvailable}, yêu cầu: ${request.quantity})`,
         );
       }
     }
 
     // For ADJUST, validate resulting stock won't be negative
     if (request.type === InventoryLogType.ADJUST) {
-      const current = await this.prisma.storeStock.findUnique({
+      const current = await this.prisma.inventory.findUnique({
         where: {
-          storeId_variantId: {
-            storeId: request.storeId,
+          warehouseId_variantId: {
+            warehouseId: request.storeId,
             variantId: request.variantId,
           },
         },
       });
-      const currentQty = current?.quantity ?? 0;
+      const currentQty = current?.onHand ?? 0;
       const newQty = currentQty + request.quantity;
       if (newQty < 0) {
         throw new BadRequestException(
@@ -329,56 +332,62 @@ export class StaffInventoryService {
         },
       });
 
+      const central = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+
       // Apply stock change
       if (request.type === InventoryLogType.IMPORT) {
         // 1. Decrement from central warehouse
-        await tx.productVariant.update({
-          where: { id: request.variantId },
-          data: { stock: { decrement: request.quantity } },
-        });
+        if (central) {
+          await tx.inventory.update({
+            where: { warehouseId_variantId: { warehouseId: central.id, variantId: request.variantId } },
+            data: { 
+              onHand: { decrement: request.quantity }, 
+              available: { decrement: request.quantity },
+              updatedAt: new Date()
+            },
+          });
+        }
 
         // 2. Increment store stock
-        await tx.storeStock.upsert({
+        await tx.inventory.upsert({
           where: {
-            storeId_variantId: {
-              storeId: request.storeId,
+            warehouseId_variantId: {
+              warehouseId: request.storeId,
               variantId: request.variantId,
             },
           },
           create: {
-            storeId: request.storeId,
+            warehouseId: request.storeId,
             variantId: request.variantId,
-            quantity: request.quantity,
+            onHand: request.quantity,
+            available: request.quantity,
           },
           update: {
-            quantity: { increment: request.quantity },
+            onHand: { increment: request.quantity },
+            available: { increment: request.quantity },
             updatedAt: new Date(),
           },
         });
       } else {
         // ADJUST
-        const current = await tx.storeStock.findUnique({
+        await tx.inventory.upsert({
           where: {
-            storeId_variantId: {
-              storeId: request.storeId,
-              variantId: request.variantId,
-            },
-          },
-        });
-        const newQty = (current?.quantity ?? 0) + request.quantity;
-        await tx.storeStock.upsert({
-          where: {
-            storeId_variantId: {
-              storeId: request.storeId,
+            warehouseId_variantId: {
+              warehouseId: request.storeId,
               variantId: request.variantId,
             },
           },
           create: {
-            storeId: request.storeId,
+            warehouseId: request.storeId,
             variantId: request.variantId,
-            quantity: newQty,
+            onHand: request.quantity,
+            available: request.quantity,
           },
-          update: { quantity: newQty, updatedAt: new Date() },
+          update: {
+            onHand: { increment: request.quantity },
+            available: { increment: request.quantity },
+            updatedAt: new Date(),
+          },
         });
       }
 
@@ -400,7 +409,7 @@ export class StaffInventoryService {
       id: request.id,
       status: 'APPROVED',
       reviewNote: note ?? null,
-      storeId: request.storeId,
+      warehouseId: request.storeId,
     });
 
     return { success: true, message: 'Request approved and stock updated' };
@@ -433,7 +442,7 @@ export class StaffInventoryService {
       id: request.id,
       status: 'REJECTED',
       reviewNote: note,
-      storeId: request.storeId,
+      warehouseId: request.storeId,
     });
 
     return { success: true, message: 'Request rejected' };

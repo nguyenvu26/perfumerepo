@@ -886,22 +886,41 @@ export class ReturnsService {
           },
         });
 
-        // If item seal is intact → restock per-item (not gated by hasUnsealedItem)
+        // If item seal is intact → restock per-item
         if (dtoItem.sealIntact !== false && dtoItem.qtyReceived > 0) {
-          await tx.productVariant.update({
-            where: { id: dtoItem.variantId },
-            data: { stock: { increment: dtoItem.qtyReceived } },
-          });
+          const central = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+          if (central) {
+            await tx.inventory.upsert({
+              where: {
+                warehouseId_variantId: {
+                  warehouseId: central.id,
+                  variantId: dtoItem.variantId,
+                },
+              },
+              create: {
+                warehouseId: central.id,
+                variantId: dtoItem.variantId,
+                onHand: dtoItem.qtyReceived,
+                available: dtoItem.qtyReceived,
+              },
+              update: {
+                onHand: { increment: dtoItem.qtyReceived },
+                available: { increment: dtoItem.qtyReceived },
+                updatedAt: new Date(),
+              },
+            });
 
-          await tx.inventoryLog.create({
-            data: {
-              variantId: dtoItem.variantId,
-              staffId: adminId,
-              type: 'RETURN',
-              quantity: dtoItem.qtyReceived,
-              reason: `Return received: ${id}`,
-            },
-          });
+            await tx.inventoryLog.create({
+              data: {
+                variantId: dtoItem.variantId,
+                staffId: adminId,
+                storeId: central.id,
+                type: 'RETURN',
+                quantity: dtoItem.qtyReceived,
+                reason: `Return received: ${id}`,
+              },
+            });
+          }
         }
       }
 

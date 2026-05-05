@@ -11,6 +11,7 @@ import { ShippingService } from '../shipping/shipping.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { MailService } from '../mail/mail.service';
+import { InventoryService } from '../inventory/inventory.service';
 import { InventoryLogType, Prisma, PaymentProvider, PaymentStatus } from '@prisma/client';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class OrdersService {
     private readonly notificationsService: NotificationsService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly mailService: MailService,
+    private readonly inventoryService: InventoryService,
   ) {}
 
   async createFromCart(userId: string, dto: CreateOrderDto) {
@@ -161,19 +163,23 @@ export class OrdersService {
       });
 
       // --- STOCK RESERVATION ---
-      for (const item of itemsToProcess) {
-        // Attempt to decrement stock using updateMany for conditional safety
-        const result = await tx.productVariant.updateMany({
-          where: {
-            id: item.variantId,
-            stock: { gte: item.quantity },
-          },
-          data: { stock: { decrement: item.quantity } },
-        });
+      const centralWarehouse = await this.inventoryService.getCentralWarehouse();
+      if (!centralWarehouse) {
+        throw new BadRequestException('Chưa cấu hình kho tổng trung tâm.');
+      }
 
-        if (result.count === 0) {
+      for (const item of itemsToProcess) {
+        // Allocate stock (reduces available, increases reserved)
+        try {
+          await this.inventoryService.allocateStock(
+            item.variantId,
+            centralWarehouse.id,
+            item.quantity,
+            tx,
+          );
+        } catch (e) {
           throw new BadRequestException(
-            `Sản phẩm ${item.variant.product.name} - ${item.variant.name} đã hết hàng hoặc không đủ số lượng.`,
+            `Sản phẩm ${item.variant.product.name} - ${item.variant.name} đã hết hàng hoặc không đủ số lượng khả dụng.`,
           );
         }
 
@@ -181,6 +187,7 @@ export class OrdersService {
         await tx.inventoryLog.create({
           data: {
             variantId: item.variantId,
+            storeId: centralWarehouse.id,
             type: InventoryLogType.SALE_ONLINE,
             quantity: -item.quantity,
             reason: `Online order ${created.code}`,
@@ -592,6 +599,20 @@ export class OrdersService {
 
     if (status === 'CANCELLED') {
       await this.restockOrderItems(id);
+    } else if (status === 'SHIPPED') {
+      // Commit stock physically left the warehouse
+      const centralWarehouse = await this.inventoryService.getCentralWarehouse();
+      if (centralWarehouse) {
+        for (const item of updated.items) {
+          const warehouseId = updated.storeId || centralWarehouse.id;
+          await this.inventoryService.commitStock(
+            item.variantId,
+            warehouseId,
+            item.quantity,
+            true, // isPreAllocated = true for ONLINE
+          );
+        }
+      }
     }
 
     // GHN shipment creation for ONLINE orders when confirmed
@@ -718,33 +739,24 @@ export class OrdersService {
 
     if (!order || order.items.length === 0) return;
 
+    const centralWarehouse = await client.store.findFirst({
+      where: { type: 'CENTRAL' },
+    });
+
     for (const item of order.items) {
-      if (order.storeId) {
-        // POS Order with store
-        await client.storeStock.upsert({
-          where: {
-            storeId_variantId: {
-              storeId: order.storeId,
-              variantId: item.variantId,
-            },
-          },
-          create: {
-            storeId: order.storeId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-          },
-          update: {
-            quantity: { increment: item.quantity },
-            updatedAt: new Date(),
-          },
-        });
-      } else {
-        // Online Order or POS without store
-        await client.productVariant.update({
-          where: { id: item.variantId },
-          data: { stock: { increment: item.quantity } },
-        });
-      }
+      const warehouseId = order.storeId || centralWarehouse?.id;
+      if (!warehouseId) continue;
+
+      // Decide if we just release soft allocation or restock physical
+      const isRestockPhysical = ['SHIPPED', 'COMPLETED'].includes(order.status);
+      
+      await this.inventoryService.releaseStock(
+        item.variantId,
+        warehouseId,
+        item.quantity,
+        isRestockPhysical,
+        client
+      );
 
       // Log inventory return
       await client.inventoryLog.create({

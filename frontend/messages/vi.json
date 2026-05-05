@@ -2698,6 +2698,11 @@
           "load_overview": "Không tải được tổng quan tồn kho",
           "import_failed": "Nhập kho thất bại",
           "adjust_failed": "Điều chỉnh tồn kho thất bại"
+        },
+        "transfers": {
+          "title": "Lô hàng Đang đến",
+          "empty": "Không có lô hàng nào đang trên đường đến.",
+          "receive_btn": "Xác nhận nhận hàng"
         }
       },
       "kpi": {
@@ -3186,7 +3191,62 @@
     "table_staff": "Nhân viên",
     "table_date": "Ngày thực hiện",
     "table_reason": "Lý do",
-    "empty_history": "Chưa có lịch sử biến động kho."
+    "empty_history": "Chưa có lịch sử biến động kho.",
+    "transfers": {
+      "title": "Phiếu Điều Chuyển Hàng",
+      "subtitle": "Quản lý luân chuyển hàng hóa giữa các kho và chi nhánh.",
+      "create_btn": "Tạo phiếu mới",
+      "from_store": "Kho xuất",
+      "to_store": "Kho nhận",
+      "status": "Trạng thái",
+      "ship_btn": "Bắt đầu giao",
+      "receive_btn": "Xác nhận nhận hàng",
+      "cancel_btn": "Hủy phiếu",
+      "empty": "Không có phiếu điều chuyển nào.",
+      "success_create": "Đã tạo phiếu điều chuyển thành công.",
+      "success_ship": "Đã bắt đầu giao hàng.",
+      "success_receive": "Đã nhận hàng thành công. Tồn kho đã được cập nhật.",
+      "success_cancel": "Đã hủy phiếu điều chuyển.",
+      "items": "Danh sách sản phẩm",
+      "code": "Mã phiếu"
+    },
+    "audit": {
+      "title": "Kiểm Kê Kho",
+      "subtitle": "Đối soát số lượng thực tế tại kho để điều chỉnh sai lệch.",
+      "create_btn": "Bắt đầu kiểm kê",
+      "status": "Trạng thái",
+      "system_qty": "Tồn hệ thống",
+      "counted_qty": "Thực tế đếm",
+      "variance": "Chênh lệch",
+      "complete_btn": "Hoàn tất & Chốt kho",
+      "success_complete": "Đã hoàn tất kiểm kê và tự động điều chỉnh tồn kho.",
+      "in_progress": "Đang kiểm đếm",
+      "empty": "Chưa có đợt kiểm kê nào."
+    },
+    "analytics": {
+      "title": "Báo Cáo Tồn Kho",
+      "low_stock": "Cảnh báo hết hàng",
+      "value": "Giá trị kho hàng",
+      "global_value": "Tổng giá trị toàn hệ thống",
+      "warehouse_value": "Giá trị theo kho"
+    },
+    "matrix": {
+      "title": "Ma Trận Tồn Kho Toàn Hệ Thống",
+      "subtitle": "So sánh tồn kho của cùng một sản phẩm giữa các kho hàng khác nhau.",
+      "product_info": "Thông tin sản phẩm",
+      "global_total": "Tổng toàn hệ thống",
+      "low_stock_warning": "Cảnh báo hết hàng cục bộ",
+      "central_label": "Kho Tổng (Central)",
+      "store_label": "Kho: {name}",
+      "view_comparison": "Xem bảng so sánh",
+      "view_store": "Xem theo cửa hàng",
+      "stats": {
+        "total_sku": "Tổng SKU",
+        "global_stock": "Tổng Tồn Kho",
+        "low_stock_alerts": "Cảnh báo Sắp hết",
+        "active_warehouses": "Kho đang hoạt động"
+      }
+    }
   },
   "admin_dashboard": {
     "sales_overview": "Tổng quan doanh thu",

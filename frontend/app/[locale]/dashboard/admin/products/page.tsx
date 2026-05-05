@@ -448,7 +448,7 @@ export default function AdminProducts() {
             </button>
             <button
               type="button"
-              onClick={() => router.push(`/${locale}/dashboard/admin/inventory/import`)}
+              onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock?tab=batch-import`)}
               className="flex-1 lg:flex-none bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-gold hover:text-white transition-all shadow-lg"
             >
               <Database className="w-5 h-5 opacity-60" />
@@ -456,7 +456,7 @@ export default function AdminProducts() {
             </button>
             <button
               type="button"
-              onClick={() => router.push(`/${locale}/dashboard/admin/inventory/history`)}
+              onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock?tab=history`)}
               className="flex-1 lg:flex-none bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-gold hover:text-white transition-all shadow-lg"
             >
               <History className="w-5 h-5 opacity-60" />
@@ -624,6 +624,18 @@ export default function AdminProducts() {
                         className="w-10 h-10 bg-white text-zinc-950 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
                       >
                         <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Redirect to stock page with the first variant ID
+                          const vId = p.variants?.[0]?.id;
+                          if (vId) router.push(`/${locale}/dashboard/admin/stores/stock?tab=batch-import&variantId=${vId}`);
+                        }}
+                        className="w-10 h-10 bg-gold text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-gold/20"
+                        title={tInventory('import_btn')}
+                      >
+                        <Plus className="w-4 h-4" />
                       </button>
                       <button
                         onClick={(e) => {

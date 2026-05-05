@@ -79,8 +79,8 @@ export class StaffPosService {
         isActive: true,
         ...(storeId
           ? {
-              storeStocks: {
-                some: { storeId, quantity: { gt: 0 } },
+              inventories: {
+                some: { warehouseId: storeId, available: { gt: 0 } },
               },
             }
           : {}),
@@ -108,10 +108,10 @@ export class StaffPosService {
       where.variants = {
         some: {
           isActive: true,
-          storeStocks: {
+          inventories: {
             some: {
-              storeId,
-              quantity: { gt: 0 },
+              warehouseId: storeId,
+              available: { gt: 0 },
             },
           },
         },
@@ -125,13 +125,13 @@ export class StaffPosService {
           where: storeId
             ? {
                 isActive: true,
-                storeStocks: {
-                  some: { storeId, quantity: { gt: 0 } },
+                inventories: {
+                  some: { warehouseId: storeId, available: { gt: 0 } },
                 },
               }
             : { isActive: true },
           include: {
-            storeStocks: storeId ? { where: { storeId } } : false,
+            inventories: storeId ? { where: { warehouseId: storeId } } : true,
           },
         },
         brand: true,
@@ -146,8 +146,8 @@ export class StaffPosService {
         ...p,
         variants: p.variants.map((v: any) => ({
           ...v,
-          stock: v.storeStocks?.[0]?.quantity ?? 0,
-          storeStocks: undefined,
+          stock: v.inventories?.[0]?.available ?? 0,
+          inventories: undefined,
         })),
       }));
     }
@@ -399,12 +399,18 @@ export class StaffPosService {
     });
     if (!variant) throw new NotFoundException('Variant not found');
 
-    let availableStock = variant.stock;
+    let availableStock = 0;
     if (order.storeId) {
-      const storeStock = await this.prisma.storeStock.findUnique({
-        where: { storeId_variantId: { storeId: order.storeId, variantId } },
+      const inventory = await this.prisma.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId: order.storeId, variantId } },
       });
-      availableStock = storeStock?.quantity ?? 0;
+      availableStock = inventory?.available ?? 0;
+    } else {
+      // Admin/fallback: check total available stock across all warehouses
+      const inventories = await this.prisma.inventory.findMany({
+        where: { variantId },
+      });
+      availableStock = inventories.reduce((sum, inv) => sum + inv.available, 0);
     }
 
     // Use interactive transaction to avoid connection pool issues (P1017)
@@ -556,34 +562,30 @@ export class StaffPosService {
     await this.prisma.$transaction(async (tx) => {
       if (order.storeId) {
         for (const item of order.items) {
-          const current = await tx.storeStock.findUnique({
+          const inventory = await tx.inventory.findUnique({
             where: {
-              storeId_variantId: {
-                storeId: order.storeId!,
+              warehouseId_variantId: {
+                warehouseId: order.storeId!,
                 variantId: item.variantId,
               },
             },
           });
-          const qty = current?.quantity ?? 0;
+          const qty = inventory?.available ?? 0;
           if (qty < item.quantity) {
             throw new BadRequestException(
               `Insufficient store stock for variant ${item.variantId}`,
             );
           }
-          await tx.storeStock.upsert({
+          await tx.inventory.update({
             where: {
-              storeId_variantId: {
-                storeId: order.storeId!,
+              warehouseId_variantId: {
+                warehouseId: order.storeId!,
                 variantId: item.variantId,
               },
             },
-            create: {
-              storeId: order.storeId!,
-              variantId: item.variantId,
-              quantity: -item.quantity,
-            },
-            update: {
-              quantity: { decrement: item.quantity },
+            data: {
+              onHand: { decrement: item.quantity },
+              available: { decrement: item.quantity },
               updatedAt: new Date(),
             },
           });
@@ -599,11 +601,19 @@ export class StaffPosService {
           });
         }
       } else {
-        for (const item of order.items) {
-          await tx.productVariant.update({
-            where: { id: item.variantId },
-            data: { stock: { decrement: item.quantity } },
-          });
+        // Fallback for orders without storeId (should not happen in POS normally)
+        const centralWarehouse = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+        if (centralWarehouse) {
+          for (const item of order.items) {
+            await tx.inventory.update({
+              where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId: item.variantId } },
+              data: {
+                onHand: { decrement: item.quantity },
+                available: { decrement: item.quantity },
+                updatedAt: new Date(),
+              },
+            });
+          }
         }
       }
 
@@ -872,12 +882,12 @@ export class StaffPosService {
         throw new NotFoundException(`Variant ${item.variantId} not found`);
       }
 
-      const storeStock = await this.prisma.storeStock.findUnique({
+      const inventory = await this.prisma.inventory.findUnique({
         where: {
-          storeId_variantId: { storeId, variantId: item.variantId },
+          warehouseId_variantId: { warehouseId: storeId, variantId: item.variantId },
         },
       });
-      const available = storeStock?.quantity ?? 0;
+      const available = inventory?.available ?? 0;
       if (item.quantity > available) {
         throw new BadRequestException(
           `Chỉ còn ${available} sản phẩm trong kho cho variant ${variant.name}`,
@@ -940,14 +950,15 @@ export class StaffPosService {
       if (paymentMethod === 'CASH') {
         // Deduct store stock & log
         for (const v of variantData) {
-          const result = await tx.storeStock.updateMany({
+          const result = await tx.inventory.updateMany({
             where: {
-              storeId,
+              warehouseId: storeId,
               variantId: v.variantId,
-              quantity: { gte: v.quantity },
+              available: { gte: v.quantity },
             },
             data: {
-              quantity: { decrement: v.quantity },
+              onHand: { decrement: v.quantity },
+              available: { decrement: v.quantity },
               updatedAt: new Date(),
             },
           });
@@ -1012,14 +1023,15 @@ export class StaffPosService {
       } else if (paymentMethod === 'QR') {
         // --- STOCK RESERVATION FOR QR ---
         for (const v of variantData) {
-          const result = await tx.storeStock.updateMany({
+          const result = await tx.inventory.updateMany({
             where: {
-              storeId,
+              warehouseId: storeId,
               variantId: v.variantId,
-              quantity: { gte: v.quantity },
+              available: { gte: v.quantity },
             },
             data: {
-              quantity: { decrement: v.quantity },
+              onHand: { decrement: v.quantity },
+              available: { decrement: v.quantity },
               updatedAt: new Date(),
             },
           });

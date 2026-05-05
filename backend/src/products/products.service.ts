@@ -36,8 +36,12 @@ export class ProductsService {
     if (query.lowStock === 'true' || query.lowStock === true) {
       where.variants = {
         some: {
-          stock: { lte: 10 },
           isActive: true,
+          inventories: {
+            some: {
+              available: { lte: 10 },
+            },
+          },
         },
       };
     }
@@ -54,7 +58,13 @@ export class ProductsService {
           images: {
             orderBy: { order: 'asc' },
           },
-          variants: true,
+          variants: {
+            include: {
+              inventories: {
+                where: { warehouse: { type: 'CENTRAL' } },
+              },
+            },
+          },
           notes: { include: { note: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -63,7 +73,13 @@ export class ProductsService {
     ]);
 
     return {
-      items,
+      items: items.map((p) => ({
+        ...p,
+        variants: p.variants.map((v: any) => ({
+          ...v,
+          stock: v.inventories?.[0]?.available ?? 0,
+        })),
+      })),
       total,
       skip,
       take,
@@ -95,8 +111,8 @@ export class ProductsService {
       // Only show products that have at least one active variant in stock
       variants: {
         some: {
-          stock: { gt: 0 },
           isActive: true,
+          inventories: { some: { available: { gt: 0 } } },
         },
       },
       AND: [],
@@ -251,6 +267,9 @@ export class ProductsService {
           },
           variants: {
             where: { isActive: true },
+            include: {
+              inventories: true,
+            },
           },
           notes: { include: { note: true } },
         },
@@ -412,17 +431,31 @@ export class ProductsService {
       }
 
       if (product.variants.length > 0 && userId) {
-        for (const variant of product.variants) {
-          if (variant.stock > 0) {
-            await tx.inventoryLog.create({
-              data: {
-                variantId: variant.id,
-                staffId: userId,
-                type: InventoryLogType.IMPORT,
-                quantity: variant.stock,
-                reason: 'Initial stock on product creation',
-              },
-            });
+        // By default, initial stock on creation goes to the CENTRAL warehouse
+        const centralWarehouse = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+        if (centralWarehouse) {
+          for (const variant of product.variants as any[]) {
+            if (variant.stock > 0) { // Note: CreateProductDto still has 'stock' for convenience, but it's not in the DB model
+              await tx.inventory.create({
+                data: {
+                  variantId: variant.id,
+                  warehouseId: centralWarehouse.id,
+                  onHand: variant.stock,
+                  available: variant.stock,
+                },
+              });
+
+              await tx.inventoryLog.create({
+                data: {
+                  variantId: variant.id,
+                  staffId: userId,
+                  storeId: centralWarehouse.id,
+                  type: InventoryLogType.IMPORT,
+                  quantity: variant.stock,
+                  reason: 'Initial stock on product creation',
+                },
+              });
+            }
           }
         }
       }
@@ -486,18 +519,34 @@ export class ProductsService {
 
             const currentVariant = await tx.productVariant.findUnique({
               where: { id: variant.id },
+              include: { inventories: true },
             });
 
-            if (currentVariant && currentVariant.stock !== variant.stock && userId) {
-              await tx.inventoryLog.create({
-                data: {
-                  variantId: variant.id,
-                  staffId: userId,
-                  type: InventoryLogType.ADJUST,
-                  quantity: variant.stock - currentVariant.stock,
-                  reason: `Admin updated stock from ${currentVariant.stock} to ${variant.stock}`,
-                },
-              });
+            // Note: In multi-warehouse, 'variant.stock' from UI is compared against total available stock
+            const currentTotalStock = currentVariant?.inventories.reduce((sum, inv) => sum + inv.available, 0) ?? 0;
+            const targetStock = variant.stock ?? currentTotalStock;
+
+            if (currentVariant && targetStock !== currentTotalStock && userId) {
+              const centralWarehouse = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+              if (centralWarehouse) {
+                const diff = targetStock - currentTotalStock;
+                await tx.inventory.upsert({
+                  where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId: variant.id } },
+                  create: { warehouseId: centralWarehouse.id, variantId: variant.id, onHand: diff, available: diff },
+                  update: { onHand: { increment: diff }, available: { increment: diff } },
+                });
+
+                await tx.inventoryLog.create({
+                  data: {
+                    variantId: variant.id,
+                    staffId: userId,
+                    storeId: centralWarehouse.id,
+                    type: InventoryLogType.ADJUST,
+                    quantity: diff,
+                    reason: `Admin updated stock from ${currentTotalStock} to ${targetStock}`,
+                  },
+                });
+              }
             }
 
             await tx.productVariant.update({
@@ -506,7 +555,6 @@ export class ProductsService {
                 name: variant.name,
                 sku: variant.sku ?? null,
                 price: variant.price,
-                stock: variant.stock,
                 isActive: true,
               },
             });
@@ -517,21 +565,34 @@ export class ProductsService {
                 name: variant.name,
                 sku: variant.sku ?? null,
                 price: variant.price,
-                stock: variant.stock,
                 isActive: true,
               },
             });
 
-            if (newVariant.stock > 0 && userId) {
-              await tx.inventoryLog.create({
-                data: {
-                  variantId: newVariant.id,
-                  staffId: userId,
-                  type: InventoryLogType.IMPORT,
-                  quantity: newVariant.stock,
-                  reason: 'Initial stock for new variant',
-                },
-              });
+            const initialStock = variant.stock ?? 0;
+            if (initialStock > 0 && userId) {
+              const centralWarehouse = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+              if (centralWarehouse) {
+                await tx.inventory.create({
+                  data: {
+                    variantId: newVariant.id,
+                    warehouseId: centralWarehouse.id,
+                    onHand: initialStock,
+                    available: initialStock,
+                  },
+                });
+
+                await tx.inventoryLog.create({
+                  data: {
+                    variantId: newVariant.id,
+                    staffId: userId,
+                    storeId: centralWarehouse.id,
+                    type: InventoryLogType.IMPORT,
+                    quantity: initialStock,
+                    reason: 'Initial stock for new variant',
+                  },
+                });
+              }
             }
           }
         }
@@ -640,22 +701,34 @@ export class ProductsService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      const variant = await tx.productVariant.update({
-        where: { id: variantId },
-        data: { stock: { increment: quantity } },
+      const centralWarehouse = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
+      if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
+
+      await tx.inventory.upsert({
+        where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
+        create: { warehouseId: centralWarehouse.id, variantId, onHand: quantity, available: quantity },
+        update: { onHand: { increment: quantity }, available: { increment: quantity } },
       });
 
       await tx.inventoryLog.create({
         data: {
           variantId,
           staffId: userId,
+          storeId: centralWarehouse.id,
           type: InventoryLogType.IMPORT,
           quantity,
           reason: reason || 'Warehouse Restock',
         },
       });
 
-      return variant;
+      const variant = await tx.productVariant.findUnique({ where: { id: variantId } });
+      const inventory = await tx.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
+      });
+      return {
+        ...variant,
+        stock: inventory?.available ?? 0,
+      };
     });
   }
 
@@ -706,33 +779,35 @@ export class ProductsService {
       totalProducts,
       activeProducts,
       totalStock,
-      lowStockVariants,
-      outOfStockVariants,
     ] = await Promise.all([
       this.prisma.product.count(),
       this.prisma.product.count({ where: { isActive: true } }),
-      this.prisma.productVariant.aggregate({
-        _sum: { stock: true },
-      }),
-      this.prisma.productVariant.count({
-        where: {
-          stock: { lte: 10, gt: 0 },
-          isActive: true,
-        },
-      }),
-      this.prisma.productVariant.count({
-        where: {
-          stock: 0,
-          isActive: true,
-        },
+      this.prisma.inventory.aggregate({
+        _sum: { onHand: true },
       }),
     ]);
+
+    // Low stock and out of stock are complex with multi-warehouse, 
+    // here we just check variants that have 0 total available across all warehouses
+    const allVariants = await this.prisma.productVariant.findMany({
+      where: { isActive: true },
+      include: { inventories: { select: { available: true } } },
+    });
+
+    let lowStockVariants = 0;
+    let outOfStockVariants = 0;
+
+    for (const v of allVariants) {
+      const totalAvailable = v.inventories.reduce((sum, inv) => sum + inv.available, 0);
+      if (totalAvailable === 0) outOfStockVariants++;
+      else if (totalAvailable <= 10) lowStockVariants++;
+    }
 
     return {
       totalProducts,
       activeProducts,
       inactiveProducts: totalProducts - activeProducts,
-      totalStock: totalStock._sum.stock || 0,
+      totalStock: totalStock._sum.onHand || 0,
       lowStockVariants,
       outOfStockVariants,
     };

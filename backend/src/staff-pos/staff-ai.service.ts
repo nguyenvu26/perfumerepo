@@ -47,16 +47,12 @@ export class StaffAiService {
                 variants: {
                     some: {
                         isActive: true,
-                        ...(req.storeId ? {
-                            storeStocks: {
-                                some: {
-                                    storeId: req.storeId,
-                                    quantity: { gt: 0 }
-                                }
+                        inventories: {
+                            some: {
+                                ...(req.storeId ? { warehouseId: req.storeId } : {}),
+                                available: { gt: 0 }
                             }
-                        } : {
-                            stock: { gt: 0 }
-                        })
+                        }
                     }
                 }
             },
@@ -66,20 +62,16 @@ export class StaffAiService {
                 variants: {
                     where: {
                         isActive: true,
-                        ...(req.storeId ? {
-                            storeStocks: {
-                                some: {
-                                    storeId: req.storeId,
-                                    quantity: { gt: 0 }
-                                }
+                        inventories: {
+                            some: {
+                                ...(req.storeId ? { warehouseId: req.storeId } : {}),
+                                available: { gt: 0 }
                             }
-                        } : {
-                            stock: { gt: 0 }
-                        })
+                        }
                     },
                     include: {
-                        storeStocks: {
-                            where: req.storeId ? { storeId: req.storeId } : undefined
+                        inventories: {
+                            where: req.storeId ? { warehouseId: req.storeId } : undefined
                         }
                     }
                 },
@@ -95,8 +87,8 @@ export class StaffAiService {
             .map((p) => {
                 const variantInfo = p.variants.map((v) => {
                     const stock = req.storeId
-                        ? v.storeStocks.find(ss => ss.storeId === req.storeId)?.quantity ?? 0
-                        : v.stock;
+                        ? v.inventories.find(i => i.warehouseId === req.storeId)?.available ?? 0
+                        : v.inventories.reduce((sum, i) => sum + i.available, 0);
                     return `ID:${v.id} | ${v.name} | ${v.price.toLocaleString()}VND | Stock:${stock}`;
                 }).join('; ');
 

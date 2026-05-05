@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 import {
   staffInventoryService,
   type StaffInventoryOverview,
@@ -22,12 +23,18 @@ import {
   type SystemVariant,
 } from "@/services/staff-inventory.service";
 import {
+  inventoryTransferService,
+  type TransferOrder,
+} from "@/services/inventory-transfer.service";
+import {
   storesService,
   type Store as StoreType,
 } from "@/services/stores.service";
+import { toast } from "sonner";
 
 export default function StaffInventory() {
-  const t = useTranslations("dashboard.inventory");
+  const t = useTranslations("dashboard.admin.inventory");
+  const tTrans = useTranslations("inventory");
   const [myStores, setMyStores] = useState<StoreType[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState<string>("");
   const [overview, setOverview] = useState<StaffInventoryOverview | null>(null);
@@ -40,6 +47,9 @@ export default function StaffInventory() {
   const [adjustDelta, setAdjustDelta] = useState<number>(0);
   const [adjustReason, setAdjustReason] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
+  const [activeMainTab, setActiveMainTab] = useState<"inventory" | "transfers">("inventory");
+  const [incomingTransfers, setIncomingTransfers] = useState<TransferOrder[]>([]);
+  const [loadingTransfers, setLoadingTransfers] = useState(false);
   // Import modal state
   const [showImportModal, setShowImportModal] = useState(false);
   const [importSearch, setImportSearch] = useState("");
@@ -49,6 +59,9 @@ export default function StaffInventory() {
     useState<SystemVariant | null>(null);
   const [importQty, setImportQty] = useState<number>(0);
   const [importReason, setImportReason] = useState<string>("");
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [inspectingTransfer, setInspectingTransfer] = useState<TransferOrder | null>(null);
+  const [inspectionData, setInspectionData] = useState<Record<string, { actualQty: number; note: string }>>({});
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadMyStores = useCallback(async () => {
@@ -100,15 +113,33 @@ export default function StaffInventory() {
     [selectedStoreId],
   );
 
+  const loadTransfers = useCallback(async () => {
+    if (!selectedStoreId) return;
+    setLoadingTransfers(true);
+    try {
+      const data = await inventoryTransferService.list({
+        toStoreId: selectedStoreId,
+        status: "IN_TRANSIT",
+      });
+      setIncomingTransfers(data.items);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingTransfers(false);
+    }
+  }, [selectedStoreId]);
+
   useEffect(() => {
     if (selectedStoreId) {
       void loadOverview();
       void loadLogs();
+      void loadTransfers();
     } else {
       setOverview(null);
       setLogs([]);
+      setIncomingTransfers([]);
     }
-  }, [selectedStoreId, loadOverview, loadLogs]);
+  }, [selectedStoreId, loadOverview, loadLogs, loadTransfers]);
 
   const handleImport = async () => {
     if (!selectedStoreId || !selectedImportVariant || importQty <= 0) return;
@@ -179,6 +210,39 @@ export default function StaffInventory() {
       void loadLogs(selectedVariant);
     } catch (e: any) {
       setError(e.message || t("errors.adjust_failed"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleReceiveTransfer = (transfer: TransferOrder) => {
+    setInspectingTransfer(transfer);
+    const initialData: Record<string, { actualQty: number; note: string }> = {};
+    transfer.items.forEach(item => {
+      initialData[item.variantId] = { actualQty: item.quantity, note: "" };
+    });
+    setInspectionData(initialData);
+    setShowInspectionModal(true);
+  };
+
+  const handleConfirmInspection = async () => {
+    if (!inspectingTransfer) return;
+    setSubmitting(true);
+    try {
+      const items = Object.entries(inspectionData).map(([variantId, data]) => ({
+        variantId,
+        actualQuantity: data.actualQty,
+        note: data.note,
+      }));
+
+      await inventoryTransferService.receive(inspectingTransfer.id, { items });
+      toast.success("Đã xác nhận kiểm hàng và nhập kho thành công");
+      setShowInspectionModal(false);
+      setInspectingTransfer(null);
+      void loadTransfers();
+      void loadOverview();
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Lỗi khi kiểm hàng");
     } finally {
       setSubmitting(false);
     }
@@ -302,95 +366,187 @@ export default function StaffInventory() {
             {t("select_store_to_view")}
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Variants & stock table */}
-            <div className="lg:col-span-2 glass rounded-[2.5rem] border-border overflow-hidden">
-              <div className="p-6 border-b border-border flex items-center justify-between gap-4">
-                <h2 className="font-heading text-lg uppercase tracking-widest">
-                  {t("stock_ledger")}
-                </h2>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    value={variantFilter}
-                    onChange={(e) => setVariantFilter(e.target.value)}
-                    placeholder={t("filter_placeholder")}
-                    className="text-xs rounded-full border border-border bg-background px-4 py-2 outline-none focus:border-gold/60"
-                  />
-                </div>
-              </div>
-              <div className="p-6 max-h-[480px] overflow-y-auto custom-scrollbar">
-                {loading ? (
-                  <div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
-                    {t("loading")}
-                  </div>
-                ) : filteredVariants.length === 0 ? (
-                  <div className="text-sm text-muted-foreground text-center py-10">
-                    {t("logs.no_logs")}
-                  </div>
+          <div className="space-y-6">
+            {/* Main Tabs */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setActiveMainTab("inventory")}
+                className={cn(
+                  "px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border",
+                  activeMainTab === "inventory"
+                    ? "bg-gold text-white border-gold shadow-lg"
+                    : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                {t("stock_ledger")}
+              </button>
+              <button
+                onClick={() => setActiveMainTab("transfers")}
+                className={cn(
+                  "relative px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border",
+                  activeMainTab === "transfers"
+                    ? "bg-gold text-white border-gold shadow-lg"
+                    : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                {t("transfers.title") || "Incoming Transfers"}
+                {incomingTransfers.length > 0 && (
+                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center border-4 border-background animate-bounce">
+                    {incomingTransfers.length}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Variants & stock table */}
+              <div className="lg:col-span-2 glass rounded-[2.5rem] border-border overflow-hidden">
+                {activeMainTab === "inventory" ? (
+                  <>
+                    <div className="p-6 border-b border-border flex items-center justify-between gap-4">
+                      <h2 className="font-heading text-lg uppercase tracking-widest">
+                        {t("stock_ledger")}
+                      </h2>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          value={variantFilter}
+                          onChange={(e) => setVariantFilter(e.target.value)}
+                          placeholder={t("filter_placeholder")}
+                          className="text-xs rounded-full border border-border bg-background px-4 py-2 outline-none focus:border-gold/60"
+                        />
+                      </div>
+                    </div>
+                    <div className="p-6 max-h-[480px] overflow-y-auto custom-scrollbar">
+                      {loading ? (
+                        <div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                          {t("loading")}
+                        </div>
+                      ) : filteredVariants.length === 0 ? (
+                        <div className="text-sm text-muted-foreground text-center py-10">
+                          {t("logs.no_logs")}
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {filteredVariants.map((row) => {
+                            const isLow = row.stock > 0 && row.stock <= 5;
+                            const isSelected = selectedVariant === row.id;
+                            return (
+                              <button
+                                key={row.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedVariant(row.id);
+                                  void loadLogs(row.id);
+                                }}
+                                className={`w-full flex items-center justify-between p-4 rounded-3xl border transition-all text-left ${
+                                  isSelected
+                                    ? "border-gold bg-gold/5 shadow-[0_0_20px_rgba(197,160,89,0.1)]"
+                                    : "bg-card border border-border/50 hover:border-gold/40"
+                                }`}
+                              >
+                                <div>
+                                  <p className="text-[10px] text-gold uppercase tracking-[0.2em] font-bold">
+                                    {row.brand ?? "—"}
+                                  </p>
+                                  <h4 className="font-heading uppercase text-xs tracking-wider">
+                                    {row.name} ({row.variantName})
+                                  </h4>
+                                  {row.barcode && (
+                                    <p className="text-[9px] text-muted-foreground font-mono mt-0.5">
+                                      BC: {row.barcode}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-8">
+                                  <div className="text-right">
+                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                                      {t("quantity")}
+                                    </p>
+                                    <p className="font-heading">{row.stock}</p>
+                                  </div>
+                                  <div
+                                    className={`px-3 py-1.5 rounded-full border text-[8px] uppercase tracking-widest font-bold ${
+                                      row.stock === 0
+                                        ? "bg-error/10 border-error/30 text-error"
+                                        : isLow
+                                          ? "bg-warning/10 border-warning/30 text-warning"
+                                          : "bg-success/10 border-success/30 text-success"
+                                    }`}
+                                  >
+                                    {row.stock === 0
+                                      ? t("status.out")
+                                      : isLow
+                                        ? t("status.low")
+                                        : t("status.optimal")}
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </>
                 ) : (
-                  <div className="space-y-3">
-                    {filteredVariants.map((row) => {
-                      const isLow = row.stock > 0 && row.stock <= 5;
-                      const isSelected = selectedVariant === row.id;
-                      return (
-                        <button
-                          key={row.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedVariant(row.id);
-                            void loadLogs(row.id);
-                          }}
-                          className={`w-full flex items-center justify-between p-4 rounded-3xl border transition-all text-left ${
-                            isSelected
-                              ? "border-gold bg-gold/5 shadow-[0_0_20px_rgba(197,160,89,0.1)]"
-                              : "bg-card border border-border/50 hover:border-gold/40"
-                          }`}
-                        >
-                          <div>
-                            <p className="text-[10px] text-gold uppercase tracking-[0.2em] font-bold">
-                              {row.brand ?? "—"}
-                            </p>
-                            <h4 className="font-heading uppercase text-xs tracking-wider">
-                              {row.name} ({row.variantName})
-                            </h4>
-                            {row.barcode && (
-                              <p className="text-[9px] text-muted-foreground font-mono mt-0.5">
-                                BC: {row.barcode}
-                              </p>
-                            )}
+                  <>
+                    <div className="p-6 border-b border-border flex items-center justify-between gap-4">
+                      <h2 className="font-heading text-lg uppercase tracking-widest">
+                        {t("transfers.title")}
+                      </h2>
+                    </div>
+                    <div className="p-6 max-h-[480px] overflow-y-auto custom-scrollbar">
+                      {loadingTransfers ? (
+                        <div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
+                          {t("loading")}
+                        </div>
+                      ) : incomingTransfers.length === 0 ? (
+                        <div className="text-center py-20 space-y-4">
+                          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto border border-white/5">
+                            <Box className="w-8 h-8 text-muted-foreground/20" />
                           </div>
-                          <div className="flex items-center gap-8">
-                            <div className="text-right">
-                              <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-                                {t("quantity")}
-                              </p>
-                              <p className="font-heading">{row.stock}</p>
-                            </div>
+                          <p className="text-muted-foreground italic text-sm">{t("transfers.empty")}</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {incomingTransfers.map((transfer) => (
                             <div
-                              className={`px-3 py-1.5 rounded-full border text-[8px] uppercase tracking-widest font-bold ${
-                                row.stock === 0
-                                  ? "bg-error/10 border-error/30 text-error"
-                                  : isLow
-                                    ? "bg-warning/10 border-warning/30 text-warning"
-                                    : "bg-success/10 border-success/30 text-success"
-                              }`}
+                              key={transfer.id}
+                              className="p-6 rounded-[2rem] border border-white/5 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-6 hover:border-gold/30 transition-all group"
                             >
-                              {row.stock === 0
-                                ? t("status.out")
-                                : isLow
-                                  ? t("status.low")
-                                  : t("status.optimal")}
+                              <div className="flex-1 space-y-3">
+                                <div className="flex items-center gap-3">
+                                  <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[8px] font-black uppercase tracking-widest">
+                                    IN TRANSIT
+                                  </span>
+                                  <span className="text-[10px] font-black opacity-30">#{transfer.code}</span>
+                                </div>
+                                <h4 className="font-heading text-sm italic">Từ: {transfer.fromStore.name}</h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {transfer.items.map((item) => (
+                                    <span key={item.id} className="text-[10px] bg-white/5 px-2 py-1 rounded-lg">
+                                      {item.variant.product.name} ({item.variant.name}) <span className="text-gold font-bold">x{item.quantity}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                               <button
+                                onClick={() => handleReceiveTransfer(transfer)}
+                                disabled={submitting}
+                                className="px-8 py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-emerald-600/20 disabled:opacity-50"
+                              >
+                                {submitting ? "Processing..." : t("transfers.receive_btn")}
+                              </button>
                             </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
               </div>
-            </div>
 
             {/* Right side: forms + logs */}
             <div className="space-y-6">
@@ -502,7 +658,8 @@ export default function StaffInventory() {
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
         {/* Import Modal */}
         {showImportModal && (
@@ -675,6 +832,148 @@ export default function StaffInventory() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {/* Inspection Modal */}
+        {showInspectionModal && inspectingTransfer && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => !submitting && setShowInspectionModal(false)}
+            />
+            <div className="relative w-full max-w-3xl max-h-[90vh] bg-background rounded-[2.5rem] border border-border shadow-2xl flex flex-col overflow-hidden">
+              <div className="p-8 border-b border-border flex items-center justify-between bg-emerald-500/5">
+                <div>
+                  <h2 className="font-heading text-xl uppercase tracking-widest text-emerald-600 flex items-center gap-3">
+                    <RefreshCw className="w-6 h-6 animate-spin-slow" />
+                    Kiểm Hàng Thực Tế
+                  </h2>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
+                    Phiếu: #{inspectingTransfer.code} • Từ: {inspectingTransfer.fromStore.name}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowInspectionModal(false)}
+                  disabled={submitting}
+                  className="p-2 rounded-full hover:bg-muted transition-colors disabled:opacity-50"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
+                <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    Lưu ý: Nếu hàng bị thiếu hoặc vỡ, vui lòng nhập chính xác số lượng thực nhận và ghi rõ lý do. Hệ thống sẽ tự động ghi nhận sự chênh lệch này để đối soát.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {inspectingTransfer.items.map((item) => {
+                    const currentData = inspectionData[item.variantId] || { actualQty: item.quantity, note: "" };
+                    const isDiff = currentData.actualQty !== item.quantity;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "p-6 rounded-[2rem] border transition-all",
+                          isDiff ? "border-amber-500/40 bg-amber-500/5 shadow-inner" : "border-border bg-card"
+                        )}
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                          <div className="flex-1">
+                            <h4 className="font-heading text-sm uppercase tracking-wider">
+                              {item.variant.product.name}
+                            </h4>
+                            <p className="text-[11px] text-muted-foreground">
+                              {item.variant.name}
+                            </p>
+                            <div className="mt-2 flex items-center gap-2">
+                              <span className="text-[10px] font-bold uppercase text-muted-foreground bg-secondary/20 px-2 py-0.5 rounded">
+                                Dự kiến: x{item.quantity}
+                              </span>
+                              {isDiff && (
+                                <span className="text-[10px] font-bold uppercase text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded animate-pulse">
+                                  Lệch: {currentData.actualQty - item.quantity}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div className="w-full sm:w-32">
+                              <label className="block text-[9px] uppercase tracking-[0.2em] text-muted-foreground mb-1.5 font-black">
+                                Thực nhận
+                              </label>
+                              <input
+                                type="number"
+                                value={currentData.actualQty}
+                                max={item.quantity}
+                                min={0}
+                                onChange={(e) => {
+                                  const val = Math.min(item.quantity, Math.max(0, parseInt(e.target.value) || 0));
+                                  setInspectionData(prev => ({
+                                    ...prev,
+                                    [item.variantId]: { ...prev[item.variantId], actualQty: val }
+                                  }));
+                                }}
+                                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-heading focus:border-gold outline-none"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-[200px]">
+                              <label className="block text-[9px] uppercase tracking-[0.2em] text-muted-foreground mb-1.5 font-black">
+                                Ghi chú (Nếu có lỗi)
+                              </label>
+                              <input
+                                type="text"
+                                value={currentData.note}
+                                onChange={(e) => {
+                                  setInspectionData(prev => ({
+                                    ...prev,
+                                    [item.variantId]: { ...prev[item.variantId], note: e.target.value }
+                                  }));
+                                }}
+                                placeholder="VD: Thiếu 1, vỡ 1..."
+                                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-gold"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-8 border-t border-border bg-muted/30 flex items-center justify-between gap-6">
+                <button
+                  type="button"
+                  onClick={() => setShowInspectionModal(false)}
+                  disabled={submitting}
+                  className="px-8 py-3 text-xs font-heading uppercase tracking-widest text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmInspection}
+                  disabled={submitting}
+                  className="px-12 py-4 bg-emerald-600 text-white rounded-full font-heading text-xs uppercase tracking-widest shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Đang xử lý...
+                    </>
+                  ) : (
+                    "Xác nhận nhập kho"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

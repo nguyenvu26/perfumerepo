@@ -33,7 +33,7 @@ export class StoresService {
             },
           },
         },
-        _count: { select: { storeStocks: true, orders: true } },
+        _count: { select: { inventories: true, orders: true } },
       },
     });
   }
@@ -75,7 +75,7 @@ export class StoresService {
             },
           },
         },
-        storeStocks: {
+        inventories: {
           include: {
             variant: {
               include: {
@@ -204,11 +204,11 @@ export class StoresService {
 
   /** Admin: overview stock by store (optional storeId to filter one store) */
   async getStockOverview(storeId?: string) {
-    const where = storeId ? { storeId } : {};
-    const storeStocks = await this.prisma.storeStock.findMany({
+    const where = storeId ? { warehouseId: storeId } : {};
+    const inventories = await this.prisma.inventory.findMany({
       where,
       include: {
-        store: { select: { id: true, name: true, code: true } },
+        warehouse: { select: { id: true, name: true, code: true, type: true } },
         variant: {
           include: {
             product: {
@@ -227,7 +227,7 @@ export class StoresService {
           },
         },
       },
-      orderBy: [{ storeId: 'asc' }, { variantId: 'asc' }],
+      orderBy: [{ warehouseId: 'asc' }, { variantId: 'asc' }],
     });
 
     const byStore = new Map<
@@ -238,11 +238,11 @@ export class StoresService {
         totalUnits: number;
       }
     >();
-    for (const ss of storeStocks) {
-      const key = ss.storeId;
+    for (const ss of inventories) {
+      const key = ss.warehouseId;
       if (!byStore.has(key)) {
         byStore.set(key, {
-          store: ss.store,
+          store: ss.warehouse,
           variants: [],
           totalUnits: 0,
         });
@@ -251,20 +251,24 @@ export class StoresService {
       entry.variants.push({
         variantId: ss.variantId,
         variantName: ss.variant.name,
+        sku: ss.variant.sku,
+        barcode: ss.variant.barcode,
         productName: ss.variant.product.name,
         brandName: ss.variant.product.brand?.name ?? null,
         imageUrl: ss.variant.product.images?.[0]?.url ?? null,
-        quantity: ss.quantity,
+        onHand: ss.onHand,
+        available: ss.available,
+        reserved: ss.reserved,
         updatedAt: ss.updatedAt,
       });
-      entry.totalUnits += ss.quantity;
+      entry.totalUnits += ss.onHand;
     }
 
     return {
       stores: Array.from(byStore.values()),
       summary: {
         totalStores: byStore.size,
-        totalUnits: storeStocks.reduce((s, ss) => s + ss.quantity, 0),
+        totalUnits: inventories.reduce((s, ss) => s + ss.onHand, 0),
       },
     };
   }
@@ -284,31 +288,43 @@ export class StoresService {
       where: { id: storeId },
     });
     if (!store) throw new NotFoundException('Store not found');
-    const variant = await this.prisma.productVariant.findUnique({
-      where: { id: variantId },
+    
+    const centralWarehouse = await this.prisma.store.findFirst({
+      where: { type: 'CENTRAL' },
     });
-    if (!variant) throw new NotFoundException('Variant not found');
+    if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
 
-    if (variant.stock < quantity) {
+    const centralInventory = await this.prisma.inventory.findUnique({
+      where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
+    });
+
+    if (!centralInventory || centralInventory.available < quantity) {
       throw new BadRequestException(
-        `Số lượng tồn kho tổng không đủ. (Hiện có: ${variant.stock}, yêu cầu: ${quantity})`,
+        `Số lượng tồn kho tổng không đủ. (Hiện có: ${centralInventory?.available || 0}, yêu cầu: ${quantity})`,
       );
     }
 
     await this.prisma.$transaction(async (tx) => {
       // 1. Decrement from central warehouse
-      await tx.productVariant.update({
-        where: { id: variantId },
-        data: { stock: { decrement: quantity } },
+      await tx.inventory.update({
+        where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
+        data: {
+          onHand: { decrement: quantity },
+          available: { decrement: quantity },
+        },
       });
 
       // 2. Increment store stock
-      await tx.storeStock.upsert({
+      await tx.inventory.upsert({
         where: {
-          storeId_variantId: { storeId, variantId },
+          warehouseId_variantId: { warehouseId: storeId, variantId },
         },
-        create: { storeId, variantId, quantity },
-        update: { quantity: { increment: quantity }, updatedAt: new Date() },
+        create: { warehouseId: storeId, variantId, onHand: quantity, available: quantity },
+        update: { 
+          onHand: { increment: quantity }, 
+          available: { increment: quantity },
+          updatedAt: new Date() 
+        },
       });
 
       // 3. Log
@@ -341,19 +357,17 @@ export class StoresService {
     if (fromStoreId === toStoreId) {
       throw new BadRequestException('From and to store must be different');
     }
-    const [fromStore, toStore, variant] = await Promise.all([
+    const [fromStore, toStore] = await Promise.all([
       this.prisma.store.findUnique({ where: { id: fromStoreId } }),
       this.prisma.store.findUnique({ where: { id: toStoreId } }),
-      this.prisma.productVariant.findUnique({ where: { id: variantId } }),
     ]);
     if (!fromStore) throw new NotFoundException('From store not found');
     if (!toStore) throw new NotFoundException('To store not found');
-    if (!variant) throw new NotFoundException('Variant not found');
 
-    const fromStock = await this.prisma.storeStock.findUnique({
-      where: { storeId_variantId: { storeId: fromStoreId, variantId } },
+    const fromStock = await this.prisma.inventory.findUnique({
+      where: { warehouseId_variantId: { warehouseId: fromStoreId, variantId } },
     });
-    const available = fromStock?.quantity ?? 0;
+    const available = fromStock?.available ?? 0;
     if (available < quantity) {
       throw new BadRequestException(
         `Số lượng tồn tại quầy nguồn không đủ. (Hiện có: ${available}, yêu cầu: ${quantity})`,
@@ -361,14 +375,22 @@ export class StoresService {
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.storeStock.update({
-        where: { storeId_variantId: { storeId: fromStoreId, variantId } },
-        data: { quantity: { decrement: quantity }, updatedAt: new Date() },
+      await tx.inventory.update({
+        where: { warehouseId_variantId: { warehouseId: fromStoreId, variantId } },
+        data: { 
+          onHand: { decrement: quantity }, 
+          available: { decrement: quantity },
+          updatedAt: new Date() 
+        },
       });
-      await tx.storeStock.upsert({
-        where: { storeId_variantId: { storeId: toStoreId, variantId } },
-        create: { storeId: toStoreId, variantId, quantity },
-        update: { quantity: { increment: quantity }, updatedAt: new Date() },
+      await tx.inventory.upsert({
+        where: { warehouseId_variantId: { warehouseId: toStoreId, variantId } },
+        create: { warehouseId: toStoreId, variantId, onHand: quantity, available: quantity },
+        update: { 
+          onHand: { increment: quantity }, 
+          available: { increment: quantity },
+          updatedAt: new Date() 
+        },
       });
       await tx.inventoryLog.create({
         data: {
@@ -413,20 +435,22 @@ export class StoresService {
       return this.getStockOverview(dto.storeId);
     }
 
+    const centralWarehouse = await this.prisma.store.findFirst({ where: { type: 'CENTRAL' } });
+    if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
+
     // Validate variants and check stock (single query)
-    const variants = await this.prisma.productVariant.findMany({
-      where: { id: { in: items.map((i) => i.variantId) } },
-      select: { id: true, stock: true },
+    const centralInventories = await this.prisma.inventory.findMany({
+      where: { 
+        warehouseId: centralWarehouse.id,
+        variantId: { in: items.map((i) => i.variantId) } 
+      },
+      select: { variantId: true, available: true },
     });
-    const variantMap = new Map(variants.map((v) => [v.id, v.stock]));
+    const inventoryMap = new Map(centralInventories.map((i) => [i.variantId, i.available]));
     
     const errors: string[] = [];
     for (const item of items) {
-      if (!variantMap.has(item.variantId)) {
-        errors.push(`Variant not found: ${item.variantId}`);
-        continue;
-      }
-      const available = variantMap.get(item.variantId)!;
+      const available = inventoryMap.get(item.variantId) || 0;
       if (available < item.quantity) {
         errors.push(
           `Sản phẩm ${item.variantId} không đủ tồn kho tổng. (Hiện có: ${available}, yêu cầu: ${item.quantity})`,
@@ -441,26 +465,32 @@ export class StoresService {
     await this.prisma.$transaction(async (tx) => {
       for (const it of items) {
         // 1. Decrement from central warehouse
-        await tx.productVariant.update({
-          where: { id: it.variantId },
-          data: { stock: { decrement: it.quantity } },
+        await tx.inventory.update({
+          where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId: it.variantId } },
+          data: { 
+            onHand: { decrement: it.quantity }, 
+            available: { decrement: it.quantity },
+            updatedAt: new Date()
+          },
         });
 
         // 2. Increment store stock
-        await tx.storeStock.upsert({
+        await tx.inventory.upsert({
           where: {
-            storeId_variantId: {
-              storeId: dto.storeId,
+            warehouseId_variantId: {
+              warehouseId: dto.storeId,
               variantId: it.variantId,
             },
           },
           create: {
-            storeId: dto.storeId,
+            warehouseId: dto.storeId,
             variantId: it.variantId,
-            quantity: it.quantity,
+            onHand: it.quantity,
+            available: it.quantity,
           },
           update: {
-            quantity: { increment: it.quantity },
+            onHand: { increment: it.quantity },
+            available: { increment: it.quantity },
             updatedAt: new Date(),
           },
         });
@@ -523,15 +553,15 @@ export class StoresService {
     }
 
     // Check availability for all items at source before transferring
-    const sourceStocks = await this.prisma.storeStock.findMany({
+    const sourceStocks = await this.prisma.inventory.findMany({
       where: {
-        storeId: dto.fromStoreId,
+        warehouseId: dto.fromStoreId,
         variantId: { in: items.map((i) => i.variantId) },
       },
-      select: { variantId: true, quantity: true },
+      select: { variantId: true, available: true },
     });
     const stockByVariant = new Map(
-      sourceStocks.map((s) => [s.variantId, s.quantity]),
+      sourceStocks.map((s) => [s.variantId, s.available]),
     );
     const insufficient: string[] = [];
     for (const it of items) {
@@ -557,29 +587,35 @@ export class StoresService {
 
     await this.prisma.$transaction(async (tx) => {
       for (const it of items) {
-        await tx.storeStock.update({
+        await tx.inventory.update({
           where: {
-            storeId_variantId: {
-              storeId: dto.fromStoreId,
+            warehouseId_variantId: {
+              warehouseId: dto.fromStoreId,
               variantId: it.variantId,
             },
           },
-          data: { quantity: { decrement: it.quantity }, updatedAt: new Date() },
+          data: { 
+            onHand: { decrement: it.quantity }, 
+            available: { decrement: it.quantity },
+            updatedAt: new Date() 
+          },
         });
-        await tx.storeStock.upsert({
+        await tx.inventory.upsert({
           where: {
-            storeId_variantId: {
-              storeId: dto.toStoreId,
+            warehouseId_variantId: {
+              warehouseId: dto.toStoreId,
               variantId: it.variantId,
             },
           },
           create: {
-            storeId: dto.toStoreId,
+            warehouseId: dto.toStoreId,
             variantId: it.variantId,
-            quantity: it.quantity,
+            onHand: it.quantity,
+            available: it.quantity,
           },
           update: {
-            quantity: { increment: it.quantity },
+            onHand: { increment: it.quantity },
+            available: { increment: it.quantity },
             updatedAt: new Date(),
           },
         });

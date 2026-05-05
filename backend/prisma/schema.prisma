@@ -8,80 +8,80 @@ datasource db {
 }
 
 model User {
-  id            String                @id @default(cuid())
-  email         String                @unique
-  phone         String?               @unique
-  phoneVerified Boolean               @default(false)
-  passwordHash  String?
-  isActive      Boolean               @default(true)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  address       String?
-  avatarUrl     String?
-  budgetMax     Int?
-  budgetMin     Int?
-  city          String?
-  country       String?
-  dateOfBirth   DateTime?
-  fullName      String?
-  gender        String?
-  loyaltyPoints Int                   @default(0)
-  role          UserRoleEnum          @default(CUSTOMER)
-  resetPasswordToken   String?               @unique
-  resetPasswordExpires DateTime?
-  emailVerified        Boolean               @default(false)
-  emailVerificationToken   String?               @unique
-  emailVerificationExpires DateTime?
-  aiRequestLogs AiRequestLog[]
-  auditLogs     AuditLog[]
-  carts         Cart[]
-  notifications Notification[]
-  accounts      OAuthAccount[]
-  customerOrders Order[] @relation("CustomerOrders")
-  staffOrders    Order[] @relation("StaffOrders")
-  quizResults   QuizResult[]
-  reviews       Review[]
-  sessions      Session[]
-  preferences   UserScentPreference[]
-  loyaltyTransactions LoyaltyTransaction[]
-  favorites     Favorite[]
-  staffInventoryLogs  InventoryLog[]      @relation("StaffInventoryLogs")
-  stores              UserStore[]
-  chatParticipants    ConversationParticipant[]
-  sentMessages        Message[]
-  addresses           UserAddress[]
-  inventoryRequests         InventoryRequest[] @relation("StaffInventoryRequests")
-  reviewedInventoryRequests InventoryRequest[] @relation("ReviewedInventoryRequests")
-  returnRequests      ReturnRequest[]     @relation("CustomerReturns")
-  staffReturnRequests ReturnRequest[]     @relation("StaffReturns")
-  userPromotions            UserPromotion[]
-  aiPreference              UserAiPreference?
-  phoneOtps                PhoneOtpVerification[]
-  profileCompletionBonusClaimed Boolean @default(false)
-  dailyClosings       DailyClosing[]
+  id                            String                    @id @default(cuid())
+  email                         String                    @unique
+  phone                         String?                   @unique
+  phoneVerified                 Boolean                   @default(false)
+  passwordHash                  String?
+  isActive                      Boolean                   @default(true)
+  createdAt                     DateTime                  @default(now())
+  updatedAt                     DateTime                  @updatedAt
+  address                       String?
+  avatarUrl                     String?
+  budgetMax                     Int?
+  budgetMin                     Int?
+  city                          String?
+  country                       String?
+  dateOfBirth                   DateTime?
+  fullName                      String?
+  gender                        String?
+  loyaltyPoints                 Int                       @default(0)
+  role                          UserRoleEnum              @default(CUSTOMER)
+  resetPasswordToken            String?                   @unique
+  resetPasswordExpires          DateTime?
+  emailVerified                 Boolean                   @default(false)
+  emailVerificationToken        String?                   @unique
+  emailVerificationExpires      DateTime?
+  aiRequestLogs                 AiRequestLog[]
+  auditLogs                     AuditLog[]
+  carts                         Cart[]
+  notifications                 Notification[]
+  accounts                      OAuthAccount[]
+  customerOrders                Order[]                   @relation("CustomerOrders")
+  staffOrders                   Order[]                   @relation("StaffOrders")
+  quizResults                   QuizResult[]
+  reviews                       Review[]
+  sessions                      Session[]
+  preferences                   UserScentPreference[]
+  loyaltyTransactions           LoyaltyTransaction[]
+  favorites                     Favorite[]
+  staffInventoryLogs            InventoryLog[]            @relation("StaffInventoryLogs")
+  stores                        UserStore[]
+  chatParticipants              ConversationParticipant[]
+  sentMessages                  Message[]
+  addresses                     UserAddress[]
+  inventoryRequests             InventoryRequest[]        @relation("StaffInventoryRequests")
+  reviewedInventoryRequests     InventoryRequest[]        @relation("ReviewedInventoryRequests")
+  returnRequests                ReturnRequest[]           @relation("CustomerReturns")
+  staffReturnRequests           ReturnRequest[]           @relation("StaffReturns")
+  userPromotions                UserPromotion[]
+  aiPreference                  UserAiPreference?
+  phoneOtps                     PhoneOtpVerification[]
+  profileCompletionBonusClaimed Boolean                   @default(false)
+  dailyClosings                 DailyClosing[]
 }
 
 model UserAddress {
-  id              String   @id @default(cuid())
-  userId          String
-  recipientName   String   // Tên người nhận
-  phone           String   // Số điện thoại nhận hàng
-  
-  // Thông tin hành chính từ GHN
-  provinceId      Int
-  provinceName    String
-  districtId      Int
-  districtName    String
-  wardCode        String
-  wardName        String
-  
-  detailAddress   String   // Số nhà, tên đường
-  isDefault       Boolean  @default(false)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String @id @default(cuid())
+  userId        String
+  recipientName String // TÃªn ngÆ°á»i nháº­n
+  phone         String // Sá» Äiá»n thoáº¡i nháº­n hÃ ng
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // ThÃ´ng tin hÃ nh chÃ­nh tá»« GHN
+  provinceId   Int
+  provinceName String
+  districtId   Int
+  districtName String
+  wardCode     String
+  wardName     String
+
+  detailAddress String // Sá» nhÃ , tÃªn ÄÆ°á»ng
+  isDefault     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OAuthAccount {
@@ -151,20 +151,20 @@ model QuizResult {
   longevity       String?
   createdAt       DateTime @default(now())
   recommendation  Json?
-  analysis        String?   @db.Text
-  user            User?     @relation(fields: [userId], references: [id])
+  analysis        String?  @db.Text
+  user            User?    @relation(fields: [userId], references: [id])
 }
 
 model UserAiPreference {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  riskLevel       Float    @default(0.3)
-  preferredNotes  String[]
-  avoidedNotes    String[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  riskLevel      Float    @default(0.3)
+  preferredNotes String[]
+  avoidedNotes   String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// Product & catalog models
@@ -183,9 +183,9 @@ model Category {
 }
 
 model Product {
-  id            String             @id @default(cuid())
+  id            String   @id @default(cuid())
   name          String
-  slug          String             @unique
+  slug          String   @unique
   brandId       Int
   categoryId    Int?
   scentFamilyId Int?
@@ -193,104 +193,218 @@ model Product {
   gender        String?
   longevity     String?
   concentration String?
-  isActive      Boolean            @default(true)
-  isFeatured    Boolean            @default(false)
-  isBestseller  Boolean            @default(false)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  scentAnalysis String?            @db.Text
+  isActive      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  isBestseller  Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  scentAnalysis String?  @db.Text
   sillage       String?
   seasons       String[]
   timeOfDay     String[]
   occasions     String[]
   styles        String[]
   targetAge     String?
-  ingredients   String?            @db.Text
+  ingredients   String?  @db.Text
 
-
-  brand         Brand              @relation(fields: [brandId], references: [id])
-  category      Category?          @relation(fields: [categoryId], references: [id])
-  scentFamily   ScentFamily?       @relation(fields: [scentFamilyId], references: [id])
-  variants      ProductVariant[]
-  images        ProductImage[]
-  notes         ProductScentNote[]
-  reviews       Review[]
-  reviewSummary ReviewSummary?
-  favorites     Favorite[]
+  brand           Brand              @relation(fields: [brandId], references: [id])
+  category        Category?          @relation(fields: [categoryId], references: [id])
+  scentFamily     ScentFamily?       @relation(fields: [scentFamilyId], references: [id])
+  variants        ProductVariant[]
+  images          ProductImage[]
+  notes           ProductScentNote[]
+  reviews         Review[]
+  reviewSummary   ReviewSummary?
+  favorites       Favorite[]
   journalSections JournalSection[]
 }
-
 
 model ProductVariant {
   id        String   @id @default(cuid())
   productId String
-  name      String   // e.g. "5ml", "10ml", "50ml", "100ml"
+  name      String // e.g. "5ml", "10ml", "50ml", "100ml"
   sku       String?  @unique
   barcode   String?  @unique
   price     Int
-  stock     Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-  inventoryLogs InventoryLog[]
-  storeStocks StoreStock[]
-  favorites   Favorite[]
+  product           Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems         CartItem[]
+  orderItems        OrderItem[]
+  inventoryLogs     InventoryLog[]
+  inventories       Inventory[]
+  favorites         Favorite[]
   inventoryRequests InventoryRequest[]
-  returnItems   ReturnItem[]
+  returnItems       ReturnItem[]
+  poItems           PurchaseOrderItem[]
+  toItems           TransferOrderItem[]
+  stocktakeItems    StocktakeItem[]
 
   @@index([productId])
   @@index([barcode])
 }
 
-/// Quầy / cửa hàng (nhiều quầy, mỗi quầy có tồn riêng)
+/// Quáº§y / cá»­a hÃ ng (nhiá»u quáº§y, má»i quáº§y cÃ³ tá»n riÃªng)
 model Store {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   name      String
-  code      String?  @unique
+  code      String?       @unique
   address   String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  type      WarehouseType @default(STORE)
+  isActive  Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-  users       UserStore[]
-  orders      Order[]
-  storeStocks StoreStock[]
-  inventoryLogs InventoryLog[]
+  users             UserStore[]
+  orders            Order[]
+  inventories       Inventory[]
+  inventoryLogs     InventoryLog[]
   inventoryRequests InventoryRequest[]
-  dailyClosings       DailyClosing[]
+  dailyClosings     DailyClosing[]
+  purchaseOrders    PurchaseOrder[]
+  transfersFrom     TransferOrder[]    @relation("TransferFrom")
+  transfersTo       TransferOrder[]    @relation("TransferTo")
+  stocktakes        Stocktake[]
 }
 
-/// Gán nhân viên (STAFF) vào quầy – staff chỉ xem/sửa tồn quầy mình
+/// GÃ¡n nhÃ¢n viÃªn (STAFF) vÃ o quáº§y â staff chá» xem/sá»­a tá»n quáº§y mÃ¬nh
 model UserStore {
-  userId    String
-  storeId   String
+  userId     String
+  storeId    String
   assignedAt DateTime @default(now())
 
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  store     Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@id([userId, storeId])
   @@index([storeId])
 }
 
-/// Tồn theo quầy: mỗi quầy có số lượng riêng từng variant
-model StoreStock {
-  storeId   String
-  variantId String
-  quantity  Int      @default(0)
-  updatedAt DateTime @updatedAt
+enum WarehouseType {
+  CENTRAL
+  STORE
+  DEFECTIVE
+}
 
-  store     Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+/// Unified Inventory table replacing StoreStock and ProductVariant.stock
+model Inventory {
+  id          String   @id @default(cuid())
+  warehouseId String
+  variantId   String
+  onHand      Int      @default(0)
+  reserved    Int      @default(0)
+  available   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  warehouse Store          @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
-  @@id([storeId, variantId])
+  @@unique([warehouseId, variantId])
   @@index([variantId])
 }
 
+model PurchaseOrder {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  supplierId   String?
+  supplierName String?
+  status       POStatus @default(DRAFT)
+  totalAmount  Int      @default(0)
+  warehouseId  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
+
+  warehouse Store               @relation(fields: [warehouseId], references: [id])
+  items     PurchaseOrderItem[]
+}
+
+enum POStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  COMPLETED
+  CANCELLED
+}
+
+model PurchaseOrderItem {
+  id              String @id @default(cuid())
+  purchaseOrderId String
+  variantId       String
+  quantity        Int
+  unitPrice       Int
+  totalPrice      Int
+
+  purchaseOrder PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+}
+
+model TransferOrder {
+  id          String         @id @default(cuid())
+  code        String         @unique
+  fromStoreId String
+  toStoreId   String
+  status      TransferStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  createdBy   String?
+
+  fromStore Store               @relation("TransferFrom", fields: [fromStoreId], references: [id])
+  toStore   Store               @relation("TransferTo", fields: [toStoreId], references: [id])
+  items     TransferOrderItem[]
+}
+
+enum TransferStatus {
+  PENDING
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+model TransferOrderItem {
+  id              String @id @default(cuid())
+  transferOrderId String
+  variantId       String
+  quantity        Int
+
+  transferOrder TransferOrder  @relation(fields: [transferOrderId], references: [id], onDelete: Cascade)
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
+}
+
+model Stocktake {
+  id          String          @id @default(cuid())
+  code        String          @unique
+  warehouseId String
+  status      StocktakeStatus @default(DRAFT)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  createdBy   String?
+
+  warehouse Store           @relation(fields: [warehouseId], references: [id])
+  items     StocktakeItem[]
+}
+
+enum StocktakeStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model StocktakeItem {
+  id          String  @id @default(cuid())
+  stocktakeId String
+  variantId   String
+  systemQty   Int     @default(0)
+  countedQty  Int?
+  variance    Int?
+  reason      String?
+
+  stocktake Stocktake      @relation(fields: [stocktakeId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+}
 
 model ProductImage {
   id        Int      @id @default(autoincrement())
@@ -324,57 +438,56 @@ model Cart {
 }
 
 model CartItem {
-  id        Int     @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   cartId    String
   variantId String
-  quantity  Int     @default(1)
+  quantity  Int    @default(1)
 
-  cart      Cart           @relation(fields: [cartId], references: [id])
-  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  cart    Cart           @relation(fields: [cartId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
 
   @@unique([cartId, variantId])
 }
 
-
 model Order {
-  id                  String               @id @default(cuid())
-  code                String               @unique
-  userId              String?
-  staffId             String?
-  storeId             String?
-  totalAmount         Int
-  discountAmount      Int                  @default(0)
-  finalAmount         Int
-  refundAmount        Int                  @default(0)
-  status              OrderStatus          @default(PENDING)
-  paymentStatus       PaymentStatus        @default(PENDING)
-  channel             OrderChannel         @default(ONLINE)
-  shippingAddress     String?
-  shippingProvinceId  Int?
-  shippingDistrictId  Int?
-  shippingWardCode    String?
-  shippingFee         Int                  @default(0)
-  shippingServiceId   Int?
-  recipientName       String?
-  phone               String?
-  isPosDraft          Boolean              @default(false)
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  promotions      AppliedPromotion[]
-  user            User?                @relation("CustomerOrders", fields: [userId], references: [id])
-  staff           User?                @relation("StaffOrders", fields: [staffId], references: [id])
-  store           Store?               @relation(fields: [storeId], references: [id])
-  items           OrderItem[]
-  statusHistory   OrderStatusHistory[]
-  payments        Payment[]
-  shipments       Shipment[]
-  returnRequests  ReturnRequest[]
+  id                 String               @id @default(cuid())
+  code               String               @unique
+  userId             String?
+  staffId            String?
+  storeId            String?
+  totalAmount        Int
+  discountAmount     Int                  @default(0)
+  finalAmount        Int
+  refundAmount       Int                  @default(0)
+  status             OrderStatus          @default(PENDING)
+  paymentStatus      PaymentStatus        @default(PENDING)
+  channel            OrderChannel         @default(ONLINE)
+  shippingAddress    String?
+  shippingProvinceId Int?
+  shippingDistrictId Int?
+  shippingWardCode   String?
+  shippingFee        Int                  @default(0)
+  shippingServiceId  Int?
+  recipientName      String?
+  phone              String?
+  isPosDraft         Boolean              @default(false)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  promotions         AppliedPromotion[]
+  user               User?                @relation("CustomerOrders", fields: [userId], references: [id])
+  staff              User?                @relation("StaffOrders", fields: [staffId], references: [id])
+  store              Store?               @relation(fields: [storeId], references: [id])
+  items              OrderItem[]
+  statusHistory      OrderStatusHistory[]
+  payments           Payment[]
+  shipments          Shipment[]
+  returnRequests     ReturnRequest[]
 
   @@index([storeId])
 }
 
 model OrderItem {
-  id         Int     @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   orderId    String
   variantId  String
   unitPrice  Int
@@ -384,11 +497,10 @@ model OrderItem {
   isAiRecommended     Boolean @default(false)
   aiRecommendationRef String? // Could be QuizResult ID or Chat Conversation ID
 
-  order      Order          @relation(fields: [orderId], references: [id])
-  variant    ProductVariant @relation(fields: [variantId], references: [id])
-  review     Review?
+  order   Order          @relation(fields: [orderId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+  review  Review?
 }
-
 
 model OrderStatusHistory {
   id        Int         @id @default(autoincrement())
@@ -413,57 +525,57 @@ model Payment {
 }
 
 model Shipment {
-  id               String           @id @default(cuid())
-  orderId          String
-  provider         ShippingProvider
-  trackingCode     String?
-  ghnOrderCode     String?          // GHN order_code
-  fee              Int?
-  status           ShipmentStatus   @default(PENDING)
-  address          String?
-  rawProviderData  String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  order            Order            @relation(fields: [orderId], references: [id])
+  id              String           @id @default(cuid())
+  orderId         String
+  provider        ShippingProvider
+  trackingCode    String?
+  ghnOrderCode    String? // GHN order_code
+  fee             Int?
+  status          ShipmentStatus   @default(PENDING)
+  address         String?
+  rawProviderData String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  order           Order            @relation(fields: [orderId], references: [id])
 
   @@index([ghnOrderCode])
 }
 
 model PromotionCode {
-  id              String                @id @default(cuid())
-  code            String                @unique
-  description     String?
-  discountType    PromotionDiscountType
-  discountValue   Int                   // Giá trị giảm (số tiền hoặc %)
-  minOrderAmount  Int?                  // Giá trị đơn hàng tối thiểu
-  maxDiscount     Int?                  // Giảm tối đa (đối với PERCENTAGE)
-  usageLimit      Int?                  // Số lần sử dụng tối đa
-  usedCount       Int                   @default(0)
-  startDate       DateTime
-  endDate         DateTime
-  isActive        Boolean               @default(true)
-  
+  id             String                @id @default(cuid())
+  code           String                @unique
+  description    String?
+  discountType   PromotionDiscountType
+  discountValue  Int // GiÃ¡ trá» giáº£m (sá» tiá»n hoáº·c %)
+  minOrderAmount Int? // GiÃ¡ trá» ÄÆ¡n hÃ ng tá»i thiá»u
+  maxDiscount    Int? // Giáº£m tá»i Äa (Äá»i vá»i PERCENTAGE)
+  usageLimit     Int? // Sá» láº§n sá»­ dá»¥ng tá»i Äa
+  usedCount      Int                   @default(0)
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean               @default(true)
+
   // New fields
-  isPublic        Boolean               @default(false) // Mã công khai (free)
-  pointsCost      Int                   @default(0)     // Điểm cần đổi (nếu isPublic = false)
-  
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  appliedOrders   AppliedPromotion[]
-  userPromotions  UserPromotion[]      // Liên kết với người dùng
+  isPublic   Boolean @default(false) // MÃ£ cÃ´ng khai (free)
+  pointsCost Int     @default(0) // Äiá»m cáº§n Äá»i (náº¿u isPublic = false)
+
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  appliedOrders  AppliedPromotion[]
+  userPromotions UserPromotion[] // LiÃªn káº¿t vá»i ngÆ°á»i dÃ¹ng
 }
 
 model UserPromotion {
-  id              String        @id @default(cuid())
-  userId          String
-  promotionId     String
-  status          UserPromotionStatus @default(UNUSED)
-  redeemedAt      DateTime      @default(now())
-  usedAt          DateTime?
+  id          String              @id @default(cuid())
+  userId      String
+  promotionId String
+  status      UserPromotionStatus @default(UNUSED)
+  redeemedAt  DateTime            @default(now())
+  usedAt      DateTime?
 
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  promotion       PromotionCode @relation(fields: [promotionId], references: [id], onDelete: Cascade)
-  appliedOrders   AppliedPromotion[]
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotion     PromotionCode      @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  appliedOrders AppliedPromotion[]
 
   @@unique([userId, promotionId])
 }
@@ -475,57 +587,57 @@ enum UserPromotionStatus {
 }
 
 model AppliedPromotion {
-  id              String        @id @default(cuid())
+  id              String         @id @default(cuid())
   orderId         String
   discountAmount  Int
   promotionCodeId String
-  userPromotionId String?       // Link to the specific user's voucher record
-  order           Order         @relation(fields: [orderId], references: [id])
-  promotionCode   PromotionCode @relation(fields: [promotionCodeId], references: [id])
+  userPromotionId String? // Link to the specific user's voucher record
+  order           Order          @relation(fields: [orderId], references: [id])
+  promotionCode   PromotionCode  @relation(fields: [promotionCodeId], references: [id])
   userPromotion   UserPromotion? @relation(fields: [userPromotionId], references: [id])
 }
 
 /// Reviews & AI summarization
 model Review {
-  id            String   @id @default(cuid())
-  userId        String
-  productId     String
-  orderItemId   Int      @unique
+  id          String @id @default(cuid())
+  userId      String
+  productId   String
+  orderItemId Int    @unique
 
-  rating        Int
-  content       String?
+  rating  Int
+  content String?
 
-  isVerified    Boolean  @default(true)
-  isHidden      Boolean  @default(false)
-  isPinned      Boolean  @default(false)
-  flagged       Boolean  @default(false)
+  isVerified Boolean @default(true)
+  isHidden   Boolean @default(false)
+  isPinned   Boolean @default(false)
+  flagged    Boolean @default(false)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  product       Product         @relation(fields: [productId], references: [id])
-  user          User            @relation(fields: [userId], references: [id])
-  orderItem     OrderItem       @relation(fields: [orderItemId], references: [id])
-  images        ReviewImage[]
-  reactions     ReviewReaction[]
-  reports       ReviewReport[]
+  product   Product          @relation(fields: [productId], references: [id])
+  user      User             @relation(fields: [userId], references: [id])
+  orderItem OrderItem        @relation(fields: [orderItemId], references: [id])
+  images    ReviewImage[]
+  reactions ReviewReaction[]
+  reports   ReviewReport[]
 }
 
 model ReviewImage {
-  id        String @id @default(cuid())
-  reviewId  String
-  imageUrl  String
+  id       String @id @default(cuid())
+  reviewId String
+  imageUrl String
 
-  review    Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 }
 
 model ReviewReaction {
-  id        String       @id @default(cuid())
-  reviewId  String
-  userId    String
-  type      ReactionType
+  id       String       @id @default(cuid())
+  reviewId String
+  userId   String
+  type     ReactionType
 
-  review    Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
   @@unique([reviewId, userId])
 }
@@ -537,21 +649,21 @@ model ReviewReport {
   reason    String
   createdAt DateTime @default(now())
 
-  review    Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 }
 
 model ReviewSummary {
-  id         String @id @default(cuid())
-  productId  String @unique
+  id        String @id @default(cuid())
+  productId String @unique
 
-  summary    String
-  pros       String?
-  cons       String?
-  keywords   String?
-  sentiment  String?
+  summary   String
+  pros      String?
+  cons      String?
+  keywords  String?
+  sentiment String?
 
-  updatedAt  DateTime @updatedAt
-  product    Product  @relation(fields: [productId], references: [id])
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 /// Notifications
@@ -576,9 +688,9 @@ model AiRequestLog {
   request      String
   response     String?
   status       String?
-  duration     Int?      // Execution time in ms
-  model        String?   // AI model used
-  errorMessage String?   // Error details if failed
+  duration     Int? // Execution time in ms
+  model        String? // AI model used
+  errorMessage String? // Error details if failed
   createdAt    DateTime @default(now())
   user         User?    @relation(fields: [userId], references: [id])
 }
@@ -595,14 +707,12 @@ model AuditLog {
   user      User?    @relation(fields: [userId], references: [id])
 }
 
-
-
 model LoyaltyTransaction {
   id        String   @id @default(cuid())
   userId    String?
-  phone     String?     // Track loyalty by phone even for unregistered guests
+  phone     String? // Track loyalty by phone even for unregistered guests
   orderId   String?
-  points    Int // Số điểm (+ hoặc -)
+  points    Int // Sá» Äiá»m (+ hoáº·c -)
   reason    String // EARNED_FROM_ORDER, REDEEMED_FOR_DISCOUNT, MIGRATED_TO_USER, etc.
   createdAt DateTime @default(now())
   user      User?    @relation(fields: [userId], references: [id])
@@ -612,14 +722,14 @@ model LoyaltyTransaction {
 }
 
 model PhoneOtpVerification {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
   phone      String
   otpHash    String
   expiresAt  DateTime
   consumedAt DateTime?
-  attempts   Int      @default(0)
-  createdAt  DateTime @default(now())
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -628,10 +738,10 @@ model PhoneOtpVerification {
 
 /// Chat & conversations
 model Conversation {
-  id        String             @id @default(cuid())
+  id        String           @id @default(cuid())
   type      ConversationType
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
   deletedAt DateTime?
 
   participants ConversationParticipant[]
@@ -639,30 +749,30 @@ model Conversation {
 }
 
 model ConversationParticipant {
-  id             String        @id @default(cuid())
+  id             String                      @id @default(cuid())
   conversationId String
   userId         String?
   role           ConversationParticipantRole
-  joinedAt       DateTime      @default(now())
+  joinedAt       DateTime                    @default(now())
 
-  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([conversationId])
   @@index([userId])
 }
 
 model Message {
-  id             String        @id @default(cuid())
+  id             String      @id @default(cuid())
   conversationId String
   senderId       String?
   senderType     SenderType
   content        Json
   type           MessageType
-  createdAt      DateTime      @default(now())
+  createdAt      DateTime    @default(now())
 
-  conversation   Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User?         @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User?        @relation(fields: [senderId], references: [id], onDelete: SetNull)
 
   @@index([conversationId, createdAt])
   @@index([senderId])
@@ -738,18 +848,18 @@ enum OrderChannel {
 }
 
 model InventoryLog {
-  id        Int             @id @default(autoincrement())
+  id        Int              @id @default(autoincrement())
   variantId String
   staffId   String?
   storeId   String?
   type      InventoryLogType
   quantity  Int
   reason    String?
-  createdAt DateTime        @default(now())
+  createdAt DateTime         @default(now())
 
-  variant   ProductVariant  @relation(fields: [variantId], references: [id])
-  staff     User?           @relation("StaffInventoryLogs", fields: [staffId], references: [id])
-  store     Store?          @relation(fields: [storeId], references: [id])
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+  staff   User?          @relation("StaffInventoryLogs", fields: [staffId], references: [id])
+  store   Store?         @relation(fields: [storeId], references: [id])
 
   @@index([variantId])
   @@index([staffId])
@@ -762,6 +872,8 @@ enum InventoryLogType {
   SALE_POS
   SALE_ONLINE
   RETURN
+  TRANSFER_IN
+  TRANSFER_OUT
 }
 
 enum InventoryRequestStatus {
@@ -771,23 +883,23 @@ enum InventoryRequestStatus {
 }
 
 model InventoryRequest {
-  id          Int                    @id @default(autoincrement())
-  storeId     String
-  variantId   String
-  staffId     String
-  type        InventoryLogType       // IMPORT or ADJUST
-  quantity    Int                    // positive for import, +/- for adjust
-  reason      String?
-  status      InventoryRequestStatus @default(PENDING)
-  reviewedBy  String?
-  reviewNote  String?
-  reviewedAt  DateTime?
-  createdAt   DateTime               @default(now())
+  id         Int                    @id @default(autoincrement())
+  storeId    String
+  variantId  String
+  staffId    String
+  type       InventoryLogType // IMPORT or ADJUST
+  quantity   Int // positive for import, +/- for adjust
+  reason     String?
+  status     InventoryRequestStatus @default(PENDING)
+  reviewedBy String?
+  reviewNote String?
+  reviewedAt DateTime?
+  createdAt  DateTime               @default(now())
 
-  store       Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  staff       User           @relation("StaffInventoryRequests", fields: [staffId], references: [id])
-  reviewer    User?          @relation("ReviewedInventoryRequests", fields: [reviewedBy], references: [id])
+  store    Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variant  ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  staff    User           @relation("StaffInventoryRequests", fields: [staffId], references: [id])
+  reviewer User?          @relation("ReviewedInventoryRequests", fields: [reviewedBy], references: [id])
 
   @@index([storeId])
   @@index([staffId])
@@ -810,30 +922,30 @@ enum ShipmentStatus {
 }
 
 model DailyClosing {
-  id              String   @id @default(cuid())
-  storeId         String
-  staffId         String
-  closingDate     DateTime @default(now())
-  
-  // Doanh thu hệ thống
-  systemTotal     Int      // Tổng doanh thu hệ thống tính toán
-  systemCash      Int      // Tiền mặt theo hệ thống
-  systemTransfer  Int      // Chuyển khoản theo hệ thống
-  
-  // Doanh thu thực tế nhân viên nhập
-  actualCash      Int      // Tiền mặt thực tế nhân viên kiểm kê
-  actualTransfer  Int?     // Chuyển khoản thực tế (thường khớp nhưng có thể nhập đối soát)
-  
-  // Chênh lệch
-  difference      Int      // Chênh lệch (actualCash - systemCash)
-  note            String?  @db.Text
-  
+  id          String   @id @default(cuid())
+  storeId     String
+  staffId     String
+  closingDate DateTime @default(now())
+
+  // Doanh thu há» thá»ng
+  systemTotal    Int // Tá»ng doanh thu há» thá»ng tÃ­nh toÃ¡n
+  systemCash     Int // Tiá»n máº·t theo há» thá»ng
+  systemTransfer Int // Chuyá»n khoáº£n theo há» thá»ng
+
+  // Doanh thu thá»±c táº¿ nhÃ¢n viÃªn nháº­p
+  actualCash     Int // Tiá»n máº·t thá»±c táº¿ nhÃ¢n viÃªn kiá»m kÃª
+  actualTransfer Int? // Chuyá»n khoáº£n thá»±c táº¿ (thÆ°á»ng khá»p nhÆ°ng cÃ³ thá» nháº­p Äá»i soÃ¡t)
+
+  // ChÃªnh lá»ch
+  difference Int // ChÃªnh lá»ch (actualCash - systemCash)
+  note       String? @db.Text
+
   // Metadata
-  orderCount      Int      // Số lượng đơn hàng trong ngày
-  createdAt       DateTime @default(now())
-  
-  store           Store    @relation(fields: [storeId], references: [id])
-  staff           User     @relation(fields: [staffId], references: [id])
+  orderCount Int // Sá» lÆ°á»£ng ÄÆ¡n hÃ ng trong ngÃ y
+  createdAt  DateTime @default(now())
+
+  store Store @relation(fields: [storeId], references: [id])
+  staff User  @relation(fields: [staffId], references: [id])
 
   @@index([storeId, closingDate])
 }
@@ -849,10 +961,10 @@ enum NotificationChannel {
   IN_APP
 }
 
-enum ReactionType {                                                                      
-  HELPFUL                                                                               
-  NOT_HELPFUL                                                                            
-}  
+enum ReactionType {
+  HELPFUL
+  NOT_HELPFUL
+}
 
 model Favorite {
   userId    String
@@ -860,9 +972,9 @@ model Favorite {
   variantId String?
   createdAt DateTime @default(now())
 
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
   @@id([userId, productId])
   @@index([productId])
@@ -881,15 +993,15 @@ model Banner {
 }
 
 model Journal {
-  id        String         @id @default(cuid())
+  id        String           @id @default(cuid())
   title     String
   excerpt   String?
   mainImage String
-  category  String?        @default("all")
-  priority  Int            @default(0)
-  isActive  Boolean        @default(true)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  category  String?          @default("all")
+  priority  Int              @default(0)
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
   sections  JournalSection[]
 }
 
@@ -908,30 +1020,30 @@ model JournalSection {
 /// ===== RETURN & REFUND =====
 
 model ReturnRequest {
-  id               String           @id @default(cuid())
+  id               String            @id @default(cuid())
   orderId          String
   userId           String?
-  origin           ReturnOrigin     @default(ONLINE)
-  createdBy        String?          // staff/admin id if created by staff
-  status           ReturnStatus     @default(REQUESTED)
+  origin           ReturnOrigin      @default(ONLINE)
+  createdBy        String? // staff/admin id if created by staff
+  status           ReturnStatus      @default(REQUESTED)
   reason           String?
   paymentInfo      Json?
   note             String?
-  totalAmount      Int?             // cached refundable amount
-  refundAmount     Int?             // actual refunded amount
+  totalAmount      Int? // cached refundable amount
+  refundAmount     Int? // actual refunded amount
   receivedAt       DateTime?
   receivedLocation ReceivedLocation?
   videoUrl         String?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  order            Order            @relation(fields: [orderId], references: [id])
-  user             User?            @relation("CustomerReturns", fields: [userId], references: [id])
-  staff            User?            @relation("StaffReturns", fields: [createdBy], references: [id])
-  items            ReturnItem[]
-  shipments        ReturnShipment[]
-  audits           ReturnAudit[]
-  refunds          Refund[]
+  order     Order            @relation(fields: [orderId], references: [id])
+  user      User?            @relation("CustomerReturns", fields: [userId], references: [id])
+  staff     User?            @relation("StaffReturns", fields: [createdBy], references: [id])
+  items     ReturnItem[]
+  shipments ReturnShipment[]
+  audits    ReturnAudit[]
+  refunds   Refund[]
 
   @@index([orderId])
   @@index([userId])
@@ -939,19 +1051,19 @@ model ReturnRequest {
 }
 
 model ReturnItem {
-  id              String   @id @default(cuid())
+  id              String         @id @default(cuid())
   returnRequestId String
   variantId       String
   quantity        Int
-  qtyReceived     Int?             // filled when warehouse receives
+  qtyReceived     Int? // filled when warehouse receives
   reason          String?
   condition       ItemCondition?
   sealIntact      Boolean?
-  images          String[]  @default([])
-  createdAt       DateTime @default(now())
+  images          String[]       @default([])
+  createdAt       DateTime       @default(now())
 
-  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
-  variant         ProductVariant @relation(fields: [variantId], references: [id])
+  returnRequest ReturnRequest  @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  variant       ProductVariant @relation(fields: [variantId], references: [id])
 
   @@index([returnRequestId])
 }
@@ -964,11 +1076,11 @@ model ReturnShipment {
   shippedAt        DateTime?
   receivedAt       DateTime?
   receivedLocation ReceivedLocation?
-  status           String?           // e.g. PENDING, SHIPPED, DELIVERED, FAILED
+  status           String? // e.g. PENDING, SHIPPED, DELIVERED, FAILED
   rawProviderData  String?           @db.Text
   createdAt        DateTime          @default(now())
 
-  returnRequest    ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
 
   @@index([returnRequestId])
 }
@@ -977,7 +1089,7 @@ model ReturnAudit {
   id        String   @id @default(cuid())
   returnId  String
   actorId   String?
-  action    String   // e.g. CREATED, APPROVED, REJECTED, RECEIVED, REFUNDED, CANCELLED
+  action    String // e.g. CREATED, APPROVED, REJECTED, RECEIVED, REFUNDED, CANCELLED
   payload   Json?
   createdAt DateTime @default(now())
 
@@ -990,8 +1102,8 @@ model Refund {
   id              String       @id @default(cuid())
   returnRequestId String
   amount          Int
-  method          String       // CASH, BANK_TRANSFER, GATEWAY
-  transactionId   String?      // bank transfer / gateway refund id
+  method          String // CASH, BANK_TRANSFER, GATEWAY
+  transactionId   String? // bank transfer / gateway refund id
   status          RefundStatus @default(PENDING)
   attempts        Int          @default(0)
   error           Json?
@@ -1000,7 +1112,7 @@ model Refund {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
-  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
 
   @@index([returnRequestId])
 }

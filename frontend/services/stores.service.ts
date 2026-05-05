@@ -6,6 +6,7 @@ export type Store = {
   code?: string | null;
   address?: string | null;
   isActive?: boolean;
+  type?: string;
 };
 
 export type StoreWithDetails = Store & {
@@ -16,14 +17,18 @@ export type StoreWithDetails = Store & {
 };
 
 export type StockOverviewStore = {
-  store: { id: string; name: string; code: string | null };
+  store: { id: string; name: string; code: string | null; type?: string };
   variants: {
     variantId: string;
     variantName: string;
+    sku: string | null;
+    barcode: string | null;
     productName: string;
     brandName: string | null;
     imageUrl: string | null;
-    quantity: number;
+    available: number;
+    onHand: number;
+    reserved: number;
     updatedAt: string;
   }[];
   totalUnits: number;

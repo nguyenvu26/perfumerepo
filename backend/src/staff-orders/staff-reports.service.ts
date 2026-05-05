@@ -411,29 +411,29 @@ export class StaffReportsService {
     const storeIds = await this.getStaffStoreIds(userId, role);
     if (storeIds.length === 0) return [];
 
-    const storeStocks = await this.prisma.storeStock.findMany({
+    const inventories = await this.prisma.inventory.findMany({
       where: {
-        storeId: { in: storeIds },
-        quantity: { lte: threshold },
+        warehouseId: { in: storeIds },
+        available: { lte: threshold },
         variant: { isActive: true, product: { isActive: true } },
       },
       include: {
         variant: {
           include: { product: { include: { images: { orderBy: { order: 'asc' }, take: 1 } } } },
         },
-        store: { select: { name: true } },
+        warehouse: { select: { name: true } },
       },
-      orderBy: { quantity: 'asc' },
+      orderBy: { available: 'asc' },
       take: 20,
     });
 
-    return storeStocks.map((ss) => ({
+    return inventories.map((ss) => ({
       variantId: ss.variant.id,
       productName: ss.variant.product.name,
       variantName: ss.variant.name,
-      stock: ss.quantity,
+      stock: ss.available,
       imageUrl: ss.variant.product.images[0]?.url ?? null,
-      storeName: ss.store.name,
+      storeName: ss.warehouse.name,
     }));
   }
 

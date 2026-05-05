@@ -197,7 +197,15 @@ ${reviewTexts}`;
         },
         variants: {
           where: { isActive: true },
-          select: { name: true, price: true, stock: true },
+          select: {
+            name: true,
+            price: true,
+            inventories: {
+              select: {
+                available: true,
+              },
+            },
+          },
           orderBy: { price: 'asc' },
         },
         images: {
@@ -212,8 +220,10 @@ ${reviewTexts}`;
     const inStockProducts: typeof products = [];
     const outOfStockProducts: typeof products = [];
 
-    for (const p of products) {
-      const hasStock = p.variants.some((v) => v.stock > 0);
+    for (const p of products as any[]) {
+      const hasStock = p.variants.some((v: any) => 
+        v.inventories.some((i: any) => i.available > 0)
+      );
       if (hasStock) {
         inStockProducts.push(p);
       } else {
@@ -223,8 +233,9 @@ ${reviewTexts}`;
 
     // ── Format helper ──
     const formatProduct = (p: (typeof products)[0], includeStock: boolean) => {
-      const prices = p.variants.map((v) => {
-        const stockInfo = includeStock ? ` (còn ${v.stock} sản phẩm)` : '';
+      const prices = p.variants.map((v: any) => {
+        const totalAvailable = v.inventories.reduce((acc: number, curr: any) => acc + curr.available, 0);
+        const stockInfo = includeStock ? ` (còn ${totalAvailable} sản phẩm)` : '';
         return `${v.name}: ${v.price.toLocaleString()}₫${stockInfo}`;
       });
       const notes = p.notes.map(
@@ -323,7 +334,7 @@ ${reviewTexts}`;
         variants: {
           some: {
             isActive: true,
-            stock: { gt: 0 },
+            inventories: { some: { available: { gt: 0 } } },
           },
         },
       },
@@ -380,7 +391,10 @@ ${reviewTexts}`;
 
   private formatScoredProduct(tp: any) {
     const p = tp.product;
-    const prices = p.variants.map((v: any) => `${v.name}: ${v.price.toLocaleString()}₫ (còn ${v.stock})`).join(' | ');
+    const prices = p.variants.map((v: any) => {
+      const totalAvailable = v.inventories?.reduce((acc: number, curr: any) => acc + curr.available, 0) || 0;
+      return `${v.name}: ${v.price.toLocaleString()}₫ (còn ${totalAvailable})`;
+    }).join(' | ');
     const notes = p.notes.map((n: any) => `${n.note.type}: ${n.note.name}`).join(', ');
     const feedback = p.reviewSummary?.summary ? `  Community Feedback: ${p.reviewSummary.summary} (Sentiment: ${p.reviewSummary.sentiment})` : '';
     return [
@@ -744,7 +758,7 @@ YÊU CẦU:
           variants: {
             some: {
               isActive: true,
-              stock: { gt: 0 },
+              inventories: { some: { available: { gt: 0 } } },
             },
           },
         },

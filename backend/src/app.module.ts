@@ -34,6 +34,7 @@ import { ReturnsModule } from './returns/returns.module';
 import { AiPreferencesModule } from './ai-preferences/ai-preferences.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DailyClosingModule } from './daily-closing/daily-closing.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { DailyClosingModule } from './daily-closing/daily-closing.module';
     AiPreferencesModule,
     AnalyticsModule,
     DailyClosingModule,
+    InventoryModule,
   ],
 
   controllers: [AppController],

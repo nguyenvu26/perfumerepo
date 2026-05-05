@@ -2639,6 +2639,11 @@
           "load_overview": "Failed to load inventory overview.",
           "import_failed": "Import operation failed.",
           "adjust_failed": "Adjustment operation failed."
+        },
+        "transfers": {
+          "title": "Incoming Transfers",
+          "empty": "No incoming transfers found.",
+          "receive_btn": "Confirm Receipt"
         }
       },
       "kpi": {
@@ -3123,7 +3128,62 @@
     "table_staff": "Staff",
     "table_date": "Date",
     "table_reason": "Reason",
-    "empty_history": "No inventory movement logs found."
+    "empty_history": "No inventory movement logs found.",
+    "transfers": {
+      "title": "Transfer Orders",
+      "subtitle": "Manage inventory movements between warehouses and stores.",
+      "create_btn": "Create New Order",
+      "from_store": "Source Warehouse",
+      "to_store": "Destination",
+      "status": "Status",
+      "ship_btn": "Start Shipping",
+      "receive_btn": "Confirm Receipt",
+      "cancel_btn": "Cancel Order",
+      "empty": "No transfer orders found.",
+      "success_create": "Transfer order created successfully.",
+      "success_ship": "Order is now in transit.",
+      "success_receive": "Inventory received successfully.",
+      "success_cancel": "Order cancelled.",
+      "items": "Product List",
+      "code": "Order Code"
+    },
+    "audit": {
+      "title": "Inventory Audit",
+      "subtitle": "Verify physical stock levels and perform automated adjustments.",
+      "create_btn": "Start Stocktake",
+      "status": "Status",
+      "system_qty": "System Qty",
+      "counted_qty": "Physical Count",
+      "variance": "Variance",
+      "complete_btn": "Finalize & Adjust",
+      "success_complete": "Stocktake completed. Inventory adjusted automatically.",
+      "in_progress": "In Progress",
+      "empty": "No audit history found."
+    },
+    "analytics": {
+      "title": "Inventory Reports",
+      "low_stock": "Low Stock Alerts",
+      "value": "Inventory Valuation",
+      "global_value": "Global Net Value",
+      "warehouse_value": "Value by Warehouse"
+    },
+    "matrix": {
+      "title": "Global Stock Matrix",
+      "subtitle": "Side-by-side comparison of product inventory across all warehouses.",
+      "product_info": "Product Intelligence",
+      "global_total": "Global Total",
+      "low_stock_warning": "Local Stock Warning",
+      "central_label": "Central Hub",
+      "store_label": "Boutique: {name}",
+      "view_comparison": "Global Matrix",
+      "view_store": "Boutique Focus",
+      "stats": {
+        "total_sku": "Total SKUs",
+        "global_stock": "Global Units",
+        "low_stock_alerts": "Depletion Alerts",
+        "active_warehouses": "Active Hubs"
+      }
+    }
   },
   "admin_dashboard": {
     "sales_overview": "Sales Overview",

@@ -41,7 +41,10 @@ export class AiScoringService {
       where: {
         isActive: true,
         variants: {
-          some: { isActive: true, stock: { gt: 0 } },
+          some: {
+            isActive: true,
+            inventories: { some: { available: { gt: 0 } } },
+          },
         },
       },
       select: {
@@ -59,14 +62,24 @@ export class AiScoringService {
         notes: { select: { note: { select: { name: true, type: true } } } },
         variants: {
           where: { isActive: true },
-          select: { name: true, price: true, stock: true },
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            inventories: {
+              select: {
+                available: true,
+                onHand: true,
+              },
+            },
+          },
           orderBy: { price: 'asc' },
         },
         images: { select: { url: true }, take: 1 },
         reviews: { select: { rating: true } },
         reviewSummary: { select: { sentiment: true, summary: true } },
       },
-    });
+    }) as any[];
 
     if (!products.length) return [];
 
