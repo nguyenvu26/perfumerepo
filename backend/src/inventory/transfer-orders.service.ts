@@ -92,7 +92,8 @@ export class TransferOrdersService {
               quantity: item.quantity
             }))
           }
-        }
+        },
+        include: { fromStore: true, toStore: true }
       });
 
       // 2. Lock (allocate) stock at source warehouse
@@ -120,8 +121,8 @@ export class TransferOrdersService {
             storeId: dto.fromStoreId,
             staffId: dto.userId || '',
             type: InventoryLogType.TRANSFER_OUT,
-            quantity: item.quantity,
-            reason: `Tạm giữ hàng cho phiếu điều chuyển ${code}`
+            quantity: -item.quantity, // Negative for OUT
+            reason: `Xuất hàng đến ${transfer.toStore.name} (Phiếu ${code})`
           }
         });
       }
@@ -158,7 +159,11 @@ export class TransferOrdersService {
   async receive(id: string, dto: { items: { variantId: string; actualQuantity: number; note?: string }[] }, userId?: string, userRole?: string) {
     const transfer = await this.prisma.transferOrder.findUnique({
       where: { id },
-      include: { items: true }
+      include: { 
+        items: true,
+        fromStore: true,
+        toStore: true
+      }
     });
 
     if (!transfer) throw new NotFoundException('Không tìm thấy phiếu điều chuyển.');
@@ -219,8 +224,8 @@ export class TransferOrdersService {
             storeId: transfer.toStoreId,
             staffId: userId || '',
             type: InventoryLogType.TRANSFER_IN,
-            quantity: actualQty,
-            reason: `Nhận hàng từ TO ${transfer.code}${diff > 0 ? ` (Hao hụt: ${diff})` : ''}${inspection?.note ? ` - Lưu ý: ${inspection.note}` : ''}`
+            quantity: actualQty, // Positive for IN
+            reason: `Nhận hàng từ ${transfer.fromStore.name} (Phiếu ${transfer.code})${diff > 0 ? ` (Hao hụt: ${diff})` : ''}${inspection?.note ? ` - Lưu ý: ${inspection.note}` : ''}`
           }
         });
 

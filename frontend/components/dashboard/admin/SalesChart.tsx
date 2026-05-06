@@ -26,8 +26,8 @@ export interface SalesTrendPoint {
 
 interface SalesChartProps {
     data: SalesTrendPoint[];
-    period: 'week' | 'month' | 'year';
-    onPeriodChange: (p: 'week' | 'month' | 'year') => void;
+    period: 'week' | 'month' | 'year' | 'quarter' | 'custom';
+    onPeriodChange: (p: 'week' | 'month' | 'year' | 'quarter' | 'custom') => void;
     loading?: boolean;
 }
 
@@ -38,15 +38,22 @@ const PERIODS = [
 ] as const;
 
 /** Format a date key (YYYY-MM-DD or YYYY-MM) to a short readable label */
-function formatDateLabel(dateStr: string, period: 'week' | 'month' | 'year'): string {
+function formatDateLabel(dateStr: string, period: 'week' | 'month' | 'year' | 'quarter' | 'custom'): string {
     if (period === 'year') {
         const [, month] = dateStr.split('-');
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return months[parseInt(month) - 1] ?? dateStr;
     }
-    // For week/month, show MM/DD
+    
+    if (period === 'quarter') {
+        const parts = dateStr.split('-');
+        return `${parts[1]}/${parts[2]}`;
+    }
+
+    // For week/month/custom, show MM/DD
     const parts = dateStr.split('-');
+    if (parts.length < 3) return dateStr;
     return `${parts[1]}/${parts[2]}`;
 }
 

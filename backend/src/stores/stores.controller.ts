@@ -64,6 +64,7 @@ export class StoresController {
       storeId: string;
       variantId: string;
       quantity: number;
+      purchasePrice?: number;
       reason?: string;
     },
   ) {
@@ -73,6 +74,7 @@ export class StoresController {
       body.variantId,
       body.quantity,
       user.userId,
+      body.purchasePrice,
       body.reason,
     );
   }

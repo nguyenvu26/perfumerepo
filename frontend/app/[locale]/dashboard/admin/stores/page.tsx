@@ -194,142 +194,133 @@ export default function AdminStoresPage() {
                     <p className="text-[10px] uppercase font-black tracking-[.5em] text-muted-foreground animate-pulse leading-none italic">{t('messages.loading')}</p>
                 </div>
             ) : (
-                <div className="space-y-6 sm:space-y-10">
-                    <div className="hidden md:block glass rounded-[3rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-2xl">
-                        <table className="w-full text-left font-body text-sm border-collapse">
-                            <thead className="bg-secondary/10 text-muted-foreground border-b border-border/50">
-                                <tr>
-                                    <th className="pl-10 py-6 text-[10px] uppercase tracking-widest font-heading opacity-50">{t('columns.name')}</th>
-                                    <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-heading opacity-50">{t('columns.code')}</th>
-                                    <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-heading opacity-50">{t('columns.address')}</th>
-                                    <th className="px-8 py-6 text-[10px] uppercase tracking-widest font-heading opacity-50">{t('columns.staff')}</th>
-                                    <th className="pr-10 py-6 text-[10px] uppercase tracking-widest font-heading opacity-50 text-right">{t('columns.actions')}</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/20">
-                                {stores.map((s) => (
-                                    <tr key={s.id} className="hover:bg-gold/[0.03] transition-all duration-500 group">
-                                        <td className="pl-10 py-8">
-                                            <div className="flex items-center gap-3">
-                                                <span className="font-heading uppercase text-sm tracking-tight group-hover:text-gold transition-colors italic">{s.name}</span>
-                                                {!s.isActive && (
-                                                    <span className="bg-stone-500/10 text-stone-400 border border-stone-200 text-[8px] px-2 py-0.5 rounded-full uppercase italic inline-block">
-                                                        {t('status.hidden')}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-8">
-                                            <span className="text-[10px] text-muted-foreground font-mono tracking-widest opacity-60">{s.code ?? '—'}</span>
-                                        </td>
-                                        <td className="px-8 py-8">
-                                            <span className="text-[10px] text-muted-foreground max-w-[250px] truncate block opacity-60">{s.address ?? '—'}</span>
-                                        </td>
-                                        <td className="px-8 py-8">
-                                            <div className="flex flex-wrap gap-2">
-                                                {(s.users ?? []).map((u) => (
-                                                    <span
-                                                        key={u.user.id}
-                                                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/30 border border-border/50 text-[9px] font-heading uppercase tracking-widest shadow-sm group/staff"
-                                                    >
-                                                        {u.user.fullName || u.user.email}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleUnassign(s.id, u.user.id)}
-                                                            className="text-destructive hover:scale-125 transition-transform"
-                                                            title={t('actions.unassign')}
-                                                        >
-                                                            <UserMinus className="w-3.5 h-3.5" />
-                                                        </button>
-                                                    </span>
-                                                ))}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setAssignModal(s)}
-                                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/20 text-[9px] text-gold uppercase tracking-widest hover:bg-gold/10 transition-all font-heading"
-                                                >
-                                                    <UserPlus className="w-3.5 h-3.5" /> {t('actions.assign')}
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td className="pr-10 py-8 text-right">
-                                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => openEdit(s)}
-                                                    className="p-4 min-w-[44px] min-h-[44px] rounded-2xl bg-secondary/30 hover:bg-gold-light hover:text-primary transition-all active:scale-90 flex items-center justify-center"
-                                                    title={t('actions.edit')}
-                                                >
-                                                    <Pencil className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleDelete(s.id)}
-                                                    className="p-4 min-w-[44px] min-h-[44px] rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
-                                                    title={t('actions.delete')}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* MOBILE CARD LIST */}
-                    <div className="md:hidden space-y-6">
-                        {stores.map((s) => (
-                            <div key={s.id} className="glass bg-white dark:bg-black/20 rounded-[2.5rem] border border-stone-200 dark:border-white/10 p-6 space-y-6 shadow-xl active:scale-[0.98] transition-all">
-                                <div className="flex justify-between items-start">
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-3">
-                                           <h3 className="text-lg font-heading uppercase italic tracking-tight">{s.name}</h3>
-                                           {!s.isActive && <span className="text-[7px] bg-stone-500/10 px-2 py-0.5 rounded-full uppercase font-black opacity-50 italic">{t('status.hidden')}</span>}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                           <span className="text-[9px] font-mono tracking-widest opacity-40">{t('columns.code')}: {s.code || '—'}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => openEdit(s)} className="p-4 min-w-[44px] min-h-[44px] bg-secondary/10 rounded-2xl text-stone-400 hover:text-gold transition-all flex items-center justify-center">
-                                            <Pencil className="w-4 h-4" />
-                                        </button>
-                                        <button onClick={() => handleDelete(s.id)} className="p-4 min-w-[44px] min-h-[44px] bg-red-500/5 rounded-2xl text-stone-400 hover:text-red-500 transition-all flex items-center justify-center">
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="p-5 rounded-[1.5rem] bg-secondary/10 dark:bg-white/[0.02] border border-border/5 space-y-4">
-                                     <div className="space-y-1">
-                                        <p className="text-[8px] uppercase tracking-widest font-black opacity-30 italic leading-none">{t('columns.address')}</p>
-                                        <p className="text-xs text-muted-foreground italic font-serif leading-relaxed line-clamp-2">{s.address || '—'}</p>
-                                    </div>
-                                </div>
-
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
+                    {stores.map((s, idx) => (
+                        <motion.div
+                            key={s.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="group relative glass bg-white dark:bg-zinc-900/40 rounded-[3rem] border border-stone-200 dark:border-white/5 overflow-hidden hover:border-gold/30 transition-all duration-700 shadow-xl flex flex-col"
+                        >
+                            {/* Card Header & Status */}
+                            <div className="p-8 pb-4 flex justify-between items-start">
                                 <div className="space-y-3">
-                                   <div className="flex items-center justify-between">
-                                      <p className="text-[8px] uppercase tracking-[.4em] font-black opacity-40 italic">{t('columns.staff')}</p>
-                                      <button onClick={() => setAssignModal(s)} className="text-[8px] text-gold uppercase font-black tracking-widest hover:underline">+ {t('actions.assign')}</button>
-                                   </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {(s.users ?? []).map((u) => (
-                                            <div key={u.user.id} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/5 text-[9px] font-black uppercase tracking-widest shadow-inner">
-                                                {u.user.fullName || u.user.email.split('@')[0]}
-                                                <UserMinus onClick={() => handleUnassign(s.id, u.user.id)} className="w-3 h-3 text-red-500 opacity-60" />
-                                            </div>
-                                        ))}
-                                        {s.users?.length === 0 && <span className="text-[9px] italic opacity-30">No staff assigned</span>}
+                                    <div className="flex items-center gap-3">
+                                        <div className={cn(
+                                            "w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.3)]",
+                                            s.isActive ? "bg-emerald-500" : "bg-zinc-500"
+                                        )} />
+                                        <span className="text-[9px] font-black uppercase tracking-[.3em] opacity-40">
+                                            {s.type === 'CENTRAL' ? 'Kho tổng trung tâm' : 'Boutique Store'}
+                                        </span>
                                     </div>
+                                    <h3 className="text-3xl font-heading uppercase italic tracking-tighter group-hover:text-gold transition-colors duration-500 leading-tight">
+                                        {s.name}
+                                    </h3>
+                                    <p className="text-[10px] font-mono tracking-[.3em] uppercase opacity-30 font-black">
+                                        Ref: {s.code || 'NO-CODE'}
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-y-2 group-hover:translate-y-0">
+                                    <button
+                                        onClick={() => openEdit(s)}
+                                        className="w-12 h-12 rounded-full bg-secondary/10 border border-white/5 flex items-center justify-center hover:bg-gold hover:text-white transition-all active:scale-90"
+                                    >
+                                        <Pencil className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(s.id)}
+                                        className="w-12 h-12 rounded-full bg-red-500/5 border border-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+
+                            {/* Address Box */}
+                            <div className="px-8 pb-8 flex-1">
+                                <div className="p-6 rounded-[2rem] bg-secondary/5 dark:bg-white/[0.02] border border-white/5 space-y-3 group-hover:border-gold/10 transition-colors">
+                                    <div className="flex items-center gap-2 opacity-30">
+                                        <MapPin className="w-3.5 h-3.5" />
+                                        <span className="text-[8px] uppercase tracking-widest font-black italic">Vị trí địa lý</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground font-medium leading-relaxed min-h-[3rem]">
+                                        {s.address || 'Địa chỉ đang được cập nhật trong hệ thống mạng lưới...'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Staff & Actions */}
+                            <div className="px-8 py-8 border-t border-white/5 bg-secondary/[0.02] flex items-center justify-between">
+                                <div className="space-y-4">
+                                    <span className="text-[10px] uppercase tracking-widest font-black opacity-30 italic block leading-none">Nhân sự trực tiếp</span>
+                                    <div className="flex -space-x-4">
+                                        {(s.users ?? []).length > 0 ? (
+                                            (s.users ?? []).map((u, i) => {
+                                                const colors = [
+                                                    'bg-blue-500/20 text-blue-400 border-blue-500/30',
+                                                    'bg-gold/20 text-gold border-gold/30',
+                                                    'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+                                                    'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                                                ];
+                                                const colorClass = colors[i % colors.length];
+                                                
+                                                return (
+                                                    <div 
+                                                        key={u.user.id} 
+                                                        className={cn(
+                                                            "w-14 h-14 rounded-full border-4 border-background flex items-center justify-center relative group/avatar cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:z-30 shadow-xl",
+                                                            colorClass
+                                                        )}
+                                                        title={u.user.fullName || u.user.email}
+                                                    >
+                                                        <span className="text-xs font-black uppercase tracking-tighter">
+                                                            {(u.user.fullName?.[0] || u.user.email[0]).toUpperCase()}
+                                                        </span>
+                                                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center scale-0 group-hover/avatar:scale-100 transition-all duration-300 shadow-lg border-2 border-background">
+                                                            <X 
+                                                                className="w-3 h-3 cursor-pointer" 
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleUnassign(s.id, u.user.id);
+                                                                }}
+                                                            />
+                                                        </div>
+
+                                                        {/* Tooltip on hover */}
+                                                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-3 py-1 rounded-md bg-zinc-900 text-[9px] text-white font-black uppercase tracking-widest opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none border border-white/10">
+                                                            {u.user.fullName || u.user.email}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="text-[10px] italic opacity-30 font-medium py-4">Chưa có nhân sự gán trực</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setAssignModal(s)}
+                                    className="h-14 px-8 rounded-full border border-gold/20 text-gold hover:bg-gold hover:text-white transition-all text-[9px] uppercase tracking-widest font-black flex items-center gap-3"
+                                >
+                                    <UserPlus className="w-4 h-4" /> Gán NV
+                                </button>
+                            </div>
+
+                            {/* Type Indicator */}
+                            {s.type === 'CENTRAL' && (
+                                <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+                                    <ShieldCheck className="w-32 h-32 text-gold" strokeWidth={0.5} />
+                                </div>
+                            )}
+                        </motion.div>
+                    ))}
 
                     {stores.length === 0 && (
-                        <div className="py-40 flex flex-col items-center justify-center glass rounded-[3rem] border border-dashed border-stone-200 dark:border-white/10 opacity-30 text-center px-12">
+                        <div className="col-span-full py-40 flex flex-col items-center justify-center glass rounded-[4rem] border border-dashed border-stone-200 dark:border-white/10 opacity-30 text-center px-12">
                             <Warehouse className="w-16 h-16 text-gold mb-8" strokeWidth={0.5} />
                             <p className="font-heading uppercase text-2xl tracking-[.1em] italic">{t('messages.empty')}</p>
                         </div>

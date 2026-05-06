@@ -30,6 +30,11 @@ export type Order = {
   createdAt?: string;
   updatedAt?: string;
   hasRefundEvidence?: boolean;
+  customerInsight?: {
+    totalOrders: number;
+    totalSpent: number;
+    isLoyal: boolean;
+  };
   returnRequests?: {
     id: string;
     status: string;
@@ -58,6 +63,7 @@ export type OrderListResponse = {
   skip: number;
   take: number;
   pages: number;
+  counts: Record<string, number>;
 };
 
 export const orderService = {

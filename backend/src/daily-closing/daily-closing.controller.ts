@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { DailyClosingService } from './daily-closing.service';
 import { CreateDailyClosingDto } from './dto/create-daily-closing.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -22,5 +22,10 @@ export class DailyClosingController {
   @Get('check-today')
   checkToday(@Query('storeId') storeId: string) {
     return this.dailyClosingService.checkTodayClosing(storeId);
+  }
+
+  @Get(':id/details')
+  getDetails(@Param('id') id: string) {
+    return this.dailyClosingService.getClosingDetails(id);
   }
 }

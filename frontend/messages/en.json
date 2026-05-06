@@ -1395,6 +1395,11 @@
         "search_placeholder": "Universal registry search...",
         "stats": {
           "revenue": "Total Revenue",
+          "profit": "Gross Profit",
+          "inventory_value": "Inventory Value",
+          "success_rate": "Success Rate",
+          "return_rate": "Return Rate",
+          "cancellation_rate": "Cancellation Rate",
           "orders": "Total Orders",
           "consultations": "AI Consultations",
           "members": "Prestige Members",

@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const MAX_IMAGES = 10;
 
 type ExistingImage = { id: number; url: string; order: number };
-type VariantForm = { id?: string; name: string; price: number; stock: number; sku: string };
+type VariantForm = { id?: string; name: string; price: number; purchasePrice: number; stock: number; sku: string };
 
 function slugify(s: string) {
   return s
@@ -87,7 +87,7 @@ export default function AdminProducts() {
     longevity: '',
     concentration: '',
     isActive: true,
-    variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }] as VariantForm[],
+    variants: [{ name: t('form.variants.default_name'), price: 0, purchasePrice: 0, stock: 0, sku: '' }] as VariantForm[],
     scentNotes: [] as { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[],
     sillage: '',
     seasons: '',
@@ -173,8 +173,8 @@ export default function AdminProducts() {
             concentration: p.concentration ?? '',
             isActive: p.isActive,
             variants: p.variants?.length
-              ? p.variants.map(v => ({ id: v.id, name: v.name, price: v.price, stock: v.stock, sku: v.sku ?? '' }))
-              : [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
+              ? p.variants.map(v => ({ id: v.id, name: v.name, price: v.price, purchasePrice: v.purchasePrice || 0, stock: v.stock, sku: v.sku ?? '' }))
+              : [{ name: t('form.variants.default_name'), price: 0, purchasePrice: 0, stock: 0, sku: '' }],
             scentNotes: p.notes?.map(n => ({ name: n.note.name, type: n.note.type })) ?? [],
             sillage: p.sillage ?? '',
             seasons: p.seasons?.join(', ') ?? '',
@@ -226,7 +226,7 @@ export default function AdminProducts() {
       longevity: '',
       concentration: '',
       isActive: true,
-      variants: [{ name: t('form.variants.default_name'), price: 0, stock: 0, sku: '' }],
+      variants: [{ name: t('form.variants.default_name'), price: 0, purchasePrice: 0, stock: 0, sku: '' }],
       scentNotes: [],
       sillage: '',
       seasons: '',
@@ -254,7 +254,7 @@ export default function AdminProducts() {
   const addVariant = () => {
     setForm(f => ({
       ...f,
-      variants: [...f.variants, { name: '', price: 0, stock: 0, sku: '' }]
+      variants: [...f.variants, { name: '', price: 0, purchasePrice: 0, stock: 0, sku: '' }]
     }));
   };
 
@@ -341,6 +341,7 @@ export default function AdminProducts() {
       id: v.id,
       name: v.name.trim(),
       price: v.price,
+      purchasePrice: v.purchasePrice,
       stock: v.stock,
       sku: v.sku.trim() || undefined
     })),
@@ -1114,6 +1115,7 @@ export default function AdminProducts() {
                                 <tr className="border-b border-border">
                                   <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Dung Tích / Tên</th>
                                   <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Giá Bán</th>
+                                  <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-gold">Giá Nhập (Vốn)</th>
                                   <th className="px-10 py-6 text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground">Số Lượng Kho</th>
                                   <th className="px-10 py-6 text-right"></th>
                                 </tr>
@@ -1138,6 +1140,19 @@ export default function AdminProducts() {
                                           value={v.price || ''}
                                           onChange={(e) => updateVariant(i, { price: e.target.value === '' ? 0 : Number(e.target.value) })}
                                           onFocus={(e) => e.target.select()}
+                                        />
+                                      </div>
+                                    </td>
+                                    <td className="px-10 py-8">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-gold text-sm font-serif italic">₫</span>
+                                        <input
+                                          type="number"
+                                          className="w-32 bg-transparent border-b border-transparent focus:border-gold outline-none text-sm font-mono py-1 transition-all text-gold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                          value={v.purchasePrice || ''}
+                                          onChange={(e) => updateVariant(i, { purchasePrice: e.target.value === '' ? 0 : Number(e.target.value) })}
+                                          onFocus={(e) => e.target.select()}
+                                          placeholder="0"
                                         />
                                       </div>
                                     </td>

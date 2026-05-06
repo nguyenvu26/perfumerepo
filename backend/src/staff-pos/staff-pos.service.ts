@@ -435,6 +435,7 @@ export class StaffPosService {
             data: {
               quantity,
               unitPrice: variant.price,
+              purchasePrice: variant.purchasePrice,
               totalPrice,
             },
           });
@@ -530,6 +531,7 @@ export class StaffPosService {
             variantId: item.variantId,
             quantity: item.quantity,
             unitPrice: variant.price,
+            purchasePrice: variant.purchasePrice,
             totalPrice,
           },
         });
@@ -765,6 +767,7 @@ export class StaffPosService {
       variantId: string;
       quantity: number;
       price: number;
+      purchasePrice: number | null;
     }[] = [];
 
     for (const item of items) {
@@ -780,6 +783,7 @@ export class StaffPosService {
         variantId: item.variantId,
         quantity: item.quantity,
         price: variant.price,
+        purchasePrice: variant.purchasePrice,
       });
     }
 
@@ -813,6 +817,7 @@ export class StaffPosService {
             variantId: v.variantId,
             quantity: v.quantity,
             unitPrice: v.price,
+            purchasePrice: v.purchasePrice,
             totalPrice: v.price * v.quantity,
           },
         });

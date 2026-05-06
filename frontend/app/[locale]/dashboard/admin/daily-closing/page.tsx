@@ -10,6 +10,8 @@ import {
 import api from '@/lib/axios';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { cn } from '@/lib/utils';
+import { ClosingDetailPanel } from '@/components/dashboard/admin/ClosingDetailPanel';
+import { Eye } from 'lucide-react';
 
 interface DailyClosingDto {
     id: string;
@@ -18,6 +20,7 @@ interface DailyClosingDto {
     systemCash: number;
     systemTransfer: number;
     actualCash: number;
+    actualTransfer: number | null;
     difference: number;
     note: string | null;
     orderCount: number;
@@ -29,6 +32,7 @@ export default function DailyClosingHistoryPage() {
     const [closings, setClosings] = useState<DailyClosingDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedId, setSelectedId] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchClosings = async () => {
@@ -95,9 +99,11 @@ export default function DailyClosingHistoryPage() {
                                 <tr className="border-bottom border-border bg-white/5">
                                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Thời gian / Quầy</th>
                                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-right">Hệ thống</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-right">Thực tế (Tiền mặt)</th>
+                                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-right">Thực tế bàn giao</th>
                                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center">Chênh lệch</th>
+                                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center">Tình trạng</th>
                                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Nhân viên chốt</th>
+                                    <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center">Thao tác</th>
                                     <th className="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Ghi chú</th>
                                 </tr>
                             </thead>
@@ -141,18 +147,46 @@ export default function DailyClosingHistoryPage() {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6 text-right">
-                                                <span className="text-sm font-bold text-emerald-400 font-heading">
-                                                    {formatVND(closing.actualCash)}
-                                                </span>
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-sm font-bold text-white font-heading">
+                                                        {formatVND(closing.actualCash + (closing.actualTransfer || 0))}
+                                                    </span>
+                                                    <div className="flex items-center justify-end gap-3 text-[9px] font-medium opacity-50 uppercase">
+                                                        <span className="flex items-center gap-1"><Banknote className="w-2.5 h-2.5 text-emerald-400" /> {formatVND(closing.actualCash)}</span>
+                                                        <span className="flex items-center gap-1"><CreditCard className="w-2.5 h-2.5 text-blue-400" /> {formatVND(closing.actualTransfer || 0)}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-center">
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <span className={cn(
+                                                        "text-xs font-black font-heading",
+                                                        closing.difference === 0 ? "text-white/40" : 
+                                                        closing.difference > 0 ? "text-emerald-400" : "text-red-400"
+                                                    )}>
+                                                        {closing.difference > 0 ? '+' : ''}{formatVND(closing.difference)}
+                                                    </span>
+                                                    <div className="w-12 h-0.5 rounded-full bg-white/5 overflow-hidden">
+                                                        <div 
+                                                            className={cn(
+                                                                "h-full transition-all duration-500",
+                                                                closing.difference === 0 ? "bg-white/20 w-full" : 
+                                                                closing.difference > 0 ? "bg-emerald-500 w-full" : "bg-red-500 w-full"
+                                                            )} 
+                                                        />
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td className="px-8 py-6 text-center">
                                                 <span className={cn(
-                                                    "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                                                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border shadow-sm",
                                                     closing.difference === 0 
-                                                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                                                        : "bg-red-500/10 text-red-500 border-red-500/20"
+                                                        ? "bg-gold/10 text-gold border-gold/30"
+                                                        : closing.difference > 0
+                                                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                                            : "bg-red-500/20 text-red-500 border-red-500/30 animate-pulse"
                                                 )}>
-                                                    {closing.difference > 0 ? '+' : ''}{formatVND(closing.difference)}
+                                                    {closing.difference === 0 ? 'Khớp 100%' : closing.difference > 0 ? 'Thừa tiền' : 'Thất thoát'}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6">
@@ -162,6 +196,14 @@ export default function DailyClosingHistoryPage() {
                                                     </div>
                                                     <span className="text-xs font-medium text-foreground/80">{closing.staff.fullName}</span>
                                                 </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <button 
+                                                    onClick={() => setSelectedId(closing.id)}
+                                                    className="p-3 rounded-2xl bg-white/5 text-white/40 hover:text-gold hover:bg-gold/10 hover:border-gold/20 border border-transparent transition-all group/btn"
+                                                >
+                                                    <Eye className="w-4 h-4 transition-transform group-hover/btn:scale-110" />
+                                                </button>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <p className="text-[10px] text-muted-foreground leading-relaxed max-w-[200px] italic">
@@ -175,6 +217,11 @@ export default function DailyClosingHistoryPage() {
                         </table>
                     </div>
                 </div>
+
+                <ClosingDetailPanel 
+                    id={selectedId}
+                    onClose={() => setSelectedId(null)}
+                />
             </div>
         </AuthGuard>
     );

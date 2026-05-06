@@ -117,18 +117,24 @@ export default function TransferOrdersPage() {
 
         {/* Tabs / Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-10">
-          {['ALL', 'PENDING', 'IN_TRANSIT', 'COMPLETED', 'CANCELLED'].map((tab) => (
+          {[
+            { id: 'ALL', label: 'Tất cả' },
+            { id: 'PENDING', label: 'Chờ xử lý' },
+            { id: 'IN_TRANSIT', label: 'Đang vận chuyển' },
+            { id: 'COMPLETED', label: 'Hoàn tất' },
+            { id: 'CANCELLED', label: 'Đã hủy' }
+          ].map((tab) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab as any)}
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
               className={cn(
                 "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border",
-                activeTab === tab 
+                activeTab === tab.id 
                   ? "bg-white dark:bg-zinc-900 border-gold/50 text-gold shadow-lg" 
                   : "bg-white/5 border-white/5 text-muted-foreground hover:border-white/20"
               )}
             >
-              {tab === 'ALL' ? commonT('all') : tab.replace('_', ' ')}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -165,9 +171,19 @@ export default function TransferOrdersPage() {
                     )}>
                       {(() => {
                         const Icon = getStatusIcon(order.status);
-                        return <Icon className="w-3.5 h-3.5" />;
+                        const label = {
+                          PENDING: 'Chờ xử lý',
+                          IN_TRANSIT: 'Đang vận chuyển',
+                          COMPLETED: 'Hoàn tất',
+                          CANCELLED: 'Đã hủy'
+                        }[order.status] || order.status;
+                        return (
+                          <>
+                            <Icon className="w-3.5 h-3.5" />
+                            {label}
+                          </>
+                        );
                       })()}
-                      {order.status}
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-widest font-black opacity-30 mb-1">{t('transfers.code')}</p>

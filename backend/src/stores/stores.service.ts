@@ -279,6 +279,7 @@ export class StoresService {
     variantId: string,
     quantity: number,
     staffId: string,
+    purchasePrice?: number,
     reason?: string,
   ) {
     if (quantity <= 0) {
@@ -335,6 +336,7 @@ export class StoresService {
           storeId,
           type: InventoryLogType.IMPORT,
           quantity,
+          purchasePrice: purchasePrice, // Log the purchase price
           reason: reason ?? 'Admin import from warehouse',
         },
       });
@@ -425,6 +427,7 @@ export class StoresService {
       .map((it) => ({
         variantId: it.variantId,
         quantity: Number(it.quantity),
+        purchasePrice: it.purchasePrice ? Number(it.purchasePrice) : undefined,
       }))
       .filter(
         (it) => it.variantId && Number.isFinite(it.quantity) && it.quantity > 0,
@@ -503,6 +506,7 @@ export class StoresService {
             storeId: dto.storeId,
             type: InventoryLogType.IMPORT,
             quantity: it.quantity,
+            purchasePrice: it.purchasePrice, // Log the purchase price in batch import
             reason: dto.reason ?? 'Batch import from warehouse',
           },
         });

@@ -54,7 +54,7 @@ export default function StaffDashboard() {
     const [overviewLoading, setOverviewLoading] = useState(true);
 
     // Chart state
-    const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
+    const [period, setPeriod] = useState<'week' | 'month' | 'year' | 'quarter' | 'custom'>('month');
     const [trend, setTrend] = useState<SalesTrendPoint[]>([]);
     const [trendLoading, setTrendLoading] = useState(true);
 
@@ -82,7 +82,7 @@ export default function StaffDashboard() {
         }
     }, []);
 
-    const fetchTrend = useCallback(async (p: 'week' | 'month' | 'year') => {
+    const fetchTrend = useCallback(async (p: 'week' | 'month' | 'year' | 'quarter' | 'custom') => {
         try {
             setTrendLoading(true);
             const { data } = await api.get<SalesTrendPoint[]>('/staff/reports/analytics/sales-trend', { params: { period: p } });

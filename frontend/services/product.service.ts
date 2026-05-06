@@ -1,15 +1,13 @@
 import api from '@/lib/axios';
 import { env } from '@/lib/env';
 
-// Public: GET /products, GET /products/:id
-// Admin: GET/POST/PATCH/DELETE /admin/products, POST/DELETE /admin/products/:id/images
-
 export type ProductVariant = {
   id: string;
   name: string;
   sku?: string | null;
   barcode?: string | null;
   price: number;
+  purchasePrice?: number;
   stock: number;
   isActive: boolean;
 };
@@ -98,6 +96,7 @@ interface IProductService {
     lowStockVariants: number;
     outOfStockVariants: number;
   }>;
+  adminUpdatePurchasePrices(data: { variantId: string; purchasePrice: number }[]): Promise<any>;
 }
 
 export const productService: IProductService = {
@@ -116,30 +115,10 @@ export const productService: IProductService = {
   adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number }) {
     return api.get<ProductListRes>('/admin/products', { params }).then((r) => r.data);
   },
-  adminCreate(dto: {
-    name: string;
-    slug: string;
-    brandId: number;
-    categoryId?: number | null;
-    scentFamilyId?: number | null;
-    description?: string;
-    gender?: string;
-    longevity?: string;
-    concentration?: string;
-    isActive?: boolean;
-    sillage?: string;
-    targetAge?: string;
-    seasons?: string[];
-    timeOfDay?: string[];
-    occasions?: string[];
-    styles?: string[];
-    ingredients?: string;
-    variants: ProductVariantInput[];
-    scentNotes?: { name: string; type: 'TOP' | 'MIDDLE' | 'BASE' }[];
-  }) {
+  adminCreate(dto: any) {
     return api.post<Product>('/admin/products', dto).then((r) => r.data);
   },
-  adminUpdate(id: string, dto: Partial<Parameters<IProductService['adminCreate']>[0]>) {
+  adminUpdate(id: string, dto: any) {
     return api.patch<Product>('/admin/products/' + id, dto).then((r) => r.data);
   },
   adminDelete(id: string) {
@@ -172,5 +151,8 @@ export const productService: IProductService = {
   },
   adminStats() {
     return api.get('/admin/products/stats').then((r) => r.data);
+  },
+  adminUpdatePurchasePrices(data: { variantId: string; purchasePrice: number }[]) {
+    return api.post('/admin/products/update-purchase-prices', data).then((r) => r.data);
   },
 };

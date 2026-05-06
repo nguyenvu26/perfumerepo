@@ -128,6 +128,7 @@ export class OrdersService {
               return {
                 variantId: item.variantId,
                 unitPrice: item.variant.price,
+                purchasePrice: item.variant.purchasePrice, // Capture cost price at time of sale
                 quantity: item.quantity,
                 totalPrice: item.quantity * item.variant.price,
                 isAiRecommended: !!recommendedByQuiz,
@@ -310,7 +311,7 @@ export class OrdersService {
       if (endDate) where.createdAt.lte = new Date(endDate);
     }
 
-    const [rawData, total] = await Promise.all([
+    const [rawData, total, statusCounts, refundRequiredCount] = await Promise.all([
       this.prisma.order.findMany({
         where,
         skip,
@@ -335,9 +336,42 @@ export class OrdersService {
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.order.count({ where }),
+      this.prisma.order.groupBy({
+        by: ['status'],
+        _count: { id: true },
+      }),
+      this.prisma.order.count({
+        where: {
+          status: 'CANCELLED',
+          paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] },
+          // Note: We can't easily check for audit logs inside prisma.count
+          // but we can estimate or leave it for specific tab
+        }
+      })
     ]);
 
+    // Map counts for easy access
+    const counts: Record<string, number> = { ALL: total };
+    statusCounts.forEach(sc => {
+      counts[sc.status] = sc._count.id;
+    });
+    counts['REFUND_REQUIRED'] = refundRequiredCount; // Approximate
+
     const orderIds = rawData.map(o => o.id);
+    const phoneNumbers = rawData.map(o => o.phone).filter(Boolean) as string[];
+
+    // 1. Fetch CRM Insights (History based on phone number)
+    const crmData = await this.prisma.order.groupBy({
+      by: ['phone'],
+      where: { 
+        phone: { in: phoneNumbers },
+        paymentStatus: 'PAID', // Only count paid orders for spending
+      },
+      _count: { id: true },
+      _sum: { finalAmount: true }
+    });
+
+    // 2. Check for refund evidence
     const evidenceLogs = await this.prisma.auditLog.findMany({
       where: {
         action: 'REFUND_EVIDENCE_SUBMITTED',
@@ -348,14 +382,23 @@ export class OrdersService {
     });
     const evidenceSet = new Set(evidenceLogs.map(l => l.entityId));
 
-    const data = rawData.map((order) => ({
-      ...order,
-      hasRefundEvidence: evidenceSet.has(order.id),
-      items: order.items.map((item) => ({
-        ...item,
-        product: item.variant.product,
-      })),
-    }));
+    // 3. Merge data
+    const data = rawData.map((order) => {
+      const insight = crmData.find(c => c.phone === order.phone);
+      return {
+        ...order,
+        hasRefundEvidence: evidenceSet.has(order.id),
+        customerInsight: {
+          totalOrders: insight?._count?.id || 0,
+          totalSpent: insight?._sum?.finalAmount || 0,
+          isLoyal: (insight?._count?.id || 0) >= 3,
+        },
+        items: order.items.map((item) => ({
+          ...item,
+          product: item.variant.product,
+        })),
+      };
+    });
 
     return {
       data,
@@ -363,6 +406,7 @@ export class OrdersService {
       skip,
       take,
       pages: Math.ceil(total / take),
+      counts,
     };
   }
 

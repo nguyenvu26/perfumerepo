@@ -409,7 +409,7 @@ export class ProductsService {
           ...productData,
           isActive: dto.isActive ?? true,
           variants: {
-            create: variants,
+            create: variants.map(({ stock, purchasePrice, ...v }) => ({ ...v })),
           },
         },
         include: {
@@ -435,13 +435,17 @@ export class ProductsService {
         const centralWarehouse = await tx.store.findFirst({ where: { type: 'CENTRAL' } });
         if (centralWarehouse) {
           for (const variant of product.variants as any[]) {
-            if (variant.stock > 0) { // Note: CreateProductDto still has 'stock' for convenience, but it's not in the DB model
+            const dtoVariant = variants.find(v => v.name === variant.name && v.price === variant.price);
+            const initialStock = dtoVariant?.stock || 0;
+            const purchasePrice = dtoVariant?.purchasePrice || 0;
+
+            if (initialStock > 0) {
               await tx.inventory.create({
                 data: {
                   variantId: variant.id,
                   warehouseId: centralWarehouse.id,
-                  onHand: variant.stock,
-                  available: variant.stock,
+                  onHand: initialStock,
+                  available: initialStock,
                 },
               });
 
@@ -451,9 +455,16 @@ export class ProductsService {
                   staffId: userId,
                   storeId: centralWarehouse.id,
                   type: InventoryLogType.IMPORT,
-                  quantity: variant.stock,
+                  quantity: initialStock,
+                  purchasePrice: purchasePrice, // Log the purchase price too
                   reason: 'Initial stock on product creation',
                 },
+              });
+
+              // Also update the variant with the purchase price
+              await tx.productVariant.update({
+                where: { id: variant.id },
+                data: { purchasePrice }
               });
             }
           }
@@ -766,6 +777,7 @@ export class ProductsService {
           staff: {
             select: { fullName: true, email: true },
           },
+          store: true,
         },
       }),
       this.prisma.inventoryLog.count({ where }),
@@ -811,5 +823,15 @@ export class ProductsService {
       lowStockVariants,
       outOfStockVariants,
     };
+  }
+
+  async updatePurchasePrices(data: { variantId: string; purchasePrice: number }[]) {
+    const updates = data.map((item) =>
+      this.prisma.productVariant.update({
+        where: { id: item.variantId },
+        data: { purchasePrice: item.purchasePrice },
+      }),
+    );
+    return Promise.all(updates);
   }
 }

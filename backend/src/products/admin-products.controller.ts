@@ -99,4 +99,9 @@ export class AdminProductsController {
   ) {
     return this.productsService.deleteImage(productId, imageId);
   }
+
+  @Post('update-purchase-prices')
+  async updatePurchasePrices(@Body() data: { variantId: string; purchasePrice: number }[]) {
+    return this.productsService.updatePurchasePrices(data);
+  }
 }

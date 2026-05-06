@@ -1,24 +1,31 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AnalyticsService } from './analytics.service';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 @Controller('analytics')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
   /** Dashboard overview stats (revenue, orders, customers, AI consultations) */
   @Get('overview')
-  async getOverview() {
-    return this.analyticsService.getOverview();
+  async getOverview(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.analyticsService.getOverview(startDate, endDate);
   }
 
-  /** Sales trend data for charting – ?period=week|month|year */
+  /** Sales trend data for charting – ?period=week|month|year|quarter */
   @Get('sales-trend')
   async getSalesTrend(
-    @Query('period') period?: 'week' | 'month' | 'year',
+    @Query('period') period?: 'week' | 'month' | 'year' | 'quarter',
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
-    return this.analyticsService.getSalesTrend(period || 'month');
+    return this.analyticsService.getSalesTrend(period || 'month', startDate, endDate);
   }
 
   /** Top selling products – ?limit=5 */
@@ -62,5 +69,23 @@ export class AnalyticsController {
   @Get('ai-conversion')
   async getAiConversionRate() {
     return this.analyticsService.getAiConversionRate();
+  }
+
+  @Get('financial')
+  @Roles('ADMIN')
+  async getFinancialAnalytics() {
+    return this.analyticsService.getFinancialAnalytics();
+  }
+
+  @Get('inventory-health')
+  @Roles('ADMIN')
+  async getInventoryHealth() {
+    return this.analyticsService.getInventoryHealth();
+  }
+
+  @Get('stock-heatmap')
+  @Roles('ADMIN')
+  async getStockMovementHeatmap() {
+    return this.analyticsService.getStockMovementHeatmap();
   }
 }

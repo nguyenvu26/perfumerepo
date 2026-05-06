@@ -18,6 +18,10 @@ class BatchImportItemDto {
   @IsOptional()
   @Type(() => Number)
   quantity?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  purchasePrice?: number;
 }
 
 export class BatchImportDto {

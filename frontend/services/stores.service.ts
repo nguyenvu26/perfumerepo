@@ -93,6 +93,7 @@ export const storesService = {
     storeId: string;
     variantId: string;
     quantity: number;
+    purchasePrice?: number;
     reason?: string;
   }): Promise<StockOverview> {
     return api
@@ -103,7 +104,7 @@ export const storesService = {
   batchImportStock(data: {
     storeId: string;
     reason?: string;
-    items: { variantId: string; quantity: number | string }[];
+    items: { variantId: string; quantity: number | string; purchasePrice?: number }[];
   }): Promise<StockOverview> {
     return api
       .post<StockOverview>("/stores/stock/batch-import", data)

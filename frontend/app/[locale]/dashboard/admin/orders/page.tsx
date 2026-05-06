@@ -36,6 +36,7 @@ export default function AdminOrders() {
     };
     const [orders, setOrders] = useState<Order[]>([]);
     const [total, setTotal] = useState(0);
+    const [counts, setCounts] = useState<Record<string, number>>({});
     const [skip, setSkip] = useState(0);
     const [take, setTake] = useState(20);
     const [loading, setLoading] = useState(true);
@@ -67,6 +68,7 @@ export default function AdminOrders() {
             const res = await orderService.listAll(skip, take, startDate, endDate);
             setOrders(res.data);
             setTotal(res.total);
+            setCounts(res.counts || {});
         } catch (error) {
             console.error('Failed to fetch orders:', error);
         } finally {
@@ -357,27 +359,40 @@ export default function AdminOrders() {
                             { id: 'COMPLETED', label: 'Hoàn thành' },
                             { id: 'CANCELLED', label: 'Đã hủy' },
                             { id: 'REFUND_REQUIRED', label: 'Cần hoàn tiền', highlight: true },
-                        ].map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
-                                className={cn(
-                                    "px-5 py-3 lg:py-2 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest border transition-all whitespace-nowrap shrink-0",
-                                    activeTab === tab.id
-                                        ? tab.highlight 
-                                            ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/20"
-                                            : "bg-gold text-primary-foreground border-gold shadow-md shadow-gold/20 scale-105"
-                                        : "bg-white dark:bg-zinc-900 border-stone-200 dark:border-white/10 text-stone-500 hover:border-gold/50"
-                                )}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
+                        ].map((tab) => {
+                            const count = counts[tab.id] || 0;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id as any)}
+                                    className={cn(
+                                        "px-5 py-3 lg:py-2 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest border transition-all whitespace-nowrap shrink-0 flex items-center gap-2",
+                                        activeTab === tab.id
+                                            ? tab.highlight 
+                                                ? "bg-red-500 text-white border-red-500 shadow-md shadow-red-500/20"
+                                                : "bg-gold text-primary-foreground border-gold shadow-md shadow-gold/20 scale-105"
+                                            : "bg-white dark:bg-zinc-900 border-stone-200 dark:border-white/10 text-stone-500 hover:border-gold/50"
+                                    )}
+                                >
+                                    {tab.label}
+                                    {count > 0 && (
+                                        <span className={cn(
+                                            "flex items-center justify-center min-w-[20px] h-[20px] px-1.5 rounded-full text-[10px] font-black shadow-sm",
+                                            activeTab === tab.id 
+                                                ? "bg-white text-black" 
+                                                : tab.highlight ? "bg-red-600 text-white" : "bg-gold text-black"
+                                        )}>
+                                            {count > 99 ? '99+' : count}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
                 {/* Orders List */}
-                <div className="glass bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-xl transition-colors">
+                <div className="glass bg-white dark:bg-zinc-900 rounded-[2rem] md:rounded-[3rem] border border-stone-200 dark:border-white/10 shadow-xl transition-colors relative z-10">
                     {/* Desktop Table View */}
                     <div className="hidden lg:block overflow-x-auto">
                         <table className="w-full border-collapse">
@@ -408,7 +423,12 @@ export default function AdminOrders() {
                                             key={order.id}
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="hover:bg-stone-50/80 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer border-b border-stone-100/50 dark:border-white/[0.02]"
+                                            className={cn(
+                                                "hover:bg-stone-50/80 dark:hover:bg-white/[0.02] transition-colors group cursor-pointer border-b border-stone-100/50 dark:border-white/[0.02]",
+                                                order.status === 'PENDING' && 
+                                                new Date().getTime() - new Date(order.createdAt || '').getTime() > 2 * 60 * 60 * 1000 &&
+                                                "bg-red-500/5 dark:bg-red-500/10 border-l-2 border-l-red-500 animate-pulse-slow shadow-[inset_4px_0_0_0_#ef4444]"
+                                            )}
                                             onClick={() => setSelectedOrder(order)}
                                         >
                                             <td className="px-4 py-6 whitespace-nowrap">
@@ -428,9 +448,36 @@ export default function AdminOrders() {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-6 whitespace-nowrap">
-                                                <div className="flex flex-col">
-                                                    <span className="text-xs font-bold text-luxury-black dark:text-white">{order.user?.name || t('print.guest')}</span>
+                                                <div className="flex flex-col group/insight relative">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-bold text-luxury-black dark:text-white">{order.user?.name || t('print.guest')}</span>
+                                                        {order.customerInsight?.isLoyal && (
+                                                            <span className="px-1.5 py-0.5 rounded bg-gold/10 text-gold text-[8px] font-black tracking-tighter border border-gold/20 animate-pulse">
+                                                                LOYAL
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <span className="text-[9px] text-stone-500 mt-0.5">{order.phone}</span>
+                                                    
+                                                    {/* CRM Tooltip on hover - Positioned to the right */}
+                                                    <div className="absolute left-full top-0 ml-4 hidden group-hover/insight:block z-[100] pointer-events-none">
+                                                        <div className="glass bg-zinc-900/95 text-white p-4 rounded-2xl border border-white/20 shadow-[0_10px_40px_rgba(0,0,0,0.5)] min-w-[200px]">
+                                                            <div className="flex items-center gap-2 mb-3">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+                                                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gold">Customer Insights</p>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <div className="flex justify-between items-center text-[11px]">
+                                                                    <span className="opacity-50 text-[9px] uppercase font-bold">Lịch sử:</span>
+                                                                    <span className="font-bold text-white">{order.customerInsight?.totalOrders || 1} đơn hàng</span>
+                                                                </div>
+                                                                <div className="flex justify-between items-center text-[11px]">
+                                                                    <span className="opacity-50 text-[9px] uppercase font-bold">Tổng chi:</span>
+                                                                    <span className="font-bold text-gold">{format.number(order.customerInsight?.totalSpent || 0, { style: 'currency', currency: 'VND' })}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-6 whitespace-nowrap">

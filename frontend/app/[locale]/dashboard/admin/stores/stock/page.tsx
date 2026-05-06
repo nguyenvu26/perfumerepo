@@ -38,6 +38,8 @@ import {
   Filter,
   History,
   User,
+  ArrowLeft,
+  Wallet,
 } from "lucide-react";
 import { inventoryTransferService } from "@/services/inventory-transfer.service";
 import { useLocale } from "next-intl";
@@ -54,6 +56,7 @@ type BatchItem = {
   variantName: string;
   brandName: string;
   quantity: number;
+  costPrice: number; // New field for Purchase Price
   sku?: string;
 };
 
@@ -139,6 +142,7 @@ export default function AdminStockRedesignPage() {
         price: v.price,
         imageUrl: p.images?.[0]?.url ?? null,
         stock: v.stock,
+        purchasePrice: v.purchasePrice,
       })),
     );
   }, [products]);
@@ -271,7 +275,8 @@ export default function AdminStockRedesignPage() {
           productName: v.productName,
           variantName: v.variantName,
           brandName: v.brandName,
-          quantity: 1
+          quantity: 1,
+          costPrice: v.purchasePrice || 0
         }]);
       }
     }
@@ -341,6 +346,7 @@ export default function AdminStockRedesignPage() {
         variantName: variant.variantName,
         brandName: variant.brandName,
         quantity: 1,
+        costPrice: variant.purchasePrice || 0,
       },
     ]);
     setImportSearch("");
@@ -356,6 +362,7 @@ export default function AdminStockRedesignPage() {
         variantName: variant.variantName,
         brandName: variant.brandName,
         quantity: 1,
+        costPrice: 0,
       },
     ]);
     setTransferSearch("");
@@ -367,14 +374,15 @@ export default function AdminStockRedesignPage() {
     setSaving(true);
     setError(null);
     try {
-      for (const item of importItems) {
-        await storesService.adminImportStock({
-          storeId: importStoreId,
+      await storesService.batchImportStock({
+        storeId: importStoreId,
+        items: importItems.map(item => ({
           variantId: item.variantId,
           quantity: item.quantity,
-          reason: importReason || t("import.default_reason"),
-        });
-      }
+          purchasePrice: item.costPrice
+        })),
+        reason: importReason || t("import.default_reason"),
+      });
       setSuccess(t("import.success", { count: importItems.length }));
       setImportItems([]);
       setImportReason("");
@@ -443,46 +451,90 @@ export default function AdminStockRedesignPage() {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'IMPORT': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-      case 'ADJUST': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+      case 'IMPORT': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+      case 'ADJUST': return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
+      case 'TRANSFER_IN': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
+      case 'TRANSFER_OUT': return 'text-rose-400 bg-rose-400/10 border-rose-400/20';
       case 'SALE_POS':
-      case 'SALE_ONLINE': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
-      case 'RETURN': return 'text-rose-500 bg-rose-500/10 border-rose-500/20';
+      case 'SALE_ONLINE': return 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20';
+      case 'RETURN': return 'text-orange-400 bg-orange-400/10 border-orange-400/20';
       default: return 'text-muted-foreground bg-secondary/30 border-white/5';
     }
   };
 
   const getTypeText = (type: string) => {
     switch (type) {
-      case 'IMPORT': return tInv('type_import');
-      case 'ADJUST': return tInv('type_adjust');
+      case 'IMPORT': return 'Nhập kho lô';
+      case 'ADJUST': return 'Điều chỉnh';
+      case 'TRANSFER_IN': return 'Nhập điều chuyển';
+      case 'TRANSFER_OUT': return 'Xuất điều chuyển';
       case 'SALE':
       case 'SALE_POS':
-      case 'SALE_ONLINE': return tInv('type_sale');
-      case 'RETURN': return tInv('type_return');
+      case 'SALE_ONLINE': return 'Bán hàng';
+      case 'RETURN': return 'Trả hàng';
       default: return type;
     }
   };
 
   return (
     <AuthGuard allowedRoles={["admin"]}>
-      <main className="p-8 max-w-[1800px] mx-auto">
-        <header className="mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-10">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 mb-2">
-              <div className="w-12 h-[1px] bg-gold" />
-              <span className="text-[10px] uppercase tracking-[.4em] font-black text-gold/80 italic">Global Inventory Hub</span>
+      <main className="p-8 max-w-[1800px] mx-auto space-y-12">
+        <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-12">
+          <div className="space-y-8">
+            <button
+              onClick={() => router.push(`/${locale}/dashboard/admin/stores`)}
+              className="group flex items-center gap-4 px-8 py-4 rounded-full bg-white/5 border border-white/20 text-[11px] uppercase tracking-[.3em] font-black hover:bg-gold hover:text-white transition-all active:scale-95 shadow-2xl shadow-gold/5 w-fit hover:border-gold/50"
+            >
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-2" />
+              Quay lại hệ thống cửa hàng
+            </button>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-16 h-[1px] bg-gold/50" />
+                <span className="text-[11px] uppercase tracking-[.5em] font-black text-gold italic">Global Logistics Intelligence</span>
+              </div>
+              <h1 className="text-7xl sm:text-8xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-[0.8]">
+                {t('title')}
+              </h1>
+              <p className="text-sm text-muted-foreground font-medium opacity-50 italic max-w-xl leading-relaxed">
+                {t('subtitle')}
+              </p>
             </div>
-            <h1 className="text-6xl sm:text-7xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-[0.85]">
-              {t('title')}
-            </h1>
-            <p className="text-sm text-muted-foreground font-medium opacity-60 italic max-w-xl">
-              {t('subtitle')}
-            </p>
           </div>
           
-          <div className="flex flex-col gap-6">
-            <div className="flex gap-2 bg-white/5 p-1.5 rounded-[2rem] border border-white/5 backdrop-blur-xl shadow-2xl overflow-x-auto no-scrollbar">
+          <div className="flex flex-col gap-8">
+            {/* Action Buttons Hub */}
+            <div className="flex flex-wrap gap-4 justify-end">
+              <button
+                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/transfers`)}
+                className="flex items-center gap-3 bg-secondary/20 hover:bg-gold/10 border border-white/10 hover:border-gold/30 px-6 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all"
+              >
+                <ArrowRightLeft className="w-4 h-4 text-gold" />
+                Phiếu Điều Chuyển
+              </button>
+              <button
+                className="flex items-center gap-3 bg-secondary/20 hover:bg-gold/10 border border-white/10 hover:border-gold/30 px-6 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all"
+              >
+                <ClipboardCheck className="w-4 h-4 text-gold" />
+                Kiểm Kê Kho
+              </button>
+              <button
+                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/cost-setup`)}
+                className="flex items-center gap-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-6 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest text-emerald-400 transition-all shadow-lg shadow-emerald-500/5"
+              >
+                <Wallet className="w-4 h-4" />
+                Thiết lập Giá Vốn
+              </button>
+              <button
+                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/reports`)}
+                className="flex items-center gap-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 px-8 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest text-blue-400 transition-all shadow-lg shadow-blue-500/5"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Báo Cáo Tồn Kho
+              </button>
+            </div>
+
+            <div className="flex gap-2 bg-white/5 p-2 rounded-[2.5rem] border border-white/10 backdrop-blur-2xl shadow-3xl overflow-x-auto no-scrollbar">
               {[
                 { id: "overview", icon: LayoutGrid, label: t('tabs.overview') },
                 { id: "batch-import", icon: FileInput, label: t('tabs.import') },
@@ -501,26 +553,6 @@ export default function AdminStockRedesignPage() {
                   )}
                 >
                   <tab.icon className="w-4 h-4" /> {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 self-end">
-              {[
-                { path: "transfers", icon: Truck, label: tInv('transfers.title'), bg: "bg-gold/10 text-gold border-gold/20 hover:bg-gold hover:text-white" },
-                { path: "audit", icon: ClipboardCheck, label: tInv('audit.title'), bg: "bg-white/5 text-muted-foreground border-white/10 hover:bg-white/10 hover:text-foreground" },
-                { path: "reports", icon: BarChart3, label: tInv('analytics.title'), bg: "bg-blue-500/10 text-blue-500 border-blue-500/20 hover:bg-blue-500 hover:text-white shadow-blue-500/10" },
-              ].map((act) => (
-                <button
-                  key={act.path}
-                  onClick={() => router.push(`/${locale}/dashboard/admin/inventory/${act.path}`)}
-                  className={cn(
-                    "flex items-center gap-3 px-6 py-3 rounded-full font-heading text-[9px] uppercase tracking-[.2em] font-black transition-all border shadow-lg",
-                    act.bg
-                  )}
-                >
-                  <act.icon className="w-3.5 h-3.5" />
-                  {act.label}
                 </button>
               ))}
             </div>
@@ -593,8 +625,8 @@ export default function AdminStockRedesignPage() {
                               <stat.icon className="w-7 h-7" />
                             </div>
                             {stat.highlight && (
-                              <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30">
-                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500 animate-pulse">Critical</span>
+                              <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500 animate-pulse">Critical Alert</span>
                               </div>
                             )}
                           </div>
@@ -617,7 +649,7 @@ export default function AdminStockRedesignPage() {
                   </div>
 
                   {/* Matrix Controls */}
-                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 glass p-4 rounded-[2.5rem] border-white/5 bg-white/[0.02] backdrop-blur-md sticky top-4 z-40 shadow-2xl">
+                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 glass p-6 rounded-[3rem] border border-white/10 bg-zinc-900/40 backdrop-blur-2xl sticky top-8 z-40 shadow-3xl">
                     <div className="flex items-center gap-2 bg-black/20 p-1.5 rounded-2xl border border-white/5 shadow-inner">
                       {[
                         { id: "matrix", icon: Layers, label: tInv('matrix.view_comparison') },
@@ -1103,7 +1135,30 @@ export default function AdminStockRedesignPage() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-6">
+                                <div className="flex flex-col items-end">
+                                  <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
+                                    Giá nhập (VNĐ)
+                                  </label>
+                                  <div className="relative group/price">
+                                    <input
+                                      type="number"
+                                      value={item.costPrice || ""}
+                                      onChange={(e) => {
+                                        const val = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
+                                        setImportItems((prev) =>
+                                          prev.map((it, i) =>
+                                            i === idx ? { ...it, costPrice: val } : it,
+                                          ),
+                                        );
+                                      }}
+                                      onFocus={(e) => e.target.select()}
+                                      placeholder="0"
+                                      className="w-32 bg-background border border-border rounded-xl pl-3 pr-8 py-2 text-right font-heading text-xs focus:border-emerald-500 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] opacity-30 font-black">đ</span>
+                                  </div>
+                                </div>
                                 <div className="flex flex-col items-end">
                                   <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
                                     {t('import.qty_label')}
@@ -1818,7 +1873,7 @@ export default function AdminStockRedesignPage() {
                        historyFilterType === '' ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-white/5"
                      )}
                    >
-                     {tInv('all') || 'Tất cả'}
+                     Tất cả
                    </button>
                    {['IMPORT', 'ADJUST', 'SALE', 'RETURN'].map((type) => (
                      <button
@@ -1850,26 +1905,27 @@ export default function AdminStockRedesignPage() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-white/[0.03] backdrop-blur-md">
-                        <th className="pl-12 pr-4 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">{tInv('table_product')}</th>
-                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center">{tInv('table_type')}</th>
-                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center">{tInv('table_quantity')}</th>
-                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">{tInv('table_staff')}</th>
-                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">{tInv('table_date')}</th>
-                        <th className="pl-8 pr-12 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">{tInv('table_reason')}</th>
+                        <th className="pl-12 pr-4 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Sản phẩm</th>
+                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Cửa hàng / Kho</th>
+                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center">Loại</th>
+                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center">Số lượng</th>
+                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Nhân viên</th>
+                        <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Ngày thực hiện</th>
+                        <th className="pl-8 pr-12 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Lý do</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {historyLoading ? (
                         Array.from({ length: 10 }).map((_, i) => (
                           <tr key={i} className="animate-pulse">
-                            <td colSpan={6} className="px-12 py-8">
+                            <td colSpan={7} className="px-12 py-8">
                               <div className="h-10 bg-white/5 rounded-2xl w-full" />
                             </td>
                           </tr>
                         ))
                       ) : historyLogs.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-12 py-32 text-center text-muted-foreground italic font-serif text-3xl opacity-20">
+                          <td colSpan={7} className="px-12 py-32 text-center text-muted-foreground italic font-serif text-3xl opacity-20">
                             {tInv('empty_history')}
                           </td>
                         </tr>
@@ -1894,6 +1950,12 @@ export default function AdminStockRedesignPage() {
                                   <p className="font-heading text-lg uppercase italic group-hover/log:text-gold transition-colors leading-tight mb-0.5">{log.variant?.product?.name}</p>
                                   <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-40">{log.variant?.name}</p>
                                 </div>
+                              </div>
+                            </td>
+                            <td className="px-8 py-6">
+                              <div className="flex flex-col">
+                                <p className="text-[11px] font-black uppercase tracking-widest text-gold leading-none mb-1">{log.store?.name || '---'}</p>
+                                <p className="text-[9px] text-muted-foreground font-medium opacity-40 uppercase">{log.store?.type || 'WAREHOUSE'}</p>
                               </div>
                             </td>
                             <td className="px-8 py-6 text-center">
