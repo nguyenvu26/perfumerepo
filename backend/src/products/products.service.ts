@@ -16,6 +16,39 @@ export class ProductsService {
     private readonly aiService: AiService,
   ) { }
 
+  private generateSKU(brandName: string, productName: string, variantName: string): string {
+    const clean = (s: string) => s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toUpperCase()
+      .slice(0, 4);
+
+    const b = clean(brandName);
+    const p = clean(productName);
+    const v = clean(variantName);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+
+    return `${b}-${p}-${v}-${random}`;
+  }
+
+  private generateBarcode(): string {
+    // Generate a 12-digit random number
+    let barcode = '';
+    for (let i = 0; i < 12; i++) {
+      barcode += Math.floor(Math.random() * 10).toString();
+    }
+
+    // Calculate EAN-13 checksum
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(barcode[i]) * (i % 2 === 0 ? 1 : 3);
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+    
+    return barcode + checkDigit.toString();
+  }
+
   async list(query: QueryProductsDto) {
     const { search, skip = 0, take = 20, brandId, categoryId } = query;
 
@@ -404,12 +437,21 @@ export class ProductsService {
   create(dto: CreateProductDto, userId?: string) {
     return this.prisma.$transaction(async (tx) => {
       const { variants, scentNotes, ...productData } = dto;
+      const brand = await tx.brand.findUnique({ where: { id: dto.brandId } });
+      const brandName = brand?.name || 'GEN';
+
+      const processedVariants = variants.map((v) => ({
+        ...v,
+        sku: v.sku || this.generateSKU(brandName, dto.name, v.name),
+        barcode: v.barcode || this.generateBarcode(),
+      }));
+
       const product = await tx.product.create({
         data: {
           ...productData,
           isActive: dto.isActive ?? true,
           variants: {
-            create: variants.map(({ stock, purchasePrice, ...v }) => ({ ...v })),
+            create: processedVariants.map(({ stock, purchasePrice, ...v }) => ({ ...v })),
           },
         },
         include: {
@@ -482,6 +524,7 @@ export class ProductsService {
       const product = await tx.product.update({
         where: { id },
         data: productData,
+        include: { brand: true }
       });
 
       if (scentNotes) {
@@ -504,7 +547,7 @@ export class ProductsService {
       if (variants) {
         const existingVariants = await tx.productVariant.findMany({
           where: { productId: id },
-          select: { id: true },
+          select: { id: true, sku: true, barcode: true },
         });
         const existingIds = new Set(existingVariants.map((v) => v.id));
         const incomingIds = new Set(
@@ -521,6 +564,8 @@ export class ProductsService {
             data: { isActive: false },
           });
         }
+
+        const brandName = product?.brand?.name || 'GEN';
 
         for (const variant of variants) {
           if (variant.id) {
@@ -564,7 +609,8 @@ export class ProductsService {
               where: { id: variant.id },
               data: {
                 name: variant.name,
-                sku: variant.sku ?? null,
+                sku: variant.sku || currentVariant?.sku || this.generateSKU(brandName, product?.name || '', variant.name),
+                barcode: (variant as any).barcode || currentVariant?.barcode || this.generateBarcode(),
                 price: variant.price,
                 isActive: true,
               },
@@ -574,7 +620,8 @@ export class ProductsService {
               data: {
                 productId: id,
                 name: variant.name,
-                sku: variant.sku ?? null,
+                sku: variant.sku || this.generateSKU(brandName, product?.name || '', variant.name),
+                barcode: (variant as any).barcode || this.generateBarcode(),
                 price: variant.price,
                 isActive: true,
               },

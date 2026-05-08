@@ -170,7 +170,8 @@ export const Header = () => {
                             "grid grid-cols-[1fr_auto_1fr] items-center rounded-full border px-4 py-3 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.45)] transition-all duration-500 lg:px-7 lg:py-4",
                             isScrolled
                                 ? "border-black/8 bg-background/84 backdrop-blur-2xl dark:border-white/10"
-                                : "border-white/10 bg-[linear-gradient(135deg,rgba(9,9,11,0.56),rgba(9,9,11,0.3))] backdrop-blur-xl"
+                                : "border-white/10 bg-[linear-gradient(135deg,rgba(9,9,11,0.78),rgba(9,9,11,0.6))] backdrop-blur-xl"
+
                         )}
                     >
                         <div className="hidden lg:flex items-center gap-2 justify-start">

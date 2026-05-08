@@ -17,4 +17,7 @@ export const aiPreferencesService = {
   resetPreferences() {
     return api.patch<UserAiPreference>('/ai-preferences/reset').then((r) => r.data);
   },
+  sendFeedback(type: 'LIKE' | 'DISLIKE') {
+    return api.patch<UserAiPreference>('/ai-preferences/feedback', { type }).then((r) => r.data);
+  },
 };

@@ -22,4 +22,8 @@ export class CreateProductVariantDto {
   @IsInt()
   @Min(0)
   purchasePrice?: number;
+
+  @IsOptional()
+  @IsString()
+  barcode?: string;
 }

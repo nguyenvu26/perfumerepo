@@ -21,6 +21,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { ScentDNARadar } from '@/components/product/scent-dna-radar';
 import { ScentDNASuggestions } from '@/components/product/scent-dna-suggestions';
+import { analyzeScentPersona } from '@/lib/scent-persona';
+import { ThumbsUp, History, Quote } from 'lucide-react';
 
 export default function ScentDNAPage() {
   const t = useTranslations('dashboard.scent_dna');
@@ -99,6 +101,11 @@ export default function ScentDNAPage() {
     return { text: t('ai_daring_suggestion'), color: 'text-orange-500', bg: 'bg-orange-500/10', border: 'border-orange-500/20' };
   }, [riskLevel, t]);
 
+  const persona = useMemo(() => {
+    if (!preferences) return null;
+    return analyzeScentPersona(preferences.preferredNotes, riskLevel);
+  }, [preferences, riskLevel]);
+
   return (
     <div className="max-w-6xl mx-auto space-y-10">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -125,150 +132,190 @@ export default function ScentDNAPage() {
         </button>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-[1fr_400px]">
-        <div className="space-y-8">
-          {/* Tabs */}
-          <div className="flex p-1.5 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 max-w-md">
-            <button
-              onClick={() => setActiveTab('preferred')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all",
-                activeTab === 'preferred' ? "bg-white dark:bg-zinc-800 shadow-xl text-gold" : "text-muted-foreground hover:text-foreground"
-              )}
+      {/* Row 1: The Result & Visualization */}
+      <div className="grid gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-7 space-y-6">
+          {persona && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="h-full p-8 md:p-10 rounded-[3rem] border border-gold/30 bg-gradient-to-br from-gold/10 via-background to-transparent shadow-2xl relative overflow-hidden group flex flex-col justify-center"
             >
-              <Sparkles size={16} />
-              {t('preferred_tab')}
-            </button>
-            <button
-              onClick={() => setActiveTab('avoided')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all",
-                activeTab === 'avoided' ? "bg-white dark:bg-zinc-800 shadow-xl text-red-500" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <AlertCircle size={16} />
-              {t('avoided_tab')}
-            </button>
-          </div>
+              <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-[0.07] group-hover:scale-110 transition-all duration-1000">
+                <Dna size={200} className="text-gold" />
+              </div>
+              
+              <div className="relative">
+                <div className="flex items-center gap-3 text-gold mb-6">
+                  <div className="h-px w-8 bg-gold/50" />
+                  <Sparkles size={18} className="animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em]">{persona.name}</span>
+                </div>
+                <h3 className="text-3xl md:text-4xl font-black text-foreground mb-4 leading-tight">{persona.archetype}</h3>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed italic mb-8 max-w-2xl">
+                  "{persona.description}"
+                </p>
+                <div className="flex flex-wrap gap-2.5">
+                  {persona.traits.map(trait => (
+                    <span key={trait} className="px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs font-bold shadow-sm">
+                      #{trait}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+        
+        <div className="lg:col-span-5">
+          {preferences && preferences.preferredNotes.length > 0 ? (
+            <div className="h-full p-8 rounded-[3rem] border border-black/10 dark:border-white/10 bg-card shadow-xl flex flex-col items-center justify-center relative overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gold/5 opacity-50" />
+               <h4 className="font-black text-[10px] uppercase tracking-widest text-muted-foreground mb-6 relative">{t('scent_profile_chart')}</h4>
+               <div className="relative w-full aspect-square max-w-[280px]">
+                 <ScentDNARadar />
+               </div>
+            </div>
+          ) : (
+            <div className="h-full p-10 rounded-[3rem] border border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center text-center text-muted-foreground">
+               <Dna size={40} className="opacity-20 mb-4" />
+               <p className="text-sm font-medium">Thêm ít nhất 1 nốt hương để khởi tạo biểu đồ DNA</p>
+            </div>
+          )}
+        </div>
+      </div>
 
-          {/* Search Area */}
-          <div className="relative">
-            <div className="relative">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-              <input
-                type="text"
-                placeholder={t('search_placeholder', { type: t(activeTab === 'preferred' ? 'search_preferred' : 'search_avoided') })}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-                className="w-full pl-16 pr-8 py-6 rounded-[2rem] border border-black/10 bg-white dark:bg-zinc-900 dark:border-white/10 text-lg outline-none focus:border-gold/50 transition-all shadow-lg"
-              />
+      {/* Row 2: Management & Controls */}
+      <div className="grid gap-10 lg:grid-cols-12">
+        <div className="lg:col-span-7 space-y-8">
+          <div className="p-8 rounded-[3rem] border border-black/10 dark:border-white/10 bg-card/50 backdrop-blur-sm space-y-8">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-black">{t('manage_dna_title')}</h3>
+              {/* Tabs */}
+              <div className="flex p-1 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                <button
+                  onClick={() => setActiveTab('preferred')}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                    activeTab === 'preferred' ? "bg-white dark:bg-zinc-800 shadow-md text-gold" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {t('preferred_tab')}
+                </button>
+                <button
+                  onClick={() => setActiveTab('avoided')}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                    activeTab === 'avoided' ? "bg-white dark:bg-zinc-800 shadow-md text-red-500" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {t('avoided_tab')}
+                </button>
+              </div>
             </div>
 
-            <AnimatePresence>
-              {(isFocused || search.trim()) && filteredNotes.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute left-0 right-0 top-full mt-3 p-3 rounded-3xl border border-black/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl dark:border-white/10 shadow-2xl z-50 overflow-hidden"
-                >
-                  <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                    {filteredNotes.map(note => (
-                      <button
+            {/* Search Area */}
+            <div className="relative">
+              <div className="relative">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
+                <input
+                  type="text"
+                  placeholder={t('search_placeholder', { type: t(activeTab === 'preferred' ? 'search_preferred' : 'search_avoided') })}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+                  className="w-full pl-16 pr-8 py-5 rounded-2xl border border-black/10 bg-white dark:bg-zinc-900 dark:border-white/10 text-base outline-none focus:border-gold/50 transition-all shadow-inner"
+                />
+              </div>
+
+              <AnimatePresence>
+                {(isFocused || search.trim()) && filteredNotes.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute left-0 right-0 top-full mt-2 p-2 rounded-2xl border border-black/10 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl dark:border-white/10 shadow-2xl z-50 overflow-hidden"
+                  >
+                    <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                      {filteredNotes.map(note => (
+                        <button
+                          key={note}
+                          onClick={() => handleAddNote(note)}
+                          className="w-full flex items-center justify-between px-5 py-3 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all text-left group"
+                        >
+                          <span className="font-medium text-sm">{note}</span>
+                          <div className={cn(
+                            "flex h-7 w-7 items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100",
+                            activeTab === 'preferred' ? "bg-gold/10 text-gold" : "bg-red-500/10 text-red-500"
+                          )}>
+                            <Plus size={16} />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Active List */}
+            <div className="space-y-4">
+               <div className="flex flex-wrap gap-2.5">
+                  {activeTab === 'preferred' ? (
+                    preferences?.preferredNotes.map(note => (
+                      <motion.div
+                        layout
                         key={note}
-                        onClick={() => handleAddNote(note)}
-                        className="w-full flex items-center justify-between px-6 py-4 rounded-2xl hover:bg-black/5 dark:hover:bg-white/5 transition-all text-left group"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="group flex items-center gap-2 pl-4 pr-2 py-2 rounded-full bg-gold/10 border border-gold/20 text-gold font-bold text-xs"
                       >
-                        <span className="font-medium">{note}</span>
-                        <div className={cn(
-                          "flex h-8 w-8 items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100",
-                          activeTab === 'preferred' ? "bg-gold/10 text-gold" : "bg-red-500/10 text-red-500"
-                        )}>
-                          <Plus size={18} />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Active List */}
-          <div className="space-y-4">
-             <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  {activeTab === 'preferred' ? <Sparkles size={20} className="text-gold" /> : <AlertCircle size={20} className="text-red-500" />}
-                  {t('your_list_title', { type: t(activeTab === 'preferred' ? 'preferred_label' : 'avoided_label') })}
-                </h3>
-                <span className="text-sm font-medium text-muted-foreground">
-                  {t('notes_count', { count: (activeTab === 'preferred' ? preferences?.preferredNotes.length : preferences?.avoidedNotes.length) || 0 })}
-                </span>
-             </div>
-
-             <div className="flex flex-wrap gap-3">
-                {activeTab === 'preferred' ? (
-                  preferences?.preferredNotes.map(note => (
-                    <motion.div
-                      layout
-                      key={note}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="group flex items-center gap-2 pl-5 pr-3 py-3 rounded-full bg-gold/10 border border-gold/20 text-gold font-bold text-sm"
-                    >
-                      {note}
-                      <button 
-                        onClick={() => handleRemoveNote(note, 'preferred')}
-                        className="p-1 rounded-full hover:bg-gold/20 transition-all text-gold/60 hover:text-gold"
+                        {note}
+                        <button 
+                          onClick={() => handleRemoveNote(note, 'preferred')}
+                          className="p-1 rounded-full hover:bg-gold/20 transition-all text-gold/60 hover:text-gold"
+                        >
+                          <X size={12} />
+                        </button>
+                      </motion.div>
+                    ))
+                  ) : (
+                    preferences?.avoidedNotes.map(note => (
+                      <motion.div
+                        layout
+                        key={note}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="group flex items-center gap-2 pl-4 pr-2 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-xs"
                       >
-                        <X size={14} />
-                      </button>
-                    </motion.div>
-                  ))
-                ) : (
-                  preferences?.avoidedNotes.map(note => (
-                    <motion.div
-                      layout
-                      key={note}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="group flex items-center gap-2 pl-5 pr-3 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm"
-                    >
-                      {note}
-                      <button 
-                        onClick={() => handleRemoveNote(note, 'avoided')}
-                        className="p-1 rounded-full hover:bg-red-500/20 transition-all text-red-500/60 hover:text-red-500"
-                      >
-                        <X size={14} />
-                      </button>
-                    </motion.div>
-                  ))
-                )}
-                
-                {((activeTab === 'preferred' && preferences?.preferredNotes.length === 0) || 
-                  (activeTab === 'avoided' && preferences?.avoidedNotes.length === 0)) && (
-                  <div className="w-full py-20 flex flex-col items-center justify-center rounded-[2rem] border-2 border-dashed border-black/5 dark:border-white/5 text-muted-foreground">
-                    <Dna size={48} className="opacity-20 mb-4" />
-                    <p>{t('no_notes', { type: t(activeTab === 'preferred' ? 'search_preferred' : 'search_avoided') })}</p>
-                    <p className="text-sm mt-1">{t('start_typing')}</p>
-                  </div>
-                )}
-             </div>
-          </div>
-
-          <div className="pt-10 border-t border-black/5 dark:border-white/5">
-             <ScentDNASuggestions />
+                        {note}
+                        <button 
+                          onClick={() => handleRemoveNote(note, 'avoided')}
+                          className="p-1 rounded-full hover:bg-red-500/20 transition-all text-red-500/60 hover:text-red-500"
+                        >
+                          <X size={12} />
+                        </button>
+                      </motion.div>
+                    ))
+                  )}
+                  
+                  {((activeTab === 'preferred' && preferences?.preferredNotes.length === 0) || 
+                    (activeTab === 'avoided' && preferences?.avoidedNotes.length === 0)) && (
+                    <div className="w-full py-12 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-black/5 dark:border-white/5 text-muted-foreground/60">
+                      <p className="text-xs">{t('no_notes', { type: t(activeTab === 'preferred' ? 'search_preferred' : 'search_avoided') })}</p>
+                    </div>
+                  )}
+               </div>
+            </div>
           </div>
         </div>
 
-        {/* Sidebar Info */}
-        <div className="space-y-6">
-          <div className="p-8 rounded-[2.5rem] border border-black/10 dark:border-white/10 bg-card shadow-xl overflow-hidden relative group">
+        <div className="lg:col-span-5 space-y-6">
+          <div className="p-8 rounded-[3rem] border border-black/10 dark:border-white/10 bg-card shadow-xl overflow-hidden relative group">
             <div className="absolute inset-0 bg-gradient-to-br from-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
-            <h4 className="font-black text-xs uppercase tracking-[0.2em] flex items-center gap-2 mb-8 text-muted-foreground relative">
+            <h4 className="font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 mb-8 text-muted-foreground relative">
               <div className="h-1 w-4 bg-gold rounded-full" />
               {t('suggestion_mode')}
             </h4>
@@ -342,55 +389,60 @@ export default function ScentDNAPage() {
             </div>
           </div>
 
-          {preferences && preferences.preferredNotes.length > 0 && (
-            <div className="p-8 rounded-[2.5rem] border border-black/10 dark:border-white/10 bg-card shadow-xl overflow-hidden">
-              <h4 className="font-bold mb-4">{t('scent_profile_chart')}</h4>
-              <ScentDNARadar />
+          {/* Active Learning Insight */}
+          <div className="p-6 rounded-[2.5rem] bg-zinc-900 border border-white/5 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform duration-500">
+              <History size={60} className="text-white" />
             </div>
-          )}
+            <div className="flex items-start gap-4 relative">
+              <div className="h-10 w-10 rounded-2xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+                <ThumbsUp size={18} className="text-blue-400" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-widest text-white/40 mb-1">Feedback Intelligence</h4>
+                <p className="text-[11px] text-white/80 leading-relaxed italic">
+                  "AI đã tự động tinh chỉnh <strong>Risk Level</strong> của bạn dựa trên các phản hồi tích cực trong Chat."
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <div className="p-8 rounded-[2.5rem] bg-[linear-gradient(135deg,#d6b36d,#b68948)] text-luxury-black shadow-2xl">
-            <h3 className="text-2xl font-black leading-tight">{t('how_it_works')}</h3>
-            <p className="mt-4 text-sm font-medium leading-relaxed opacity-90">
-              {t('how_it_works_desc')}
-            </p>
+      {/* Row 3: Output & Guide */}
+      <div className="grid gap-8 lg:grid-cols-12 pt-10 border-t border-black/5 dark:border-white/5">
+        <div className="lg:col-span-8">
+           <ScentDNASuggestions />
+        </div>
+        <div className="lg:col-span-4">
+          <div className="p-8 rounded-[3rem] bg-[linear-gradient(135deg,#d6b36d,#b68948)] text-luxury-black shadow-2xl flex flex-col justify-between">
+            <div>
+              <h3 className="text-2xl font-black leading-tight">{t('how_it_works')}</h3>
+              <p className="mt-4 text-sm font-medium leading-relaxed opacity-90">
+                {t('how_it_works_desc')}
+              </p>
+            </div>
             
-            <ul className="mt-8 space-y-6">
-              <li className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/10">
-                  <CheckCircle2 size={20} />
+            <ul className="mt-8 space-y-4">
+              <li className="flex gap-4 items-center">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/10">
+                  <CheckCircle2 size={16} />
                 </div>
-                <div>
-                  <p className="font-bold">{t('base_match')}</p>
-                  <p className="text-xs font-medium opacity-80 mt-1">{t('base_match_desc')}</p>
-                </div>
+                <p className="text-xs font-bold">{t('base_match')}</p>
               </li>
-              <li className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/10">
-                  <Plus size={20} />
+              <li className="flex gap-4 items-center">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/10">
+                  <Plus size={16} />
                 </div>
-                <div>
-                  <p className="font-bold">{t('bonus_score')}</p>
-                  <p className="text-xs font-medium opacity-80 mt-1">{t('bonus_score_desc')}</p>
-                </div>
+                <p className="text-xs font-bold">{t('bonus_score')}</p>
               </li>
-              <li className="flex gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/10">
-                  <AlertCircle size={20} />
+              <li className="flex gap-4 items-center">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black/10">
+                  <AlertCircle size={16} />
                 </div>
-                <div>
-                  <p className="font-bold">{t('penalty_system')}</p>
-                  <p className="text-xs font-medium opacity-80 mt-1">{t('penalty_system_desc')}</p>
-                </div>
+                <p className="text-xs font-bold">{t('penalty_system')}</p>
               </li>
             </ul>
-          </div>
-
-          <div className="p-8 rounded-[2.5rem] border border-black/10 dark:border-white/10 bg-card shadow-xl">
-             <h4 className="font-bold">{t('pro_tip')}</h4>
-             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-               {t('pro_tip_desc')}
-             </p>
           </div>
         </div>
       </div>

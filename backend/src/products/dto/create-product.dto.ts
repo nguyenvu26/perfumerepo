@@ -33,6 +33,14 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
+  shortDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  longDescription?: string;
+
+  @IsOptional()
+  @IsString()
   gender?: string;
 
   @IsOptional()

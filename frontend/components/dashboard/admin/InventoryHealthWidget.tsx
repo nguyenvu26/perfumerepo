@@ -6,6 +6,7 @@ import { Package, AlertCircle, TrendingUp, Calendar } from 'lucide-react';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { Link } from '@/lib/i18n';
+import Image from 'next/image';
 
 interface HealthItem {
     variantId: string;
@@ -15,6 +16,7 @@ interface HealthItem {
     daysRemaining: number;
     turnoverRate: number;
     status: 'CRITICAL' | 'WARNING' | 'HEALTHY';
+    imageUrl?: string | null;
 }
 
 interface InventoryHealthWidgetProps {
@@ -136,11 +138,30 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                         }}
                                         className="relative p-4 rounded-[1.8rem] bg-white/[0.03] border border-white/5 hover:border-gold/90 transition-all duration-200 group/card cursor-pointer"
                                     >
-                                        <div className="mb-4">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h4 className="text-[11px] font-bold text-white/90 truncate flex-1 pr-2 leading-tight group-hover/card:text-gold transition-colors">
-                                                    {item.name}
-                                                </h4>
+                                        <div className="flex gap-4 mb-4">
+                                            {/* Thumbnail Area */}
+                                            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-black/40 border border-white/10 shrink-0 shadow-xl group-hover/card:scale-110 transition-transform duration-500">
+                                                {item.imageUrl ? (
+                                                    <Image 
+                                                        src={item.imageUrl} 
+                                                        alt="" 
+                                                        width={48} 
+                                                        height={48} 
+                                                        className="w-full h-full object-cover grayscale group-hover/card:grayscale-0 transition-all duration-700" 
+                                                        unoptimized
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <Package className="w-5 h-5 text-white/20" />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h4 className="text-[11px] font-bold text-white/90 truncate flex-1 pr-2 leading-tight group-hover/card:text-gold transition-colors">
+                                                        {item.name}
+                                                    </h4>
                                                 <div className={cn(
                                                     "w-2 h-2 rounded-full shadow-[0_0_8px]",
                                                     item.status === 'CRITICAL' ? "bg-red-500 shadow-red-500/50" :
@@ -154,8 +175,9 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                                 item.status === 'WARNING' ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
                                                 "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                                             )}>
-                                                {item.status === 'CRITICAL' ? 'Cạn kiệt' : item.status === 'WARNING' ? 'Sắp hết' : 'Ổn định'}
-                                            </span>
+                                                    {item.status === 'CRITICAL' ? 'Cạn kiệt' : item.status === 'WARNING' ? 'Sắp hết' : 'Ổn định'}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3 mb-4 p-2.5 bg-black/30 rounded-2xl border border-white/[0.03]">

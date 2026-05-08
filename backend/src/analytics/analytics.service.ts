@@ -648,12 +648,19 @@ export class AnalyticsService {
     const inventories = await this.prisma.inventory.findMany({
       include: { 
         variant: { 
-          include: { product: { select: { name: true } } } 
+          include: { 
+            product: { 
+              select: { 
+                name: true,
+                images: { orderBy: { order: 'asc' }, take: 1 }
+              } 
+            } 
+          } 
         } 
       },
     });
 
-    const variantStock = new Map<string, { name: string, stock: number }>();
+    const variantStock = new Map<string, { name: string, stock: number, imageUrl: string | null }>();
     for (const inv of inventories) {
       const existing = variantStock.get(inv.variantId);
       if (existing) {
@@ -661,7 +668,8 @@ export class AnalyticsService {
       } else {
         variantStock.set(inv.variantId, {
           name: `${inv.variant.product.name} - ${inv.variant.name}`,
-          stock: inv.available
+          stock: inv.available,
+          imageUrl: inv.variant.product.images[0]?.url || null
         });
       }
     }
@@ -682,7 +690,8 @@ export class AnalyticsService {
         monthlySales,
         daysRemaining,
         turnoverRate: Math.round(turnoverRate * 100) / 100,
-        status: daysRemaining < 7 ? 'CRITICAL' : daysRemaining < 15 ? 'WARNING' : 'HEALTHY'
+        status: daysRemaining < 7 ? 'CRITICAL' : daysRemaining < 15 ? 'WARNING' : 'HEALTHY',
+        imageUrl: data.imageUrl
       };
     });
 

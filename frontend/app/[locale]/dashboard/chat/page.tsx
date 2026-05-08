@@ -22,12 +22,17 @@ import {
   ExternalLink,
   Paperclip,
   Image as ImageIcon,
+  Info,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Link } from "@/lib/i18n";
 
 import { useTranslations, useLocale, useFormatter } from "next-intl";
+import { aiPreferencesService } from "@/services/ai-preferences.service";
+import { toast } from "sonner";
 
 type Tab = "conversations" | "contacts";
 
@@ -45,6 +50,8 @@ export default function DashboardChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showScoreDetails, setShowScoreDetails] = useState<string | null>(null);
+  const [feedbackMessages, setFeedbackMessages] = useState<Record<string, 'LIKE' | 'DISLIKE' | null>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -193,6 +200,19 @@ export default function DashboardChatPage() {
       setLoading(false);
     }
   }, [selected, newMessage]);
+
+  const handleFeedback = async (messageId: string, type: 'LIKE' | 'DISLIKE') => {
+    if (feedbackMessages[messageId]) return;
+    
+    try {
+      await aiPreferencesService.sendFeedback(type);
+      setFeedbackMessages(prev => ({ ...prev, [messageId]: type }));
+      toast.success(type === 'LIKE' ? 'Glad you liked it!' : 'Got it, I will adjust my future suggestions.');
+    } catch (error) {
+      console.error('Failed to send feedback:', error);
+      toast.error('Failed to save feedback');
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -499,9 +519,9 @@ export default function DashboardChatPage() {
                             <Link
                               key={idx}
                               href={`/products/${rec.productId}`}
-                              className="mt-3 p-0 rounded-2xl bg-background/60 border border-border/50 overflow-hidden block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer"
+                              className="mt-3 p-0 rounded-2xl bg-background/60 border border-border/50 block hover:border-gold/50 hover:bg-gold/5 transition-all group cursor-pointer relative overflow-visible"
                             >
-                              <div className="flex">
+                              <div className="flex rounded-2xl overflow-visible">
                                 {/* Thumbnail */}
                                 <div className="w-20 h-24 shrink-0 bg-secondary/30 relative overflow-hidden border-r border-border/50">
                                   {rec.imageUrl ? (
@@ -521,9 +541,69 @@ export default function DashboardChatPage() {
                                 <div className="flex-1 min-w-0 p-3 flex flex-col justify-between">
                                   <div>
                                     <div className="flex items-start justify-between gap-1">
-                                      <p className="font-heading text-[11px] uppercase tracking-tight text-foreground line-clamp-1 group-hover:text-gold transition-colors">
-                                        {rec.name}
-                                      </p>
+                                      <div className="flex flex-col min-w-0">
+                                        <p className="font-heading text-[11px] uppercase tracking-tight text-foreground line-clamp-1 group-hover:text-gold transition-colors">
+                                          {rec.name}
+                                        </p>
+                                        {rec.matchScore && (
+                                          <div className="relative">
+                                            <button 
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                const key = `${msg.id}-${idx}`;
+                                                setShowScoreDetails(showScoreDetails === key ? null : key);
+                                              }}
+                                              className="flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-full bg-gold/10 border border-gold/20 hover:bg-gold/20 transition-colors group/score"
+                                            >
+                                              <span className="text-[9px] font-black text-gold">
+                                                {Math.min(99, Math.round((rec.matchScore / 120) * 100))}% MATCH
+                                              </span>
+                                              <Info size={8} className="text-gold/60 group-hover/score:text-gold" />
+                                            </button>
+
+                                            <AnimatePresence>
+                                              {showScoreDetails === `${msg.id}-${idx}` && (
+                                                <motion.div
+                                                  initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                  exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                                                  className="absolute top-full left-0 mt-2 p-3 bg-luxury-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-[100] w-64 text-[10px]"
+                                                >
+                                                  {rec.scoreBreakdown ? (
+                                                    <div className="space-y-2 text-white">
+                                                      <p className="font-bold text-gold border-b border-white/10 pb-1">Chi tiết độ tương thích</p>
+                                                      <div className="space-y-1.5">
+                                                        <div className="flex justify-between">
+                                                          <span className="text-white/60">Hợp gu mùi hương:</span>
+                                                          <span className="font-medium">+{rec.scoreBreakdown.spm}đ</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                          <span className="text-white/60">Sức hấp dẫn (Hành vi):</span>
+                                                          <span className="font-medium">+{rec.scoreBreakdown.bfs}đ</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                          <span className="text-white/60">Đúng nhu cầu Quiz:</span>
+                                                          <span className="font-medium">+{rec.scoreBreakdown.qcs}đ</span>
+                                                        </div>
+                                                        <div className="flex justify-between">
+                                                          <span className="text-white/60">Cảm hứng khám phá:</span>
+                                                          <span className="font-medium">+{rec.scoreBreakdown.rdf}đ</span>
+                                                        </div>
+                                                      </div>
+                                                      <p className="pt-1 text-[9px] text-white/40 italic">Total = SPM + BFS + QCS + RDF</p>
+                                                    </div>
+                                                  ) : (
+                                                    <div className="p-2 text-center text-white/60">
+                                                      Dữ liệu chi tiết không có sẵn cho tin nhắn này.
+                                                    </div>
+                                                  )}
+                                                </motion.div>
+                                              )}
+                                            </AnimatePresence>
+                                          </div>
+                                        )}
+                                      </div>
                                       <ExternalLink
                                         size={10}
                                         className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-0.5"
@@ -549,6 +629,38 @@ export default function DashboardChatPage() {
                             </Link>
                           ),
                         )}
+
+                      {!isMe && msg.type === "AI_RECOMMENDATION" && (
+                        <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+                          <p className="text-[10px] text-white/40 italic">Gợi ý này có hữu ích không?</p>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => handleFeedback(msg.id, 'LIKE')}
+                              disabled={!!feedbackMessages[msg.id]}
+                              className={cn(
+                                "p-1.5 rounded-lg transition-colors",
+                                feedbackMessages[msg.id] === 'LIKE' 
+                                  ? "bg-green-500/20 text-green-400" 
+                                  : "hover:bg-white/10 text-white/40 hover:text-white"
+                              )}
+                            >
+                              <ThumbsUp size={14} />
+                            </button>
+                            <button 
+                              onClick={() => handleFeedback(msg.id, 'DISLIKE')}
+                              disabled={!!feedbackMessages[msg.id]}
+                              className={cn(
+                                "p-1.5 rounded-lg transition-colors",
+                                feedbackMessages[msg.id] === 'DISLIKE' 
+                                  ? "bg-red-500/20 text-red-400" 
+                                  : "hover:bg-white/10 text-white/40 hover:text-white"
+                              )}
+                            >
+                              <ThumbsDown size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
                       <p className="text-[10px] opacity-50 mt-1.5 text-right">
                         {formatTime(msg.createdAt)}
                       </p>

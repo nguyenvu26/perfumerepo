@@ -28,6 +28,8 @@ export type Product = {
   categoryId?: number | null;
   scentFamilyId?: number | null;
   description?: string | null;
+  shortDescription?: string | null;
+  longDescription?: string | null;
   gender?: string | null;
   longevity?: string | null;
   concentration?: string | null;
@@ -67,6 +69,8 @@ interface IProductService {
     categoryId?: number | null;
     scentFamilyId?: number | null;
     description?: string;
+    shortDescription?: string;
+    longDescription?: string;
     gender?: string;
     longevity?: string;
     concentration?: string;

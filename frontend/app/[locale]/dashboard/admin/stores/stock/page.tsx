@@ -115,7 +115,7 @@ export default function AdminStockRedesignPage() {
       const [ov, stores, prodRes] = await Promise.all([
         storesService.getStockOverview(),
         storesService.list(),
-        productService.adminList({ take: 200 }),
+        productService.adminList({ take: 1000 }),
       ]);
       setOverview(ov);
       setStoreList(stores);
@@ -148,15 +148,14 @@ export default function AdminStockRedesignPage() {
   }, [products]);
 
   const filteredVariantsImport = useMemo(() => {
-    if (!importSearch.trim()) return allVariants.slice(0, 15);
+    if (!importSearch.trim()) return allVariants;
     return allVariants
       .filter(
         (v) =>
           v.productName.toLowerCase().includes(importSearch.toLowerCase()) ||
           v.sku?.toLowerCase().includes(importSearch.toLowerCase()) ||
           v.brandName.toLowerCase().includes(importSearch.toLowerCase()),
-      )
-      .slice(0, 30);
+      );
   }, [allVariants, importSearch]);
 
   const filteredVariantsTransfer = useMemo(() => {
@@ -176,15 +175,14 @@ export default function AdminStockRedesignPage() {
       sku: v.sku || "",
     }));
 
-    if (!transferSearch.trim()) return storeAssets.slice(0, 20);
+    if (!transferSearch.trim()) return storeAssets;
     return storeAssets
       .filter(
         (v) =>
           v.productName.toLowerCase().includes(transferSearch.toLowerCase()) ||
           v.brandName.toLowerCase().includes(transferSearch.toLowerCase()) ||
           v.sku.toLowerCase().includes(transferSearch.toLowerCase()),
-      )
-      .slice(0, 30);
+      );
   }, [overview, transferFromId, transferSearch]);
 
   const stockMatrix = useMemo(() => {
@@ -1771,22 +1769,7 @@ export default function AdminStockRedesignPage() {
           {activeTab === "requests" && (
             <div className="space-y-8 animate-in fade-in duration-700">
               {/* ... existing requests content ... */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-4">
-                <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
-                  {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(f => (
-                    <button
-                      key={f}
-                      onClick={() => setRequestFilter(f)}
-                      className={cn(
-                        "px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                        requestFilter === f ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-white/5"
-                      )}
-                    >
-                      {f}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              {/* Filters removed as per user request to avoid English redundancy */}
               
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {requestsLoading ? (
@@ -1875,7 +1858,7 @@ export default function AdminStockRedesignPage() {
                    >
                      Tất cả
                    </button>
-                   {['IMPORT', 'ADJUST', 'SALE', 'RETURN'].map((type) => (
+                   {['IMPORT', 'ADJUST', 'SALE', 'RETURN', 'TRANSFER_IN', 'TRANSFER_OUT'].map((type) => (
                      <button
                        key={type}
                        onClick={() => setHistoryFilterType(type)}

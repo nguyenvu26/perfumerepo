@@ -399,6 +399,7 @@ ${reviewTexts}`;
     const feedback = p.reviewSummary?.summary ? `  Community Feedback: ${p.reviewSummary.summary} (Sentiment: ${p.reviewSummary.sentiment})` : '';
     return [
       `[ID: ${p.id}] ${p.name} (Match Score: ${tp.totalScore})`,
+      `  Score Breakdown: SPM: ${tp.spm}, BFS: ${tp.bfs}, QCS: ${tp.qcs}, RDF: ${tp.rdf}`,
       `  Brand: ${p.brand?.name || 'N/A'}`,
       p.category ? `  Category: ${p.category.name}` : null,
       p.scentFamily ? `  Scent Family: ${p.scentFamily.name}` : null,
@@ -476,7 +477,8 @@ ${dnaContext}
 ╚══════════════════════════════════════════════════════════╝
 
 - Respond in the same language the user writes in (Vietnamese or English).
-- MANDATORY: If you mention or recommend any specific products from the catalog, you MUST wrap your response in this JSON structure. DO NOT use plain text lists for products.
+- MANDATORY: Nếu bạn đề cập hoặc gợi ý bất kỳ sản phẩm cụ thể nào từ danh mục, bạn PHẢI gói câu trả lời trong cấu trúc JSON sau. KHÔNG sử dụng danh sách văn bản thuần túy cho sản phẩm.
+- MỖI sản phẩm trong "recommendations" PHẢI có trường "matchScore" lấy từ giá trị "Match Score" đã cung cấp trong catalog.
 - FORMAT EXAMPLE:
   {
     "text": "Dựa trên sở thích của bạn, tôi xin gợi ý 3 chai nước hoa tuyệt vời sau đây...",
@@ -486,10 +488,22 @@ ${dnaContext}
         "name": "Bleu de Chanel",
         "reason": "Hương thơm mạnh mẽ, nam tính với nốt hương bưởi và gỗ đàn hương.",
         "price": 2800000,
-        "imageUrl": "https://example.com/image.jpg"
+        "imageUrl": "https://example.com/image.jpg",
+        "matchScore": 95,
+        "scoreBreakdown": {
+          "spm": 30,
+          "bfs": 40,
+          "qcs": 25,
+          "rdf": 0
+        }
       }
     ]
   }
+- EXPLANATION OF SCORES:
+  SPM: Scent Profile Match (Khớp mùi hương)
+  BFS: Behavioral Feedback (Hành vi & Đánh giá)
+  QCS: Quiz Context (Ngữ cảnh khảo sát)
+  RDF: Risk/Discovery (Yếu tố khám phá)
 - If the question is general (e.g. greetings, fragrance knowledge) without specific product mentions, reply in plain text only.
 - Be concise, warm, and knowledgeable – speak like a luxury fragrance house advisor.
 

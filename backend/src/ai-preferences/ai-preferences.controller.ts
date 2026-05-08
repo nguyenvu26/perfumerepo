@@ -22,4 +22,9 @@ export class AiPreferencesController {
   async resetMyPreferences(@Req() req: any) {
     return this.aiPreferencesService.reset(req.user.userId);
   }
+
+  @Patch('feedback')
+  async handleFeedback(@Req() req: any, @Body('type') type: 'LIKE' | 'DISLIKE') {
+    return this.aiPreferencesService.handleFeedback(req.user.userId, type);
+  }
 }

@@ -277,26 +277,23 @@ export default function ProfilePage() {
   const renderFieldValue = (key: string) => {
     if (!editing) {
       const field = profileFields.find((item) => item.key === key);
-      return <p className="mt-2 text-base font-medium leading-7 text-foreground">{field?.value || t('fallback.empty')}</p>;
+      return <p className="text-base font-medium text-foreground">{field?.value || t('fallback.empty')}</p>;
     }
+
+    const inputClasses = "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all";
 
     if (key === 'gender') {
       return (
-        <div className="relative mt-3">
-          <select
-            value={form.gender}
-            onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
-            className="w-full appearance-none rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
-          >
-            <option value="">{t('fallback.empty')}</option>
-            <option value="MALE">{t('gender_options.male')}</option>
-            <option value="FEMALE">{t('gender_options.female')}</option>
-            <option value="OTHER">{t('gender_options.other')}</option>
-          </select>
-          <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-stone-400">
-            <User className="h-4 w-4" />
-          </div>
-        </div>
+        <select
+          value={form.gender}
+          onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+          className={cn(inputClasses, "appearance-none")}
+        >
+          <option value="">{t('fallback.empty')}</option>
+          <option value="MALE">{t('gender_options.male')}</option>
+          <option value="FEMALE">{t('gender_options.female')}</option>
+          <option value="OTHER">{t('gender_options.other')}</option>
+        </select>
       );
     }
 
@@ -306,13 +303,13 @@ export default function ProfilePage() {
           type="date"
           value={form.dateOfBirth}
           onChange={(e) => setForm((f) => ({ ...f, dateOfBirth: e.target.value }))}
-          className="mt-3 w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
+          className={inputClasses}
         />
       );
     }
 
     if (key === 'email') {
-      return <p className="mt-2 text-base leading-7 text-stone-500 dark:text-stone-400">{data?.email || t('fallback.empty')}</p>;
+      return <p className="text-base text-muted-foreground">{data?.email || t('fallback.empty')}</p>;
     }
 
     const map: Record<string, string | number> = {
@@ -335,10 +332,11 @@ export default function ProfilePage() {
           }))
         }
         placeholder={key === 'phone' ? t('fallback.placeholder_phone') : ''}
-        className="mt-3 w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
+        className={inputClasses}
       />
     );
   };
+
 
   if (loading) {
     return (
@@ -357,282 +355,228 @@ export default function ProfilePage() {
 
   return (
     <AuthGuard>
-      <main className="mx-auto max-w-6xl space-y-8 px-4 py-2 sm:px-6">
-        <section className="relative overflow-hidden rounded-[2rem] border border-gold/15 bg-[linear-gradient(135deg,rgba(255,255,255,0.84),rgba(246,238,228,0.68))] p-6 shadow-[0_30px_70px_-45px_rgba(15,23,42,0.75)] backdrop-blur md:p-8 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))]">
-          <div className="absolute right-[-2rem] top-[-2rem] h-40 w-40 rounded-full bg-gold/12 blur-3xl" />
-          <div className="absolute bottom-[-3rem] left-[-3rem] h-44 w-44 rounded-full bg-gold/10 blur-3xl" />
-
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col gap-5 md:flex-row md:items-center">
-              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-[1.75rem] border border-gold/20 bg-white/80 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.5)] dark:bg-white/[0.05] md:h-28 md:w-28">
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        {/* Profile Header */}
+        <div className="mb-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center">
+            <div className="relative group">
+              <div className="h-28 w-28 overflow-hidden rounded-full border-2 border-gold/20 bg-background shadow-sm transition-all group-hover:border-gold/40">
                 {data?.avatarUrl ? (
                   <img src={data.avatarUrl} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <User className="h-12 w-12 text-stone-400 dark:text-stone-500" />
+                  <div className="flex h-full w-full items-center justify-center bg-secondary/20 text-secondary">
+                    <User className="h-14 w-14" />
+                  </div>
                 )}
               </div>
-
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-sm font-medium text-gold">
-                  <Sparkles className="h-4 w-4" />
-                  {roleLabel}
+              {editing && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Edit2 className="h-6 w-6 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-heading text-foreground uppercase tracking-tighter leading-tight">{summaryName}</h1>
-                  <p className="mt-2 text-base leading-7 text-stone-500 dark:text-stone-300">{t('subtitle')}</p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/75 px-3 py-2 text-sm text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
-                    <Mail className="h-4 w-4 text-gold" />
-                    {data?.email || t('fallback.empty')}
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/75 px-3 py-2 text-sm text-stone-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
-                    <CalendarDays className="h-4 w-4 text-gold" />
-                    {memberSince}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              {!editing ? (
-                <button
-                  type="button"
-                  onClick={() => setEditing(true)}
-                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-gold/20 bg-white/80 px-5 text-sm font-medium text-foreground transition-all hover:border-gold hover:text-gold dark:border-white/10 dark:bg-white/[0.04] dark:text-white"
-                >
-                  <Edit2 className="h-4 w-4" />
-                  {t('edit')}
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full bg-gold px-5 text-sm font-semibold text-luxury-black transition-all hover:scale-[1.01] disabled:opacity-50"
-                  >
-                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    {t('save')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditing(false)}
-                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-black/10 bg-white/80 px-5 text-sm font-medium text-stone-600 transition-all hover:border-gold hover:text-gold dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300"
-                  >
-                    {t('cancel')}
-                  </button>
-                </>
               )}
             </div>
+
+            <div className="space-y-1">
+              <h1 className="text-3xl font-heading tracking-tight text-foreground">{summaryName}</h1>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                <span className="font-medium text-gold/80">{roleLabel}</span>
+                <span className="h-1 w-1 rounded-full bg-border" />
+                <span>{data?.email}</span>
+                <span className="h-1 w-1 rounded-full bg-border" />
+                <span>{t('member_since')}: {memberSince}</span>
+              </div>
+            </div>
           </div>
-        </section>
+
+          <div className="flex shrink-0 gap-3">
+            {!editing ? (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-background px-6 text-sm font-semibold text-foreground transition-all hover:bg-secondary/50 active:scale-95"
+              >
+                {t('edit')}
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {t('save')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditing(false)}
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-border bg-background px-6 text-sm font-semibold text-foreground transition-all hover:bg-secondary/50 active:scale-95"
+                >
+                  {t('cancel')}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
 
         {error && (
-          <div className="rounded-[1.5rem] border border-red-200 bg-red-50/90 px-5 py-4 text-sm text-red-600 shadow-[0_20px_45px_-30px_rgba(220,38,38,0.4)] dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-300">
+          <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-600 dark:border-red-900/30 dark:bg-red-950/20">
             {error}
           </div>
         )}
 
-        <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-6">
-            <div className="glass rounded-[2rem] border border-gold/10 p-6 md:p-8">
-              <div className="mb-6 flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl md:text-2xl font-heading text-foreground uppercase tracking-tight">{t('personal_info')}</h2>
-                  <p className="mt-2 text-sm leading-7 text-stone-500 dark:text-stone-400">{t('title')}</p>
-                </div>
-                <div className="rounded-full border border-black/8 bg-white/80 px-4 py-2 text-sm text-stone-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300">
-                  {editing ? t('save') : roleLabel}
-                </div>
+        <div className="divide-y divide-border border-y border-border">
+          {/* Personal Information Section */}
+          <section className="py-10">
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-1">
+                <h2 className="text-lg font-semibold text-foreground">{t('personal_info')}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{t('title')}</p>
               </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                {profileFields.map((field) => {
-                  const Icon = field.icon;
-                  return (
-                    <div
-                      key={field.key}
-                      className={cn(
-                        'rounded-[1.5rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.03]',
-                        field.key === 'email' && 'md:col-span-2',
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gold/12 text-gold">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-stone-500 dark:text-stone-400">{field.label}</p>
-                        </div>
+              <div className="lg:col-span-2 space-y-8">
+                <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2">
+                  {profileFields.map((field) => (
+                    <div key={field.key} className={cn(field.key === 'email' && "sm:col-span-2")}>
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        {field.label}
+                      </label>
+                      <div className="mt-2">
+                        {renderFieldValue(field.key)}
                       </div>
-                      {renderFieldValue(field.key)}
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             </div>
+          </section>
 
-            {data?.role === 'CUSTOMER' && (
-              <div className="glass rounded-[2rem] border border-gold/10 p-6 md:p-8">
-                <div className="mb-6 flex items-start gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/12 text-gold">
-                    <Wallet className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl md:text-2xl font-heading text-foreground uppercase tracking-tight">{t('labels.min_budget')}</h2>
-                    <p className="mt-2 text-sm leading-7 text-stone-500 dark:text-stone-400">{budgetDescription}</p>
-                  </div>
+          {/* Budget & Customization Section */}
+          {data?.role === 'CUSTOMER' && (
+            <section className="py-10">
+              <div className="grid gap-8 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <h2 className="text-lg font-semibold text-foreground">{t('labels.min_budget')}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">{budgetDescription}</p>
                 </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-[1.5rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.03]">
-                    <p className="text-sm font-medium text-stone-500 dark:text-stone-400">{t('labels.min_budget')}</p>
-                    {editing ? (
-                      <input
-                        type="number"
-                        value={form.budgetMin}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            budgetMin: e.target.value ? Number(e.target.value) : '',
-                          }))
-                        }
-                        onFocus={(e) => e.target.select()}
-                        className="mt-3 w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
-                      />
-                    ) : (
-                      <p className="mt-2 text-xl font-semibold text-gold">
-                        {data?.budgetMin != null ? formatCurrency(data.budgetMin) : t('fallback.empty')}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="rounded-[1.5rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.03]">
-                    <p className="text-sm font-medium text-stone-500 dark:text-stone-400">{t('labels.max_budget')}</p>
-                    {editing ? (
-                      <input
-                        type="number"
-                        value={form.budgetMax}
-                        onChange={(e) =>
-                          setForm((f) => ({
-                            ...f,
-                            budgetMax: e.target.value ? Number(e.target.value) : '',
-                          }))
-                        }
-                        onFocus={(e) => e.target.select()}
-                        className="mt-3 w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
-                      />
-                    ) : (
-                      <p className="mt-2 text-xl font-semibold text-gold">
-                        {data?.budgetMax != null ? formatCurrency(data.budgetMax) : t('fallback.empty')}
-                      </p>
-                    )}
+                <div className="lg:col-span-2">
+                  <div className="grid gap-8 sm:grid-cols-2">
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        {t('labels.min_budget')}
+                      </label>
+                      <div className="mt-2">
+                        {editing ? (
+                          <input
+                            type="number"
+                            value={form.budgetMin}
+                            onChange={(e) => setForm(f => ({ ...f, budgetMin: e.target.value ? Number(e.target.value) : '' }))}
+                            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                          />
+                        ) : (
+                          <p className="text-xl font-medium text-gold">
+                            {data?.budgetMin != null ? formatCurrency(data.budgetMin) : t('fallback.empty')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        {t('labels.max_budget')}
+                      </label>
+                      <div className="mt-2">
+                        {editing ? (
+                          <input
+                            type="number"
+                            value={form.budgetMax}
+                            onChange={(e) => setForm(f => ({ ...f, budgetMax: e.target.value ? Number(e.target.value) : '' }))}
+                            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-base outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                          />
+                        ) : (
+                          <p className="text-xl font-medium text-gold">
+                            {data?.budgetMax != null ? formatCurrency(data.budgetMax) : t('fallback.empty')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            )}
+            </section>
+          )}
 
-            {data?.role === 'CUSTOMER' ? (
-              <div className="glass rounded-[2rem] border border-gold/10 p-6 md:p-8">
-                <AddressManager className="profile-address-manager" />
-              </div>
-            ) : null}
-          </div>
-
-          <div className="space-y-6">
-            <div className="glass rounded-[2rem] border border-gold/10 p-6 md:p-8">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/12 text-gold">
-                  <Shield className="h-5 w-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg md:text-xl font-heading text-foreground uppercase tracking-tight">{t('security.title')}</h2>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">{t('security.protected')}</p>
-                </div>
-              </div>
-
-              <div className="rounded-[1.5rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.03]">
-                <p className="text-base font-medium text-foreground">{t('security.protected')}</p>
-                <p className="mt-2 text-sm leading-7 text-stone-500 dark:text-stone-400">{securityDescription}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={openChangePassword}
-                className="mt-5 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-gold px-5 text-sm font-semibold text-luxury-black transition-all hover:scale-[1.01] disabled:opacity-50"
-                disabled={changePasswordLoading}
-              >
-                {changePasswordLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                {t('security.change_password')}
-              </button>
-            </div>
-
-            <div className="glass rounded-[2rem] border border-gold/10 p-6 md:p-8">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/12 text-gold">
-                  <BadgeCheck className="h-5 w-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg md:text-xl font-heading text-foreground uppercase tracking-tight">{t('verification.title')}</h2>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">
-                    {data?.emailVerified ? t('verification.verified') : t('verification.unverified')}
+          {/* Address Management */}
+          {data?.role === 'CUSTOMER' && (
+            <section className="py-10">
+              <div className="grid gap-8 lg:grid-cols-3">
+                <div className="lg:col-span-1">
+                  <h2 className="text-lg font-semibold text-foreground">{locale === 'vi' ? 'Địa chỉ giao hàng' : 'Shipping Addresses'}</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {locale === 'vi' ? 'Quản lý các địa điểm nhận hàng của bạn.' : 'Manage your delivery locations.'}
                   </p>
                 </div>
-              </div>
-
-              {data?.emailVerified ? (
-                <div className="rounded-[1.5rem] border border-emerald-200 bg-emerald-50/80 p-5 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5" />
-                    <p className="text-base font-medium">{t('verification.verified')}</p>
-                  </div>
+                <div className="lg:col-span-2">
+                  <AddressManager className="profile-address-manager" />
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50/75 p-5 text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-300">
-                    <p className="text-sm leading-7">{t('verification.unverified')}</p>
-                  </div>
+              </div>
+            </section>
+          )}
 
+          {/* Security & Verification Section */}
+          <section className="py-10">
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-1">
+                <h2 className="text-lg font-semibold text-foreground">{t('security.title')}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{securityDescription}</p>
+              </div>
+              <div className="lg:col-span-2 space-y-10">
+                {/* Password Change */}
+                <div className="flex items-center justify-between gap-4 p-6 rounded-2xl border border-border bg-secondary/10">
+                  <div>
+                    <h3 className="font-medium text-foreground">{t('security.change_password')}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{t('security.protected')}</p>
+                  </div>
                   <button
                     type="button"
-                    onClick={handleResendVerification}
-                    disabled={sendingVerify}
-                    className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full border border-gold bg-white/80 px-5 text-sm font-medium text-gold transition-all hover:bg-gold/8 disabled:opacity-50 dark:bg-white/[0.03]"
+                    onClick={openChangePassword}
+                    className="shrink-0 h-10 px-6 rounded-full border border-border bg-background text-sm font-semibold hover:bg-secondary transition-colors"
                   >
-                    {sendingVerify ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    {t('verification.resend')}
+                    {t('security.change_password')}
                   </button>
-
-                  {verifyMsg && <p className="text-sm text-stone-500 dark:text-stone-400">{verifyMsg}</p>}
                 </div>
-              )}
-            </div>
 
-            <div className="glass rounded-[2rem] border border-gold/10 p-6 md:p-8">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold/12 text-gold">
-                  <User className="h-5 w-5" />
-                </div>
-                <div>
-                  <h2 className="text-lg md:text-xl font-heading text-foreground uppercase tracking-tight">{overviewTitle}</h2>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">{overviewDescription}</p>
+                {/* Email Verification */}
+                <div className="flex items-center justify-between gap-4 p-6 rounded-2xl border border-border bg-secondary/10">
+                  <div>
+                    <h3 className="font-medium text-foreground">{t('verification.title')}</h3>
+                    <p className={cn(
+                      "text-sm mt-1",
+                      data?.emailVerified ? "text-success" : "text-amber-600 dark:text-amber-500"
+                    )}>
+                      {data?.emailVerified ? t('verification.verified') : t('verification.unverified')}
+                    </p>
+                  </div>
+                  {!data?.emailVerified && (
+                    <button
+                      type="button"
+                      onClick={handleResendVerification}
+                      disabled={sendingVerify}
+                      className="shrink-0 h-10 px-6 rounded-full bg-gold text-sm font-bold text-luxury-black hover:bg-gold/90 transition-colors disabled:opacity-50"
+                    >
+                      {sendingVerify ? <Loader2 className="h-4 w-4 animate-spin" /> : t('verification.resend')}
+                    </button>
+                  )}
+                  {data?.emailVerified && (
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-success/10 text-success">
+                      <CheckCircle className="h-5 w-5" />
+                    </div>
+                  )}
                 </div>
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-[1.5rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.03]">
-                  <p className="text-sm font-medium text-stone-500 dark:text-stone-400">{t('labels.email')}</p>
-                  <p className="mt-2 break-all text-base font-medium text-foreground">{data?.email || t('fallback.empty')}</p>
-                </div>
-                <div className="rounded-[1.5rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.03]">
-                  <p className="text-sm font-medium text-stone-500 dark:text-stone-400">{roleFieldLabel}</p>
-                  <p className="mt-2 text-base font-medium text-foreground">{roleLabel}</p>
-                </div>
-              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
+
 
         {changePasswordOpen ? (
           <div
@@ -644,104 +588,72 @@ export default function ProfilePage() {
             aria-modal="true"
           >
             <motion.div
-              initial={{ scale: 0.96, opacity: 0 }}
+              initial={{ scale: 0.98, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="glass w-full max-w-lg rounded-[2rem] border border-gold/10 bg-background/80 p-6 shadow-2xl md:p-8"
+              className="w-full max-w-lg rounded-2xl bg-background p-8 shadow-2xl border border-border"
             >
-              <div className="mb-6 flex items-start justify-between gap-4">
+              <div className="mb-8 flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-semibold text-foreground">{t('security.change_password')}</h2>
-                  <p className="mt-2 text-sm leading-7 text-stone-500 dark:text-stone-400">{t('security.modal_subtitle')}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{t('security.modal_subtitle')}</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={closeChangePassword}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-stone-500 transition-colors hover:border-gold hover:text-gold dark:border-white/10 dark:text-stone-300"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                   aria-label="Close"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-stone-500 dark:text-stone-400">{t('security.old_password')}</label>
-                  <div className="relative">
-                    <input
-                      type={showOldPassword ? 'text' : 'password'}
-                      value={changePasswordForm.oldPassword}
-                      onChange={(e) => setChangePasswordForm((f) => ({ ...f, oldPassword: e.target.value }))}
-                      className="w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 pr-12 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowOldPassword((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 transition-colors hover:text-gold"
-                    >
-                      {showOldPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+              <div className="space-y-6">
+                {[
+                  { id: 'oldPassword', label: t('security.old_password'), show: showOldPassword, setShow: setShowOldPassword },
+                  { id: 'newPassword', label: t('security.new_password'), show: showNewPassword, setShow: setShowNewPassword },
+                  { id: 'confirmPassword', label: t('security.confirm_password'), show: showConfirmPassword, setShow: setShowConfirmPassword }
+                ].map((item) => (
+                  <div key={item.id} className="space-y-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{item.label}</label>
+                    <div className="relative">
+                      <input
+                        type={item.show ? 'text' : 'password'}
+                        value={changePasswordForm[item.id as keyof typeof changePasswordForm]}
+                        onChange={(e) => setChangePasswordForm(f => ({ ...f, [item.id]: e.target.value }))}
+                        className="w-full rounded-xl border border-border bg-background px-4 py-2.5 pr-12 text-base outline-none focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => item.setShow(!item.show)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground"
+                      >
+                        {item.show ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-stone-500 dark:text-stone-400">{t('security.new_password')}</label>
-                  <div className="relative">
-                    <input
-                      type={showNewPassword ? 'text' : 'password'}
-                      value={changePasswordForm.newPassword}
-                      onChange={(e) => setChangePasswordForm((f) => ({ ...f, newPassword: e.target.value }))}
-                      className="w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 pr-12 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 transition-colors hover:text-gold"
-                    >
-                      {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-stone-500 dark:text-stone-400">{t('security.confirm_password')}</label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      value={changePasswordForm.confirmPassword}
-                      onChange={(e) => setChangePasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))}
-                      className="w-full rounded-2xl border border-black/10 bg-white/85 px-4 py-3.5 pr-12 text-base text-foreground outline-none transition-all focus:border-gold dark:border-white/10 dark:bg-white/[0.04]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword((s) => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 transition-colors hover:text-gold"
-                    >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
 
               {(changePasswordError || changePasswordSuccess) && (
                 <div
                   className={cn(
-                    'mt-5 rounded-2xl px-4 py-3 text-sm',
+                    'mt-6 rounded-xl px-4 py-3 text-sm border',
                     changePasswordError
-                      ? 'border border-red-200 bg-red-50 text-red-600 dark:border-red-900/40 dark:bg-red-950/20 dark:text-red-300'
-                      : 'border border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300',
+                      ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-900/30 dark:bg-red-950/20'
+                      : 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900/30 dark:bg-emerald-950/20',
                   )}
                 >
                   {changePasswordError || changePasswordSuccess}
                 </div>
               )}
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={closeChangePassword}
                   disabled={changePasswordLoading}
-                  className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-black/10 bg-white/80 px-5 text-sm font-medium text-stone-600 transition-all hover:border-gold hover:text-gold disabled:opacity-50 dark:border-white/10 dark:bg-white/[0.04] dark:text-stone-300"
+                  className="h-11 px-6 rounded-full border border-border bg-background text-sm font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
                 >
                   {t('cancel')}
                 </button>
@@ -749,19 +661,14 @@ export default function ProfilePage() {
                   type="button"
                   onClick={() => void submitChangePassword()}
                   disabled={changePasswordLoading}
-                  className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-gold px-5 text-sm font-semibold text-luxury-black transition-all hover:scale-[1.01] disabled:opacity-50"
+                  className="h-11 px-8 rounded-full bg-primary text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
                 >
-                  {changePasswordLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      {t('security.waiting')}
-                    </>
-                  ) : (
-                    t('security.change_password')
-                  )}
+                  {changePasswordLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  {t('security.change_password')}
                 </button>
               </div>
             </motion.div>
+
           </div>
         ) : null}
       </main>

@@ -73,8 +73,8 @@ export function calculateScentDNA(
 
   return {
     score,
-    matchingNotes: matched,
-    avoidedNotesFound: avoided,
+    matchingNotes: Array.from(new Set(matched)),
+    avoidedNotesFound: Array.from(new Set(avoided)),
     color,
     status,
   };

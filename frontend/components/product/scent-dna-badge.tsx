@@ -85,8 +85,8 @@ export function ScentDNABadge({ product, className, showText = true }: ScentDNAB
               <div className="space-y-1">
                 <p className="text-[10px] uppercase font-bold text-muted-foreground">{t('preferred_found')}</p>
                 <div className="flex flex-wrap gap-1">
-                  {dna.matchingNotes.map(note => (
-                    <span key={note} className="px-1.5 py-0.5 rounded-md bg-gold/5 text-gold text-[10px] border border-gold/10">
+                  {dna.matchingNotes.map((note, index) => (
+                    <span key={`${note}-${index}`} className="px-1.5 py-0.5 rounded-md bg-gold/5 text-gold text-[10px] border border-gold/10">
                       {note}
                     </span>
                   ))}
@@ -98,8 +98,8 @@ export function ScentDNABadge({ product, className, showText = true }: ScentDNAB
               <div className="space-y-1">
                 <p className="text-[10px] uppercase font-bold text-red-500/70">{t('conflicting_found')}</p>
                 <div className="flex flex-wrap gap-1">
-                  {dna.avoidedNotesFound.map(note => (
-                    <span key={note} className="px-1.5 py-0.5 rounded-md bg-red-500/5 text-red-500 text-[10px] border border-red-500/10">
+                  {dna.avoidedNotesFound.map((note, index) => (
+                    <span key={`${note}-${index}`} className="px-1.5 py-0.5 rounded-md bg-red-500/5 text-red-500 text-[10px] border border-red-500/10">
                       {note}
                     </span>
                   ))}

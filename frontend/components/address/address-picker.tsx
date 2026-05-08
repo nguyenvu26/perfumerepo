@@ -80,7 +80,7 @@ export function AddressPicker({ onAddressChange, initialValues }: AddressPickerP
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-                <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-400 pl-2">{t('province_label')}</Label>
+                <Label className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground pl-2">{t('province_label')}</Label>
                 <Select
                     value={provinceId ?? ''}
                     onChange={(e) => {
@@ -88,6 +88,7 @@ export function AddressPicker({ onAddressChange, initialValues }: AddressPickerP
                         setDistrictId(null);
                         setWardCode('');
                     }}
+                    className="rounded-xl h-11 border-border bg-background"
                 >
                     <option value="">{t('province_placeholder')}</option>
                     {provinces.map((p) => (
@@ -99,7 +100,7 @@ export function AddressPicker({ onAddressChange, initialValues }: AddressPickerP
             </div>
 
             <div className="space-y-2">
-                <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-400 pl-2">{t('district_label')}</Label>
+                <Label className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground pl-2">{t('district_label')}</Label>
                 <Select
                     value={districtId ?? ''}
                     onChange={(e) => {
@@ -107,6 +108,7 @@ export function AddressPicker({ onAddressChange, initialValues }: AddressPickerP
                         setWardCode('');
                     }}
                     disabled={!provinceId}
+                    className="rounded-xl h-11 border-border bg-background"
                 >
                     <option value="">{t('district_placeholder')}</option>
                     {districts.map((d) => (
@@ -118,11 +120,12 @@ export function AddressPicker({ onAddressChange, initialValues }: AddressPickerP
             </div>
 
             <div className="space-y-2">
-                <Label className="text-[10px] font-bold tracking-widest uppercase text-stone-400 pl-2">{t('ward_label')}</Label>
+                <Label className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground pl-2">{t('ward_label')}</Label>
                 <Select
                     value={wardCode}
                     onChange={(e) => setWardCode(e.target.value)}
                     disabled={!districtId}
+                    className="rounded-xl h-11 border-border bg-background"
                 >
                     <option value="">{t('ward_placeholder')}</option>
                     {wards.map((w) => (
@@ -133,5 +136,6 @@ export function AddressPicker({ onAddressChange, initialValues }: AddressPickerP
                 </Select>
             </div>
         </div>
+
     );
 }

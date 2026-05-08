@@ -658,6 +658,7 @@
     "profile": {
       "title": "Hồ Sơ Cá Nhân",
       "subtitle": "Quản lý thông tin và tùy chỉnh trải nghiệm mùi hương của bạn.",
+      "member_since": "Thành viên từ",
       "user_placeholder": "Khách Perfume GPT",
       "personal_info": "Thông tin cá nhân",
       "roles": {
@@ -715,7 +716,8 @@
         "title": "Trò Chuyện & Hỗ Trợ",
         "buttons": {
           "perfume_ai": "Trợ lý Nước hoa (AI)",
-          "marketing_ai": "Trợ lý Tiếp thị (AI)"
+          "marketing_ai": "Trợ lý Tiếp thị (AI)",
+          "send_image": "Gửi ảnh"
         },
         "placeholders": {
           "search": "Tìm kiếm...",
@@ -797,6 +799,7 @@
       "reset_profile": "Đặt lại hồ sơ",
       "preferred_tab": "Nốt hương yêu thích",
       "avoided_tab": "Nốt hương muốn tránh",
+      "manage_dna_title": "Tùy Chỉnh DNA",
       "search_placeholder": "Tìm kiếm và thêm nốt hương {type}...",
       "search_preferred": "yêu thích",
       "search_avoided": "muốn tránh",

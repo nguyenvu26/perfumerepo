@@ -183,29 +183,31 @@ model Category {
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  name          String
-  slug          String   @unique
-  brandId       Int
-  categoryId    Int?
-  scentFamilyId Int?
-  description   String?
-  gender        String?
-  longevity     String?
-  concentration String?
-  isActive      Boolean  @default(true)
-  isFeatured    Boolean  @default(false)
-  isBestseller  Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  scentAnalysis String?  @db.Text
-  sillage       String?
-  seasons       String[]
-  timeOfDay     String[]
-  occasions     String[]
-  styles        String[]
-  targetAge     String?
-  ingredients   String?  @db.Text
+  id                 String   @id @default(cuid())
+  name               String
+  slug               String   @unique
+  brandId            Int
+  categoryId         Int?
+  scentFamilyId      Int?
+  description        String?  @db.Text
+  shortDescription   String?  @db.Text
+  longDescription    String?  @db.Text
+  gender             String?
+  longevity          String?
+  concentration      String?
+  isActive           Boolean  @default(true)
+  isFeatured         Boolean  @default(false)
+  isBestseller       Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  scentAnalysis      String?  @db.Text
+  sillage            String?
+  seasons            String[]
+  timeOfDay          String[]
+  occasions          String[]
+  styles             String[]
+  targetAge          String?
+  ingredients        String?  @db.Text
 
   brand           Brand              @relation(fields: [brandId], references: [id])
   category        Category?          @relation(fields: [categoryId], references: [id])

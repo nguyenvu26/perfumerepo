@@ -124,12 +124,13 @@ export function AddressManager({ className }: AddressManagerProps) {
           <DialogTrigger asChild>
             <Button
               onClick={() => setSelectedAddress(null)}
-              className="rounded-full bg-luxury-black dark:bg-gold text-white hover:scale-105 transition-transform"
+              className="rounded-full bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-gold/10"
             >
               <Plus className="mr-2 h-4 w-4" /> {t('add_new')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-[2.5rem] border-gold/10 glass max-w-2xl">
+          <DialogContent className="rounded-[2rem] border border-border bg-background shadow-2xl max-w-2xl p-8">
+
             <DialogHeader>
               <DialogTitle className="text-2xl font-serif text-gold uppercase tracking-widest">
                 {selectedAddress ? t('edit') : t('add_new')}

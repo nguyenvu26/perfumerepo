@@ -4,7 +4,7 @@ import { UpdateAiPreferencesDto } from './dto/update-ai-preferences.dto';
 
 @Injectable()
 export class AiPreferencesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findByUser(userId: string) {
     let prefs = await this.prisma.userAiPreference.findUnique({
@@ -45,6 +45,22 @@ export class AiPreferencesService {
         preferredNotes: [],
         avoidedNotes: [],
       },
+    });
+  }
+
+  async handleFeedback(userId: string, type: 'LIKE' | 'DISLIKE') {
+    const prefs = await this.findByUser(userId);
+    let newRiskLevel = prefs.riskLevel;
+
+    if (type === 'LIKE') {
+      newRiskLevel = Math.min(1.0, newRiskLevel + 0.05);
+    } else {
+      newRiskLevel = Math.max(0.1, newRiskLevel - 0.1);
+    }
+
+    return this.prisma.userAiPreference.update({
+      where: { userId },
+      data: { riskLevel: newRiskLevel },
     });
   }
 }

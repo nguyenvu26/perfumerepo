@@ -633,6 +633,7 @@
     "profile": {
       "title": "Olfactory Profile",
       "subtitle": "Manage your sensory signature and account credentials.",
+      "member_since": "Member since",
       "user_placeholder": "Perfume GPT Guest",
       "personal_info": "Personal Intel",
       "roles": {
@@ -773,6 +774,7 @@
       "reset_profile": "Reset Profile",
       "preferred_tab": "Preferred Notes",
       "avoided_tab": "Avoided Notes",
+      "manage_dna_title": "Customize Your DNA",
       "search_placeholder": "Search and add a {type} note...",
       "search_preferred": "preferred",
       "search_avoided": "avoided",
