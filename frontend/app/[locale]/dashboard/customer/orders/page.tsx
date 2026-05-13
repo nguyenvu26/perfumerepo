@@ -13,7 +13,8 @@ import {
     Loader2,
     Clock,
     XCircle,
-    Receipt
+    Receipt,
+    Phone
 } from 'lucide-react';
 import { orderService, type Order } from '@/services/order.service';
 import { AuthGuard } from '@/components/auth/auth-guard';
@@ -183,6 +184,11 @@ export default function CustomerOrdersPage() {
                                                         <p className="text-[9px] md:text-[10px] text-foreground font-medium uppercase tracking-tight line-clamp-1 md:line-clamp-2 italic">
                                                             {order.shippingAddress}
                                                         </p>
+                                                        {order.phone && (
+                                                            <p className="text-[8px] md:text-[9px] text-stone-400 mt-1.5 flex items-center gap-2 font-bold tracking-widest uppercase">
+                                                                <Phone size={10} className="text-gold/50" /> {order.phone}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center justify-end gap-3 shrink-0">

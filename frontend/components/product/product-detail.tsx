@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/lib/i18n';
 import { toast } from 'sonner';
 
 import { useAuth } from '@/hooks/use-auth';

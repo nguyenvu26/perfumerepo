@@ -10,20 +10,25 @@ import {
   RotateCcw,
   Sparkles,
   Tag,
+  User,
+  Briefcase,
+  Clock,
 } from 'lucide-react';
 
 import { Link } from '@/lib/i18n';
-import { type QuizRecommendation } from '@/services/quiz.service';
+import { type QuizRecommendation, type QuizAnswers } from '@/services/quiz.service';
 
 interface RecommendationCardsProps {
   recommendations: QuizRecommendation[];
   analysis?: string | null;
+  answers?: QuizAnswers;
   onRetake: () => void;
 }
 
-export function RecommendationCards({ recommendations, analysis, onRetake }: RecommendationCardsProps) {
+export function RecommendationCards({ recommendations, analysis, answers, onRetake }: RecommendationCardsProps) {
   const t = useTranslations('quiz');
   const locale = useLocale();
+  const isVi = locale === 'vi';
 
   const copy =
     locale === 'vi'
@@ -85,6 +90,69 @@ export function RecommendationCards({ recommendations, analysis, onRetake }: Rec
 
   return (
     <div className="mx-auto w-full max-w-[1440px]">
+      {/* Quiz Answers History */}
+      {answers && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
+        >
+          {[
+            {
+              label: isVi ? 'Đối tượng' : 'Target',
+              value: answers.gender === 'MALE' ? (isVi ? 'Nam' : 'Male') : answers.gender === 'FEMALE' ? (isVi ? 'Nữ' : 'Female') : (isVi ? 'Unisex' : 'Unisex'),
+              icon: <User size={14} />,
+            },
+            {
+              label: isVi ? 'Dịp sử dụng' : 'Occasion',
+              value: isVi ? {
+                daily: 'Hằng ngày',
+                office: 'Công sở',
+                date: 'Hẹn hò',
+                party: 'Tiệc tùng',
+                special_event: 'Sự kiện',
+              }[answers.occasion || ''] || answers.occasion : answers.occasion,
+              icon: <Briefcase size={14} />,
+            },
+            {
+              label: isVi ? 'Ngân sách' : 'Budget',
+              value: answers.budgetMin !== undefined ? 
+                (answers.budgetMax && answers.budgetMax > 10000000 ? 
+                  (isVi ? '> 5Tr' : '> 5M') : 
+                  `${(answers.budgetMin / 1000000).toFixed(0)}Tr - ${(answers.budgetMax! / 1000000).toFixed(0)}Tr`) 
+                : '-',
+              icon: <Tag size={14} />,
+            },
+            {
+              label: isVi ? 'Nhóm hương' : 'Scent Family',
+              value: answers.preferredFamily,
+              icon: <Sparkles size={14} />,
+            },
+            {
+              label: isVi ? 'Độ lưu hương' : 'Longevity',
+              value: isVi ? {
+                light: 'Dịu nhẹ',
+                moderate: 'Vừa phải',
+                long_lasting: 'Lâu',
+                very_long: 'Rất lâu',
+              }[answers.longevity || ''] || answers.longevity : answers.longevity,
+              icon: <Clock size={14} />,
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col gap-1.5 rounded-2xl border border-border bg-card/50 p-4 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                <span className="text-gold">{item.icon}</span>
+                {item.label}
+              </div>
+              <div className="text-sm font-semibold text-foreground truncate">{item.value}</div>
+            </div>
+          ))}
+        </motion.div>
+      )}
+
       <motion.section
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}

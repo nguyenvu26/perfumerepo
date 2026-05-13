@@ -417,7 +417,7 @@ export function FloatingChatWidget() {
                                                                                                     className="flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-full bg-gold/10 border border-gold/20 hover:bg-gold/20 transition-colors group/score"
                                                                                                 >
                                                                                                     <span className="text-[10px] font-black text-gold">
-                                                                                                        {Math.min(99, Math.round((rec.matchScore / 120) * 100))}% MATCH
+                                                                                                        {rec.matchScore} / 120 ĐIỂM
                                                                                                     </span>
                                                                                                     <Info size={8} className="text-gold/60 group-hover/score:text-gold" />
                                                                                                 </button>

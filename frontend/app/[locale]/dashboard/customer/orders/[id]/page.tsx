@@ -382,14 +382,19 @@ export default function CustomerOrderDetailPage() {
                 <MapPin size={20} className="text-gold" />
                 {tDetail("shipping_address")}
               </h2>
-              <p className="text-sm text-stone-600 dark:text-stone-300 font-medium uppercase tracking-tight">
-                {order.shippingAddress}
-              </p>
-              {order.phone && (
-                <p className="text-[10px] text-stone-400 mt-2 flex items-center gap-2 font-bold tracking-widest">
-                  <Phone size={12} /> {order.phone}
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-stone-600 dark:text-stone-300 font-medium uppercase tracking-tight">
+                  {order.shippingAddress}
                 </p>
-              )}
+                {order.phone && (
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-gold/5 border border-gold/10 w-fit">
+                    <Phone size={14} className="text-gold" />
+                    <span className="text-xs font-bold tracking-[0.2em] text-foreground">
+                      {order.phone}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

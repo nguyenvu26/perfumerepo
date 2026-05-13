@@ -334,7 +334,13 @@ export class ProductsService {
     }
 
     return {
-      items: finalItems,
+      items: finalItems.map((p) => ({
+        ...p,
+        variants: p.variants.map((v: any) => ({
+          ...v,
+          stock: v.inventories?.reduce((sum, inv) => sum + inv.available, 0) ?? 0,
+        })),
+      })),
       total,
       skip: Number(skip),
       take: Number(take),
@@ -353,6 +359,7 @@ export class ProductsService {
         },
         variants: {
           where: { isActive: true },
+          include: { inventories: true },
         },
         reviews: true,
         notes: {
@@ -367,6 +374,15 @@ export class ProductsService {
       throw new NotFoundException('Product not found');
     }
 
+    // Map inventories to stock for public view
+    const mappedProduct = {
+      ...product,
+      variants: product.variants.map((v: any) => ({
+        ...v,
+        stock: v.inventories?.reduce((sum, inv) => sum + (inv.available || 0), 0) ?? 0,
+      })),
+    };
+
     // On-demand AI Scent Analysis generation
     if (!product.scentAnalysis) {
       this.aiService.generateProductScentAnalysis(id).catch((err) => {
@@ -374,7 +390,7 @@ export class ProductsService {
       });
     }
 
-    return product;
+    return mappedProduct;
   }
 
   async getTopSelling(take: number = 3) {

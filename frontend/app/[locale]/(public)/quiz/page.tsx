@@ -25,6 +25,7 @@ export default function QuizPage() {
   const [state, setState] = useState<QuizState>('intro');
   const [recommendations, setRecommendations] = useState<QuizRecommendation[]>([]);
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [lastAnswers, setLastAnswers] = useState<QuizAnswers | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -123,6 +124,7 @@ export default function QuizPage() {
     setState('analyzing');
 
     try {
+      setLastAnswers(answers);
       const result = await quizService.submitQuiz(answers);
       setRecommendations(result.recommendations);
       setAnalysis(result.analysis);
@@ -139,6 +141,7 @@ export default function QuizPage() {
   const handleRetake = () => {
     setRecommendations([]);
     setAnalysis(null);
+    setLastAnswers(null);
     setError(null);
     setState('quiz');
   };
@@ -383,6 +386,7 @@ export default function QuizPage() {
               <RecommendationCards
                 recommendations={recommendations}
                 analysis={analysis}
+                answers={lastAnswers || undefined}
                 onRetake={handleRetake}
               />
             </motion.section>
