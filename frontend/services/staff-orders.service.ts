@@ -35,6 +35,7 @@ export type StaffPosOrder = {
   status: string;
   paymentStatus: string;
   channel: string;
+  phone?: string | null;
   createdAt: string;
   items: StaffPosOrderItem[];
   staff?: { id: string; fullName?: string | null; email: string } | null;

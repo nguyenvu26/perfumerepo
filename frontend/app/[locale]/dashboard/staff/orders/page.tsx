@@ -155,6 +155,7 @@ export default function StaffOrdersPage() {
                                 <thead>
                                     <tr className="text-[10px] font-bold tracking-[.3em] uppercase text-muted-foreground border-b border-border/50 transition-colors">
                                         <th className="p-10 pb-6">{t('table.code')}</th>
+                                        <th className="pb-6">Khách hàng</th>
                                         <th className="pb-6">Ảnh</th>
                                         <th className="pb-6">{t('table.date')}</th>
                                         <th className="pb-6">{t('table.items')}</th>
@@ -182,6 +183,17 @@ export default function StaffOrdersPage() {
                                                         </span>
                                                         <span className="text-[10px] text-muted-foreground font-bold tracking-tight mt-1 uppercase">
                                                             {t('table.pos')}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-bold font-heading">
+                                                            {order.user?.fullName || 'Khách vãng lai'}
+                                                        </span>
+                                                        <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
+                                                            <User size={10} className="text-gold" />
+                                                            {order.phone || order.user?.phone || '—'}
                                                         </span>
                                                     </div>
                                                 </td>
@@ -258,6 +270,10 @@ export default function StaffOrdersPage() {
                                         <div>
                                             <p className="text-[10px] font-bold tracking-widest text-gold uppercase mb-1">POS Order</p>
                                             <h3 className="font-heading text-sm uppercase tracking-wider">{order.code}</h3>
+                                            <p className="text-[10px] text-muted-foreground font-medium mt-1 flex items-center gap-1">
+                                                <User size={10} className="text-gold" />
+                                                {order.phone || order.user?.phone || 'Khách vãng lai'}
+                                            </p>
                                         </div>
                                         <span className={`inline-flex items-center gap-1 text-[8px] px-3 py-1 rounded-full font-bold uppercase border ${badge.color}`}>
                                             <BadgeIcon size={10} />
@@ -370,6 +386,16 @@ export default function StaffOrdersPage() {
                                                     <p className="text-xs font-heading">{selectedOrder.store.name}</p>
                                                 </div>
                                             )}
+                                            <div className="glass rounded-2xl p-4 border-border col-span-2">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <User className="w-3 h-3 text-gold" />
+                                                    <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-heading">Khách hàng</span>
+                                                </div>
+                                                <p className="text-xs font-heading">
+                                                    {selectedOrder.user?.fullName || 'Khách vãng lai'} 
+                                                    { (selectedOrder.phone || selectedOrder.user?.phone) && ` • ${selectedOrder.phone || selectedOrder.user?.phone}` }
+                                                </p>
+                                            </div>
                                         </div>
 
                                         {/* Items */}
