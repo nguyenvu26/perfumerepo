@@ -58,7 +58,7 @@ export function ScentDNABadge({ product, className, showText = true }: ScentDNAB
             )}
           >
             {icon}
-            <span>{dna.score}% DNA</span>
+            <span>{t('personalized_matching')} {dna.score}%</span>
           </motion.div>
         </TooltipTrigger>
         <TooltipContent 

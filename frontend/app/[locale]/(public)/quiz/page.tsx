@@ -150,7 +150,7 @@ export default function QuizPage() {
     <div className="relative isolate min-h-screen overflow-hidden bg-[linear-gradient(180deg,#fbfaf7_0%,#ffffff_45%,#f6f1e8_100%)] text-foreground transition-colors dark:bg-[linear-gradient(180deg,#09090b_0%,#11100d_52%,#09090b_100%)]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(197,160,89,0.16),transparent_28%),radial-gradient(circle_at_90%_20%,rgba(118,151,132,0.12),transparent_22%)] dark:bg-[radial-gradient(circle_at_15%_10%,rgba(197,160,89,0.13),transparent_28%),radial-gradient(circle_at_90%_20%,rgba(118,151,132,0.1),transparent_22%)]" />
 
-      <main className="container-responsive relative z-10 pb-16 pt-16 sm:pt-20 lg:pb-24 lg:pt-28">
+      <main className="container-responsive relative z-10 pb-16 pt-32 sm:pt-36 lg:pb-24 lg:pt-28">
         <AnimatePresence mode="wait">
           {state === 'intro' && (
             <motion.section

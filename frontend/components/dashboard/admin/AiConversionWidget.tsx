@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 const CustomLabel = ({ cx, cy, rate }: { cx: number; cy: number; rate: number }) => {
     return (
         <>
-            <text x={cx} y={cy - 4} textAnchor="middle" fill="#fff" fontSize={24} fontWeight={700} fontFamily="inherit">
+            <text x={cx} y={cy - 4} textAnchor="middle" fill="currentColor" fontSize={24} fontWeight={700} fontFamily="inherit">
                 {rate}%
             </text>
             <text x={cx} y={cy + 16} textAnchor="middle" fill="#8b5cf6" fontSize={9} fontFamily="inherit" fontWeight={700} letterSpacing="2">
@@ -41,7 +41,7 @@ const CustomLabel = ({ cx, cy, rate }: { cx: number; cy: number; rate: number })
 };
 
 export function AiConversionWidget({ data, loading }: AiConversionWidgetProps) {
-    const t = useTranslations('dashboard.admin');
+    const t = useTranslations('admin_dashboard');
 
     const total = data?.totalItemsSold || 0;
     const aiItems = data?.aiRecommendedItemsSold || 0;

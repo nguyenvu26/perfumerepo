@@ -86,9 +86,7 @@ export default function ConsultationPage() {
 
     return (
         <div className="min-h-screen bg-stone-100 dark:bg-zinc-950 transition-colors flex flex-col">
-            <Header />
-
-            <main className="flex-1 container-responsive py-24 lg:py-32 flex flex-col items-center justify-center">
+            <main className="flex-1 container-responsive pt-32 pb-24 lg:pt-40 lg:pb-32 flex flex-col items-center justify-center">
                 <div className="max-w-4xl w-full">
                     {/* Progress Indicator */}
                     <div className="flex items-center justify-center gap-3 lg:gap-4 mb-10 lg:mb-20">

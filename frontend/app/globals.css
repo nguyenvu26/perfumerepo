@@ -395,7 +395,8 @@ html[lang="vi"] .text-\[10px\] {
     box-shadow: 0 24px 55px -36px rgba(15, 23, 42, 0.55);
   }
 
-  .dark .dashboard-shell .glass {
+  .dark .dashboard-shell .glass,
+  .dashboard-shell .dark .glass {
     background: color-mix(in srgb, #17181c 82%, transparent);
     box-shadow: 0 24px 55px -36px rgba(0, 0, 0, 0.8);
   }

@@ -6,6 +6,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Heart, ShoppingBag, Sparkles } f
 
 import { Link } from '@/lib/i18n';
 import { productService, Product } from '@/services/product.service';
+import { ScentDNABadge } from '@/components/product/scent-dna-badge';
 
 type ProductSection = {
     title: string;
@@ -132,6 +133,10 @@ export const FeaturedProducts = () => {
 
                                             {/* Bottom gradient overlay */}
                                             <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                                            
+                                            <div className="absolute left-3.5 top-3.5 z-10">
+                                                <ScentDNABadge product={perfume} showText={false} />
+                                            </div>
 
                                             {/* Wishlist button */}
                                             <button

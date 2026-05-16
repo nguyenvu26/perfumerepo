@@ -230,7 +230,7 @@ export const Header = () => {
                                 <Link
                                     href={isAuthenticated ? '/notifications' : '/login'}
                                     className={cn("hidden md:flex", iconButtonClass)}
-                                    title={('notifications')}
+                                    title={t('notifications')}
                                 >
                                     <Bell size={20} strokeWidth={1.5} />
                                     {unreadCount > 0 && (

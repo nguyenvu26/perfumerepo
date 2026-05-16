@@ -97,10 +97,33 @@
     },
     "engine_version": "Perfume GPT Neural Commerce Engine v2.0"
   },
-  "notifications": {
-    "success": "Success",
-    "error": "System Error",
-    "info": "Information",
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Updates on promotions, orders, messages, and community activity",
+      "empty": "You have no notifications yet.",
+      "login_required": "Please log in to view your notifications.",
+      "tabs": {
+        "all": "All",
+        "promotion": "Promotions",
+        "order": "Orders",
+        "loyalty": "Loyalty",
+        "system": "System"
+      },
+      "types": {
+        "PROMOTION": "Promotion",
+        "ORDER": "Order",
+        "SHIPPING": "Shipping",
+        "LOYALTY": "Loyalty",
+        "SYSTEM": "System"
+      },
+      "groups": {
+        "today": "Today",
+        "week": "This Week",
+        "earlier": "Earlier"
+      },
+      "success": "Success",
+      "error": "System Error",
+      "info": "Information",
     "review_success": "Thank you for sharing your elegant experience!",
     "review_error": "Failed to submit review. Please try again later.",
     "image_upload_error": "Image upload failed. Please verify your files.",
@@ -800,7 +823,7 @@
       "add_success": "{note} added to your {type} list",
       "remove_info": "{note} removed",
       "analysis_title": "Scent DNA Analysis",
-      "personalized_matching": "Personalized Matching",
+      "personalized_matching": "Match",
       "excellent_desc": "This fragrance aligns perfectly with your scent profile. The combination of notes matches your top preferences.",
       "caution_desc": "Mostly compatible with your tastes, though it may contain some unfamiliar olfactory patterns.",
       "warning_desc": "Exercise caution: this fragrance contains elements you typically avoid in your profile.",

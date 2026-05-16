@@ -763,6 +763,9 @@ export default function CollectionPage() {
                                 <ShoppingBag className="h-12 w-12" strokeWidth={1} />
                               </div>
                             )}
+                            <div className="absolute left-3 top-3 z-10">
+                              <ScentDNABadge product={product} showText={true} />
+                            </div>
                             <button
                               onClick={(e) => e.preventDefault()}
                               className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center text-zinc-300 transition-colors hover:text-[#C5A059] dark:text-zinc-600"

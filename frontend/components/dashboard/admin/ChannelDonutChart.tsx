@@ -29,7 +29,7 @@ const CustomLabel = ({ cx, cy, total }: { cx: number; cy: number; total: number 
     const t = useTranslations('admin_dashboard');
     return (
         <>
-            <text x={cx} y={cy - 8} textAnchor="middle" fill="#fff" fontSize={22} fontWeight={700} fontFamily="inherit">
+            <text x={cx} y={cy - 8} textAnchor="middle" fill="currentColor" fontSize={22} fontWeight={700} fontFamily="inherit">
                 {total}
             </text>
             <text x={cx} y={cy + 12} textAnchor="middle" fill="#888" fontSize={9} fontFamily="inherit" textLength="50" letterSpacing="2">

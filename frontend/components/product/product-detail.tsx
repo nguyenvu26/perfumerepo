@@ -11,6 +11,7 @@ import { cartService } from '@/services/cart.service';
 import { favoriteService } from '@/services/favorite.service';
 import { type Product, type ProductVariant } from '@/services/product.service';
 import { cn } from '@/lib/utils';
+import { ScentDNABadge } from './scent-dna-badge';
 
 import ReviewList from '../review/review-list';
 import ReviewSummaryView from '../review/review-summary';
@@ -352,9 +353,12 @@ export default function ProductDetail({ product }: { product: Product }) {
 
         <div className="max-w-2xl">
           <p className="text-sm text-muted-foreground">{product.brand?.name || labels.brandFallback}</p>
-          <h1 className="mt-4 text-4xl font-normal leading-tight tracking-normal text-foreground md:text-5xl">
-            {product.name}
-          </h1>
+          <div className="flex flex-col gap-4">
+            <ScentDNABadge product={product} />
+            <h1 className="text-4xl font-normal leading-tight tracking-normal text-foreground md:text-5xl">
+              {product.name}
+            </h1>
+          </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
             <span>{gender}</span>

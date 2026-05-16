@@ -10,7 +10,8 @@ import type { LucideIcon } from 'lucide-react';
 import { notificationService, type Notification } from '@/services/notification.service';
 import { getNotificationSocket } from '@/lib/socket';
 import { formatDistanceToNow, isToday, isWithinInterval, subDays } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { vi, enUS } from 'date-fns/locale';
+import { useLocale, useTranslations } from 'next-intl';
 
 type NotifGroup = 'today' | 'week' | 'earlier';
 
@@ -25,9 +26,13 @@ const iconByType: Record<string, { Icon: LucideIcon; color: string; bg: string }
 
 export default function NotificationsPage() {
   const { isAuthenticated } = useAuth();
+  const locale = useLocale();
+  const t = useTranslations('notifications');
   const [active, setActive] = useState<string>('all');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const dateLocale = locale === 'vi' ? vi : enUS;
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -97,10 +102,10 @@ export default function NotificationsPage() {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-serif text-foreground">
-                Thông báo
+                {t('title')}
               </h1>
               <p className="text-[10px] uppercase tracking-[.3em] text-muted-foreground font-bold mt-1">
-                Cập nhật khuyến mãi, đơn hàng, tin nhắn và hoạt động cộng đồng
+                {t('subtitle')}
               </p>
             </div>
           </div>
@@ -109,13 +114,13 @@ export default function NotificationsPage() {
         {!isAuthenticated ? (
           <div className="border border-border rounded-3xl p-10 bg-background/60 text-center">
             <p className="text-sm text-muted-foreground">
-              Vui lòng đăng nhập để xem thông báo của bạn.
+              {t('login_required')}
             </p>
             <Link
               href="/login"
               className="inline-flex mt-6 px-8 py-3 rounded-full bg-gold text-primary-foreground text-[10px] uppercase tracking-widest font-bold"
             >
-              Đăng nhập
+              {useTranslations('common')('login')}
             </Link>
           </div>
         ) : (
@@ -123,24 +128,24 @@ export default function NotificationsPage() {
             {/* Tabs */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
               {[
-                { id: 'all', label: 'Tất cả' },
-                { id: 'PROMOTION', label: 'Khuyến mãi' },
-                { id: 'ORDER', label: 'Đơn hàng' },
-                { id: 'LOYALTY', label: 'Điểm thưởng' },
-                { id: 'SYSTEM', label: 'Hệ thống' },
-              ].map((t) => (
+                { id: 'all', label: t('tabs.all') },
+                { id: 'PROMOTION', label: t('tabs.promotion') },
+                { id: 'ORDER', label: t('tabs.order') },
+                { id: 'LOYALTY', label: t('tabs.loyalty') },
+                { id: 'SYSTEM', label: t('tabs.system') },
+              ].map((tab) => (
                 <button
-                   key={t.id}
+                   key={tab.id}
                    type="button"
-                   onClick={() => setActive(t.id)}
+                   onClick={() => setActive(tab.id)}
                    className={cn(
                      'px-4 py-2 rounded-full border text-[10px] font-bold uppercase tracking-widest transition-colors shrink-0',
-                     active === t.id
+                     active === tab.id
                        ? 'bg-foreground text-background border-foreground'
                        : 'border-border text-muted-foreground hover:text-foreground',
                    )}
                 >
-                  {t.label}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -151,7 +156,7 @@ export default function NotificationsPage() {
               </div>
             ) : notifications.length === 0 ? (
               <div className="text-center py-20 border border-border border-dashed rounded-3xl">
-                <p className="text-sm text-muted-foreground">Bạn chưa có thông báo nào.</p>
+                <p className="text-sm text-muted-foreground">{t('empty')}</p>
               </div>
             ) : (
               <div className="space-y-8">
@@ -159,16 +164,12 @@ export default function NotificationsPage() {
                   const items = groups[g];
                   if (!items.length) return null;
                   
-                  const groupLabels = {
-                    today: 'Hôm nay',
-                    week: 'Tuần này',
-                    earlier: 'Trước đó'
-                  };
+                  const groupLabel = t(`groups.${g}`);
 
                   return (
                     <section key={g}>
                       <h2 className="text-[10px] uppercase tracking-[.3em] text-muted-foreground font-bold mb-3">
-                        {groupLabels[g]}
+                        {groupLabel}
                       </h2>
 
                       <div className="border border-border rounded-3xl overflow-hidden bg-background/60 backdrop-blur-sm">
@@ -196,10 +197,10 @@ export default function NotificationsPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between gap-3 mb-1">
                                   <p className="font-bold text-xs uppercase tracking-widest text-gold">
-                                    {n.type}
+                                    {t(`types.${n.type}`)}
                                   </p>
                                   <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold shrink-0">
-                                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: vi })}
+                                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: dateLocale })}
                                   </span>
                                 </div>
                                 

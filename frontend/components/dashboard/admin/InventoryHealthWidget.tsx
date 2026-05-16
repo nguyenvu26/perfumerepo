@@ -57,11 +57,11 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
 
     return (
         <div className={cn(
-            "glass bg-background/40 rounded-[2.5rem] border border-border/50 overflow-hidden flex flex-col w-full group/widget hover:border-gold/20 transition-all duration-500 shadow-2xl shadow-black/40",
-            !isExpanded && "hover:bg-white/[0.04] cursor-pointer"
+            "glass bg-background/40 rounded-[2.5rem] border border-border overflow-hidden flex flex-col w-full group/widget hover:border-gold/20 transition-all duration-500 shadow-xl",
+            !isExpanded && "hover:bg-secondary/10 cursor-pointer"
         )} onClick={!isExpanded ? onToggle : undefined}>
             {/* Horizontal Header */}
-            <div className="px-8 py-5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+            <div className="px-8 py-5 border-b border-border bg-secondary/5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <div className="p-3 rounded-2xl bg-gold/10 text-gold border border-gold/20">
                         <Package className="w-5 h-5" />
@@ -72,7 +72,7 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                         </h3>
                         {!isExpanded ? (
                             <div className="flex items-center gap-4 mt-1">
-                                <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest flex items-center gap-2">
+                                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
                                     <span className={cn("w-1.5 h-1.5 rounded-full animate-pulse", criticalCount > 0 ? "bg-red-500" : "bg-emerald-500")} />
                                     {criticalCount > 0 ? `Cảnh báo: ${criticalCount} mặt hàng cạn kiệt` : "Kho hàng ổn định"}
                                 </p>
@@ -83,7 +83,7 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                 )}
                             </div>
                         ) : (
-                            <p className="text-[9px] text-white/40 font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
+                            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                 Phân tích luồng bán hàng 30 ngày gần nhất
                             </p>
@@ -92,7 +92,7 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                 </div>
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/admin/stores/stock">
-                        <button className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all text-[8px] font-black uppercase tracking-widest text-white/60">
+                        <button className="px-4 py-2 rounded-xl bg-secondary/20 hover:bg-secondary/30 border border-border transition-all text-[8px] font-black uppercase tracking-widest text-muted-foreground">
                             Kho tổng
                         </button>
                     </Link>
@@ -125,10 +125,10 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         whileHover={{ 
-                                            scale: 1.1, 
+                                            scale: 1.02, 
                                             zIndex: 10,
-                                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                                            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5)'
+                                            backgroundColor: 'var(--secondary)',
+                                            boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.1)'
                                         }}
                                         transition={{ 
                                             delay: i * 0.04,
@@ -136,11 +136,11 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                             stiffness: 400,
                                             damping: 25
                                         }}
-                                        className="relative p-4 rounded-[1.8rem] bg-white/[0.03] border border-white/5 hover:border-gold/90 transition-all duration-200 group/card cursor-pointer"
+                                        className="relative p-4 rounded-[1.8rem] bg-secondary/5 border border-border hover:border-gold transition-all duration-200 group/card cursor-pointer"
                                     >
                                         <div className="flex gap-4 mb-4">
                                             {/* Thumbnail Area */}
-                                            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-black/40 border border-white/10 shrink-0 shadow-xl group-hover/card:scale-110 transition-transform duration-500">
+                                            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-secondary border border-border shrink-0 shadow-sm group-hover/card:scale-110 transition-transform duration-500">
                                                 {item.imageUrl ? (
                                                     <Image 
                                                         src={item.imageUrl} 
@@ -152,14 +152,14 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                                     />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center">
-                                                        <Package className="w-5 h-5 text-white/20" />
+                                                        <Package className="w-5 h-5 text-muted-foreground/30" />
                                                     </div>
                                                 )}
                                             </div>
 
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h4 className="text-[11px] font-bold text-white/90 truncate flex-1 pr-2 leading-tight group-hover/card:text-gold transition-colors">
+                                                    <h4 className="text-[11px] font-bold text-foreground truncate flex-1 pr-2 leading-tight group-hover/card:text-gold transition-colors">
                                                         {item.name}
                                                     </h4>
                                                 <div className={cn(
@@ -180,18 +180,18 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-3 mb-4 p-2.5 bg-black/30 rounded-2xl border border-white/[0.03]">
+                                        <div className="grid grid-cols-2 gap-3 mb-4 p-2.5 bg-secondary/20 rounded-2xl border border-border">
                                             <div className="flex flex-col">
-                                                <span className="text-[7px] text-white/20 uppercase font-black tracking-tighter">Ngày cạn</span>
+                                                <span className="text-[7px] text-muted-foreground uppercase font-black tracking-tighter">Ngày cạn</span>
                                                 <span className={cn(
                                                     "text-xs font-heading font-bold",
-                                                    item.daysRemaining < 7 ? "text-red-400" : "text-white/80"
+                                                    item.daysRemaining < 7 ? "text-red-500" : "text-foreground/80"
                                                 )}>
                                                     {item.daysRemaining > 90 ? '> 90n' : `${item.daysRemaining} ngày`}
                                                 </span>
                                             </div>
                                             <div className="flex flex-col text-right">
-                                                <span className="text-[7px] text-white/20 uppercase font-black tracking-tighter">Xoay vòng</span>
+                                                <span className="text-[7px] text-muted-foreground uppercase font-black tracking-tighter">Xoay vòng</span>
                                                 <span className="text-xs font-heading font-bold text-gold">
                                                     {item.turnoverRate}x
                                                 </span>
@@ -203,7 +203,7 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                                                 <span>Tồn: {item.currentStock}</span>
                                                 <span>Bán: {item.monthlySales}/th</span>
                                             </div>
-                                            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                            <div className="h-1 w-full bg-secondary rounded-full overflow-hidden">
                                                 <motion.div 
                                                     initial={{ width: 0 }}
                                                     animate={{ width: `${Math.min(100, (item.monthlySales / Math.max(1, item.currentStock + item.monthlySales)) * 100)}%` }}
