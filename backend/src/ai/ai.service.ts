@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { PrismaService } from '../prisma/prisma.service';
 import { AnalyticsService } from '../analytics/analytics.service';
-import { AiScoringService } from './ai-scoring.service';
+import { AiScoringService, QuizAnswers } from './ai-scoring.service';
 
 interface CatalogData {
   /** Products with at least one variant in stock */
@@ -413,6 +413,80 @@ ${reviewTexts}`;
     ].filter(Boolean).join('\n');
   }
 
+  // ──────────────────────────────────────────────────────
+  // Pass 1: Intent Extraction (Two-Pass Architecture)
+  // ──────────────────────────────────────────────────────
+
+  /**
+   * Extracts structured shopping intent from a natural-language message.
+   * Called BEFORE scoring so the top-15 pool is relevant to the CURRENT
+   * request, not just the user's historical behavioral profile.
+   * Returns { hasSpecificIntent: false } on failure or non-shopping messages.
+   */
+  private async extractIntentFromMessage(
+    userMessage: string,
+    history: Array<{ role: string; text: string }>,
+  ): Promise<QuizAnswers & { hasSpecificIntent: boolean }> {
+    const defaultResult = { hasSpecificIntent: false };
+    try {
+      const recentContext = history
+        .slice(-4)
+        .map((h) => `${h.role}: ${h.text}`)
+        .join('\n');
+
+      const prompt = `You are a shopping intent extraction system for a Vietnamese perfume store.
+Analyze the user message and recent conversation. Return ONLY a valid JSON object — no markdown, no extra text.
+
+Recent conversation:
+${recentContext || '(No previous context)'}
+
+Current user message: "${userMessage}"
+
+Return exactly this JSON structure:
+{
+  "hasSpecificIntent": boolean,
+  "gender": "MALE" | "FEMALE" | "UNISEX" | null,
+  "occasion": "daily" | "office" | "date" | "party" | "special_event" | null,
+  "budgetMin": number_in_vnd | null,
+  "budgetMax": number_in_vnd | null,
+  "preferredFamily": "Floral" | "Woody" | "Fresh" | "Oriental" | "Citrus" | "Aquatic" | null,
+  "longevity": "light" | "moderate" | "long_lasting" | "very_long" | null,
+  "intensity": "soft" | "moderate" | "intense" | null,
+  "prioritizePopularity": boolean,
+  "vibe": string | null
+}
+
+Rules:
+- hasSpecificIntent: false → greetings, thanks, general fragrance knowledge questions
+- hasSpecificIntent: true → mentions budget, scent type, occasion, gift-buying, specific product type, intensity, style, or popularity
+- intensity: "soft" (dịu nhẹ, thanh khiết, nhẹ nhàng), "intense" (nồng nàn, quyến rũ, bám tỏa mạnh), "moderate" (vừa phải)
+- prioritizePopularity: true if user asks for "bestsellers", "nhiều người thích", "nổi tiếng", "phổ biến"
+- vibe: extract descriptive style keywords like "sang trọng", "trẻ trung", "năng động", "bí ẩn"
+- Budget parsing: "1 triệu"=1000000, "dưới 2 triệu"={budgetMax:2000000}, "2-3 triệu"={budgetMin:2000000,budgetMax:3000000}
+- Gift for someone else: set gender based on the RECIPIENT (e.g. "mua cho ba" → MALE)`;
+
+      const response = await this.ai.models.generateContent({
+        model: this.model,
+        contents: prompt,
+      });
+
+      const raw = (response.text ?? '').replace(/```json|```/g, '').trim();
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return defaultResult;
+
+      const parsed = JSON.parse(jsonMatch[0]);
+      this.logger.log(
+        `[Pass-1] Intent extracted: hasSpecificIntent=${parsed.hasSpecificIntent}, ` +
+        `gender=${parsed.gender}, family=${parsed.preferredFamily}, ` +
+        `budget=${parsed.budgetMin}-${parsed.budgetMax}`,
+      );
+      return { hasSpecificIntent: false, ...parsed };
+    } catch (error) {
+      this.logger.warn(`[Pass-1] Intent extraction failed (${error.message}), falling back to behavioral scoring only.`);
+      return defaultResult;
+    }
+  }
+
   async perfumeConsult(
     userMessage: string,
     history: Array<{ role: string; text: string }>,
@@ -425,7 +499,24 @@ ${reviewTexts}`;
   ): Promise<string> {
     const startTime = Date.now();
     try {
-      const topProducts = await this.aiScoringService.calculateTopProducts(15, userId || undefined, undefined, dna);
+      // ── Pass 1: Extract structured intent from user message ──
+      const intentContext = await this.extractIntentFromMessage(userMessage, history);
+      const quizAnswers: QuizAnswers | undefined = intentContext.hasSpecificIntent
+        ? {
+            gender: intentContext.gender,
+            occasion: intentContext.occasion,
+            budgetMin: intentContext.budgetMin,
+            budgetMax: intentContext.budgetMax,
+            preferredFamily: intentContext.preferredFamily,
+            longevity: intentContext.longevity,
+            intensity: intentContext.intensity,
+            prioritizePopularity: intentContext.prioritizePopularity,
+            vibe: intentContext.vibe,
+          }
+        : undefined;
+
+      // ── Scoring: top-15 products (behavioral history + current intent) ──
+      const topProducts = await this.aiScoringService.calculateTopProducts(15, userId || undefined, quizAnswers, dna);
       const inStockCatalog = topProducts.map(tp => this.formatScoredProduct(tp)).join('\n\n');
       const inStockCount = topProducts.length;
 

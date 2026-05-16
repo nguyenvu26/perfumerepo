@@ -18,6 +18,7 @@ import {
 import { Link } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
 import { cartService, type Cart, type CartItem } from '@/services/cart.service';
+import { toast } from 'sonner';
 
 export default function CartPage() {
   const t = useTranslations('cart');
@@ -92,7 +93,9 @@ export default function CartPage() {
       const updated = await cartService.updateItem(item.id, quantity);
       setCart(updated);
     } catch (error) {
-      console.error(error);
+      const msg = (error as { response?: { data?: { message?: string } }; message?: string })
+        ?.response?.data?.message || (error as Error).message;
+      toast.error(msg || (isVi ? 'Không thể cập nhật số lượng.' : 'Failed to update quantity.'));
     }
   };
 
@@ -259,24 +262,39 @@ export default function CartPage() {
 
                         <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                           <div className="flex items-center gap-3 rounded-full border border-black/8 bg-background px-3 py-2 dark:border-white/10">
-                            <button
-                              type="button"
-                              onClick={() => updateQty(item, -1)}
-                              className="flex h-10 w-10 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:text-gold"
-                            >
-                              -
-                            </button>
-                            <div className="min-w-[72px] text-center">
-                              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{labels.quantity}</p>
-                              <p className="mt-1 text-lg font-semibold text-foreground">{item.quantity}</p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => updateQty(item, 1)}
-                              className="flex h-10 w-10 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:text-gold"
-                            >
-                              +
-                            </button>
+                            {(() => {
+                              const totalAvailable = item.variant.inventories?.reduce((sum, inv) => sum + inv.available, 0) ?? 0;
+                              const atLimit = totalAvailable > 0 && item.quantity >= totalAvailable;
+                              return (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQty(item, -1)}
+                                    disabled={item.quantity <= 1}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed"
+                                  >
+                                    -
+                                  </button>
+                                  <div className="min-w-[72px] text-center">
+                                    <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{labels.quantity}</p>
+                                    <p className="mt-1 text-lg font-semibold text-foreground">{item.quantity}</p>
+                                    {totalAvailable > 0 && (
+                                      <p className={`text-[10px] ${atLimit ? 'text-red-400 font-medium' : 'text-muted-foreground/70'}`}>
+                                        {isVi ? `Còn ${totalAvailable}` : `Stock: ${totalAvailable}`}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateQty(item, 1)}
+                                    disabled={atLimit}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:text-gold disabled:opacity-30 disabled:cursor-not-allowed"
+                                  >
+                                    +
+                                  </button>
+                                </>
+                              );
+                            })()}
                           </div>
 
                           <div className="flex items-center gap-5">

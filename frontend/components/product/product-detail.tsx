@@ -121,7 +121,6 @@ export default function ProductDetail({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [stats, setStats] = useState<ReviewStats | null>(null);
 
   useEffect(() => {
@@ -230,12 +229,17 @@ export default function ProductDetail({ product }: { product: Product }) {
     if (!selectedVariant) return;
 
     setLoading(true);
-    setMessage(null);
     try {
       await cartService.addItem(selectedVariant.id, quantity);
-      setMessage(isVi ? 'Đã thêm sản phẩm vào giỏ hàng.' : 'Product added to cart.');
+      toast.success(
+        isVi
+          ? `Đã thêm ${quantity} sản phẩm vào giỏ hàng thành công!`
+          : `${quantity} item(s) added to your cart successfully!`,
+      );
     } catch (error) {
-      setMessage((error as Error).message);
+      const msg = (error as { response?: { data?: { message?: string } }; message?: string })
+        ?.response?.data?.message || (error as Error).message;
+      toast.error(msg || (isVi ? 'Không thể thêm vào giỏ hàng.' : 'Failed to add to cart.'));
     } finally {
       setLoading(false);
     }
@@ -406,8 +410,13 @@ export default function ProductDetail({ product }: { product: Product }) {
                 <div className="flex flex-1 items-center justify-center text-base font-semibold">{quantity}</div>
                 <button
                   type="button"
-                  onClick={() => setQuantity((current) => Math.min(99, current + 1))}
-                  className="w-8 text-xl font-semibold sm:w-12"
+                  onClick={() =>
+                    setQuantity((current) =>
+                      Math.min(selectedVariant?.stock ?? 99, current + 1)
+                    )
+                  }
+                  disabled={!!(selectedVariant?.stock !== undefined && selectedVariant?.stock !== null && quantity >= selectedVariant.stock)}
+                  className="w-8 text-xl font-semibold sm:w-12 disabled:opacity-30 disabled:cursor-not-allowed"
                   aria-label="Increase quantity"
                 >
                   +
@@ -440,7 +449,6 @@ export default function ProductDetail({ product }: { product: Product }) {
             </button>
           </div>
 
-          {message && <p className="mt-4 text-sm font-medium text-muted-foreground">{message}</p>}
 
           <div className="mt-6 space-y-2 text-center text-sm text-foreground sm:text-left">
             <p>

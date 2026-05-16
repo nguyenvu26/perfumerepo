@@ -15,6 +15,7 @@ export type CartItem = {
     id: string;
     name: string;
     price: number;
+    inventories: { available: number }[];
     product: {
       id: string;
       name: string;

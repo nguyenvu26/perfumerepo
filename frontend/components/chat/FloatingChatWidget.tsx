@@ -17,13 +17,14 @@ export function FloatingChatWidget() {
     const [conversation, setConversation] = useState<Conversation | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<'idle' | 'analyzing' | 'searching'>('idle');
     const [initializing, setInitializing] = useState(false);
     const [showScoreDetails, setShowScoreDetails] = useState<string | null>(null);
     const [feedbackMessages, setFeedbackMessages] = useState<Record<string, 'LIKE' | 'DISLIKE' | null>>({});
     const [view, setView] = useState<'CHAT' | 'HISTORY'>('CHAT');
     const [allConversations, setAllConversations] = useState<Conversation[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const { isAuthenticated, user } = useAuth();
 
@@ -86,7 +87,7 @@ export function FloatingChatWidget() {
             const convs = await chatService.listConversations();
             const aiConvs = convs.filter((c) => c.type === 'CUSTOMER_AI');
             setAllConversations(aiConvs);
-            
+
             const existing = aiConvs[0]; // Take the most recent
             if (existing) {
                 setConversation(existing);
@@ -134,8 +135,13 @@ export function FloatingChatWidget() {
         const msg = text || newMessage.trim();
         if (!conversation || !msg) return;
 
-        setLoading(true);
+        // Pass 1 starts immediately
+        setLoading('analyzing');
         setNewMessage('');
+
+        // After ~1.5s (pass 1 done), switch to pass 2 indicator
+        loadingTimerRef.current = setTimeout(() => setLoading('searching'), 1500);
+
         try {
             const { message, aiMessage } = await chatService.sendMessage({
                 conversationId: conversation.id,
@@ -152,13 +158,17 @@ export function FloatingChatWidget() {
         } catch (error) {
             console.error('Failed to send message:', error);
         } finally {
-            setLoading(false);
+            if (loadingTimerRef.current) {
+                clearTimeout(loadingTimerRef.current);
+                loadingTimerRef.current = null;
+            }
+            setLoading('idle');
         }
     }, [conversation, newMessage]);
 
     const handleFeedback = async (messageId: string, type: 'LIKE' | 'DISLIKE') => {
         if (feedbackMessages[messageId]) return;
-        
+
         try {
             await aiPreferencesService.sendFeedback(type);
             setFeedbackMessages(prev => ({ ...prev, [messageId]: type }));
@@ -307,8 +317,8 @@ export function FloatingChatWidget() {
                                             }}
                                             className={cn(
                                                 "w-full p-4 rounded-2xl border transition-all text-left group",
-                                                conversation?.id === conv.id 
-                                                    ? "bg-gold/10 border-gold/30" 
+                                                conversation?.id === conv.id
+                                                    ? "bg-gold/10 border-gold/30"
                                                     : "bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
                                             )}
                                         >
@@ -341,7 +351,7 @@ export function FloatingChatWidget() {
                                                     <button
                                                         key={qa.label}
                                                         onClick={() => sendMessage(qa.text)}
-                                                        disabled={loading}
+                                                        disabled={loading !== 'idle'}
                                                         className="px-3 py-1.5 rounded-full text-xs border border-gold/30 text-gold hover:bg-gold/10 transition-colors disabled:opacity-50"
                                                     >
                                                         {qa.label}
@@ -386,8 +396,8 @@ export function FloatingChatWidget() {
                                                                         {/* Thumbnail */}
                                                                         <div className="w-24 h-32 shrink-0 bg-secondary/30 relative overflow-hidden border-r border-border/50">
                                                                             {rec.imageUrl ? (
-                                                                                <img 
-                                                                                    src={rec.imageUrl} 
+                                                                                <img
+                                                                                    src={rec.imageUrl}
                                                                                     alt={rec.name}
                                                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                                                 />
@@ -407,7 +417,7 @@ export function FloatingChatWidget() {
                                                                                         </p>
                                                                                         {rec.matchScore && (
                                                                                             <div className="relative">
-                                                                                                <button 
+                                                                                                <button
                                                                                                     onClick={(e) => {
                                                                                                         e.preventDefault();
                                                                                                         e.stopPropagation();
@@ -434,24 +444,22 @@ export function FloatingChatWidget() {
                                                                                                                 <div className="space-y-2">
                                                                                                                     <p className="font-bold text-gold border-b border-white/10 pb-1">Chi tiết độ tương thích</p>
                                                                                                                     <div className="space-y-1.5">
-                                                                                                                        <div className="flex justify-between">
-                                                                                                                            <span className="text-white/60">Hợp gu mùi hương:</span>
-                                                                                                                            <span className="text-white font-medium">+{rec.scoreBreakdown.spm}đ</span>
-                                                                                                                        </div>
-                                                                                                                        <div className="flex justify-between">
-                                                                                                                            <span className="text-white/60">Sức hấp dẫn (Hành vi):</span>
-                                                                                                                            <span className="text-white font-medium">+{rec.scoreBreakdown.bfs}đ</span>
-                                                                                                                        </div>
-                                                                                                                        <div className="flex justify-between">
-                                                                                                                            <span className="text-white/60">Đúng nhu cầu Quiz:</span>
-                                                                                                                            <span className="text-white font-medium">+{rec.scoreBreakdown.qcs}đ</span>
-                                                                                                                        </div>
-                                                                                                                        <div className="flex justify-between">
-                                                                                                                            <span className="text-white/60">Cảm hứng khám phá:</span>
-                                                                                                                            <span className="text-white font-medium">+{rec.scoreBreakdown.rdf}đ</span>
-                                                                                                                        </div>
+                                                                                                                        {([
+                                                                                                                            { label: 'Hợp gu mùi hương', val: rec.scoreBreakdown.spm },
+                                                                                                                            { label: 'Đánh giá & Hành vi', val: rec.scoreBreakdown.bfs },
+                                                                                                                            { label: 'Khớp với nhu cầu', val: rec.scoreBreakdown.qcs },
+                                                                                                                            { label: 'Cảm hứng khám phá', val: rec.scoreBreakdown.rdf },
+                                                                                                                        ] as { label: string; val: number }[]).map(({ label, val }) => (
+                                                                                                                            <div key={label} className="flex justify-between">
+                                                                                                                                <span className="text-white/60">{label}:</span>
+                                                                                                                                <span className={val < 0 ? 'text-red-400 font-medium' : 'text-white font-medium'}>
+                                                                                                                                    {val >= 0 ? '+' : ''}{val}đ
+                                                                                                                                </span>
+                                                                                                                            </div>
+                                                                                                                        ))}
                                                                                                                     </div>
                                                                                                                     <p className="pt-1 text-[9px] text-white/40 italic">Công thức: Total = SPM + BFS + QCS + RDF</p>
+                                                                                                                    <p className="text-[9px] text-red-400/60 italic">* Điểm âm = sản phẩm bạn đã đánh giá thấp</p>
                                                                                                                 </div>
                                                                                                             ) : (
                                                                                                                 <div className="p-2 text-center text-white/60">
@@ -461,9 +469,9 @@ export function FloatingChatWidget() {
                                                                                                         </motion.div>
                                                                                                     )}
                                                                                                 </AnimatePresence>
-                                                                                           </div>
+                                                                                            </div>
                                                                                         )}
-                                                                                     </div>
+                                                                                    </div>
                                                                                     <ExternalLink size={10} className="text-muted-foreground group-hover:text-gold transition-colors shrink-0 mt-0.5" />
                                                                                 </div>
                                                                                 <p className="text-[11px] text-muted-foreground mt-1.5 italic leading-relaxed">
@@ -485,25 +493,25 @@ export function FloatingChatWidget() {
                                                         <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
                                                             <p className="text-[10px] text-white/40 italic">Đề xuất này có hữu ích không?</p>
                                                             <div className="flex items-center gap-2">
-                                                                <button 
+                                                                <button
                                                                     onClick={() => handleFeedback(msg.id, 'LIKE')}
                                                                     disabled={!!feedbackMessages[msg.id]}
                                                                     className={cn(
                                                                         "p-1.5 rounded-lg transition-colors",
-                                                                        feedbackMessages[msg.id] === 'LIKE' 
-                                                                            ? "bg-green-500/20 text-green-400" 
+                                                                        feedbackMessages[msg.id] === 'LIKE'
+                                                                            ? "bg-green-500/20 text-green-400"
                                                                             : "hover:bg-white/10 text-white/40 hover:text-white"
                                                                     )}
                                                                 >
                                                                     <ThumbsUp size={14} />
                                                                 </button>
-                                                                <button 
+                                                                <button
                                                                     onClick={() => handleFeedback(msg.id, 'DISLIKE')}
                                                                     disabled={!!feedbackMessages[msg.id]}
                                                                     className={cn(
                                                                         "p-1.5 rounded-lg transition-colors",
-                                                                        feedbackMessages[msg.id] === 'DISLIKE' 
-                                                                            ? "bg-red-500/20 text-red-400" 
+                                                                        feedbackMessages[msg.id] === 'DISLIKE'
+                                                                            ? "bg-red-500/20 text-red-400"
                                                                             : "hover:bg-white/10 text-white/40 hover:text-white"
                                                                     )}
                                                                 >
@@ -521,12 +529,17 @@ export function FloatingChatWidget() {
                                         );
                                     })}
 
-                                    {loading && (
+                                    {loading !== 'idle' && (
                                         <div className="flex justify-start">
-                                            <div className="glass rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5">
-                                                <div className="w-2 h-2 rounded-full bg-gold animate-bounce" style={{ animationDelay: '0ms' }} />
-                                                <div className="w-2 h-2 rounded-full bg-gold animate-bounce" style={{ animationDelay: '150ms' }} />
-                                                <div className="w-2 h-2 rounded-full bg-gold animate-bounce" style={{ animationDelay: '300ms' }} />
+                                            <div className="glass rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-2.5">
+                                                <div className="flex items-center gap-1.5">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                </div>
+                                                <span className="text-[10px] font-medium uppercase tracking-widest text-gold/80">
+                                                    {loading === 'analyzing' ? 'Đang phân tích...' : 'Đang tìm kiếm...'}
+                                                </span>
                                             </div>
                                         </div>
                                     )}
@@ -543,12 +556,12 @@ export function FloatingChatWidget() {
                                             onChange={(e) => setNewMessage(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
                                             placeholder="Type your message..."
-                                            disabled={loading}
+                                            disabled={loading !== 'idle'}
                                             className="flex-1 bg-secondary/50 rounded-2xl px-4 py-2.5 text-sm outline-none focus:ring-1 focus:ring-gold/50 placeholder:text-muted-foreground/50 disabled:opacity-50"
                                         />
                                         <button
                                             onClick={() => sendMessage()}
-                                            disabled={loading || !newMessage.trim()}
+                                            disabled={loading !== 'idle' || !newMessage.trim()}
                                             className="w-10 h-10 rounded-xl bg-gold flex items-center justify-center text-white shrink-0 disabled:opacity-30 hover:shadow-lg hover:shadow-gold/30 transition-all"
                                         >
                                             <Send size={16} />
