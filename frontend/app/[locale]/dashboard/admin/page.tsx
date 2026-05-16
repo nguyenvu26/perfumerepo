@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                         </p>
                     </header>
 
-                    <div className="flex flex-wrap items-center gap-4 bg-white/5 p-2 rounded-[2rem] border border-white/10 shadow-2xl backdrop-blur-xl">
+                    <div className="flex flex-wrap items-center gap-4 bg-background/40 p-2 rounded-[2rem] border border-border shadow-2xl backdrop-blur-xl">
                         {[
                             { id: 'week', label: '7D' },
                             { id: 'month', label: '30D' },
@@ -288,8 +288,8 @@ export default function AdminDashboard() {
                                 className={cn(
                                     "px-4 py-2 rounded-full text-[10px] font-black tracking-widest transition-all duration-300 uppercase",
                                     period === p.id 
-                                        ? "bg-gold text-black shadow-[0_0_20px_rgba(212,175,55,0.4)]" 
-                                        : "text-white/40 hover:text-white hover:bg-white/5"
+                                        ? "bg-gold text-white shadow-[0_0_20px_rgba(212,175,55,0.4)]" 
+                                        : "text-muted-foreground hover:text-foreground hover:bg-foreground/5"
                                 )}
                             >
                                 {p.label}
@@ -297,27 +297,27 @@ export default function AdminDashboard() {
                         ))}
 
                         {period === 'custom' && (
-                            <div className="flex items-center gap-2 px-2 border-l border-white/10 animate-in fade-in slide-in-from-left-2 duration-300">
+                            <div className="flex items-center gap-2 px-2 border-l border-border animate-in fade-in slide-in-from-left-2 duration-300">
                                 <input 
                                     type="date" 
-                                    className="bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-white focus:outline-none focus:border-gold/50 cursor-pointer"
+                                    className="bg-background/60 border border-border rounded-lg px-2 py-1 text-[10px] text-foreground focus:outline-none focus:border-gold/50 cursor-pointer"
                                     onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                                 />
-                                <span className="text-white/20 text-[10px]">to</span>
+                                <span className="text-muted-foreground/50 text-[10px]">to</span>
                                 <input 
                                     type="date" 
-                                    className="bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-[10px] text-white focus:outline-none focus:border-gold/50 cursor-pointer"
+                                    className="bg-background/60 border border-border rounded-lg px-2 py-1 text-[10px] text-foreground focus:outline-none focus:border-gold/50 cursor-pointer"
                                     onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
                                 />
                             </div>
                         )}
 
-                        <div className="h-8 w-px bg-white/10 mx-2 hidden sm:block" />
+                        <div className="h-8 w-px bg-border mx-2 hidden sm:block" />
 
                         <button
                             onClick={refreshAll}
                             disabled={overviewLoading}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/5 text-white/80 hover:text-white hover:bg-white/10 transition-all border border-white/10 active:scale-95 group"
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/40 text-foreground/80 hover:text-foreground hover:bg-foreground/5 transition-all border border-border active:scale-95 group"
                         >
                             <RefreshCw className={cn("w-3.5 h-3.5 transition-transform duration-700", overviewLoading && "animate-spin")} />
                             <span className="text-[10px] font-black uppercase tracking-widest">

@@ -1,14 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Heart, ShoppingBag, Sparkles } from 'lucide-react';
 
 import { Link } from '@/lib/i18n';
 import { productService, Product } from '@/services/product.service';
-import { ScentDNABadge } from '@/components/product/scent-dna-badge';
 
 type ProductSection = {
     title: string;
@@ -16,17 +13,15 @@ type ProductSection = {
 };
 
 export const FeaturedProducts = () => {
-    const t = useTranslations('featured');
-    const commonT = useTranslations('common');
     const [featured, setFeatured] = useState<Product[]>([]);
     const [bestsellers, setBestsellers] = useState<Product[]>([]);
     const [newArrivals, setNewArrivals] = useState<Product[]>([]);
 
     useEffect(() => {
         Promise.all([
-            productService.list({ isFeatured: true, take: 3 }),
-            productService.getTopSelling(3),
-            productService.list({ take: 3 }),
+            productService.list({ isFeatured: true, take: 8 }),
+            productService.getTopSelling(8),
+            productService.list({ take: 8 }),
         ])
             .then(([featuredItems, bestsellerProducts, arrivalItems]) => {
                 setFeatured(featuredItems.items);
@@ -37,117 +32,196 @@ export const FeaturedProducts = () => {
     }, []);
 
     const sections: ProductSection[] = [
-        { title: 'Sản phẩm bán chạy', products: bestsellers },
-        { title: 'Sản phẩm nổi bật', products: featured },
-        { title: 'Sản phẩm mới', products: newArrivals },
+        { title: 'Deal Thơm', products: bestsellers },
+        { title: 'New Arrivals', products: newArrivals },
+        { title: 'Sản Phẩm Nổi Bật', products: featured },
     ];
 
-    const renderSection = (section: ProductSection) => {
+    const CarouselSection = ({ section }: { section: ProductSection }) => {
+        const scrollRef = useRef<HTMLDivElement>(null);
+
+        const scroll = (direction: 'left' | 'right') => {
+            if (scrollRef.current) {
+                const scrollAmount = scrollRef.current.clientWidth * 0.75;
+                scrollRef.current.scrollBy({
+                    left: direction === 'left' ? -scrollAmount : scrollAmount,
+                    behavior: 'smooth'
+                });
+            }
+        };
+
         if (section.products.length === 0) return null;
 
         return (
-            <div key={section.title} className="mb-20 last:mb-0 md:mb-24">
-                <div className="mb-8 flex flex-col gap-4 md:mb-10 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <h3 className="text-3xl leading-tight text-foreground md:text-4xl">{section.title}</h3>
+            <div className="mb-24 last:mb-0">
+                {/* Section Header */}
+                <div className="relative mb-10 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="h-px w-10 bg-gradient-to-r from-transparent to-[#C5A059]" />
+                        <h3 className="text-2xl md:text-3xl font-medium text-foreground tracking-wide">
+                            {section.title}
+                        </h3>
+                        <div className="h-px w-10 bg-gradient-to-l from-transparent to-[#C5A059]" />
                     </div>
-
                     <Link
                         href="/collection"
-                        className="group inline-flex items-center gap-2 text-base font-medium text-gold transition-colors hover:text-gold-dark"
+                        className="group flex items-center gap-1.5 text-sm font-medium text-[#C5A059] opacity-80 hover:opacity-100 transition-opacity"
                     >
-                        {t('cta')}
-                        <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                        Xem thêm
+                        <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                 </div>
 
-                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    {section.products.map((perfume, index) => (
-                        <motion.div
-                            key={perfume.id}
-                            initial={{ opacity: 0, y: 24 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.55, delay: index * 0.1 }}
-                            whileHover={{ y: -6 }}
-                            className="group h-full"
-                        >
-                            <Link href={`/collection/${perfume.id}`} className="block h-full">
-                                <article className="flex h-full flex-col overflow-hidden rounded-[2rem] border border-black/6 bg-card shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] transition-all dark:border-white/10 dark:bg-card">
-                                    <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-                                        {perfume.images?.[0] ? (
-                                            <Image
-                                                src={perfume.images[0].url}
-                                                alt={perfume.name}
-                                                fill
-                                                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full items-center justify-center bg-muted text-sm text-muted-foreground">
-                                                Perfume GPT
-                                            </div>
-                                        )}
+                {/* Carousel */}
+                <div className="relative group/carousel">
+                    {/* Left Button */}
+                    <button
+                        onClick={() => scroll('left')}
+                        className="absolute left-0 top-[42%] -translate-y-1/2 -translate-x-4 md:-translate-x-5 z-10 flex h-11 w-11 items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all duration-300 bg-white/95 dark:bg-zinc-900/95 text-[#C5A059] rounded-full shadow-[0_8px_30px_-8px_rgba(197,160,89,0.4)] border border-[#C5A059]/20 hover:bg-[#C5A059] hover:text-white hover:border-[#C5A059]"
+                        aria-label="Scroll left"
+                    >
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
 
-                                        <div className="absolute left-4 top-4 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-sm font-medium text-foreground backdrop-blur dark:border-white/12 dark:bg-black/35 dark:text-white">
-                                            {(perfume as any).scentFamily?.name || perfume.notes?.[0]?.note?.name || 'Signature'}
-                                        </div>
+                    {/* Scroll Container */}
+                    <div
+                        ref={scrollRef}
+                        className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                        {section.products.map((perfume) => {
+                            const minPrice = perfume.variants?.length
+                                ? Math.min(...perfume.variants.map((v) => v.price))
+                                : 0;
 
-                                        <div className="absolute right-4 top-4">
-                                            <ScentDNABadge product={perfume} />
-                                        </div>
-                                    </div>
+                            const maxPrice = perfume.variants?.length
+                                ? Math.max(...perfume.variants.map((v) => v.price))
+                                : 0;
 
-                                    <div className="flex flex-1 flex-col p-5 md:p-6">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm font-medium text-muted-foreground">
-                                                {perfume.brand?.name || 'Perfume GPT'}
-                                            </p>
-                                            {perfume.salesCount != null && (
-                                                <p className="text-[11px] font-semibold uppercase tracking-wider text-gold bg-gold/10 px-2 py-1 rounded-md border border-gold/20">
-                                                    Đã bán {perfume.salesCount}
-                                                </p>
+                            const priceString = minPrice === maxPrice && minPrice > 0
+                                ? `${minPrice.toLocaleString('vi-VN')}đ`
+                                : minPrice > 0
+                                    ? `${minPrice.toLocaleString('vi-VN')}đ – ${maxPrice.toLocaleString('vi-VN')}đ`
+                                    : 'Liên hệ';
+
+                            const sizesCount = perfume.variants?.length || 0;
+
+                            return (
+                                <Link
+                                    key={perfume.id}
+                                    href={`/collection/${perfume.id}`}
+                                    className="block w-[200px] md:w-[240px] shrink-0 snap-start group"
+                                >
+                                    <article className="flex flex-col h-full overflow-hidden rounded-[1.8rem] border border-black/6 dark:border-white/10 bg-white dark:bg-zinc-900 shadow-[0_16px_48px_-24px_rgba(15,23,42,0.18)] transition-all duration-400 hover:-translate-y-1.5 hover:border-[#C5A059]/40 hover:shadow-[0_24px_60px_-28px_rgba(197,160,89,0.35)]">
+
+                                        {/* Image Zone */}
+                                        <div className="relative aspect-[3/4] overflow-hidden bg-[linear-gradient(160deg,#faf8f3_0%,#f3ede0_100%)] dark:bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))]">
+                                            {perfume.images?.[0] ? (
+                                                <Image
+                                                    src={perfume.images[0].url}
+                                                    alt={perfume.name}
+                                                    fill
+                                                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-107"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-[#C5A059]/30">
+                                                    <ShoppingBag className="h-12 w-12" strokeWidth={1} />
+                                                    <span className="text-xs text-[#C5A059]/50 font-medium tracking-widest uppercase">No image</span>
+                                                </div>
+                                            )}
+
+                                            {/* Bottom gradient overlay */}
+                                            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+
+                                            {/* Wishlist button */}
+                                            <button
+                                                className="absolute right-3.5 top-3.5 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 dark:bg-zinc-900/85 text-zinc-400 backdrop-blur hover:text-[#C5A059] transition-colors shadow-sm"
+                                                aria-label="Thêm vào yêu thích"
+                                            >
+                                                <Heart className="h-4 w-4" />
+                                            </button>
+
+                                            {/* Size badge */}
+                                            {sizesCount > 0 && (
+                                                <div className="absolute left-3.5 bottom-3.5 z-10">
+                                                    <span className="rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+                                                        {sizesCount} sizes
+                                                    </span>
+                                                </div>
                                             )}
                                         </div>
-                                        <h4 className="mt-2 line-clamp-2 text-2xl leading-tight text-foreground md:text-[1.75rem]">
-                                            {perfume.name}
-                                        </h4>
-                                        <p className="mt-4 text-sm leading-7 text-muted-foreground md:text-base line-clamp-2">
-                                            {perfume.description || 'Khám phá hương thơm độc đáo dành riêng cho bạn.'}
-                                        </p>
 
-                                        <div className="mt-auto pt-6">
-                                            <div className="flex items-center justify-between gap-4">
-                                                <p className="text-xl font-semibold text-gold md:text-2xl">
-                                                    {perfume.variants?.length
-                                                        ? `${Math.min(...perfume.variants.map((variant) => variant.price)).toLocaleString('vi-VN')}₫`
-                                                        : '0₫'}
+                                        {/* Info Zone */}
+                                        <div className="flex flex-1 flex-col p-4 pb-5">
+                                            <p className="text-[11px] font-semibold text-[#C5A059] uppercase tracking-[0.15em] mb-1 truncate">
+                                                {perfume.brand?.name || 'Boutique'}
+                                            </p>
+                                            <h4 className="text-sm font-medium text-foreground leading-snug line-clamp-2 min-h-[40px] mb-3 group-hover:text-[#C5A059] transition-colors">
+                                                {perfume.brand?.name ? `${perfume.brand.name} ${perfume.name}` : perfume.name}
+                                            </h4>
+
+                                            <div className="mt-auto flex items-center justify-between gap-2 border-t border-black/6 dark:border-white/8 pt-3">
+                                                <p className="text-sm font-semibold text-foreground leading-tight">
+                                                    {priceString}
                                                 </p>
-                                                <span className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors group-hover:bg-gold group-hover:text-luxury-black dark:bg-white dark:text-black">
-                                                    {commonT('view_options')}
+                                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C5A059]/10 text-[#C5A059] group-hover:bg-[#C5A059] group-hover:text-white transition-all">
+                                                    <Sparkles className="h-3.5 w-3.5" />
                                                 </span>
                                             </div>
                                         </div>
-                                    </div>
-                                </article>
-                            </Link>
-                        </motion.div>
-                    ))}
+                                    </article>
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Right Button */}
+                    <button
+                        onClick={() => scroll('right')}
+                        className="absolute right-0 top-[42%] -translate-y-1/2 translate-x-4 md:translate-x-5 z-10 flex h-11 w-11 items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-all duration-300 bg-white/95 dark:bg-zinc-900/95 text-[#C5A059] rounded-full shadow-[0_8px_30px_-8px_rgba(197,160,89,0.4)] border border-[#C5A059]/20 hover:bg-[#C5A059] hover:text-white hover:border-[#C5A059]"
+                        aria-label="Scroll right"
+                    >
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
                 </div>
             </div>
         );
     };
 
     return (
-        <section className="section-py bg-background transition-colors" id="collections">
-            <div className="container-responsive">
-                <div className="mb-14 max-w-4xl md:mb-16">
-                    <p className="text-sm font-medium text-gold">{t('badge')}</p>
-                    <h2 className="mt-4 text-3xl leading-tight text-foreground md:text-4xl lg:text-5xl">
-                        {t('title')}
-                    </h2>
-                </div>
+        <section
+            className="py-20 md:py-28 bg-[linear-gradient(180deg,#fdfcf8_0%,#ffffff_50%,#fdfcf8_100%)] dark:bg-[linear-gradient(180deg,#09090b_0%,#0c0c0f_50%,#09090b_100%)] transition-colors"
+            id="collections"
+        >
+            <div className="container-responsive max-w-7xl mx-auto px-6 md:px-12">
+                {sections.map((section) => (
+                    <CarouselSection key={section.title} section={section} />
+                ))}
 
-                {sections.map(renderSection)}
+                {/* Quiz CTA Banner */}
+                <div className="mt-20 flex flex-col items-center justify-center gap-6 rounded-[2.5rem] border border-[#C5A059]/20 bg-[linear-gradient(135deg,rgba(197,160,89,0.08)_0%,rgba(197,160,89,0.03)_50%,rgba(197,160,89,0.08)_100%)] dark:bg-[linear-gradient(135deg,rgba(197,160,89,0.1)_0%,rgba(197,160,89,0.04)_50%,rgba(197,160,89,0.1)_100%)] px-8 py-14 text-center shadow-[0_0_80px_-30px_rgba(197,160,89,0.2)]">
+                    <div className="flex items-center gap-2 rounded-full border border-[#C5A059]/30 bg-[#C5A059]/10 px-4 py-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-[#C5A059]" />
+                        <span className="text-xs font-semibold text-[#C5A059] uppercase tracking-widest">AI Tư Vấn</span>
+                    </div>
+
+                    <h2 className="text-2xl md:text-3xl font-medium text-foreground max-w-lg leading-snug">
+                        Chưa biết chọn mùi nào?{' '}
+                        <span className="text-[#C5A059]">Để AI giúp bạn</span>
+                    </h2>
+
+                    <p className="text-sm md:text-base text-muted-foreground max-w-md leading-relaxed">
+                        Trả lời 5 câu hỏi ngắn — nhận danh sách nước hoa phù hợp với phong cách và ngân sách của bạn.
+                    </p>
+
+                    <Link
+                        href="/quiz"
+                        className="group inline-flex items-center gap-3 rounded-full bg-[#C5A059] px-8 py-4 text-sm font-bold text-white shadow-[0_16px_40px_-12px_rgba(197,160,89,0.55)] transition-all hover:-translate-y-1 hover:shadow-[0_22px_50px_-12px_rgba(197,160,89,0.7)] active:scale-95"
+                    >
+                        Tìm Sản Phẩm Phù Hợp
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                </div>
             </div>
         </section>
     );

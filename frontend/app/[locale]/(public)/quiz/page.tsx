@@ -162,14 +162,7 @@ export default function QuizPage() {
             >
               {/* Hero Section */}
               <div className="text-center max-w-4xl mx-auto px-4 mb-16">
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="text-base font-bold uppercase tracking-[0.4em] text-gold mb-6"
-                >
-                  {copy.eyebrow}
-                </motion.p>
+
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -177,7 +170,7 @@ export default function QuizPage() {
                   className="text-4xl md:text-6xl lg:text-7xl font-heading leading-[1.05] tracking-tight text-foreground mb-8"
                 >
                   {copy.title.split(' ').map((word, i) => (
-                    <span key={i} className={cn(i > 2 && "gold-gradient block sm:inline")}>
+                    <span key={i} className={cn(i > 2 && "gold-gradient")}>
                       {word}{' '}
                     </span>
                   ))}

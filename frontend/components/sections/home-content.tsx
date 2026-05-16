@@ -4,9 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useScroll, useTransform } from 'framer-motion';
 import { Header } from '@/components/common/header';
 import { Hero } from '@/components/sections/hero';
-import { Story } from '@/components/sections/story';
 import { FeaturedProducts } from '@/components/sections/featured-products';
-import { Discovery } from '@/components/sections/discovery';
 import { Footer } from '@/components/sections/footer';
 
 export function HomeContent() {
@@ -39,9 +37,7 @@ export function HomeContent() {
                     heroScale={heroScale}
                     heroOpacity={heroOpacity}
                 />
-                <Story />
                 <FeaturedProducts />
-                <Discovery />
             </main>
 
             <Footer />

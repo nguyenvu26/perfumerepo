@@ -25,6 +25,7 @@ import {
   Info,
   ThumbsUp,
   ThumbsDown,
+  ChevronLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -296,9 +297,12 @@ export default function DashboardChatPage() {
   });
 
   return (
-    <div className="flex h-[calc(100vh-5rem)] overflow-hidden">
+    <div className="flex h-[calc(100vh-5rem)] overflow-hidden relative">
       {/* ──────── Left Panel ──────── */}
-      <div className="w-80 border-r border-border/50 flex flex-col shrink-0">
+      <div className={cn(
+        "w-full md:w-80 border-r border-border/50 flex-col shrink-0",
+        selected ? "hidden md:flex" : "flex"
+      )}>
         {/* Header + new AI buttons */}
         <div className="p-4 border-b border-border/50 space-y-3">
           <h2 className="font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -442,11 +446,20 @@ export default function DashboardChatPage() {
       </div>
 
       {/* ──────── Right Panel (Chat) ──────── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={cn(
+        "flex-1 flex-col min-w-0 bg-background",
+        selected ? "flex" : "hidden md:flex"
+      )}>
         {selected ? (
           <>
             {/* Chat header */}
-            <div className="h-16 px-6 border-b border-border/50 flex items-center gap-3 shrink-0 bg-background/60 backdrop-blur-xl">
+            <div className="h-16 px-4 md:px-6 border-b border-border/50 flex items-center gap-3 shrink-0 bg-background/60 backdrop-blur-xl">
+              <button 
+                onClick={() => setSelected(null)}
+                className="md:hidden p-2 -ml-2 rounded-xl text-muted-foreground hover:bg-secondary transition-colors"
+              >
+                <ChevronLeft size={20} />
+              </button>
               <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
                 {getConversationIcon(selected.type)}
               </div>

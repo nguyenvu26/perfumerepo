@@ -57,24 +57,8 @@ export const Story = () => {
                                             <Sparkles className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-white/70">{t('analysis_title')}</p>
-                                            <p className="text-lg font-semibold text-white">{t('analysis_subtitle')}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-5 space-y-3">
-                                        <div className="h-2 w-full overflow-hidden rounded-full bg-white/12">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                whileInView={{ width: '92%' }}
-                                                viewport={{ once: true }}
-                                                transition={{ duration: 1.8, ease: 'easeOut' }}
-                                                className="h-full rounded-full bg-gold"
-                                            />
-                                        </div>
-                                        <div className="flex items-center justify-between text-sm text-white/80">
-                                            <span>{t('affinity')}</span>
-                                            <span className="font-semibold text-gold">92.4%</span>
+                                            <p className="text-sm font-medium text-white/70 uppercase tracking-widest">{t('analysis_title')}</p>
+                                            <p className="mt-1 text-2xl font-serif text-white">{t('analysis_subtitle')}</p>
                                         </div>
                                     </div>
                                 </div>

@@ -5,10 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChevronDown,
+  Heart,
   Search,
   ShoppingBag,
   SlidersHorizontal,
-  Sparkles,
   X,
 } from 'lucide-react';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
@@ -727,73 +727,68 @@ export default function CollectionPage() {
               </div>
             ) : (
               <>
-                <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 xl:grid-cols-3 2xl:grid-cols-4">
                   {pagedProducts.map((product, index) => {
-                    const price = getMinPrice(product);
-                    const scent = getScentName(product);
+                    const minPrice = getMinPrice(product);
+                    const maxPrice = product.variants?.length
+                      ? Math.max(...product.variants.map((v) => v.price))
+                      : null;
+                    const sizesCount = product.variants?.length ?? 0;
+
+                    const priceDisplay = minPrice != null
+                      ? minPrice === maxPrice
+                        ? formatCurrency(minPrice)
+                        : `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice ?? minPrice)}`
+                      : labels.noPrice;
 
                     return (
                       <motion.div
                         key={product.id}
-                        initial={{ opacity: 0, y: 18 }}
+                        initial={{ opacity: 0, y: 14 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.45, delay: index * 0.03 }}
-                        className="h-full"
+                        transition={{ duration: 0.4, delay: index * 0.025 }}
                       >
-                        <Link href={`/collection/${product.id}`} className="group block h-full">
-                          <article className="flex h-full flex-col overflow-hidden rounded-[2.2rem] border border-black/6 bg-card shadow-[0_24px_70px_-52px_rgba(15,23,42,0.3)] transition-all duration-300 hover:-translate-y-1 hover:border-gold/40 hover:shadow-[0_30px_80px_-45px_rgba(197,160,89,0.35)] dark:border-white/10">
-                            <div className="relative aspect-[4/5] overflow-hidden bg-[linear-gradient(180deg,rgba(248,246,241,0.95),rgba(255,255,255,0.7))] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))]">
-                              {product.images?.[0]?.url ? (
-                                <img
-                                  src={product.images[0].url}
-                                  alt={product.name}
-                                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                />
-                              ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-gold/30">
-                                  <ShoppingBag className="h-14 w-14" strokeWidth={1} />
-                                </div>
-                              )}
-
-                              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
-                                <span className="rounded-full bg-black/72 px-3 py-1.5 text-xs font-medium text-white backdrop-blur dark:bg-black/72">
-                                  {genderLabel(product.gender)}
-                                </span>
-                                {scent && (
-                                  <span className="max-w-[55%] truncate rounded-full bg-white/88 px-3 py-1.5 text-xs font-medium text-foreground backdrop-blur dark:bg-black/72 dark:text-white">
-                                    {scent}
-                                  </span>
-                                )}
+                        <Link href={`/collection/${product.id}`} className="group block">
+                          {/* Image */}
+                          <div className="relative aspect-square overflow-hidden bg-[#f7f5f0] dark:bg-zinc-900 mb-3">
+                            {product.images?.[0]?.url ? (
+                              <img
+                                src={product.images[0].url}
+                                alt={product.name}
+                                className="absolute inset-0 h-full w-full object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center text-[#C5A059]/25">
+                                <ShoppingBag className="h-12 w-12" strokeWidth={1} />
                               </div>
+                            )}
+                            <button
+                              onClick={(e) => e.preventDefault()}
+                              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center text-zinc-300 transition-colors hover:text-[#C5A059] dark:text-zinc-600"
+                              aria-label="Thêm vào yêu thích"
+                            >
+                              <Heart className="h-5 w-5" strokeWidth={1.5} />
+                            </button>
+                          </div>
 
-                              <div className="absolute bottom-4 left-4">
-                                <ScentDNABadge product={product} className="backdrop-blur-md shadow-lg" />
-                              </div>
-                            </div>
-
-                            <div className="flex flex-1 flex-col p-6">
-                              <p className="text-sm font-medium text-gold">{product.brand?.name ?? labels.allBrands}</p>
-                              <h3 className="mt-2 min-h-[64px] line-clamp-2 text-xl font-semibold leading-8 text-foreground transition-colors group-hover:text-gold">
-                                {product.name}
-                              </h3>
-
-                              <div className="mt-auto border-t border-border/60 pt-5">
-                                <div className="flex items-end justify-between gap-4">
-                                  <p className="text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                                    {labels.from}
-                                  </p>
-                                  <span className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-4 text-sm font-semibold text-gold transition-all group-hover:border-gold group-hover:bg-gold group-hover:text-luxury-black">
-                                    <span>{labels.detail}</span>
-                                    <Sparkles className="h-4 w-4" />
-                                  </span>
-                                </div>
-                                <p className="mt-2 text-2xl font-semibold text-foreground">
-                                  {price != null ? formatCurrency(price) : labels.noPrice}
-                                </p>
-                              </div>
-                            </div>
-                          </article>
+                          {/* Info */}
+                          <div className="px-0.5">
+                            <p className="mb-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-foreground">
+                              {product.brand?.name ?? ''}
+                            </p>
+                            <h3 className="line-clamp-2 text-sm font-normal leading-snug text-foreground/70 group-hover:text-foreground transition-colors mb-2">
+                              {product.name}
+                            </h3>
+                            <p className="text-sm font-bold text-[#C5A059]">
+                              {priceDisplay}
+                            </p>
+                            {sizesCount > 0 && (
+                              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                                {sizesCount} sizes
+                              </p>
+                            )}
+                          </div>
                         </Link>
                       </motion.div>
                     );

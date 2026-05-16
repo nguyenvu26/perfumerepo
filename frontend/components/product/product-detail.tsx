@@ -393,48 +393,50 @@ export default function ProductDetail({ product }: { product: Product }) {
           )}
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <div className="flex h-14 w-full border border-foreground sm:w-36">
+            <div className="flex w-full gap-3 sm:w-auto sm:flex-1">
+              <div className="flex h-14 w-28 shrink-0 border border-foreground sm:w-36">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                  className="w-8 text-xl font-semibold sm:w-12"
+                  aria-label="Decrease quantity"
+                >
+                  -
+                </button>
+                <div className="flex flex-1 items-center justify-center text-base font-semibold">{quantity}</div>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((current) => Math.min(99, current + 1))}
+                  className="w-8 text-xl font-semibold sm:w-12"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-                className="w-12 text-xl font-semibold"
-                aria-label="Decrease quantity"
+                onClick={handleAddToCart}
+                disabled={loading || !selectedVariant}
+                className="h-14 flex-1 border border-foreground bg-foreground px-2 text-xs sm:text-sm font-semibold uppercase tracking-wide text-background transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6"
               >
-                -
-              </button>
-              <div className="flex flex-1 items-center justify-center text-base font-semibold">{quantity}</div>
-              <button
-                type="button"
-                onClick={() => setQuantity((current) => Math.min(99, current + 1))}
-                className="w-12 text-xl font-semibold"
-                aria-label="Increase quantity"
-              >
-                +
+                {loading ? (isVi ? 'Đang xử lý...' : 'Processing...') : labels.addToCart}
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={loading || !selectedVariant}
-              className="h-14 flex-1 border border-foreground bg-background px-6 text-sm font-semibold uppercase tracking-wide text-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? (isVi ? 'Đang xử lý...' : 'Processing...') : labels.addToCart}
-            </button>
 
             <button
               type="button"
               onClick={handleToggleFavorite}
               disabled={favoriteLoading}
               className={cn(
-                'flex h-14 items-center justify-center gap-2 border px-5 text-sm font-semibold transition-colors sm:w-auto',
+                'flex h-14 w-full sm:w-auto items-center justify-center gap-2 border px-5 text-sm font-semibold transition-colors',
                 isFavorite
                   ? 'border-red-400 bg-red-50 text-red-600'
                   : 'border-border bg-background text-foreground hover:border-red-300 hover:text-red-500',
               )}
             >
               <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
-              <span className="sm:hidden md:inline">{labels.favorite}</span>
+              <span>{labels.favorite}</span>
             </button>
           </div>
 

@@ -114,7 +114,7 @@ export function StoreRevenueWidget() {
                 <AnimatePresence mode="wait">
                     {loading ? (
                         Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="h-32 rounded-3xl bg-white/5 animate-pulse" />
+                            <div key={i} className="h-32 rounded-3xl bg-muted/50 animate-pulse" />
                         ))
                     ) : revenue && (
                         <>
@@ -154,7 +154,7 @@ function RevenueCard({ label, value, icon: Icon, color, delay }: { label: string
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ delay }}
-            className="p-6 rounded-[2rem] bg-background/20 border border-white/5 hover:border-gold/10 transition-all group"
+            className="p-6 rounded-[2rem] bg-background/20 border border-border hover:border-gold/10 transition-all group"
         >
             <div className="flex items-center gap-3 mb-3">
                 <div className={cn("p-2 rounded-xl bg-background/40", color)}>

@@ -175,19 +175,19 @@
     "scroll_to_discover": "Cuộn Xuống Để Khám Phá Thêm"
   },
   "story": {
-    "badge": "Câu Chuyện Của Chúng Tôi",
-    "title": "Khám Phá Dấu Ấn Khứu Giác Thuộc Về Riêng Bạn.",
-    "subtitle": "Perfume GPT giúp bạn tìm đúng nước hoa — không cần thử hàng chục lọ, không cần phải là chuyên gia. AI sẽ phân tích sở thích của bạn và đề xuất những mùi hương phù hợp nhất.",
-    "feature1_title": "Phân Tích Mùi Hương Cá Nhân",
-    "feature1_desc": "Hiểu rõ các nhóm hương bạn thích và những nốt hương nào phù hợp với bạn nhất.",
-    "feature2_title": "Phù Hợp Với Lối Sống",
-    "feature2_desc": "Gợi ý nước hoa phù hợp với môi trường, công việc và khí hậu nơi bạn sống.",
-    "feature3_title": "Chất Lượng Đảm Bảo",
-    "feature3_desc": "Nguyên liệu chất lượng cao, nồng độ ổn định và được kiểm định nghiêm ngặt.",
-    "cta": "Bắt Đầu Khám Phá",
-    "analysis_title": "Phân Tích AI",
-    "analysis_subtitle": "Đang Xử Lý",
-    "affinity": "Độ Phù Hợp"
+    "badge": "Nghệ Thuật Chế Tác",
+    "title": "Di Sản & Đam Mê Nơi Những Mùi Hương Bất Tử.",
+    "subtitle": "Mỗi giọt hương là một tác phẩm nghệ thuật, được chắt lọc từ những nguyên liệu quý hiếm nhất trên thế giới, kết hợp cùng kỹ nghệ thủ công bậc thầy.",
+    "feature1_title": "Nguyên Liệu Tuyệt Hảo",
+    "feature1_desc": "Tuyển chọn khắt khe từ tinh dầu tự nhiên tinh khiết nhất, mang đến độ bám tỏa và chiều sâu hoàn hảo.",
+    "feature2_title": "Kỹ Nghệ Thủ Công",
+    "feature2_desc": "Được chế tác thủ công bởi các bậc thầy điều chế (Perfumers) với sự cẩn trọng và tỉ mỉ trong từng công đoạn.",
+    "feature3_title": "Thiết Kế Vượt Thời Gian",
+    "feature3_desc": "Tinh tế đến từng đường nét, tôn vinh vẻ đẹp sang trọng và phong cách cá nhân của bạn.",
+    "cta": "Khám Phá Di Sản",
+    "analysis_title": "Đỉnh Cao",
+    "analysis_subtitle": "Nghệ Thuật",
+    "affinity": "Độ Tinh Khiết"
   },
   "membership": {
     "title": "Chương Trình Thành Viên",

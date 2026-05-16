@@ -42,6 +42,7 @@
     "loyalty_reason": "Loyalty reward for your continued patronage."
   },
   "common": {
+    "notifications": "Notifications",
     "back": "Back",
     "title": "Perfume GPT | Personalized Luxury Perfume",
     "consultation": "AI Consultation",
@@ -174,19 +175,19 @@
     "scroll_to_discover": "Scroll to Discover"
   },
   "story": {
-    "badge": "Neural Synthesizer",
-    "title": "Your Signature, AI-Refined.",
-    "subtitle": "At Perfume GPT, we bypass the chaos of traditional counters. Our proprietary AI engine decodes your olfactory preferences through a series of emotional and environmental triggers.",
-    "feature1_title": "Olfactory DNA Mapping",
-    "feature1_desc": "Digital sequencing of base chords and top note resonances.",
-    "feature2_title": "Environmental Sillage",
-    "feature2_desc": "Projection optimized for your specific climate and social density.",
-    "feature3_title": "Molecular Integrity",
-    "feature3_desc": "Hand-blended concentrations stabilized for 90 days.",
-    "cta": "Start Consultation",
-    "analysis_title": "Neural Analysis",
-    "analysis_subtitle": "Processing Profile 042-B",
-    "affinity": "Scent Affinity"
+    "badge": "The Art of Perfumery",
+    "title": "Heritage & Passion In Immortal Scents.",
+    "subtitle": "Every drop is a masterpiece, distilled from the rarest ingredients in the world, combined with masterful craftsmanship.",
+    "feature1_title": "Exceptional Ingredients",
+    "feature1_desc": "Rigorously selected from the purest natural essential oils, delivering perfect longevity and depth.",
+    "feature2_title": "Master Craftsmanship",
+    "feature2_desc": "Handcrafted by master perfumers with care and meticulousness in every stage.",
+    "feature3_title": "Timeless Design",
+    "feature3_desc": "Exquisite to every detail, honoring luxury and your personal style.",
+    "cta": "Explore the Heritage",
+    "analysis_title": "The Pinnacle",
+    "analysis_subtitle": "Of Artistry",
+    "affinity": "Purity"
   },
   "membership": {
     "title": "The Elite Circle",

@@ -7,7 +7,7 @@ const toSlug = (name: string): string => {
 };
 
 const BRAND_DATA = [
-  'Chanel', 'Dior', 'Le Labo', 'Tom Ford', 'Creed', 
+  'Chanel', 'Dior', 'Le Labo', 'Tom Ford', 'Creed',
   'Byredo', 'Maison Francis Kurkdjian', 'Yves Saint Laurent', 'Giorgio Armani', 'Versace',
   'Kilian', 'Jo Malone', 'Parfums de Marly', 'Mancera', 'Xerjoff',
   'Roja Parfums', 'Amouage', 'Nishane', 'Penhaligon\'s', 'Hermès'
@@ -20,8 +20,8 @@ const FAMILY_DATA = ['Floral', 'Woody', 'Oriental', 'Fresh', 'Citrus', 'Gourmand
 // Helper for random variants
 const getVariants = (basePrice: number) => {
   return [
-    { name: '50ml', price: basePrice, stock: Math.floor(Math.random() * 50) + 10 },
-    { name: '100ml', price: Math.floor(basePrice * 1.6), stock: Math.floor(Math.random() * 50) + 10 }
+    { name: '50ml', price: basePrice },
+    { name: '100ml', price: Math.floor(basePrice * 1.6) }
   ];
 };
 
@@ -31,7 +31,7 @@ async function main() {
   // 1. Create Categories
   console.log('Creating categories...');
   const categories = await Promise.all(
-    CATEGORY_DATA.map(c => 
+    CATEGORY_DATA.map(c =>
       prisma.category.upsert({
         where: { name: c },
         update: {},
@@ -43,7 +43,7 @@ async function main() {
   // 2. Create Scent Families
   console.log('Creating scent families...');
   const families = await Promise.all(
-    FAMILY_DATA.map(f => 
+    FAMILY_DATA.map(f =>
       prisma.scentFamily.upsert({
         where: { name: f },
         update: {},
@@ -55,7 +55,7 @@ async function main() {
   // 3. Create Brands
   console.log('Creating brands...');
   const brands = await Promise.all(
-    BRAND_DATA.map(b => 
+    BRAND_DATA.map(b =>
       prisma.brand.upsert({
         where: { name: b },
         update: {},
@@ -92,7 +92,7 @@ async function main() {
     { name: 'Chanel No 5 EDP', brand: 'Chanel', cat: 'Designer', fam: 'Floral', gender: 'Nữ', concentration: 'EDP', longevity: 'Trên 12 tiếng', sillage: 'Xa', seasons: ['Thu', 'Đông'], timeOfDay: ['Ban đêm'], occasions: ['Tiệc tùng', 'Sự kiện'], styles: ['Cổ điển', 'Sang trọng'], targetAge: '30+', ingredients: 'Alcohol, Aqua, Parfum', notes: { top: ['Aldehyde', 'Ngọc lan tây', 'Hoa cam'], middle: ['Hoa nhài', 'Hoa hồng'], base: ['Gỗ đàn hương', 'Cỏ hương bài'] }, price: 4000000, desc: 'Huyền thoại nước hoa mọi thời đại.', analysis: 'Hương Aldehyde đặc trưng tạo nên sự lấp lánh, kết hợp với hoa nhài và gỗ đàn hương sâu lắng.' },
     { name: 'Allure Homme Sport', brand: 'Chanel', cat: 'Designer', fam: 'Fresh', gender: 'Nam', concentration: 'EDT', longevity: '4-6 tiếng', sillage: 'Vừa phải', seasons: ['Xuân', 'Hạ'], timeOfDay: ['Ban ngày'], occasions: ['Thể thao', 'Hằng ngày'], styles: ['Năng động', 'Khỏe khoắn'], targetAge: '20+', ingredients: 'Alcohol, Parfum', notes: { top: ['Cam', 'Hương biển'], middle: ['Tiêu', 'Hoa cam'], base: ['Đậu Tonka', 'Hổ phách'] }, price: 2800000, desc: 'Mang lại sự tươi mát tức thì.', analysis: 'Cảm giác của gió biển và cam quýt, dry down với đậu Tonka ngọt nhẹ nhưng nam tính.' },
     { name: 'Chance Eau Tendre', brand: 'Chanel', cat: 'Designer', fam: 'Floral', gender: 'Nữ', concentration: 'EDP', longevity: '8-12 tiếng', sillage: 'Vừa phải', seasons: ['Xuân', 'Hạ'], timeOfDay: ['Ban ngày'], occasions: ['Đi học', 'Hẹn hò'], styles: ['Nữ tính', 'Nhẹ nhàng'], targetAge: '18-30', ingredients: 'Alcohol, Parfum', notes: { top: ['Mộc qua', 'Bưởi'], middle: ['Hoa huệ dạ hương', 'Hoa nhài'], base: ['Xạ hương', 'Hoa diên vĩ'] }, price: 3200000, desc: 'Sự nữ tính, mềm mại và rạng rỡ.', analysis: 'Mùi hương hoa cỏ trái cây tươi sáng, dịu dàng và cực kỳ dễ chịu.' },
-    
+
     // Dior
     { name: 'Sauvage EDT', brand: 'Dior', cat: 'Designer', fam: 'Fresh', gender: 'Nam', concentration: 'EDT', longevity: '8-12 tiếng', sillage: 'Xa', seasons: ['Xuân', 'Hạ', 'Thu', 'Đông'], timeOfDay: ['Cả ngày'], occasions: ['Đi làm', 'Hẹn hò', 'Tiệc tùng'], styles: ['Nam tính', 'Bụi bặm'], targetAge: '20+', ingredients: 'Alcohol, Parfum', notes: { top: ['Cam Bergamot', 'Tiêu'], middle: ['Tiêu Tứ Xuyên', 'Hoa oải hương', 'Hoắc hương'], base: ['Ambroxan', 'Gỗ tuyết tùng'] }, price: 2500000, desc: 'Mạnh mẽ, hoang dại và đầy cuốn hút.', analysis: 'Ambroxan kết hợp tiêu đen tạo ra độ bám tỏa cực kỳ khủng khiếp.' },
     { name: 'Miss Dior Blooming Bouquet', brand: 'Dior', cat: 'Designer', fam: 'Floral', gender: 'Nữ', concentration: 'EDT', longevity: '4-6 tiếng', sillage: 'Gần', seasons: ['Xuân', 'Hạ'], timeOfDay: ['Ban ngày'], occasions: ['Đi học', 'Hằng ngày'], styles: ['Tiểu thư', 'Ngọt ngào'], targetAge: '18-25', ingredients: 'Alcohol, Parfum', notes: { top: ['Quýt', 'Cam Bergamot'], middle: ['Hoa mẫu đơn', 'Hoa hồng'], base: ['Xạ hương trắng'] }, price: 2700000, desc: 'Như một bó hoa mùa xuân tươi tắn.', analysis: 'Hương hoa mẫu đơn và hoa hồng trong trẻo, rất nịnh mũi nhưng bám hơi kém.' },
@@ -126,7 +126,7 @@ async function main() {
     // YSL
     { name: 'Y EDP', brand: 'Yves Saint Laurent', cat: 'Designer', fam: 'Fougère', gender: 'Nam', concentration: 'EDP', longevity: '8-12 tiếng', sillage: 'Xa', seasons: ['Xuân', 'Hạ', 'Thu'], timeOfDay: ['Cả ngày'], occasions: ['Đi làm', 'Tiệc tùng', 'Hẹn hò'], styles: ['Năng động', 'Nam tính'], targetAge: '20-35', ingredients: 'Alcohol, Parfum', notes: { top: ['Táo', 'Gừng', 'Cam Bergamot'], middle: ['Cây xô thơm', 'Quả bách xù', 'Hoa phong lữ'], base: ['Amberwood', 'Đậu Tonka', 'Gỗ tuyết tùng', 'Cỏ hương bài', 'Nhũ hương'] }, price: 3200000, desc: 'Mùi hương "blue" toàn năng dành cho người đàn ông hiện đại.', analysis: 'Táo xanh tươi mát kết hợp với sage và gỗ hổ phách mạnh mẽ, cực kỳ đa dụng.' },
     { name: 'La Nuit de l\'Homme', brand: 'Yves Saint Laurent', cat: 'Designer', fam: 'Woody', gender: 'Nam', concentration: 'EDT', longevity: '4-6 tiếng', sillage: 'Vừa phải', seasons: ['Thu', 'Đông', 'Xuân'], timeOfDay: ['Ban đêm'], occasions: ['Hẹn hò', 'Club'], styles: ['Quyến rũ', 'Lãng mạn'], targetAge: '25+', ingredients: 'Alcohol, Parfum', notes: { top: ['Thảo quả'], middle: ['Hoa oải hương', 'Gỗ tuyết tùng', 'Cam Bergamot'], base: ['Cỏ hương bài', 'Caraway'] }, price: 2800000, desc: 'Vũ khí tán tỉnh trong những buổi hẹn hò đêm.', analysis: 'Thảo quả nồng nàn hòa quyện với oải hương tạo nên sự ngọt ngào, nam tính và cực kỳ khiêu khích.' },
-    
+
     // Giorgio Armani
     { name: 'Acqua di Giò Profumo', brand: 'Giorgio Armani', cat: 'Designer', fam: 'Fresh', gender: 'Nam', concentration: 'Parfum', longevity: '8-12 tiếng', sillage: 'Vừa phải', seasons: ['Xuân', 'Hạ', 'Thu'], timeOfDay: ['Cả ngày'], occasions: ['Đi làm', 'Hằng ngày'], styles: ['Trưởng thành', 'Mát mẻ'], targetAge: '25+', ingredients: 'Alcohol, Parfum', notes: { top: ['Hương biển', 'Cam Bergamot'], middle: ['Hương thảo', 'Cây xô thơm', 'Hoa phong lữ'], base: ['Hương nhang', 'Hoắc hương'] }, price: 3000000, desc: 'Sự giao thoa giữa biển khơi và đá đen.', analysis: 'Hương vị biển cả quen thuộc của bản gốc được nâng cấp với nhang và hoắc hương, nam tính và sâu sắc hơn.' },
 
@@ -138,7 +138,7 @@ async function main() {
 
     // Jo Malone
     { name: 'Wood Sage & Sea Salt', brand: 'Jo Malone', cat: 'Niche', fam: 'Fresh', gender: 'Unisex', concentration: 'Cologne', longevity: '4-6 tiếng', sillage: 'Gần', seasons: ['Xuân', 'Hạ'], timeOfDay: ['Ban ngày'], occasions: ['Hằng ngày', 'Đi dạo'], styles: ['Tự nhiên', 'Thư giãn'], targetAge: 'Mọi lứa tuổi', ingredients: 'Alcohol, Parfum', notes: { top: ['Ambrette'], middle: ['Muối biển', 'Xô thơm'], base: ['Tảo biển', 'Bưởi'] }, price: 4000000, desc: 'Cảm giác đi dạo trên bờ biển Anh lộng gió.', analysis: 'Hương thơm mặn mòi của muối biển hòa cùng thảo mộc xô thơm, cực kỳ dễ chịu và gần gũi thiên nhiên.' },
-    
+
     // Parfums de Marly
     { name: 'Layton', brand: 'Parfums de Marly', cat: 'Niche', fam: 'Oriental', gender: 'Nam', concentration: 'EDP', longevity: 'Trên 12 tiếng', sillage: 'Xa', seasons: ['Thu', 'Đông'], timeOfDay: ['Cả ngày'], occasions: ['Hẹn hò', 'Sự kiện'], styles: ['Quyến rũ', 'Vương giả'], targetAge: '25+', ingredients: 'Alcohol, Parfum', notes: { top: ['Táo', 'Oải hương', 'Cam Bergamot', 'Quýt'], middle: ['Hoa phong lữ', 'Hoa violet', 'Hoa nhài'], base: ['Vani', 'Thảo quả', 'Gỗ đàn hương', 'Tiêu', 'Hoắc hương', 'Gỗ Guaiac'] }, price: 6500000, desc: 'Mùi hương của sự xa hoa và quyến rũ bậc nhất.', analysis: 'Sự kết hợp hoàn hảo giữa táo, vani và các gia vị cay ấm, nịnh mũi và bám tỏa cực kỳ tốt.' },
     { name: 'Delina', brand: 'Parfums de Marly', cat: 'Niche', fam: 'Floral', gender: 'Nữ', concentration: 'EDP', longevity: 'Trên 12 tiếng', sillage: 'Xa', seasons: ['Xuân', 'Hạ', 'Thu'], timeOfDay: ['Cả ngày'], occasions: ['Hẹn hò', 'Sự kiện'], styles: ['Nữ tính', 'Qúy tộc'], targetAge: '20+', ingredients: 'Alcohol, Parfum', notes: { top: ['Quả vải', 'Đại hoàng', 'Cam Bergamot', 'Nhục đậu khấu'], middle: ['Hoa hồng Thổ Nhĩ Kỳ', 'Hoa mẫu đơn', 'Xạ hương', 'Petalia', 'Vani'], base: ['Cashmeran', 'Gỗ tuyết tùng', 'Cỏ hương bài Nam Phi', 'Hương nhang'] }, price: 7000000, desc: 'Một bó hoa hồng hoàng gia tươi thắm và chua nhẹ.', analysis: 'Hoa hồng ngập tràn, kết hợp với vị chua chua của quả vải và đại hoàng, tạo nên sự quyến rũ vô song.' },
@@ -194,11 +194,22 @@ async function main() {
     noteIds.set(`${note.name}_${note.type}`, created.id);
   }
 
+  console.log('Creating Central Store...');
+  const centralStore = await prisma.store.upsert({
+    where: { code: 'CENTRAL_WH' },
+    update: {},
+    create: {
+      name: 'Kho Trung Tâm',
+      code: 'CENTRAL_WH',
+      type: 'CENTRAL',
+    }
+  });
+
   console.log('Creating 60 perfumes...');
   let i = 1;
   for (const p of PERFUMES) {
     const slug = toSlug(p.name) + '-' + Date.now().toString().slice(-4); // ensure unique slug
-    
+
     // Prepare product scent notes
     const productNotes = [
       ...p.notes.top.map(n => ({ noteId: noteIds.get(`${n}_TOP`)! })),
@@ -229,7 +240,16 @@ async function main() {
         ingredients: p.ingredients,
         scentAnalysis: p.analysis,
         variants: {
-          create: getVariants(p.price)
+          create: getVariants(p.price).map(v => ({
+            ...v,
+            inventories: {
+              create: {
+                warehouseId: centralStore.id,
+                onHand: Math.floor(Math.random() * 50) + 10,
+                available: Math.floor(Math.random() * 50) + 10,
+              }
+            }
+          }))
         },
         notes: {
           create: productNotes
