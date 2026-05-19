@@ -20,6 +20,9 @@ import { productService, type Product, type ProductListRes } from '@/services/pr
 import { ScentDNABadge } from '@/components/product/scent-dna-badge';
 import { useScentDNAStore } from '@/store/scent-dna.store';
 import { calculateScentDNA } from '@/lib/scent-dna';
+import { useAuth } from '@/hooks/use-auth';
+import { favoriteService } from '@/services/favorite.service';
+import { toast } from 'sonner';
 
 type GenderFilter = 'MALE' | 'FEMALE' | 'UNISEX' | null;
 type PriceFilter = 'P1' | 'P2' | 'P3' | 'P4' | null;
@@ -156,6 +159,53 @@ export default function CollectionPage() {
   const pageSize = 20;
 
   const { preferences, fetchPreferences } = useScentDNAStore();
+
+  const { isAuthenticated } = useAuth();
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setFavoriteIds(new Set());
+      return;
+    }
+    
+    const loadFavorites = () => {
+      favoriteService.getFavorites().then(items => {
+        setFavoriteIds(new Set(items.map(i => i.id)));
+      }).catch(() => {});
+    };
+
+    loadFavorites();
+    
+    const handleUpdate = () => loadFavorites();
+    window.addEventListener(favoriteService.eventName, handleUpdate);
+    return () => window.removeEventListener(favoriteService.eventName, handleUpdate);
+  }, [isAuthenticated]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent, productId: string, variantId?: string) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      toast.error(isVi ? 'Vui lòng đăng nhập để thêm vào yêu thích' : 'Please login to add to favorites');
+      router.push('/login');
+      return;
+    }
+    try {
+      const isFav = favoriteIds.has(productId);
+      const nextFavorite = await favoriteService.toggleProduct(productId, isFav, variantId);
+      setFavoriteIds(prev => {
+        const next = new Set(prev);
+        if (nextFavorite) next.add(productId);
+        else next.delete(productId);
+        return next;
+      });
+      toast.success(nextFavorite 
+        ? (isVi ? 'Đã thêm vào danh sách yêu thích' : 'Added to favorites')
+        : (isVi ? 'Đã xóa khỏi danh sách yêu thích' : 'Removed from favorites')
+      );
+    } catch (error) {
+      toast.error((error as Error).message || "Lỗi");
+    }
+  };
 
   useEffect(() => {
     fetchPreferences();
@@ -348,6 +398,7 @@ export default function CollectionPage() {
 
   useEffect(() => {
     setPage(1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [gender, priceRange, searchQuery, selectedBrand, selectedBrandId, selectedCategory, selectedScent, selectedSeason, sort]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / pageSize));
@@ -433,17 +484,17 @@ export default function CollectionPage() {
 
   const pillClass = (active: boolean) =>
     cn(
-      'rounded-full border px-4 py-2.5 text-sm font-medium transition-all',
+      'rounded-full border px-4 py-2 text-sm font-semibold tracking-wide transition-all duration-300',
       active
-        ? 'border-gold bg-gold text-luxury-black shadow-[0_14px_34px_-22px_rgba(197,160,89,0.95)]'
-        : 'border-black/8 bg-white/80 text-foreground hover:border-gold hover:text-gold dark:border-white/10 dark:bg-white/[0.04] dark:text-white'
+        ? 'border-gold bg-gold/10 text-gold shadow-sm'
+        : 'border-black/8 bg-white/40 text-foreground/80 hover:border-gold hover:text-gold dark:border-white/10 dark:bg-white/[0.02] dark:text-white'
     );
 
   const FiltersContent = () => (
-    <div className="space-y-8">
-      <div className="rounded-[1.8rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="text-base font-semibold text-foreground">{labels.brandCount}</h2>
-        <div className="mt-4 max-h-72 space-y-1 overflow-y-auto pr-1 custom-scrollbar">
+    <div className="space-y-6">
+      {/* Brand Section (Highlighted Card) */}
+      <div className="rounded-2xl border border-black/5 bg-black/[0.02] p-4 dark:border-white/5 dark:bg-white/[0.02]">
+        <div className="max-h-56 space-y-1.5 overflow-y-auto pr-1 custom-scrollbar">
           <button
             type="button"
             onClick={() => {
@@ -452,39 +503,47 @@ export default function CollectionPage() {
               syncBrandQuery(null, null);
             }}
             className={cn(
-              'w-full rounded-2xl px-4 py-3 text-left text-sm transition-all',
+              'flex w-full items-center justify-between py-1.5 text-left text-sm font-medium transition-all duration-200',
               selectedBrand === null && selectedBrandId === null
-                ? 'bg-gold/12 font-medium text-gold'
-                : 'text-foreground hover:bg-secondary/60 dark:hover:bg-white/[0.04]'
+                ? 'text-gold'
+                : 'text-foreground/70 hover:text-gold'
             )}
           >
-            {labels.allBrands}
+            <span>{labels.allBrands}</span>
+            {selectedBrand === null && selectedBrandId === null && (
+              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+            )}
           </button>
-          {brandItems.map((brand) => (
-            <button
-              key={`${brand.id}-${brand.name}`}
-              type="button"
-              onClick={() => {
-                setSelectedBrand(brand.name);
-                setSelectedBrandId(brand.id);
-                syncBrandQuery(brand.id, brand.name);
-              }}
-              className={cn(
-                'w-full rounded-2xl px-4 py-3 text-left text-sm transition-all',
-                selectedBrandId !== null ? selectedBrandId === brand.id : selectedBrand === brand.name
-                  ? 'bg-gold/12 font-medium text-gold'
-                  : 'text-foreground hover:bg-secondary/60 dark:hover:bg-white/[0.04]'
-              )}
-            >
-              {brand.name}
-            </button>
-          ))}
+          {brandItems.map((brand) => {
+            const isActive = selectedBrandId !== null ? selectedBrandId === brand.id : selectedBrand === brand.name;
+            return (
+              <button
+                key={`${brand.id}-${brand.name}`}
+                type="button"
+                onClick={() => {
+                  setSelectedBrand(brand.name);
+                  setSelectedBrandId(brand.id);
+                  syncBrandQuery(brand.id, brand.name);
+                }}
+                className={cn(
+                  'flex w-full items-center justify-between py-1.5 text-left text-sm font-medium transition-all duration-200',
+                  isActive
+                    ? 'text-gold'
+                    : 'text-foreground/70 hover:text-gold'
+                )}
+              >
+                <span>{brand.name}</span>
+                {isActive && <span className="h-1.5 w-1.5 rounded-full bg-gold" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <div className="rounded-[1.8rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="text-base font-semibold text-foreground">{labels.categorySection}</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
+      {/* Category Section */}
+      <div className="border-b border-black/5 pb-5 dark:border-white/5 px-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-gold">{labels.categorySection}</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => setSelectedCategory(null)} className={pillClass(selectedCategory === null)}>
             {labels.all}
           </button>
@@ -501,9 +560,10 @@ export default function CollectionPage() {
         </div>
       </div>
 
-      <div className="rounded-[1.8rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="text-base font-semibold text-foreground">{labels.genderSection}</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
+      {/* Gender Section */}
+      <div className="border-b border-black/5 pb-5 dark:border-white/5 px-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-gold">{labels.genderSection}</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
           {[
             { id: null as GenderFilter, label: labels.all },
             { id: 'MALE' as GenderFilter, label: labels.male },
@@ -522,9 +582,10 @@ export default function CollectionPage() {
         </div>
       </div>
 
-      <div className="rounded-[1.8rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="text-base font-semibold text-foreground">{labels.priceSection}</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
+      {/* Price Section */}
+      <div className="border-b border-black/5 pb-5 dark:border-white/5 px-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-gold">{labels.priceSection}</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
           {[
             { id: null as PriceFilter, label: labels.all },
             { id: 'P1' as PriceFilter, label: '< 1.500.000' },
@@ -544,9 +605,10 @@ export default function CollectionPage() {
         </div>
       </div>
 
-      <div className="rounded-[1.8rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="text-base font-semibold text-foreground">{labels.scentSection}</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
+      {/* Scent Section */}
+      <div className="border-b border-black/5 pb-5 dark:border-white/5 px-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-gold">{labels.scentSection}</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => setSelectedScent(null)} className={pillClass(selectedScent === null)}>
             {labels.all}
           </button>
@@ -563,9 +625,10 @@ export default function CollectionPage() {
         </div>
       </div>
 
-      <div className="rounded-[1.8rem] border border-black/6 bg-white/70 p-5 dark:border-white/10 dark:bg-white/[0.04]">
-        <h2 className="text-base font-semibold text-foreground">{labels.seasonSection}</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
+      {/* Season Section */}
+      <div className="border-b border-black/5 pb-5 dark:border-white/5 px-1">
+        <h2 className="text-sm font-bold uppercase tracking-wider text-gold">{labels.seasonSection}</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
           {[
             { id: null as SeasonFilter, label: labels.all },
             { id: 'XUAN' as SeasonFilter, label: labels.spring },
@@ -588,7 +651,7 @@ export default function CollectionPage() {
       <button
         type="button"
         onClick={clearAllFilters}
-        className="inline-flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-black/8 bg-background px-5 text-sm font-semibold text-foreground transition-all hover:border-gold hover:text-gold dark:border-white/10"
+        className="inline-flex min-h-[46px] w-full items-center justify-center rounded-xl border border-black/8 bg-background px-4 text-sm font-bold uppercase tracking-wider text-foreground transition-all hover:border-gold hover:text-gold dark:border-white/10"
       >
         {labels.clearFilters}
       </button>
@@ -602,7 +665,7 @@ export default function CollectionPage() {
 
         <div className="grid grid-cols-1 gap-8 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="hidden xl:block">
-            <div className="sticky top-28 rounded-[2.3rem] border border-black/6 bg-card p-6 shadow-[0_26px_80px_-52px_rgba(15,23,42,0.35)] dark:border-white/10">
+            <div className="sticky top-28 rounded-[2rem] border border-black/5 bg-card p-6 shadow-sm dark:border-white/5">
               <FiltersContent />
             </div>
           </aside>
@@ -767,11 +830,11 @@ export default function CollectionPage() {
                               <ScentDNABadge product={product} showText={true} />
                             </div>
                             <button
-                              onClick={(e) => e.preventDefault()}
-                              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center text-zinc-300 transition-colors hover:text-[#C5A059] dark:text-zinc-600"
+                              onClick={(e) => handleToggleFavorite(e, product.id, product.variants?.[0]?.id)}
+                              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center text-zinc-300 transition-colors hover:text-red-500 dark:text-zinc-600"
                               aria-label="Thêm vào yêu thích"
                             >
-                              <Heart className="h-5 w-5" strokeWidth={1.5} />
+                              <Heart className={cn("h-5 w-5", favoriteIds.has(product.id) && "fill-current text-red-500")} strokeWidth={1.5} />
                             </button>
                           </div>
 

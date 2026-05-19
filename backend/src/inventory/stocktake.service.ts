@@ -127,12 +127,19 @@ export class StocktakeService {
     return this.prisma.$transaction(async (tx) => {
       for (const item of stocktake.items) {
         if (item.variance !== 0) {
-          // Perform adjustment
+          // Perform adjustment safely preventing negative available stock
+          const inventory = await tx.inventory.findUnique({
+            where: { warehouseId_variantId: { warehouseId: stocktake.warehouseId, variantId: item.variantId } }
+          });
+          const reserved = inventory?.reserved ?? 0;
+          const newOnHand = item.countedQty!;
+          const newAvailable = Math.max(0, newOnHand - reserved);
+
           await tx.inventory.update({
             where: { warehouseId_variantId: { warehouseId: stocktake.warehouseId, variantId: item.variantId } },
             data: {
-              onHand: item.countedQty!,
-              available: { increment: item.variance! } // Tăng/giảm available tương ứng với chênh lệch
+              onHand: newOnHand,
+              available: newAvailable
             }
           });
 

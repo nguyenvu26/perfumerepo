@@ -3,7 +3,7 @@
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { storesService, type StoreWithDetails } from '@/services/stores.service';
 import { userService } from '@/services/user.service';
-import { Plus, Pencil, Trash2, UserPlus, UserMinus, Loader2, Warehouse, Save, X, MapPin, Activity, Info, ShieldCheck, Lock, History } from 'lucide-react';
+import { Plus, Pencil, Trash2, UserPlus, UserMinus, Loader2, Warehouse, Save, X, MapPin, Activity, Info, ShieldCheck, Lock, History, Search, Users } from 'lucide-react';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -18,11 +18,31 @@ export default function AdminStoresPage() {
   const [staffUsers, setStaffUsers] = useState<{ id: string; email: string; fullName: string | null; role: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [modal, setModal] = useState<'create' | 'edit' | null>(null);
   const [editStore, setEditStore] = useState<StoreWithDetails | null>(null);
   const [assignModal, setAssignModal] = useState<StoreWithDetails | null>(null);
   const [form, setForm] = useState({ name: '', code: '', address: '', isActive: true });
   const [saving, setSaving] = useState(false);
+
+  const triggerSuccess = (msg: string) => {
+    setSuccessMessage(msg);
+    setError(null);
+    setTimeout(() => {
+      setSuccessMessage(prev => prev === msg ? null : prev);
+    }, 5000);
+  };
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredStores = stores.filter(s =>
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (s.address && s.address.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const totalStores = stores.length;
+  const totalStaff = stores.reduce((acc, s) => acc + (s.users?.length || 0), 0);
+  const totalStockUnits = stores.reduce((acc, s) => acc + (s.totalStockUnits || 0), 0);
 
   const handleSetModal = (m: 'create' | 'edit' | null) => {
     setModal(m);
@@ -67,6 +87,7 @@ export default function AdminStoresPage() {
       handleSetModal(null);
       setForm({ name: '', code: '', address: '', isActive: true });
       fetchStores();
+      triggerSuccess('Tạo chi nhánh mới thành công!');
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -88,6 +109,7 @@ export default function AdminStoresPage() {
       handleSetModal(null);
       setEditStore(null);
       fetchStores();
+      triggerSuccess('Cập nhật chi nhánh thành công!');
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -100,6 +122,7 @@ export default function AdminStoresPage() {
     try {
       await storesService.remove(id);
       fetchStores();
+      triggerSuccess('Đã xóa hoặc ẩn chi nhánh thành công!');
     } catch (e) {
       setError((e as Error).message);
     }
@@ -110,6 +133,7 @@ export default function AdminStoresPage() {
       await storesService.assignStaff(storeId, userId);
       setAssignModal(null);
       fetchStores();
+      triggerSuccess('Gán nhân sự vào chi nhánh thành công!');
     } catch (e) {
       setError((e as Error).message);
     }
@@ -119,6 +143,7 @@ export default function AdminStoresPage() {
     try {
       await storesService.unassignStaff(storeId, userId);
       fetchStores();
+      triggerSuccess('Đã gỡ nhân sự khỏi chi nhánh!');
     } catch (e) {
       setError((e as Error).message);
     }
@@ -144,7 +169,7 @@ export default function AdminStoresPage() {
   };
 
   return (
-    <AuthGuard allowedRoles={['admin']}>
+    <AuthGuard allowedRoles={["admin"]}>
         <div className="p-4 sm:p-6 md:p-8 space-y-8 md:space-y-12 animate-in fade-in duration-700 max-w-[1600px] mx-auto pb-24">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 sm:gap-8">
                 <div className="space-y-4">
@@ -188,14 +213,68 @@ export default function AdminStoresPage() {
                 </div>
             )}
 
+            {successMessage && (
+                <div className="p-6 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[11px] uppercase font-black tracking-widest flex items-center justify-between">
+                    <span>{successMessage}</span>
+                    <button onClick={() => setSuccessMessage(null)} className="text-[10px] opacity-60 hover:opacity-100 transition-opacity">Đóng</button>
+                </div>
+            )}
+
             {loading ? (
                 <div className="py-32 flex flex-col items-center gap-6">
                     <Loader2 className="w-10 h-10 animate-spin text-gold opacity-40" />
                     <p className="text-[10px] uppercase font-black tracking-[.5em] text-muted-foreground animate-pulse leading-none italic">{t('messages.loading')}</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
-                    {stores.map((s, idx) => (
+                <div className="space-y-12">
+                    {/* Stats Overview */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="glass bg-white dark:bg-zinc-900/20 p-6 rounded-[2rem] border border-white/10 flex items-center gap-5 hover:border-gold/20 transition-all duration-300">
+                            <div className="w-14 h-14 rounded-full bg-gold/10 flex items-center justify-center border border-gold/20">
+                                <Warehouse className="w-6 h-6 text-gold" />
+                            </div>
+                            <div>
+                                <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground">Tổng cửa hàng / Chi nhánh</p>
+                                <h3 className="text-3xl font-heading uppercase italic tracking-tighter mt-1">{totalStores}</h3>
+                            </div>
+                        </div>
+                        <div className="glass bg-white dark:bg-zinc-900/20 p-6 rounded-[2rem] border border-white/10 flex items-center gap-5 hover:border-gold/20 transition-all duration-300">
+                            <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                                <Users className="w-6 h-6 text-blue-400" />
+                            </div>
+                            <div>
+                                <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground">Nhân sự gán trực</p>
+                                <h3 className="text-3xl font-heading uppercase italic tracking-tighter mt-1">{totalStaff} nhân viên</h3>
+                            </div>
+                        </div>
+                        <div className="glass bg-white dark:bg-zinc-900/20 p-6 rounded-[2rem] border border-white/10 flex items-center gap-5 hover:border-gold/20 transition-all duration-300">
+                            <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                <Activity className="w-6 h-6 text-emerald-400" />
+                            </div>
+                            <div>
+                                <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground">Tổng tồn kho toàn mạng lưới</p>
+                                <h3 className="text-3xl font-heading uppercase italic tracking-tighter mt-1">{totalStockUnits.toLocaleString()} units</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Search / Filter Bar */}
+                    <div className="relative max-w-md w-full">
+                        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                            <Search className="w-4 h-4 opacity-40 text-gold" />
+                        </div>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Tìm kiếm chi nhánh theo tên, mã, địa chỉ..."
+                            className="w-full pl-12 pr-6 py-4 rounded-full bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-xs font-medium focus:border-gold/50 focus:outline-none transition-all placeholder:opacity-50"
+                        />
+                    </div>
+
+                    {/* Store Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
+                        {filteredStores.map((s, idx) => (
                         <motion.div
                             key={s.id}
                             initial={{ opacity: 0, y: 20 }}
@@ -218,9 +297,17 @@ export default function AdminStoresPage() {
                                     <h3 className="text-3xl font-heading uppercase italic tracking-tighter group-hover:text-gold transition-colors duration-500 leading-tight">
                                         {s.name}
                                     </h3>
-                                    <p className="text-[10px] font-mono tracking-[.3em] uppercase opacity-30 font-black">
-                                        Ref: {s.code || 'NO-CODE'}
-                                    </p>
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <p className="text-[10px] font-mono tracking-[.3em] uppercase opacity-30 font-black">
+                                            Ref: {s.code || 'NO-CODE'}
+                                        </p>
+                                        {s.totalStockUnits !== undefined && (
+                                            <div className="flex items-center gap-1.5 bg-gold/10 border border-gold/20 text-gold px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-inner">
+                                                <Warehouse className="w-3 h-3 text-gold" />
+                                                Tồn Kho: {s.totalStockUnits.toLocaleString()} Qty
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-y-2 group-hover:translate-y-0">
@@ -319,13 +406,14 @@ export default function AdminStoresPage() {
                         </motion.div>
                     ))}
 
-                    {stores.length === 0 && (
+                    {filteredStores.length === 0 && (
                         <div className="col-span-full py-40 flex flex-col items-center justify-center glass rounded-[4rem] border border-dashed border-stone-200 dark:border-white/10 opacity-30 text-center px-12">
                             <Warehouse className="w-16 h-16 text-gold mb-8" strokeWidth={0.5} />
                             <p className="font-heading uppercase text-2xl tracking-[.1em] italic">{t('messages.empty')}</p>
                         </div>
                     )}
                 </div>
+            </div>
             )}
 
             <AnimatePresence>
@@ -400,6 +488,7 @@ export default function AdminStoresPage() {
                                                 <input
                                                     type="text"
                                                     required
+                                                    autoFocus
                                                     value={form.name}
                                                     placeholder={tx('placeholders.name') || 'Tên điểm bán...'}
                                                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}

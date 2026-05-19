@@ -1,8 +1,9 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History, AlertTriangle, XCircle } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History, AlertTriangle, XCircle, Zap, Activity, ChevronDown, MoreHorizontal, ExternalLink, Award } from 'lucide-react';
 import { productService, type Product } from '@/services/product.service';
+import api from '@/lib/axios';
 import { catalogService } from '@/services/catalog.service';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -11,6 +12,8 @@ import { useLocale, useTranslations, useFormatter } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/store/ui.store';
 import { motion, AnimatePresence } from 'framer-motion';
+import { InventoryHealthWidget } from '@/components/dashboard/admin/InventoryHealthWidget';
+import { StockHeatmapWidget } from '@/components/dashboard/admin/StockHeatmapWidget';
 
 const MAX_IMAGES = 10;
 
@@ -45,6 +48,12 @@ export default function AdminProducts() {
   const [showModal, setShowModalState] = useState(false);
   const [saving, setSaving] = useState(false);
   const [lowStockFilter, setLowStockFilter] = useState(false);
+  const [bestsellerFilter, setBestsellerFilter] = useState(false);
+  const [showLogisticsCockpit, setShowLogisticsCockpit] = useState(false);
+  const [showActionsDropdown, setShowActionsDropdown] = useState(false);
+  const [isWidgetExpanded, setIsWidgetExpanded] = useState(false);
+  const [activeCockpitTab, setActiveCockpitTab] = useState<'health' | 'heatmap'>('health');
+  const [healthMap, setHealthMap] = useState<Record<string, { daysRemaining: number; monthlySales: number; status: string; turnoverRate: number }>>({});
   const [stats, setStats] = useState<{
     totalProducts: number;
     activeProducts: number;
@@ -59,12 +68,13 @@ export default function AdminProducts() {
     setModalOpen(open);
   };
 
-  const isFiltered = search !== '' || brandFilter !== '' || categoryFilter !== '' || lowStockFilter;
+  const isFiltered = search !== '' || brandFilter !== '' || categoryFilter !== '' || lowStockFilter || bestsellerFilter;
   const clearFilters = () => {
     setSearch('');
     setBrandFilter('');
     setCategoryFilter('');
     setLowStockFilter(false);
+    setBestsellerFilter(false);
     setSkip(0);
   };
   const [loadingProduct, setLoadingProduct] = useState(false);
@@ -109,6 +119,7 @@ export default function AdminProducts() {
         brandId: brandFilter || undefined,
         categoryId: categoryFilter || undefined,
         lowStock: lowStockFilter || undefined,
+        isBestseller: bestsellerFilter || undefined,
         skip,
         take,
       });
@@ -119,14 +130,35 @@ export default function AdminProducts() {
     } finally {
       setLoading(false);
     }
-  }, [search, skip, take, brandFilter, categoryFilter, lowStockFilter]);
+  }, [search, skip, take, brandFilter, categoryFilter, lowStockFilter, bestsellerFilter]);
 
   const fetchStats = useCallback(async () => {
     try {
       const s = await productService.adminStats();
       setStats(s);
+      if (s.lowStockVariants > 0) {
+        setShowLogisticsCockpit(true);
+      }
     } catch (e) {
       console.error('Failed to fetch stats:', e);
+    }
+  }, []);
+
+  const fetchHealth = useCallback(async () => {
+    try {
+      const { data } = await api.get('/analytics/inventory-health');
+      const map: Record<string, { daysRemaining: number; monthlySales: number; status: string; turnoverRate: number }> = {};
+      data.forEach((item: any) => {
+        map[item.variantId] = {
+          daysRemaining: item.daysRemaining,
+          monthlySales: item.monthlySales,
+          status: item.status,
+          turnoverRate: item.turnoverRate,
+        };
+      });
+      setHealthMap(map);
+    } catch (e) {
+      console.error('Failed to fetch health data:', e);
     }
   }, []);
 
@@ -152,7 +184,8 @@ export default function AdminProducts() {
   useEffect(() => {
     fetchProducts();
     fetchStats();
-  }, [fetchProducts, fetchStats]);
+    fetchHealth();
+  }, [fetchProducts, fetchStats, fetchHealth]);
 
   useEffect(() => {
     setSkip(0);
@@ -447,41 +480,178 @@ export default function AdminProducts() {
               {t('subtitle')}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch gap-4 w-full 2xl:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full 2xl:w-auto relative z-[100]">
             <button
               type="button"
               onClick={openCreate}
-              className="flex-1 lg:flex-none bg-gold text-primary-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-extrabold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-gold/20 group"
+              className="flex-1 lg:flex-none bg-gold text-primary-foreground px-10 h-14 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-extrabold flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-gold/20 group"
             >
               <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
               {t('add_new')}
             </button>
-            <button
-              type="button"
-              onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock?tab=batch-import`)}
-              className="flex-1 lg:flex-none bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-gold hover:text-white transition-all shadow-lg"
-            >
-              <Database className="w-5 h-5 opacity-60" />
-              {tInventory('import_btn')}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock?tab=history`)}
-              className="flex-1 lg:flex-none bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-gold hover:text-white transition-all shadow-lg"
-            >
-              <History className="w-5 h-5 opacity-60" />
-              {tInventory('history_title')}
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push(`/${locale}/dashboard/admin/catalog`)}
-              className="flex-1 lg:flex-none bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-foreground px-10 py-4 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-secondary transition-all"
-            >
-              <FolderTree className="w-5 h-5 opacity-60" />
-              {"Danh mục"}
-            </button>
+
+            {/* Premium More Actions Dropdown */}
+            <div className="relative flex-1 lg:flex-none">
+              <button
+                type="button"
+                onClick={() => setShowActionsDropdown(!showActionsDropdown)}
+                className="w-full lg:w-auto bg-zinc-100 dark:bg-white/5 border border-white/10 text-foreground px-8 h-14 rounded-full font-heading text-[11px] uppercase tracking-[.2em] font-bold flex items-center justify-center gap-3 hover:bg-white/10 transition-all shadow-lg"
+              >
+                <MoreHorizontal className="w-5 h-5 opacity-60" />
+                <span>Thao tác khác</span>
+                <ChevronDown className={cn("w-4 h-4 opacity-60 transition-transform duration-300", showActionsDropdown && "rotate-180")} />
+              </button>
+
+              <AnimatePresence>
+                {showActionsDropdown && (
+                  <div key="dropdown-wrapper">
+                    {/* Click-away backdrop */}
+                    <div className="fixed inset-0 z-10" onClick={() => setShowActionsDropdown(false)} />
+                    
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 mt-3 w-64 bg-zinc-900/95 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-3 shadow-2xl z-20 space-y-1.5"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowActionsDropdown(false);
+                          router.push(`/${locale}/dashboard/admin/stores/stock?tab=batch-import`);
+                        }}
+                        className="w-full text-left px-5 py-3.5 rounded-xl hover:bg-gold hover:text-white transition-all flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                      >
+                        <Database className="w-4 h-4 shrink-0" />
+                        <span>{tInventory('import_btn')}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowActionsDropdown(false);
+                          router.push(`/${locale}/dashboard/admin/stores/stock?tab=history`);
+                        }}
+                        className="w-full text-left px-5 py-3.5 rounded-xl hover:bg-gold hover:text-white transition-all flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                      >
+                        <History className="w-4 h-4 shrink-0" />
+                        <span>{tInventory('history_title')}</span>
+                      </button>
+                      <div className="border-t border-white/5 my-1" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowActionsDropdown(false);
+                          router.push(`/${locale}/dashboard/admin/catalog`);
+                        }}
+                        className="w-full text-left px-5 py-3.5 rounded-xl hover:bg-secondary transition-all flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground"
+                      >
+                        <FolderTree className="w-4 h-4 shrink-0 text-gold" />
+                        <span>Danh mục</span>
+                      </button>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </header>
+
+        {/* AI Logistics Cockpit Banner */}
+        <div className="mb-8 glass bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-gold/20 shadow-xl">
+          <div 
+            onClick={() => setShowLogisticsCockpit(!showLogisticsCockpit)}
+            className="px-8 py-5 flex items-center justify-between cursor-pointer hover:bg-white/[0.02]"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gold/10 text-gold rounded-2xl border border-gold/20 shadow-inner">
+                <Zap className="w-5 h-5 fill-gold/10" />
+              </div>
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-[.3em] gold-gradient">Hộp Công Cụ Điều Vận AI</h3>
+                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mt-1">
+                  Tối ưu hóa vòng quay hàng tồn & tự động phát hiện mất cân đối chi nhánh
+                </p>
+              </div>
+            </div>
+            <button className="px-5 py-2 rounded-xl bg-gold/10 hover:bg-gold/20 border border-gold/20 text-[9px] font-black uppercase tracking-widest text-gold transition-all">
+              {showLogisticsCockpit ? "Thu gọn Cockpit" : "Mở Cockpit Điều Vận"}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showLogisticsCockpit && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="border-t border-white/5 p-6 bg-black/20"
+              >
+                {/* Premium Tab Selector inside Cockpit */}
+                <div className="flex justify-center mb-8 border-b border-white/5 pb-6">
+                  <div className="flex bg-secondary/40 p-1.5 rounded-2xl border border-white/5 shadow-inner backdrop-blur-md">
+                    <button 
+                      onClick={() => setActiveCockpitTab('health')}
+                      className={cn(
+                        "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3",
+                        activeCockpitTab === 'health' 
+                          ? "bg-gold text-black shadow-lg shadow-gold/20" 
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Activity className="w-4 h-4" /> Sức Khỏe & Dự Báo Kho
+                    </button>
+                    <button 
+                      onClick={() => setActiveCockpitTab('heatmap')}
+                      className={cn(
+                        "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3",
+                        activeCockpitTab === 'heatmap' 
+                          ? "bg-gold text-black shadow-lg shadow-gold/20" 
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Zap className="w-4 h-4" /> Bản Đồ Nhiệt Luồng Hàng
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tab Contents - Full Width */}
+                <div className="w-full">
+                  <AnimatePresence mode="wait">
+                    {activeCockpitTab === 'health' ? (
+                      <motion.div
+                        key="health"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <InventoryHealthWidget 
+                          isExpanded={true} 
+                          onToggle={() => setShowLogisticsCockpit(false)} 
+                        />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="heatmap"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <StockHeatmapWidget 
+                          isExpanded={true} 
+                          onToggle={() => setShowLogisticsCockpit(false)} 
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Statistics Cards */}
         <section className="grid grid-cols-2 2xl:grid-cols-4 gap-4 mb-10">
@@ -553,6 +723,19 @@ export default function AdminProducts() {
               Sắp Hết Hàng
             </button>
 
+            <button
+              onClick={() => setBestsellerFilter(!bestsellerFilter)}
+              className={cn(
+                "px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 border",
+                bestsellerFilter 
+                  ? "bg-rose-500/10 border-rose-500/50 text-rose-500 shadow-lg shadow-rose-500/10" 
+                  : "bg-white dark:bg-zinc-950/50 border-border/50 text-muted-foreground hover:border-gold/50"
+              )}
+            >
+              <Award className={cn("w-3.5 h-3.5", bestsellerFilter ? "text-rose-500" : "opacity-60")} />
+              Bán Chạy
+            </button>
+
             {isFiltered && (
               <button
                 onClick={clearFilters}
@@ -579,149 +762,238 @@ export default function AdminProducts() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((p, index) => (
-                <div
-                  key={p.id}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                  className={cn(
-                    "group relative glass bg-white dark:bg-zinc-900/40 rounded-[3rem] border border-white/10 overflow-hidden hover:border-gold/30 transition-all duration-700 animate-in fade-in zoom-in-95 fill-mode-both",
-                    !p.isActive && "opacity-75 grayscale-[0.5]"
-                  )}
-                >
-                  {/* Visual Container */}
-                  <div className="aspect-square relative overflow-hidden bg-zinc-100 dark:bg-zinc-950">
-                    {p.images?.length ? (
-                      <Image
-                        src={p.images[0].url}
-                        alt={p.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Package className="w-16 h-16 text-gold/10" />
-                      </div>
+              {products.map((p, index) => {
+                const productVariantsHealth = p.variants?.map(v => healthMap[v.id]).filter(Boolean) || [];
+                let overallStatus = 'UNKNOWN';
+                let minDaysRemaining = 999;
+                let totalMonthlySales = 0;
+
+                if (productVariantsHealth.length > 0) {
+                  totalMonthlySales = productVariantsHealth.reduce((sum, h) => sum + h.monthlySales, 0);
+                  minDaysRemaining = Math.min(...productVariantsHealth.map(h => h.daysRemaining));
+                  
+                  if (productVariantsHealth.some(h => h.status === 'CRITICAL')) {
+                    overallStatus = 'CRITICAL';
+                  } else if (productVariantsHealth.some(h => h.status === 'WARNING')) {
+                    overallStatus = 'WARNING';
+                  } else if (productVariantsHealth.some(h => h.status === 'HEALTHY')) {
+                    overallStatus = 'HEALTHY';
+                  }
+                }
+
+                return (
+                  <div
+                    key={p.id}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                    className={cn(
+                      "group relative glass bg-white dark:bg-zinc-900/40 rounded-[3rem] border border-white/10 overflow-hidden hover:border-gold/30 transition-all duration-700 animate-in fade-in zoom-in-95 fill-mode-both",
+                      !p.isActive && "opacity-75 grayscale-[0.5]"
                     )}
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                    {/* Status Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                      {!p.isActive && (
-                        <div className="bg-zinc-950/80 backdrop-blur-md text-zinc-400 text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-white/5">
-                          {t('status.hidden')}
+                  >
+                    {/* Visual Container */}
+                    <div className="aspect-square relative overflow-hidden bg-zinc-100 dark:bg-zinc-950">
+                      {p.images?.length ? (
+                        <Image
+                          src={p.images[0].url}
+                          alt={p.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Package className="w-16 h-16 text-gold/10" />
                         </div>
                       )}
-                      {p.variants?.some(v => v.stock > 0 && v.stock <= 10) && p.isActive && (
-                        <div className="bg-amber-500/90 backdrop-blur-md text-white text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-amber-400/20 shadow-lg animate-pulse">
-                          {"Low Stock"}
-                        </div>
-                      )}
-                    </div>
 
-                    <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/10 px-2 py-1 rounded-full">
-                      <span className="text-[7px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
-                    </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    {/* Quick Actions Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEdit(p.id);
-                        }}
-                        className="w-10 h-10 bg-white text-zinc-950 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Redirect to stock page with the first variant ID
-                          const vId = p.variants?.[0]?.id;
-                          if (vId) router.push(`/${locale}/dashboard/admin/stores/stock?tab=batch-import&variantId=${vId}`);
-                        }}
-                        className="w-10 h-10 bg-gold text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-gold/20"
-                        title={tInventory('import_btn')}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleVisibility(p.id, p.isActive);
-                        }}
-                        className="w-10 h-10 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-white/10"
-                      >
-                        {p.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Metadata Container */}
-                  <div className="p-5">
-                    <div className="mb-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-[9px] text-gold uppercase tracking-widest font-bold opacity-60 truncate">{p.brand?.name ?? '—'}</p>
-                        <div className="flex items-center gap-1">
-                           <div className={cn("w-1 h-1 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
-                           <span className={cn("text-[8px] font-bold uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
-                             {p.isActive ? "Active" : "Hidden"}
-                           </span>
-                        </div>
-                      </div>
-                      <h3 className="font-heading text-base text-foreground line-clamp-1 leading-tight group-hover:text-gold transition-colors">{p.name}</h3>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
-                        {p.concentration || "Parfum"}
-                      </span>
-                      <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
-                        {p.scentFamily?.name || "Floral"}
-                      </span>
-                    </div>
-
-                    <div className="space-y-3 pt-4 border-t border-white/5">
-                      <div className="flex justify-between items-end">
-                        <div className="space-y-0.5">
-                          <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Stock</p>
-                          <div className="flex items-baseline gap-1">
-                            <span className={cn("text-base font-heading italic", getTotalStock(p) === 0 ? "text-red-500" : getTotalStock(p) <= 10 ? "text-amber-500" : "text-foreground")}>
-                              {getTotalStock(p)}
-                            </span>
-                            <span className="text-[8px] text-muted-foreground uppercase font-bold">Qty</span>
+                      {/* Status Badges */}
+                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                        {!p.isActive && (
+                          <div className="bg-zinc-950/80 backdrop-blur-md text-zinc-400 text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-white/5">
+                            {t('status.hidden')}
                           </div>
-                        </div>
-                        <div className="text-right space-y-0.5">
-                          <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Price Range</p>
-                          <span className="text-xs font-serif italic text-gold">
-                            {getPriceRange(p)}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="bg-secondary/10 rounded-xl p-2 flex flex-wrap gap-1.5 items-center justify-center">
-                        {p.variants?.slice(0, 3).map((v) => (
-                          <div key={v.id} className="flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-lg border border-white/5">
-                            <span className="text-[7px] text-muted-foreground uppercase font-bold opacity-50">{v.name}</span>
-                            <span className={cn(
-                              "text-[8px] font-heading",
-                              v.stock === 0 ? "text-red-500" : v.stock <= 10 ? "text-amber-500" : "text-foreground"
-                            )}>
-                              {v.stock}
-                            </span>
+                        )}
+                        {overallStatus === 'CRITICAL' && p.isActive && (
+                          <div className="bg-red-500/90 backdrop-blur-md text-white text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-red-400/20 shadow-lg shadow-red-500/20 animate-pulse">
+                            {"Cạn Kiệt Kho"}
                           </div>
-                        ))}
-                        {(p.variants?.length ?? 0) > 3 && (
-                          <span className="text-[7px] text-muted-foreground font-bold opacity-30">+{ (p.variants?.length ?? 0) - 3 }</span>
+                        )}
+                        {overallStatus === 'WARNING' && p.isActive && (
+                          <div className="bg-amber-500/90 backdrop-blur-md text-white text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-amber-400/20 shadow-lg animate-pulse">
+                            {"Sắp Hết Hàng"}
+                          </div>
                         )}
                       </div>
+
+                      <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/10 px-2 py-1 rounded-full">
+                        <span className="text-[7px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
+                      </div>
+
+                      {/* Quick Actions Overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEdit(p.id);
+                          }}
+                          className="w-10 h-10 bg-white text-zinc-950 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
+                          title={t('actions.edit') || 'Chỉnh sửa'}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`/${locale}/products/${p.slug}`, '_blank');
+                          }}
+                          className="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-emerald-400/20"
+                          title="Xem trên trang bán lẻ"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Redirect to stock page with the first variant ID
+                            const vId = p.variants?.[0]?.id;
+                            if (vId) router.push(`/${locale}/dashboard/admin/stores/stock?tab=batch-import&variantId=${vId}`);
+                          }}
+                          className="w-10 h-10 bg-gold text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-gold/20"
+                          title={tInventory('import_btn')}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleVisibility(p.id, p.isActive);
+                          }}
+                          className="w-10 h-10 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-white/10"
+                          title={p.isActive ? "Ẩn sản phẩm" : "Hiện sản phẩm"}
+                        >
+                          {p.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Metadata Container */}
+                    <div className="p-5">
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-[9px] text-gold uppercase tracking-widest font-bold opacity-60 truncate">{p.brand?.name ?? '—'}</p>
+                          <div className="flex items-center gap-1">
+                             <div className={cn("w-1.5 h-1.5 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
+                             <span className={cn("text-[8px] font-bold uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
+                               {p.isActive ? "Active" : "Hidden"}
+                             </span>
+                          </div>
+                        </div>
+                        <h3 className="font-heading text-base text-foreground line-clamp-1 leading-tight group-hover:text-gold transition-colors">{p.name}</h3>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
+                          {p.concentration || "Parfum"}
+                        </span>
+                        <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
+                          {p.scentFamily?.name || "Floral"}
+                        </span>
+                      </div>
+
+                      {/* Integrated Logistics Health Status */}
+                      {overallStatus !== 'UNKNOWN' && (
+                        <div className="mb-4 bg-secondary/15 border border-border/30 rounded-2xl p-3 space-y-2 relative overflow-hidden transition-all duration-300 hover:bg-secondary/25">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <Activity className={cn("w-3 h-3", 
+                                overallStatus === 'CRITICAL' ? 'text-red-500 animate-pulse' :
+                                overallStatus === 'WARNING' ? 'text-amber-500' : 'text-emerald-500'
+                              )} />
+                              <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Logistics Health</span>
+                            </div>
+                            
+                            <span className={cn(
+                              "text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                              overallStatus === 'CRITICAL' ? 'bg-red-500/10 border-red-500/20 text-red-500 shadow-[0_0_8px_rgba(239,68,68,0.1)]' :
+                              overallStatus === 'WARNING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                              'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                            )}>
+                              {overallStatus === 'CRITICAL' ? 'Cạn kiệt' :
+                               overallStatus === 'WARNING' ? 'Sắp hết' : 'Lý tưởng'}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground pt-1.5 border-t border-white/5">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-[7px] text-muted-foreground/40 font-bold">Vận tốc bán</span>
+                              <span className="text-foreground font-black tracking-normal">{totalMonthlySales} /tháng</span>
+                            </div>
+                            <div className="flex flex-col gap-0.5 text-right">
+                              <span className="text-[7px] text-muted-foreground/40 font-bold">Dự báo hết</span>
+                              <span className={cn(
+                                "font-black tracking-normal",
+                                minDaysRemaining < 7 ? 'text-red-400' :
+                                minDaysRemaining < 15 ? 'text-amber-400' : 'text-gold'
+                              )}>
+                                {minDaysRemaining === 999 ? '> 3 tháng' : `${minDaysRemaining} ngày`}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="space-y-3 pt-4 border-t border-white/5">
+                        <div className="flex justify-between items-end">
+                          <div className="space-y-0.5">
+                            <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Stock</p>
+                            <div className="flex items-baseline gap-1">
+                              <span className={cn("text-base font-heading italic", getTotalStock(p) === 0 ? "text-red-500" : getTotalStock(p) <= 10 ? "text-amber-500" : "text-foreground")}>
+                                {getTotalStock(p)}
+                              </span>
+                              <span className="text-[8px] text-muted-foreground uppercase font-bold">Qty</span>
+                            </div>
+                          </div>
+                          <div className="text-right space-y-0.5">
+                            <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Price Range</p>
+                            <span className="text-xs font-serif italic text-gold">
+                              {getPriceRange(p)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="bg-secondary/10 rounded-xl p-2 flex flex-wrap gap-1.5 items-center justify-center">
+                          {p.variants?.slice(0, 3).map((v) => {
+                            const vHealth = healthMap[v.id];
+                            return (
+                              <div key={v.id} className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded-lg border border-white/5 shadow-sm">
+                                {vHealth && (
+                                  <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", 
+                                    vHealth.status === 'CRITICAL' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]' :
+                                    vHealth.status === 'WARNING' ? 'bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]' :
+                                    'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]'
+                                  )} />
+                                )}
+                                <span className="text-[7px] text-muted-foreground uppercase font-bold opacity-50">{v.name}</span>
+                                <span className={cn(
+                                  "text-[8px] font-heading",
+                                  v.stock === 0 ? "text-red-500" : v.stock <= 10 ? "text-amber-500" : "text-foreground"
+                                )}>
+                                  {v.stock}
+                                </span>
+                              </div>
+                            );
+                          })}
+                          {(p.variants?.length ?? 0) > 3 && (
+                            <span className="text-[7px] text-muted-foreground font-bold opacity-30">+{ (p.variants?.length ?? 0) - 3 }</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="mt-12 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-20">
@@ -851,6 +1123,7 @@ export default function AdminProducts() {
                                 value={form.name}
                                 onChange={(e) => onNameChange(e.target.value)}
                                 required
+                                autoFocus
                                 placeholder="Ví dụ: BACCARAT ROUGE 540"
                               />
                             </div>

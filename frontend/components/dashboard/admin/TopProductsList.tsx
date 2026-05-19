@@ -24,9 +24,10 @@ function formatVND(value: number): string {
 interface TopProductsListProps {
     data: TopProductDto[];
     loading?: boolean;
+    selectedStoreName?: string;
 }
 
-export function TopProductsList({ data, loading }: TopProductsListProps) {
+export function TopProductsList({ data, loading, selectedStoreName }: TopProductsListProps) {
     const t = useTranslations('admin_dashboard');
     const maxQty = data[0]?.totalQuantity ?? 1;
 
@@ -47,8 +48,8 @@ export function TopProductsList({ data, loading }: TopProductsListProps) {
                         <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">
                             {t('top_products')}
                         </h3>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
-                            {t('top_products_subtitle')}
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.05em] font-medium tracking-widest mt-0.5">
+                            {selectedStoreName ? `${selectedStoreName} · ${t('top_products_subtitle')}` : t('top_products_subtitle')}
                         </p>
                     </div>
                 </div>

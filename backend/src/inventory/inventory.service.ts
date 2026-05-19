@@ -51,6 +51,17 @@ export class InventoryService {
     const client = tx || this.prisma;
 
     if (isPreAllocated) {
+      const inventory = await client.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId, variantId } },
+      });
+      if (!inventory) {
+        throw new BadRequestException('Không tìm thấy bản ghi tồn kho.');
+      }
+      if (inventory.onHand < quantity || inventory.reserved < quantity) {
+        throw new BadRequestException(
+          `Không đủ số lượng thực tế hoặc dự giữ để xuất kho. (onHand: ${inventory.onHand}, reserved: ${inventory.reserved}, yêu cầu: ${quantity})`,
+        );
+      }
       // Đã đặt trước (Online) -> Trừ onHand và reserved
       return client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
@@ -64,8 +75,8 @@ export class InventoryService {
       const inventory = await client.inventory.findUnique({
         where: { warehouseId_variantId: { warehouseId, variantId } },
       });
-      if (!inventory || inventory.available < quantity) {
-        throw new BadRequestException('Không đủ tồn kho khả dụng để xuất.');
+      if (!inventory || inventory.available < quantity || inventory.onHand < quantity) {
+        throw new BadRequestException('Không đủ tồn kho khả dụng hoặc thực tế để xuất.');
       }
       return client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
@@ -108,6 +119,14 @@ export class InventoryService {
         },
       });
     } else {
+      const inventory = await client.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId, variantId } },
+      });
+      if (!inventory || inventory.reserved < quantity) {
+        throw new BadRequestException(
+          `Không thể xả tồn: số lượng dự giữ không hợp lý. (Reserved: ${inventory?.reserved || 0}, yêu cầu: ${quantity})`,
+        );
+      }
       // Hủy đơn (chưa giao đi)
       return client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },

@@ -195,7 +195,7 @@ export function FloatingChatWidget() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setIsOpen(true)}
-                        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gold shadow-lg shadow-gold/30 flex items-center justify-center text-primary-foreground hover:shadow-gold/50 transition-shadow"
+                        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-14 h-14 rounded-full bg-gold shadow-lg shadow-gold/30 flex items-center justify-center text-primary-foreground hover:shadow-gold/50 transition-shadow"
                     >
                         <MessageCircle size={24} />
                     </motion.button>
@@ -210,7 +210,7 @@ export function FloatingChatWidget() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed bottom-6 right-6 z-50 w-[420px] h-[620px] rounded-3xl overflow-hidden flex flex-col border border-border/50 shadow-2xl bg-background"
+                        className="fixed bottom-4 right-4 left-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 w-auto sm:w-[420px] h-[550px] sm:h-[620px] max-h-[calc(100vh-6rem)] rounded-3xl overflow-hidden flex flex-col border border-border/50 shadow-2xl bg-background"
                     >
                         {/* Header */}
                         <div className="bg-luxury-black px-5 py-4 flex items-center justify-between shrink-0">

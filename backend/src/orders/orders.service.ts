@@ -632,32 +632,39 @@ export class OrdersService {
   };
 
   async updateStatus(id: string, status?: any, paymentStatus?: any) {
-    const updated = await this.prisma.order.update({
-      where: { id },
-      data: {
-        ...(status && { status }),
-        ...(paymentStatus && { paymentStatus }),
-      },
-      include: { items: true }
-    });
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.update({
+        where: { id },
+        data: {
+          ...(status && { status }),
+          ...(paymentStatus && { paymentStatus }),
+        },
+        include: { items: true }
+      });
 
-    if (status === 'CANCELLED') {
-      await this.restockOrderItems(id);
-    } else if (status === 'SHIPPED') {
-      // Commit stock physically left the warehouse
-      const centralWarehouse = await this.inventoryService.getCentralWarehouse();
-      if (centralWarehouse) {
-        for (const item of updated.items) {
-          const warehouseId = updated.storeId || centralWarehouse.id;
-          await this.inventoryService.commitStock(
-            item.variantId,
-            warehouseId,
-            item.quantity,
-            true, // isPreAllocated = true for ONLINE
-          );
+      if (status === 'CANCELLED') {
+        await this.restockOrderItems(id, tx);
+      } else if (status === 'SHIPPED') {
+        // Commit stock physically left the warehouse
+        const centralWarehouse = await tx.store.findFirst({
+          where: { type: 'CENTRAL' },
+        });
+        if (centralWarehouse) {
+          for (const item of order.items) {
+            const warehouseId = order.storeId || centralWarehouse.id;
+            await this.inventoryService.commitStock(
+              item.variantId,
+              warehouseId,
+              item.quantity,
+              true, // isPreAllocated = true for ONLINE
+              tx,
+            );
+          }
         }
       }
-    }
+
+      return order;
+    });
 
     // GHN shipment creation for ONLINE orders when confirmed
     if (status === 'CONFIRMED' && updated.channel === 'ONLINE') {

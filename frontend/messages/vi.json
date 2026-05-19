@@ -95,35 +95,35 @@
       "home": "Trang Chủ",
       "collection": "Bộ Sưu Tập"
     },
-    "engine_version": "Động Cơ Thương Mại Perfume GPT v2.0"
+    "engine_version": "Được Bảo Mật Bởi Perfume GPT"
   },
-    "notifications": {
-      "title": "Thông báo",
-      "subtitle": "Cập nhật khuyến mãi, đơn hàng, tin nhắn và hoạt động cộng đồng",
-      "empty": "Bạn chưa có thông báo nào.",
-      "login_required": "Vui lòng đăng nhập để xem thông báo của bạn.",
-      "tabs": {
-        "all": "Tất cả",
-        "promotion": "Khuyến mãi",
-        "order": "Đơn hàng",
-        "loyalty": "Điểm thưởng",
-        "system": "Hệ thống"
-      },
-      "types": {
-        "PROMOTION": "Khuyến mãi",
-        "ORDER": "Đơn hàng",
-        "SHIPPING": "Vận chuyển",
-        "LOYALTY": "Điểm thưởng",
-        "SYSTEM": "Hệ thống"
-      },
-      "groups": {
-        "today": "Hôm nay",
-        "week": "Tuần này",
-        "earlier": "Trước đó"
-      },
-      "success": "Đã lưu giữ bản sao thành công!",
-      "error": "Sự Cố Hệ Thống",
-      "info": "Thông Báo",
+  "notifications": {
+    "title": "Thông báo",
+    "subtitle": "Cập nhật khuyến mãi, đơn hàng, tin nhắn và hoạt động cộng đồng",
+    "empty": "Bạn chưa có thông báo nào.",
+    "login_required": "Vui lòng đăng nhập để xem thông báo của bạn.",
+    "tabs": {
+      "all": "Tất cả",
+      "promotion": "Khuyến mãi",
+      "order": "Đơn hàng",
+      "loyalty": "Điểm thưởng",
+      "system": "Hệ thống"
+    },
+    "types": {
+      "PROMOTION": "Khuyến mãi",
+      "ORDER": "Đơn hàng",
+      "SHIPPING": "Vận chuyển",
+      "LOYALTY": "Điểm thưởng",
+      "SYSTEM": "Hệ thống"
+    },
+    "groups": {
+      "today": "Hôm nay",
+      "week": "Tuần này",
+      "earlier": "Trước đó"
+    },
+    "success": "Đã lưu giữ bản sao thành công!",
+    "error": "Sự Cố Hệ Thống",
+    "info": "Thông Báo",
     "review_success": "Cảm ơn bạn đã gửi đánh giá!",
     "review_error": "Không thể gửi đánh giá. Vui lòng thử lại sau giây lát.",
     "image_upload_error": "Tải ảnh lên thất bại. Vui lòng kiểm tra lại cấu trúc tệp.",
@@ -922,7 +922,6 @@
       "showing_count": "Hiển thị {start}-{end} trên tổng số {total}",
       "no_logs": "Không tìm thấy nhật ký phù hợp với bộ lọc"
     },
-
     "inventory": {
       "title": "Quản Lý Tồn Kho",
       "subtitle": "Theo dõi và cập nhật số lượng hàng tồn kho tại các boutique.",

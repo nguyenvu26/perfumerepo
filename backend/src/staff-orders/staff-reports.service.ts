@@ -305,19 +305,38 @@ export class StaffReportsService {
     };
   }
 
-  async getStaffSalesTrend(userId: string, role: string, period: 'week' | 'month' | 'year' = 'month') {
+  async getStaffSalesTrend(userId: string, role: string, period: 'today' | 'week' | 'month' | 'year' | 'quarter' = 'month') {
     const storeIds = await this.getStaffStoreIds(userId, role);
     if (storeIds.length === 0) return [];
 
     const now = new Date();
     let startDate: Date;
     switch (period) {
-      case 'week': startDate = new Date(now); startDate.setDate(startDate.getDate() - 7); break;
-      case 'year': startDate = new Date(now); startDate.setFullYear(startDate.getFullYear() - 1); break;
+      case 'today':
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'week':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'quarter':
+        startDate = new Date(now);
+        startDate.setMonth(startDate.getMonth() - 3);
+        break;
+      case 'year':
+        startDate = new Date(now);
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        break;
       case 'month':
-      default: startDate = new Date(now); startDate.setDate(startDate.getDate() - 30); break;
+      default:
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 30);
+        break;
     }
-    startDate.setHours(0, 0, 0, 0);
+    if (period !== 'today') {
+      startDate.setHours(0, 0, 0, 0);
+    }
 
     const paidStatuses: PaymentStatus[] = [PaymentStatus.PAID, PaymentStatus.PARTIALLY_REFUNDED];
 
@@ -330,6 +349,30 @@ export class StaffReportsService {
       select: { finalAmount: true, refundAmount: true, createdAt: true },
       orderBy: { createdAt: 'asc' },
     });
+
+    if (period === 'today') {
+      const hourMap = new Map<string, { revenue: number; orders: number }>();
+      for (let i = 0; i < 24; i++) {
+        const hourStr = `${i.toString().padStart(2, '0')}:00`;
+        hourMap.set(hourStr, { revenue: 0, orders: 0 });
+      }
+
+      for (const order of orders) {
+        const hour = order.createdAt.getHours();
+        const hourStr = `${hour.toString().padStart(2, '0')}:00`;
+        const entry = hourMap.get(hourStr);
+        if (entry) {
+          entry.revenue += order.finalAmount - order.refundAmount;
+          entry.orders += 1;
+        }
+      }
+
+      return Array.from(hourMap.entries()).map(([hourKey, val]) => ({
+        date: hourKey,
+        revenue: val.revenue,
+        orders: val.orders,
+      }));
+    }
 
     const map = new Map<string, { revenue: number; orders: number }>();
     const cursor = new Date(startDate);

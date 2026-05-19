@@ -221,7 +221,7 @@ ${reviewTexts}`;
     const outOfStockProducts: typeof products = [];
 
     for (const p of products as any[]) {
-      const hasStock = p.variants.some((v: any) => 
+      const hasStock = p.variants.some((v: any) =>
         v.inventories.some((i: any) => i.available > 0)
       );
       if (hasStock) {
@@ -503,16 +503,16 @@ Rules:
       const intentContext = await this.extractIntentFromMessage(userMessage, history);
       const quizAnswers: QuizAnswers | undefined = intentContext.hasSpecificIntent
         ? {
-            gender: intentContext.gender,
-            occasion: intentContext.occasion,
-            budgetMin: intentContext.budgetMin,
-            budgetMax: intentContext.budgetMax,
-            preferredFamily: intentContext.preferredFamily,
-            longevity: intentContext.longevity,
-            intensity: intentContext.intensity,
-            prioritizePopularity: intentContext.prioritizePopularity,
-            vibe: intentContext.vibe,
-          }
+          gender: intentContext.gender,
+          occasion: intentContext.occasion,
+          budgetMin: intentContext.budgetMin,
+          budgetMax: intentContext.budgetMax,
+          preferredFamily: intentContext.preferredFamily,
+          longevity: intentContext.longevity,
+          intensity: intentContext.intensity,
+          prioritizePopularity: intentContext.prioritizePopularity,
+          vibe: intentContext.vibe,
+        }
         : undefined;
 
       // ── Scoring: top-15 products (behavioral history + current intent) ──
@@ -542,7 +542,7 @@ ADVICE STRATEGY:
 `;
       }
 
-    const systemPrompt = `You are "PerfumeGPT", an expert fragrance consultant for our luxury perfume store.
+      const systemPrompt = `You are "PerfumeGPT", an expert fragrance consultant for our luxury perfume store.
 ${dnaContext}
 
 ╔══════════════════════════════════════════════════════════╗
@@ -655,7 +655,7 @@ ${outOfStockCatalog || '(None)'}
         Date.now() - startTime,
         error.message,
       );
-      return 'Sorry, I encountered an error. Please try again later.';
+      return 'Xin lỗi, tôi gặp lỗi khi xử lý yêu cầu. Vui lòng thử lại sau.';
     }
   }
 
@@ -757,7 +757,7 @@ INSTRUCTIONS:
         Date.now() - startTime,
         error.message,
       );
-      return 'Sorry, I encountered an error. Please try again later.';
+      return 'Xin lỗi, tôi gặp lỗi khi xử lý yêu cầu. Vui lòng thử lại sau.';
     }
   }
 
@@ -823,9 +823,9 @@ YÊU CẦU:
         contents: prompt,
       });
 
-    const text = response.text ?? '{}';
-    let analysis = 'Dựa trên hồ sơ của bạn, chúng tôi đã tinh chọn những mùi hương phản chiếu đúng cá tính và không gian sống của bạn nhất.';
-    let recommendations: Array<{ productId: string; name: string; reason: string; price: number; imageUrl?: string; matchScore?: number }> = [];
+      const text = response.text ?? '{}';
+      let analysis = 'Dựa trên hồ sơ của bạn, chúng tôi đã tinh chọn những mùi hương phản chiếu đúng cá tính và không gian sống của bạn nhất.';
+      let recommendations: Array<{ productId: string; name: string; reason: string; price: number; imageUrl?: string; matchScore?: number }> = [];
 
       try {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -853,54 +853,54 @@ YÊU CẦU:
         this.logger.error('Failed to parse quiz AI response', error);
       }
 
-    // ── Post-check: Validate quiz recommendations against live DB ──
-    if (recommendations.length > 0) {
-      const productIds = recommendations.map((r) => r.productId).filter(Boolean);
-      const validProducts = await this.prisma.product.findMany({
-        where: {
-          id: { in: productIds },
-          isActive: true,
-          variants: {
-            some: {
-              isActive: true,
-              inventories: { some: { available: { gt: 0 } } },
+      // ── Post-check: Validate quiz recommendations against live DB ──
+      if (recommendations.length > 0) {
+        const productIds = recommendations.map((r) => r.productId).filter(Boolean);
+        const validProducts = await this.prisma.product.findMany({
+          where: {
+            id: { in: productIds },
+            isActive: true,
+            variants: {
+              some: {
+                isActive: true,
+                inventories: { some: { available: { gt: 0 } } },
+              },
             },
           },
-        },
-        select: { 
-          id: true,
-          brand: { select: { name: true } },
-          images: { take: 1, select: { url: true } },
-        },
-      });
-
-      const productMap = new Map(validProducts.map((p) => [p.id, p]));
-      const beforeCount = recommendations.length;
-
-      recommendations = recommendations
-        .filter((r) => productMap.has(r.productId))
-        .map((r) => {
-          const p = productMap.get(r.productId);
-          return {
-            ...r,
-            brand: p?.brand?.name ?? '',
-            imageUrl: p?.images?.[0]?.url ?? '',
-          };
+          select: {
+            id: true,
+            brand: { select: { name: true } },
+            images: { take: 1, select: { url: true } },
+          },
         });
 
-      if (recommendations.length < beforeCount) {
-        this.logger.warn(
-          `Quiz post-check removed ${beforeCount - recommendations.length} out-of-stock recommendation(s)`,
-        );
+        const productMap = new Map(validProducts.map((p) => [p.id, p]));
+        const beforeCount = recommendations.length;
+
+        recommendations = recommendations
+          .filter((r) => productMap.has(r.productId))
+          .map((r) => {
+            const p = productMap.get(r.productId);
+            return {
+              ...r,
+              brand: p?.brand?.name ?? '',
+              imageUrl: p?.images?.[0]?.url ?? '',
+            };
+          });
+
+        if (recommendations.length < beforeCount) {
+          this.logger.warn(
+            `Quiz post-check removed ${beforeCount - recommendations.length} out-of-stock recommendation(s)`,
+          );
+        }
       }
-    }
 
       return { analysis, recommendations };
     } catch (error) {
       this.logger.error('Failed during quiz consultation', error);
-      return { 
-        analysis: 'Hệ thống đang gặp gián đoạn nhỏ, nhưng chúng tôi vẫn tìm thấy những lựa chọn tuyệt vời cho bạn.', 
-        recommendations: [] 
+      return {
+        analysis: 'Hệ thống đang gặp gián đoạn nhỏ, nhưng chúng tôi vẫn tìm thấy những lựa chọn tuyệt vời cho bạn.',
+        recommendations: []
       };
     }
   }

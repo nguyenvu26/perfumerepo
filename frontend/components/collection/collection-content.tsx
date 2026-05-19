@@ -18,6 +18,9 @@ import { Link, usePathname, useRouter } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { productService, type Product, type ProductListRes } from '@/services/product.service';
 import { ScentDNABadge } from '@/components/product/scent-dna-badge';
+import { useAuth } from '@/hooks/use-auth';
+import { favoriteService } from '@/services/favorite.service';
+import { toast } from 'sonner';
 
 type GenderFilter = 'MALE' | 'FEMALE' | 'UNISEX' | null;
 type PriceFilter = 'P1' | 'P2' | 'P3' | 'P4' | null;
@@ -32,6 +35,52 @@ export function CollectionContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isVi = locale === 'vi';
+  const { isAuthenticated } = useAuth();
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setFavoriteIds(new Set());
+      return;
+    }
+    
+    const loadFavorites = () => {
+      favoriteService.getFavorites().then(items => {
+        setFavoriteIds(new Set(items.map(i => i.id)));
+      }).catch(() => {});
+    };
+
+    loadFavorites();
+    
+    const handleUpdate = () => loadFavorites();
+    window.addEventListener(favoriteService.eventName, handleUpdate);
+    return () => window.removeEventListener(favoriteService.eventName, handleUpdate);
+  }, [isAuthenticated]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent, productId: string, variantId?: string) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      toast.error(isVi ? 'Vui lòng đăng nhập để thêm vào yêu thích' : 'Please login to add to favorites');
+      router.push('/login');
+      return;
+    }
+    try {
+      const isFav = favoriteIds.has(productId);
+      const nextFavorite = await favoriteService.toggleProduct(productId, isFav, variantId);
+      setFavoriteIds(prev => {
+        const next = new Set(prev);
+        if (nextFavorite) next.add(productId);
+        else next.delete(productId);
+        return next;
+      });
+      toast.success(nextFavorite 
+        ? (isVi ? 'Đã thêm vào danh sách yêu thích' : 'Added to favorites')
+        : (isVi ? 'Đã xóa khỏi danh sách yêu thích' : 'Removed from favorites')
+      );
+    } catch (error) {
+      toast.error((error as Error).message || "Lỗi");
+    }
+  };
 
   const labels = useMemo(
     () =>
@@ -740,11 +789,11 @@ export function CollectionContent() {
 
                             {/* Wishlist */}
                             <button
-                              onClick={(e) => e.preventDefault()}
+                              onClick={(e) => handleToggleFavorite(e, product.id, product.variants?.[0]?.id)}
                               className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center text-zinc-300 transition-colors hover:text-[#C5A059] dark:text-zinc-600"
                               aria-label="Thêm vào yêu thích"
                             >
-                              <Heart className="h-5 w-5" strokeWidth={1.5} />
+                              <Heart className={cn("h-5 w-5", favoriteIds.has(product.id) && "fill-current text-[#C5A059]")} strokeWidth={1.5} />
                             </button>
                           </div>
 

@@ -5,8 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRoleEnum } from '@prisma/client';
-import { InventoryLogType } from '@prisma/client';
+import { UserRoleEnum, InventoryLogType, WarehouseType } from '@prisma/client';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { BatchImportDto } from './dto/batch-import.dto';
@@ -16,9 +15,8 @@ import { BatchTransferDto } from './dto/batch-transfer.dto';
 export class StoresService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Admin: list all stores */
   async list() {
-    return this.prisma.store.findMany({
+    const stores = await this.prisma.store.findMany({
       orderBy: { name: 'asc' },
       include: {
         users: {
@@ -33,8 +31,22 @@ export class StoresService {
             },
           },
         },
+        inventories: {
+          select: {
+            onHand: true,
+          },
+        },
         _count: { select: { inventories: true, orders: true } },
       },
+    });
+
+    return stores.map((store) => {
+      const totalStockUnits = store.inventories.reduce((sum, inv) => sum + inv.onHand, 0);
+      const { inventories, ...rest } = store;
+      return {
+        ...rest,
+        totalStockUnits,
+      };
     });
   }
 
@@ -114,10 +126,79 @@ export class StoresService {
 
   /** Admin: delete store */
   async remove(id: string) {
-    await this.getById(id);
-    return this.prisma.store.delete({
+    const store = await this.prisma.store.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            orders: true,
+            purchaseOrders: true,
+            transfersFrom: true,
+            transfersTo: true,
+            stocktakes: true,
+            inventoryRequests: true,
+          }
+        }
+      }
+    });
+
+    if (!store) {
+      throw new NotFoundException('Store not found');
+    }
+
+    // Guard: Prevent deleting CENTRAL warehouse completely
+    if (store.type === WarehouseType.CENTRAL) {
+      const centralCount = await this.prisma.store.count({
+        where: { type: WarehouseType.CENTRAL },
+      });
+      if (centralCount <= 1) {
+        throw new BadRequestException('Không thể xóa kho tổng trung tâm duy nhất của hệ thống.');
+      }
+    }
+
+    // Guard: Cannot delete store if it still has physical stock on hand
+    const activeInventory = await this.prisma.inventory.findFirst({
+      where: { warehouseId: id, onHand: { gt: 0 } },
+    });
+
+    if (activeInventory) {
+      throw new BadRequestException(
+        'Không thể xóa cửa hàng đang còn hàng tồn thực tế (onHand > 0). Vui lòng chuyển hoặc xuất hết hàng trước.',
+      );
+    }
+
+    const hasTransactions = 
+      store._count.orders > 0 ||
+      store._count.purchaseOrders > 0 ||
+      store._count.transfersFrom > 0 ||
+      store._count.transfersTo > 0 ||
+      store._count.stocktakes > 0 ||
+      store._count.inventoryRequests > 0;
+
+    if (hasTransactions) {
+      // Soft delete
+      await this.prisma.store.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      return { success: true, message: 'Store is linked to transactions. Soft-deleted.' };
+    }
+
+    // Hard delete: safe to delete completely. Clean up userStore assignments first to prevent foreign key errors.
+    await this.prisma.userStore.deleteMany({
+      where: { storeId: id },
+    });
+
+    // Delete empty inventory records
+    await this.prisma.inventory.deleteMany({
+      where: { warehouseId: id },
+    });
+
+    await this.prisma.store.delete({
       where: { id },
     });
+
+    return { success: true };
   }
 
   /** Admin: assign staff to store */
@@ -285,27 +366,28 @@ export class StoresService {
     if (quantity <= 0) {
       throw new BadRequestException('Quantity must be greater than 0');
     }
-    const store = await this.prisma.store.findUnique({
-      where: { id: storeId },
-    });
-    if (!store) throw new NotFoundException('Store not found');
-    
-    const centralWarehouse = await this.prisma.store.findFirst({
-      where: { type: 'CENTRAL' },
-    });
-    if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
-
-    const centralInventory = await this.prisma.inventory.findUnique({
-      where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
-    });
-
-    if (!centralInventory || centralInventory.available < quantity) {
-      throw new BadRequestException(
-        `Số lượng tồn kho tổng không đủ. (Hiện có: ${centralInventory?.available || 0}, yêu cầu: ${quantity})`,
-      );
-    }
 
     await this.prisma.$transaction(async (tx) => {
+      const store = await tx.store.findUnique({
+        where: { id: storeId },
+      });
+      if (!store) throw new NotFoundException('Store not found');
+      
+      const centralWarehouse = await tx.store.findFirst({
+        where: { type: 'CENTRAL' },
+      });
+      if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
+
+      const centralInventory = await tx.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
+      });
+
+      if (!centralInventory || centralInventory.available < quantity) {
+        throw new BadRequestException(
+          `Số lượng tồn kho tổng không đủ. (Hiện có: ${centralInventory?.available || 0}, yêu cầu: ${quantity})`,
+        );
+      }
+
       // 1. Decrement from central warehouse
       await tx.inventory.update({
         where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId } },
@@ -359,24 +441,25 @@ export class StoresService {
     if (fromStoreId === toStoreId) {
       throw new BadRequestException('From and to store must be different');
     }
-    const [fromStore, toStore] = await Promise.all([
-      this.prisma.store.findUnique({ where: { id: fromStoreId } }),
-      this.prisma.store.findUnique({ where: { id: toStoreId } }),
-    ]);
-    if (!fromStore) throw new NotFoundException('From store not found');
-    if (!toStore) throw new NotFoundException('To store not found');
-
-    const fromStock = await this.prisma.inventory.findUnique({
-      where: { warehouseId_variantId: { warehouseId: fromStoreId, variantId } },
-    });
-    const available = fromStock?.available ?? 0;
-    if (available < quantity) {
-      throw new BadRequestException(
-        `Số lượng tồn tại quầy nguồn không đủ. (Hiện có: ${available}, yêu cầu: ${quantity})`,
-      );
-    }
 
     await this.prisma.$transaction(async (tx) => {
+      const [fromStore, toStore] = await Promise.all([
+        tx.store.findUnique({ where: { id: fromStoreId } }),
+        tx.store.findUnique({ where: { id: toStoreId } }),
+      ]);
+      if (!fromStore) throw new NotFoundException('From store not found');
+      if (!toStore) throw new NotFoundException('To store not found');
+
+      const fromStock = await tx.inventory.findUnique({
+        where: { warehouseId_variantId: { warehouseId: fromStoreId, variantId } },
+      });
+      const available = fromStock?.available ?? 0;
+      if (available < quantity) {
+        throw new BadRequestException(
+          `Số lượng tồn tại quầy nguồn không đủ. (Hiện có: ${available}, yêu cầu: ${quantity})`,
+        );
+      }
+
       await tx.inventory.update({
         where: { warehouseId_variantId: { warehouseId: fromStoreId, variantId } },
         data: { 

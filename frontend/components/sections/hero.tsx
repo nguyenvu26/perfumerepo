@@ -63,7 +63,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
     return (
         <section
             ref={containerRef}
-            className="relative flex min-h-screen items-center overflow-hidden pt-20 pb-12 md:pt-32 md:pb-24"
+            className="relative flex min-h-[100dvh] items-center overflow-hidden pt-24 pb-12 md:pt-32 md:pb-24"
         >
             <motion.div
                 style={{ y: heroY, scale: heroScale }}
@@ -85,7 +85,7 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                     ))
                 ) : (
                     <Image
-                        src="/luxury_perfume_hero_cinematic.png"
+                        src="/creed.jpg"
                         alt="Luxury fragrance"
                         fill
                         priority
@@ -118,26 +118,26 @@ export const Hero = ({ heroY: parentHeroY, heroScale: parentHeroScale, heroOpaci
                                 exit={{ opacity: 0, y: -18 }}
                                 transition={{ duration: 0.55 }}
                             >
-                                <h1 className="max-w-[18ch] sm:max-w-[22ch] lg:max-w-none text-[clamp(2.1rem,6vw,3.3rem)] font-heading leading-[1.1] md:leading-tight tracking-[-0.04em] text-white lg:whitespace-nowrap">
+                                <h1 className="max-w-[18ch] sm:max-w-[22ch] lg:max-w-none text-[clamp(1.75rem,5.5vw,3.3rem)] font-heading leading-[1.1] md:leading-tight tracking-[-0.04em] text-white lg:whitespace-nowrap">
                                     {bannerTitle}
                                 </h1>
-                                <p className="mt-6 max-w-2xl text-lg leading-8 text-white/86 md:text-xl">
+                                <p className="mt-4 sm:mt-6 max-w-2xl text-sm leading-relaxed sm:text-lg sm:leading-8 text-white/86 md:text-xl">
                                     {bannerSubtitle}
                                 </p>
                             </motion.div>
                         </AnimatePresence>
-
-                        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+ 
+                        <div className="mt-6 sm:mt-10 flex flex-col gap-3.5 sm:flex-row">
                             <Link
                                 href={bannerHref}
-                                className="group inline-flex min-h-[56px] items-center justify-center gap-3 rounded-full bg-gold px-7 text-base font-semibold text-luxury-black transition-all hover:scale-[1.01]"
+                                className="group inline-flex min-h-[48px] sm:min-h-[56px] items-center justify-center gap-3 rounded-full bg-gold px-5 sm:px-7 text-sm sm:text-base font-semibold text-luxury-black transition-all hover:scale-[1.01]"
                             >
                                 {currentBanner?.linkUrl ? 'Xem ngay' : t('cta')}
-                                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                                <ArrowRight size={16} className="transition-transform group-hover:translate-x-1 sm:w-[18px] sm:h-[18px]" />
                             </Link>
                             <Link
                                 href="/collection"
-                                className="inline-flex min-h-[56px] items-center justify-center rounded-full border border-white/18 bg-white/8 px-7 text-base font-medium text-white backdrop-blur-xl transition-all hover:border-gold hover:text-gold"
+                                className="inline-flex min-h-[48px] sm:min-h-[56px] items-center justify-center rounded-full border border-white/18 bg-white/8 px-5 sm:px-7 text-sm sm:text-base font-medium text-white backdrop-blur-xl transition-all hover:border-gold hover:text-gold"
                             >
                                 {t('explore')}
                             </Link>

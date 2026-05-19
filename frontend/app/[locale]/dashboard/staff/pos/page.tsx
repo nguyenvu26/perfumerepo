@@ -941,6 +941,7 @@ export default function PosPage() {
                     order={completedOrder}
                     loyaltyInfo={loyaltyInfo}
                     onNewOrder={handleNewOrder}
+                    autoPrint={true}
                 />
 
                 <PosBarcodeCameraDialog

@@ -229,6 +229,28 @@ export default function ProductDetail({ product }: { product: Product }) {
 
     if (!selectedVariant) return;
 
+    // Check for pending payment first
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('pending_payment');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
+            toast.error(
+              isVi
+                ? 'Vui lòng thanh toán đơn hàng trước đó'
+                : 'Please pay for the previous order first'
+            );
+            return;
+          } else {
+            localStorage.removeItem('pending_payment');
+          }
+        } catch {
+          localStorage.removeItem('pending_payment');
+        }
+      }
+    }
+
     setLoading(true);
     try {
       await cartService.addItem(selectedVariant.id, quantity);

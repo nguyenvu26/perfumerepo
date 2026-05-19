@@ -19,6 +19,7 @@ import { Link } from '@/lib/i18n';
 import { useAuth } from '@/hooks/use-auth';
 import { cartService, type Cart, type CartItem } from '@/services/cart.service';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function CartPage() {
   const t = useTranslations('cart');
@@ -57,6 +58,21 @@ export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [inputValues, setInputValues] = useState<Record<number, string>>({});
+
+  const isPendingPayment = useCallback(() => {
+    if (typeof window === 'undefined') return false;
+    const stored = localStorage.getItem('pending_payment');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
+          return true;
+        }
+      } catch {}
+    }
+    return false;
+  }, []);
 
   const fetchCart = useCallback(() => {
     if (!isAuthenticated) {
@@ -66,6 +82,32 @@ export default function CartPage() {
     }
 
     setLoading(true);
+
+    // Check if there is an active pending payment first
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('pending_payment');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed.expiresAt && Date.now() < parsed.expiresAt) {
+            const tempCart: Cart = {
+              id: 'pending_cart',
+              userId: '',
+              items: parsed.cartItems || [],
+            };
+            setCart(tempCart);
+            setSelectedIds(tempCart.items.map((item) => item.id));
+            setLoading(false);
+            return;
+          } else {
+            localStorage.removeItem('pending_payment');
+          }
+        } catch (e) {
+          localStorage.removeItem('pending_payment');
+        }
+      }
+    }
+
     cartService
       .getCart()
       .then((nextCart) => {
@@ -88,6 +130,14 @@ export default function CartPage() {
   }, [fetchCart]);
 
   const updateQty = async (item: CartItem, delta: number) => {
+    if (isPendingPayment()) {
+      toast.error(
+        isVi
+          ? 'Đơn hàng đang trong quá trình thanh toán, không thể chỉnh sửa số lượng.'
+          : 'Order is pending payment, cannot update quantity.'
+      );
+      return;
+    }
     const quantity = Math.max(1, item.quantity + delta);
     try {
       const updated = await cartService.updateItem(item.id, quantity);
@@ -99,7 +149,89 @@ export default function CartPage() {
     }
   };
 
+  const handleInputChange = async (item: CartItem, value: string, totalAvailable: number) => {
+    if (isPendingPayment()) {
+      toast.error(
+        isVi
+          ? 'Đơn hàng đang trong quá trình thanh toán, không thể chỉnh sửa số lượng.'
+          : 'Order is pending payment, cannot update quantity.'
+      );
+      return;
+    }
+
+    if (value === '') {
+      setInputValues((prev) => ({ ...prev, [item.id]: value }));
+      return;
+    }
+
+    const digitsOnly = value.replace(/\D/g, '');
+    if (digitsOnly === '') return;
+
+    const parsedQty = parseInt(digitsOnly, 10);
+    setInputValues((prev) => ({ ...prev, [item.id]: digitsOnly }));
+
+    if (parsedQty > totalAvailable) {
+      return;
+    }
+
+    if (parsedQty >= 1) {
+      try {
+        const updated = await cartService.updateItem(item.id, parsedQty);
+        setCart(updated);
+      } catch (error) {
+        const msg = (error as { response?: { data?: { message?: string } }; message?: string })
+          ?.response?.data?.message || (error as Error).message;
+        toast.error(msg || (isVi ? 'Không thể cập nhật số lượng.' : 'Failed to update quantity.'));
+      }
+    }
+  };
+
+  const handleInputBlur = async (item: CartItem, totalAvailable: number) => {
+    const tempVal = inputValues[item.id];
+    if (tempVal === undefined) return;
+
+    setInputValues((prev) => {
+      const next = { ...prev };
+      delete next[item.id];
+      return next;
+    });
+
+    if (tempVal === '') {
+      return;
+    }
+
+    const parsedQty = parseInt(tempVal, 10);
+    if (isNaN(parsedQty) || parsedQty < 1) {
+      if (item.quantity !== 1) {
+        try {
+          const updated = await cartService.updateItem(item.id, 1);
+          setCart(updated);
+        } catch {}
+      }
+    } else if (parsedQty > totalAvailable) {
+      toast.error(
+        isVi
+          ? `Số lượng nhập vượt quá hàng tồn kho (${totalAvailable}).`
+          : `Quantity entered exceeds available stock (${totalAvailable}).`
+      );
+      if (item.quantity !== totalAvailable) {
+        try {
+          const updated = await cartService.updateItem(item.id, totalAvailable);
+          setCart(updated);
+        } catch {}
+      }
+    }
+  };
+
   const remove = async (itemId: number) => {
+    if (isPendingPayment()) {
+      toast.error(
+        isVi
+          ? 'Đơn hàng đang trong quá trình thanh toán, không thể xóa sản phẩm.'
+          : 'Order is pending payment, cannot remove item.'
+      );
+      return;
+    }
     try {
       const updated = await cartService.removeItem(itemId);
       setCart(updated);
@@ -213,7 +345,7 @@ export default function CartPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.35, delay: index * 0.04 }}
-                    className="overflow-hidden rounded-[2.5rem] border border-black/6 bg-card shadow-[0_26px_80px_-54px_rgba(15,23,42,0.28)] transition-all hover:border-gold/35 dark:border-white/10"
+                    className="overflow-hidden rounded-[2.5rem] border border-black/5 bg-card shadow-sm transition-all hover:border-gold/35 dark:border-white/5"
                   >
                     <div className="grid gap-6 p-5 md:grid-cols-[auto_132px_minmax(0,1fr)_auto] md:items-center md:p-6 lg:p-7">
                       <button
@@ -261,7 +393,7 @@ export default function CartPage() {
                         </div>
 
                         <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                          <div className="flex items-center gap-3 rounded-full border border-black/8 bg-background px-3 py-2 dark:border-white/10">
+                          <div className="flex w-fit items-center gap-3 rounded-full border border-black/8 bg-background px-3 py-2 dark:border-white/10">
                             {(() => {
                               const totalAvailable = item.variant.inventories?.reduce((sum, inv) => sum + inv.available, 0) ?? 0;
                               const atLimit = totalAvailable > 0 && item.quantity >= totalAvailable;
@@ -275,9 +407,26 @@ export default function CartPage() {
                                   >
                                     -
                                   </button>
-                                  <div className="min-w-[72px] text-center">
+                                  <div className="min-w-[72px] text-center flex flex-col items-center">
                                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{labels.quantity}</p>
-                                    <p className="mt-1 text-lg font-semibold text-foreground">{item.quantity}</p>
+                                    {(() => {
+                                      const currentInputValue = inputValues[item.id] !== undefined ? inputValues[item.id] : String(item.quantity);
+                                      const isOverStock = inputValues[item.id] !== undefined && parseInt(inputValues[item.id], 10) > totalAvailable;
+                                      return (
+                                        <input
+                                          type="text"
+                                          inputMode="numeric"
+                                          pattern="[0-9]*"
+                                          value={currentInputValue}
+                                          onChange={(e) => handleInputChange(item, e.target.value, totalAvailable)}
+                                          onBlur={() => handleInputBlur(item, totalAvailable)}
+                                          className={cn(
+                                            "mt-1 w-12 bg-transparent text-center text-lg font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-gold rounded transition-colors",
+                                            isOverStock ? "text-red-500 border border-red-500 bg-red-500/10 font-bold" : ""
+                                          )}
+                                        />
+                                      );
+                                    })()}
                                     {totalAvailable > 0 && (
                                       <p className={`text-[10px] ${atLimit ? 'text-red-400 font-medium' : 'text-muted-foreground/70'}`}>
                                         {isVi ? `Còn ${totalAvailable}` : `Stock: ${totalAvailable}`}
@@ -316,25 +465,6 @@ export default function CartPage() {
                   </motion.article>
                 ))}
               </AnimatePresence>
-
-              <div className="grid gap-5 md:grid-cols-3">
-                {[
-                  { icon: Truck, title: t('perks.delivery_title'), desc: t('perks.delivery_desc') },
-                  { icon: ShieldCheck, title: t('perks.auth_title'), desc: t('perks.auth_desc') },
-                  { icon: RotateCcw, title: t('perks.refill_title'), desc: t('perks.refill_desc') },
-                ].map((perk) => (
-                  <div
-                    key={perk.title}
-                    className="rounded-[2rem] border border-black/6 bg-card p-6 text-center shadow-[0_18px_50px_-40px_rgba(15,23,42,0.24)] dark:border-white/10"
-                  >
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gold/10 text-gold">
-                      <perk.icon className="h-6 w-6" />
-                    </div>
-                    <h4 className="mt-5 text-base font-semibold text-foreground">{perk.title}</h4>
-                    <p className="mt-3 text-sm leading-7 text-muted-foreground">{perk.desc}</p>
-                  </div>
-                ))}
-              </div>
             </section>
 
             <aside className="xl:sticky xl:top-28 xl:self-start">

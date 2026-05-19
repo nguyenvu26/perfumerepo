@@ -336,16 +336,16 @@ export const Header = () => {
                 {/* Mobile Menu */}
                 <AnimatePresence>
                     {isMobileMenuOpen && (
-                        <motion.div
+                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
-                            className="absolute top-full left-0 right-0 bg-background border-b border-border p-8 flex flex-col gap-6 lg:hidden shadow-2xl transition-colors"
+                            className="absolute top-full left-4 right-4 bg-background/95 backdrop-blur-xl border border-border p-5 flex flex-col gap-1 lg:hidden shadow-2xl transition-all max-h-[60vh] overflow-y-auto mt-2 rounded-3xl"
                         >
                             {isAuthenticated && (
                                 <Link
                                     href="/notifications"
-                                    className="text-[10px] font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-5 px-2 border-b border-border/10 min-h-[48px]"
+                                    className="text-sm font-semibold tracking-[.15em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-2.5 px-3 rounded-2xl hover:bg-gold/10 min-h-[40px]"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     <div className="flex items-center gap-3">
@@ -364,7 +364,7 @@ export const Header = () => {
                                 <Link
                                     key={item.href!}
                                     href={item.href!}
-                                    className="text-[10px] font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-5 px-2 border-b border-border/10 min-h-[48px]"
+                                    className="text-sm font-semibold tracking-[.15em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-2.5 px-3 rounded-2xl hover:bg-gold/10 min-h-[40px]"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {item.name}
@@ -374,7 +374,7 @@ export const Header = () => {
                             {!isAuthenticated && (
                                 <Link
                                     href="/login"
-                                    className="mt-4 px-8 py-4 bg-luxury-black dark:bg-gold text-white rounded-full text-[10px] font-bold tracking-widest uppercase text-center shadow-xl"
+                                    className="mt-2 px-8 py-3.5 bg-luxury-black dark:bg-gold text-white dark:text-luxury-black rounded-full text-xs font-bold tracking-widest uppercase text-center shadow-xl hover:scale-[1.01] transition-transform"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {t('login')} / {t('register')}
@@ -382,8 +382,8 @@ export const Header = () => {
                             )}
 
                             {/* Mobile Language Switch & Theme Toggle */}
-                            <div className="flex items-center justify-between pt-6 border-t border-stone-100 dark:border-white/10">
-                                <span className="text-[10px] font-bold tracking-widest uppercase text-stone-400">{t('settings')}</span>
+                            <div className="flex items-center justify-between py-3 px-3 border-t border-border/10 mt-2">
+                                <span className="text-[11px] font-bold tracking-widest uppercase text-stone-400">{t('settings')}</span>
                                 <div className="flex items-center gap-4">
                                     {/* <LanguageSwitch /> */}
                                     <ThemeToggle />
@@ -394,7 +394,7 @@ export const Header = () => {
                                     {isAdmin && (
                                         <Link
                                             href="/dashboard/admin"
-                                            className="text-xs font-bold tracking-[.3em] uppercase text-gold hover:text-gold/80 transition-colors flex items-center justify-between group pt-4 border-t border-stone-100 dark:border-white/10"
+                                            className="text-sm font-semibold tracking-[.15em] uppercase text-gold hover:text-gold/80 transition-colors flex items-center justify-between group py-2.5 px-3 rounded-2xl hover:bg-gold/10 min-h-[40px]"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             {t('admin_dashboard')}
@@ -404,7 +404,7 @@ export const Header = () => {
                                     {isStaff && !isAdmin && (
                                         <Link
                                             href="/dashboard/staff"
-                                            className="text-xs font-bold tracking-[.3em] uppercase text-gold hover:text-gold/80 transition-colors flex items-center justify-between group pt-4 border-t border-stone-100 dark:border-white/10"
+                                            className="text-sm font-semibold tracking-[.15em] uppercase text-gold hover:text-gold/80 transition-colors flex items-center justify-between group py-2.5 px-3 rounded-2xl hover:bg-gold/10 min-h-[40px]"
                                             onClick={() => setIsMobileMenuOpen(false)}
                                         >
                                             {t('staff_dashboard')}
@@ -413,7 +413,7 @@ export const Header = () => {
                                     )}
                                     <Link
                                         href="/dashboard/profile"
-                                        className="text-xs font-bold tracking-[.3em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group pt-4 border-t border-stone-100 dark:border-white/10"
+                                        className="text-sm font-semibold tracking-[.15em] uppercase text-luxury-black dark:text-white hover:text-gold transition-colors flex items-center justify-between group py-2.5 px-3 rounded-2xl hover:bg-gold/10 min-h-[40px]"
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         {user?.name || t('my_profile')}
@@ -424,7 +424,7 @@ export const Header = () => {
                                             logout();
                                             setIsMobileMenuOpen(false);
                                         }}
-                                        className="text-xs font-bold tracking-[.3em] uppercase text-red-500 hover:text-red-600 transition-colors flex items-center justify-between group"
+                                        className="text-sm font-semibold tracking-[.15em] uppercase text-red-500 hover:text-red-600 transition-colors flex items-center justify-between group py-2.5 px-3 rounded-2xl hover:bg-red-500/10 min-h-[40px] w-full text-left"
                                     >
                                         {t('logout')}
                                         <LogOut size={14} />

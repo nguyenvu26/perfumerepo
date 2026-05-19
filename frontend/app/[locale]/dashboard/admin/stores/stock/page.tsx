@@ -100,6 +100,7 @@ export default function AdminStockRedesignPage() {
   const [viewMode, setViewMode] = useState<"matrix" | "store">("matrix");
   const [selectedStoreId, setSelectedStoreId] = useState<string | null>(null);
   const [matrixSearch, setMatrixSearch] = useState("");
+  const [lowStockThreshold, setLowStockThreshold] = useState(10);
 
   // History State
   const [historyLogs, setHistoryLogs] = useState<any[]>([]);
@@ -227,7 +228,6 @@ export default function AdminStockRedesignPage() {
 
   const stats = useMemo(() => {
     if (!overview) return { totalSku: 0, globalUnits: 0, lowStockAlerts: 0, activeHubs: 0 };
-    const lowStockThreshold = 10;
     let lowStockAlerts = 0;
     
     // Total SKU is unique variants in the matrix
@@ -242,7 +242,7 @@ export default function AdminStockRedesignPage() {
     });
 
     return { totalSku, globalUnits, lowStockAlerts, activeHubs };
-  }, [overview, stockMatrix]);
+  }, [overview, stockMatrix, lowStockThreshold]);
 
   const warehouses = useMemo(() => {
     if (!overview) return [];
@@ -505,30 +505,30 @@ export default function AdminStockRedesignPage() {
             <div className="flex flex-wrap gap-4 justify-end">
               <button
                 onClick={() => router.push(`/${locale}/dashboard/admin/inventory/transfers`)}
-                className="flex items-center gap-3 bg-secondary/20 hover:bg-gold/10 border border-white/10 hover:border-gold/30 px-6 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all"
+                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
               >
                 <ArrowRightLeft className="w-4 h-4 text-gold" />
-                Phiếu Điều Chuyển
+                DS Phiếu Điều Chuyển →
               </button>
               <button
-                className="flex items-center gap-3 bg-secondary/20 hover:bg-gold/10 border border-white/10 hover:border-gold/30 px-6 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all"
+                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
               >
                 <ClipboardCheck className="w-4 h-4 text-gold" />
-                Kiểm Kê Kho
+                Kiểm Kê Kho →
               </button>
               <button
                 onClick={() => router.push(`/${locale}/dashboard/admin/inventory/cost-setup`)}
-                className="flex items-center gap-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 px-6 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest text-emerald-400 transition-all shadow-lg shadow-emerald-500/5"
+                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
               >
-                <Wallet className="w-4 h-4" />
-                Thiết lập Giá Vốn
+                <Wallet className="w-4 h-4 text-gold" />
+                Thiết lập Giá Vốn →
               </button>
               <button
                 onClick={() => router.push(`/${locale}/dashboard/admin/inventory/reports`)}
-                className="flex items-center gap-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 px-8 py-3 rounded-2xl text-[10px] uppercase font-black tracking-widest text-blue-400 transition-all shadow-lg shadow-blue-500/5"
+                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
               >
-                <BarChart3 className="w-4 h-4" />
-                Báo Cáo Tồn Kho
+                <BarChart3 className="w-4 h-4 text-gold" />
+                Báo Cáo Tồn Kho →
               </button>
             </div>
 
@@ -680,6 +680,18 @@ export default function AdminStockRedesignPage() {
                           className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-[11px] font-bold tracking-wider outline-none focus:border-gold/50 focus:bg-white/[0.07] transition-all placeholder:text-muted-foreground/30 shadow-inner"
                         />
                       </div>
+
+                      {/* Configurable Low Stock Threshold Control */}
+                      <div className="flex items-center gap-2.5 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 shadow-inner shrink-0">
+                        <span className="text-[8px] uppercase font-black tracking-widest text-muted-foreground whitespace-nowrap">Báo Động: ≤</span>
+                        <input
+                          type="number"
+                          value={lowStockThreshold}
+                          onChange={(e) => setLowStockThreshold(Math.max(0, parseInt(e.target.value) || 0))}
+                          className="w-12 bg-transparent text-gold font-heading text-sm italic leading-none focus:outline-none text-center border-b border-gold/30 focus:border-gold"
+                        />
+                        <span className="text-[8px] uppercase font-bold text-muted-foreground/60 whitespace-nowrap">Qty</span>
+                      </div>
                       
                       {viewMode === "store" && (
                         <select
@@ -787,11 +799,11 @@ export default function AdminStockRedesignPage() {
                                         <div className="flex flex-col items-center gap-1">
                                           <span className={cn(
                                             "font-heading text-2xl italic transition-all duration-500",
-                                            qty === 0 ? "text-white/10" : qty <= 5 ? "text-amber-500 scale-110" : "text-foreground/90 group-hover/row:text-foreground"
+                                            qty === 0 ? "text-white/10" : qty <= lowStockThreshold ? "text-amber-500 scale-110" : "text-foreground/90 group-hover/row:text-foreground"
                                           )}>
                                             {qty}
                                           </span>
-                                          {qty > 0 && qty <= 5 && (
+                                          {qty > 0 && qty <= lowStockThreshold && (
                                             <span className="text-[8px] uppercase font-black tracking-tighter text-amber-500/50">Low Stock</span>
                                           )}
                                         </div>

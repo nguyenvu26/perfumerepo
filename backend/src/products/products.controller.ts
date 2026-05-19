@@ -18,6 +18,11 @@ export class ProductsController {
     return this.productsService.getTopSelling(take ? parseInt(take, 10) : 3);
   }
 
+  @Get('top-reviewed')
+  async getTopReviewed(@Query('take') take?: string) {
+    return this.productsService.getTopReviewed(take ? parseInt(take, 10) : 8);
+  }
+
   @Get(':id')
   async getById(@Param('id') id: string) {
     return this.productsService.getPublicById(id);

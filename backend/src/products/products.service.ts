@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InventoryLogType } from '@prisma/client';
+import { InventoryLogType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { QueryProductsDto } from './dto/query-products.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -49,6 +49,48 @@ export class ProductsService {
     return barcode + checkDigit.toString();
   }
 
+  private async generateUniqueSKU(
+    tx: Prisma.TransactionClient,
+    brandName: string,
+    productName: string,
+    variantName: string,
+  ): Promise<string> {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const sku = this.generateSKU(brandName, productName, variantName);
+      const exists = await tx.productVariant.findUnique({
+        where: { sku },
+        select: { id: true },
+      });
+      if (!exists) {
+        return sku;
+      }
+    }
+    const sku = this.generateSKU(brandName, productName, variantName);
+    return `${sku.slice(0, -4)}-${Date.now().toString().slice(-4)}`;
+  }
+
+  private async generateUniqueBarcode(
+    tx: Prisma.TransactionClient,
+  ): Promise<string> {
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const barcode = this.generateBarcode();
+      const exists = await tx.productVariant.findUnique({
+        where: { barcode },
+        select: { id: true },
+      });
+      if (!exists) {
+        return barcode;
+      }
+    }
+    const part = Date.now().toString().slice(-12);
+    let sum = 0;
+    for (let i = 0; i < 12; i++) {
+      sum += parseInt(part[i] || '0') * (i % 2 === 0 ? 1 : 3);
+    }
+    const checkDigit = (10 - (sum % 10)) % 10;
+    return part + checkDigit.toString();
+  }
+
   async list(query: QueryProductsDto) {
     const { search, skip = 0, take = 20, brandId, categoryId } = query;
 
@@ -66,24 +108,44 @@ export class ProductsService {
     if (categoryId) {
       where.categoryId = categoryId;
     }
+    // Bestseller is now handled as a custom sort order rather than a hard database filter restriction
     if (query.lowStock === 'true' || query.lowStock === true) {
+      const threshold = query.lowStockThreshold !== undefined ? Number(query.lowStockThreshold) : 10;
       where.variants = {
         some: {
           isActive: true,
           inventories: {
             some: {
-              available: { lte: 10 },
+              available: { lte: threshold },
             },
           },
         },
       };
     }
 
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.product.findMany({
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const sales = await this.prisma.orderItem.groupBy({
+      by: ['variantId'],
+      where: {
+        order: {
+          createdAt: { gte: thirtyDaysAgo },
+          paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] },
+        },
+      },
+      _sum: { quantity: true },
+    });
+
+    const salesMap = new Map(sales.map(s => [s.variantId, s._sum.quantity || 0]));
+    const isBestsellingSort = query.isBestseller === 'true' || query.isBestseller === true;
+
+    let items: any[];
+    let total: number;
+
+    if (isBestsellingSort) {
+      const allItems = await this.prisma.product.findMany({
         where,
-        skip,
-        take,
         include: {
           brand: true,
           category: true,
@@ -100,10 +162,46 @@ export class ProductsService {
           },
           notes: { include: { note: true } },
         },
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.product.count({ where }),
-    ]);
+      });
+
+      const productSales = allItems.map(p => {
+        const totalSales = p.variants.reduce((sum, v) => sum + (salesMap.get(v.id) || 0), 0);
+        return { product: p, totalSales };
+      });
+
+      productSales.sort((a, b) => b.totalSales - a.totalSales);
+
+      total = allItems.length;
+      items = productSales.slice(skip, skip + take).map(ps => ps.product);
+    } else {
+      const [dbItems, dbTotal] = await this.prisma.$transaction([
+        this.prisma.product.findMany({
+          where,
+          skip,
+          take,
+          include: {
+            brand: true,
+            category: true,
+            scentFamily: true,
+            images: {
+              orderBy: { order: 'asc' },
+            },
+            variants: {
+              include: {
+                inventories: {
+                  where: { warehouse: { type: 'CENTRAL' } },
+                },
+              },
+            },
+            notes: { include: { note: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+        this.prisma.product.count({ where }),
+      ]);
+      items = dbItems;
+      total = dbTotal;
+    }
 
     return {
       items: items.map((p) => ({
@@ -394,58 +492,100 @@ export class ProductsService {
   }
 
   async getTopSelling(take: number = 3) {
-    const grouped = await this.prisma.orderItem.groupBy({
-      by: ['variantId'],
-      _sum: { quantity: true }
-    });
-
-    if (!grouped.length) {
-      // Fallback to random or just isBestseller if no orders exist
-      const fallback = await this.prisma.product.findMany({
-        where: { isActive: true },
-        include: {
-          brand: true, category: true, scentFamily: true,
-          images: { orderBy: { order: 'asc' } },
-          variants: { where: { isActive: true } }
-        },
-        take,
-      });
-      return fallback.map(p => ({ ...p, salesCount: Math.floor(Math.random() * 500) + 50 }));
-    }
-
-    const variants = await this.prisma.productVariant.findMany({
-      where: { id: { in: grouped.map(g => g.variantId) } },
-      select: { id: true, productId: true }
-    });
-
-    const productSales = new Map<string, number>();
-    grouped.forEach(g => {
-      const variant = variants.find(v => v.id === g.variantId);
-      if (variant) {
-        const current = productSales.get(variant.productId) || 0;
-        productSales.set(variant.productId, current + (g._sum.quantity || 0));
-      }
-    });
-
-    const sortedProductIds = Array.from(productSales.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, take)
-      .map(entry => entry[0]);
-
     const products = await this.prisma.product.findMany({
-      where: { id: { in: sortedProductIds } },
+      where: { isActive: true },
       include: {
-        brand: true, category: true, scentFamily: true,
+        brand: true,
+        category: true,
+        scentFamily: true,
         images: { orderBy: { order: 'asc' } },
-        variants: { where: { isActive: true } },
+        variants: {
+          where: { isActive: true },
+          include: {
+            orderItems: {
+              select: { quantity: true }
+            },
+            inventories: true,
+          }
+        },
         notes: { include: { note: true } }
       }
     });
 
-    return sortedProductIds.map(id => {
-      const p = products.find(prod => prod.id === id);
-      return p ? { ...p, salesCount: productSales.get(id) } : null;
-    }).filter(Boolean);
+    const productsWithSales = products.map(p => {
+      const salesCount = p.variants.reduce((sum, v) => {
+        const variantSales = v.orderItems.reduce((total, item) => total + item.quantity, 0);
+        return sum + variantSales;
+      }, 0);
+      return { ...p, salesCount };
+    });
+
+    const productsWithSalesFirst = productsWithSales.filter(p => p.salesCount > 0)
+      .sort((a, b) => b.salesCount - a.salesCount);
+    const productsWithNoSales = productsWithSales.filter(p => p.salesCount === 0);
+
+    // Shuffle productsWithNoSales
+    for (let i = productsWithNoSales.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [productsWithNoSales[i], productsWithNoSales[j]] = [productsWithNoSales[j], productsWithNoSales[i]];
+    }
+
+    const finalProducts = [...productsWithSalesFirst, ...productsWithNoSales].slice(0, take);
+
+    return finalProducts.map(p => {
+      return {
+        ...p,
+        variants: p.variants.map((v: any) => ({
+          ...v,
+          stock: v.inventories?.reduce((sum, inv) => sum + (inv.available || 0), 0) ?? 0,
+        })),
+      };
+    });
+  }
+
+  async getTopReviewed(take: number = 8) {
+    const products = await this.prisma.product.findMany({
+      where: { isActive: true },
+      include: {
+        brand: true,
+        category: true,
+        scentFamily: true,
+        images: { orderBy: { order: 'asc' } },
+        variants: {
+          where: { isActive: true },
+          include: { inventories: true },
+        },
+        reviews: true,
+        notes: { include: { note: true } }
+      }
+    });
+
+    const productsWithReviews = products.map(p => ({
+      ...p,
+      reviewsCount: p.reviews.length,
+    }));
+
+    const productsWithReviewsFirst = productsWithReviews.filter(p => p.reviewsCount > 0)
+      .sort((a, b) => b.reviewsCount - a.reviewsCount);
+    const productsWithNoReviews = productsWithReviews.filter(p => p.reviewsCount === 0);
+
+    // Shuffle productsWithNoReviews
+    for (let i = productsWithNoReviews.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [productsWithNoReviews[i], productsWithNoReviews[j]] = [productsWithNoReviews[j], productsWithNoReviews[i]];
+    }
+
+    const finalProducts = [...productsWithReviewsFirst, ...productsWithNoReviews].slice(0, take);
+
+    return finalProducts.map(p => {
+      return {
+        ...p,
+        variants: p.variants.map((v: any) => ({
+          ...v,
+          stock: v.inventories?.reduce((sum, inv) => sum + (inv.available || 0), 0) ?? 0,
+        })),
+      };
+    });
   }
 
   // Admin operations
@@ -456,11 +596,14 @@ export class ProductsService {
       const brand = await tx.brand.findUnique({ where: { id: dto.brandId } });
       const brandName = brand?.name || 'GEN';
 
-      const processedVariants = variants.map((v) => ({
-        ...v,
-        sku: v.sku || this.generateSKU(brandName, dto.name, v.name),
-        barcode: v.barcode || this.generateBarcode(),
-      }));
+      const processedVariants: any[] = [];
+      for (const v of variants) {
+        processedVariants.push({
+          ...v,
+          sku: v.sku || await this.generateUniqueSKU(tx, brandName, dto.name, v.name),
+          barcode: v.barcode || await this.generateUniqueBarcode(tx),
+        });
+      }
 
       const product = await tx.product.create({
         data: {
@@ -625,8 +768,8 @@ export class ProductsService {
               where: { id: variant.id },
               data: {
                 name: variant.name,
-                sku: variant.sku || currentVariant?.sku || this.generateSKU(brandName, product?.name || '', variant.name),
-                barcode: (variant as any).barcode || currentVariant?.barcode || this.generateBarcode(),
+                sku: variant.sku || currentVariant?.sku || await this.generateUniqueSKU(tx, brandName, product?.name || '', variant.name),
+                barcode: (variant as any).barcode || currentVariant?.barcode || await this.generateUniqueBarcode(tx),
                 price: variant.price,
                 isActive: true,
               },
@@ -636,8 +779,8 @@ export class ProductsService {
               data: {
                 productId: id,
                 name: variant.name,
-                sku: variant.sku || this.generateSKU(brandName, product?.name || '', variant.name),
-                barcode: (variant as any).barcode || this.generateBarcode(),
+                sku: variant.sku || await this.generateUniqueSKU(tx, brandName, product?.name || '', variant.name),
+                barcode: (variant as any).barcode || await this.generateUniqueBarcode(tx),
                 price: variant.price,
                 isActive: true,
               },
@@ -677,16 +820,68 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    // Get all images to delete from Cloudinary
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: { images: true },
+      include: { 
+        images: true,
+        variants: {
+          include: {
+            _count: {
+              select: {
+                orderItems: true,
+                poItems: true,
+                toItems: true,
+                returnItems: true,
+                stocktakeItems: true,
+              }
+            }
+          }
+        }
+      },
     });
 
-    if (product && product.images.length > 0) {
-      const publicIds = product.images.map((img) => img.publicId);
-      await this.cloudinaryService.deleteImages(publicIds);
+    if (!product) {
+      throw new NotFoundException('Product not found');
     }
+
+    // Check if any variant has been used in orders, purchase orders, transfers, returns, or stocktakes
+    const isUsed = product.variants.some(
+      (v) => 
+        v._count.orderItems > 0 || 
+        v._count.poItems > 0 || 
+        v._count.toItems > 0 || 
+        v._count.returnItems > 0 || 
+        v._count.stocktakeItems > 0
+    );
+
+    if (isUsed) {
+      // Soft delete: set product and all its variants as inactive
+      await this.prisma.$transaction([
+        this.prisma.product.update({
+          where: { id },
+          data: { isActive: false },
+        }),
+        this.prisma.productVariant.updateMany({
+          where: { productId: id },
+          data: { isActive: false },
+        }),
+      ]);
+      return { success: true, message: 'Product is linked to transactions. Soft-deleted.' };
+    }
+
+    // Hard delete: safe to delete completely
+    if (product.images.length > 0) {
+      const publicIds = product.images.map((img) => img.publicId);
+      await this.cloudinaryService.deleteImages(publicIds).catch((err) => {
+        console.warn('Failed to delete images from Cloudinary:', err.message);
+      });
+    }
+
+    // Delete cart items associated with variants of this product to prevent FK issues
+    const variantIds = product.variants.map((v) => v.id);
+    await this.prisma.cartItem.deleteMany({
+      where: { variantId: { in: variantIds } },
+    });
 
     await this.prisma.product.delete({
       where: { id },

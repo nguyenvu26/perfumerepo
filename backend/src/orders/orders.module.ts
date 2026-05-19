@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
+import { PublicReceiptController } from './public-receipt.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { PromotionsModule } from '../promotions/promotions.module';
 import { LoyaltyModule } from '../loyalty/loyalty.module';
@@ -19,7 +20,7 @@ import { MailModule } from '../mail/mail.module';
     CloudinaryModule,
     MailModule,
   ],
-  controllers: [OrdersController],
+  controllers: [OrdersController, PublicReceiptController],
   providers: [OrdersService],
   exports: [OrdersService],
 })

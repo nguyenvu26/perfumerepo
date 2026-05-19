@@ -14,6 +14,7 @@ export type StoreWithDetails = Store & {
     user: { id: string; email: string; fullName: string | null; role: string };
   }[];
   _count?: { storeStocks: number; orders: number };
+  totalStockUnits?: number;
 };
 
 export type StockOverviewStore = {

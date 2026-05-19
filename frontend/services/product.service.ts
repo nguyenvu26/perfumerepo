@@ -60,8 +60,9 @@ export type ProductListRes = {
 interface IProductService {
   list(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; isFeatured?: boolean | string; isBestseller?: boolean | string }): Promise<ProductListRes>;
   getTopSelling(take?: number): Promise<Product[]>;
+  getTopReviewed(take?: number): Promise<Product[]>;
   getById(id: string): Promise<Product>;
-  adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; lowStock?: boolean }): Promise<ProductListRes>;
+  adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; lowStock?: boolean; isBestseller?: boolean }): Promise<ProductListRes>;
   adminCreate(dto: {
     name: string;
     slug: string;
@@ -111,12 +112,15 @@ export const productService: IProductService = {
   getTopSelling(take: number = 3) {
     return api.get<Product[]>('/products/top-selling', { params: { take } }).then((r) => r.data);
   },
+  getTopReviewed(take: number = 8) {
+    return api.get<Product[]>('/products/top-reviewed', { params: { take } }).then((r) => r.data);
+  },
   getById(id: string) {
     return api.get<Product>('/products/' + id).then((r) => r.data);
   },
 
   // Admin
-  adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number }) {
+  adminList(params?: { search?: string; skip?: number; take?: number; brandId?: number; categoryId?: number; lowStock?: boolean; isBestseller?: boolean }) {
     return api.get<ProductListRes>('/admin/products', { params }).then((r) => r.data);
   },
   adminCreate(dto: any) {

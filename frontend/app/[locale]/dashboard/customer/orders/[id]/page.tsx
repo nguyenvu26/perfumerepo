@@ -26,6 +26,7 @@ import ReviewModal from "@/components/review/review-modal";
 import { CreateReturnModal } from "@/components/returns/CreateReturnModal";
 import { AlertTriangle } from "lucide-react";
 import { useTranslations, useLocale, useFormatter } from "next-intl";
+import { toast } from "sonner";
 
 export default function CustomerOrderDetailPage() {
   const t = useTranslations("dashboard.customer.orders");
@@ -43,6 +44,7 @@ export default function CustomerOrderDetailPage() {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [existingReturn, setExistingReturn] = useState<ReturnRequest | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState(false);
@@ -123,15 +125,20 @@ export default function CustomerOrderDetailPage() {
   };
 
   const handleCancelOrder = async () => {
-    if (!window.confirm(tDetail("confirm_cancel_desc"))) return;
-
     setCancelling(true);
     try {
       await orderService.cancel(orderId);
+      toast.success(
+        locale === "vi"
+          ? "Đơn hàng đã được hủy thành công!"
+          : "Order has been cancelled successfully!"
+      );
       fetchOrder();
-    } catch (err) {
+    } catch (err: any) {
       console.error("Cancel error:", err);
-      alert(tDetail("cancel_error"));
+      toast.error(
+        err.response?.data?.message || tDetail("cancel_error")
+      );
     } finally {
       setCancelling(false);
     }
@@ -415,7 +422,7 @@ export default function CustomerOrderDetailPage() {
                 {["PENDING", "CONFIRMED", "PROCESSING"].includes(order.status) && (
                   <button
                     disabled={cancelling}
-                    onClick={handleCancelOrder}
+                    onClick={() => setShowCancelConfirmModal(true)}
                     className="flex items-center gap-2 w-fit px-4 py-2 rounded-full border border-red-500/30 text-red-600 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/5 transition-all disabled:opacity-50"
                   >
                     {cancelling ? (
@@ -757,6 +764,46 @@ export default function CustomerOrderDetailPage() {
                 className="w-full py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors"
               >
                 Quay lại
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Order Confirmation Pop-up */}
+      {showCancelConfirmModal && (
+        <div className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-[2.5rem] bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 p-10 space-y-8 animate-in zoom-in-95 duration-200 shadow-2xl text-center">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={40} className="text-red-500" />
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="text-xl font-heading uppercase tracking-widest text-luxury-black dark:text-white">
+                {locale === "vi" ? "Hủy Đơn Hàng" : "Cancel Order"}
+              </h3>
+              <p className="text-sm text-stone-500 dark:text-stone-400 leading-relaxed">
+                {tDetail("confirm_cancel_desc")}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 pt-4">
+              <button
+                disabled={cancelling}
+                onClick={async () => {
+                  await handleCancelOrder();
+                  setShowCancelConfirmModal(false);
+                }}
+                className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-600/20 hover:translate-y-[-2px] active:translate-y-[0px] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {cancelling && <Loader2 size={12} className="animate-spin" />}
+                {locale === "vi" ? "Xác Nhận Hủy" : "Confirm Cancel"}
+              </button>
+              <button
+                onClick={() => setShowCancelConfirmModal(false)}
+                className="w-full py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors"
+              >
+                {locale === "vi" ? "Quay lại" : "Back"}
               </button>
             </div>
           </div>

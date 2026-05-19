@@ -34,7 +34,7 @@ export class StaffReportsController {
     }
 
     @Get('analytics/sales-trend')
-    getStaffSalesTrend(@Req() req: any, @Query('period') period?: 'week' | 'month' | 'year') {
+    getStaffSalesTrend(@Req() req: any, @Query('period') period?: 'today' | 'week' | 'month' | 'year' | 'quarter') {
         const user = req.user as { userId: string; role: string };
         return this.staffReportsService.getStaffSalesTrend(user.userId, user.role, period || 'month');
     }

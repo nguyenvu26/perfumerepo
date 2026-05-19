@@ -25,7 +25,7 @@ export default function StoryPage() {
                         className="absolute inset-0 z-0"
                     >
                         <Image
-                            src="/luxury_perfume_hero_cinematic.png"
+                            src="/creed.jpg"
                             alt="The Art of Scent"
                             fill
                             className="object-cover brightness-[0.4] lg:brightness-50"

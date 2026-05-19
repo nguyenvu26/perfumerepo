@@ -69,25 +69,63 @@ export class AnalyticsService {
   /**
    * Main overview stats for the dashboard header cards
    */
-  async getOverview(startDate?: string, endDate?: string): Promise<OverviewDto> {
+  async getOverview(
+    period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom' = 'month',
+    startDate?: string,
+    endDate?: string,
+    storeId?: string,
+  ): Promise<OverviewDto> {
     const now = new Date();
     
     let currentStart: Date;
     let currentEnd: Date;
     let previousStart: Date;
 
-    if (startDate && endDate) {
+    if (period === 'custom' && startDate && endDate) {
       currentStart = new Date(startDate);
       currentEnd = new Date(endDate);
       const durationMs = currentEnd.getTime() - currentStart.getTime();
       previousStart = new Date(currentStart.getTime() - durationMs);
     } else {
-      // Default: last 30 days
-      currentStart = new Date(now);
-      currentStart.setDate(currentStart.getDate() - 30);
       currentEnd = now;
-      previousStart = new Date(currentStart);
-      previousStart.setDate(previousStart.getDate() - 30);
+      const actualPeriod = period === 'custom' ? 'month' : period;
+      switch (actualPeriod) {
+        case 'today':
+          currentStart = new Date(now);
+          currentStart.setHours(0, 0, 0, 0);
+          previousStart = new Date(currentStart);
+          previousStart.setDate(previousStart.getDate() - 1);
+          break;
+        case 'week':
+          currentStart = new Date(now);
+          currentStart.setDate(currentStart.getDate() - 7);
+          currentStart.setHours(0, 0, 0, 0);
+          previousStart = new Date(currentStart);
+          previousStart.setDate(previousStart.getDate() - 7);
+          break;
+        case 'quarter':
+          currentStart = new Date(now);
+          currentStart.setMonth(currentStart.getMonth() - 3);
+          currentStart.setHours(0, 0, 0, 0);
+          previousStart = new Date(currentStart);
+          previousStart.setMonth(previousStart.getMonth() - 3);
+          break;
+        case 'year':
+          currentStart = new Date(now);
+          currentStart.setFullYear(currentStart.getFullYear() - 1);
+          currentStart.setHours(0, 0, 0, 0);
+          previousStart = new Date(currentStart);
+          previousStart.setFullYear(previousStart.getFullYear() - 1);
+          break;
+        case 'month':
+        default:
+          currentStart = new Date(now);
+          currentStart.setDate(currentStart.getDate() - 30);
+          currentStart.setHours(0, 0, 0, 0);
+          previousStart = new Date(currentStart);
+          previousStart.setDate(previousStart.getDate() - 30);
+          break;
+      }
     }
 
     const startOfToday = new Date(now);
@@ -98,11 +136,44 @@ export class AnalyticsService {
       PaymentStatus.PARTIALLY_REFUNDED,
     ];
 
+    const buildOrderFilter = async (start: Date, end: Date) => {
+      const condition: any = {
+        createdAt: { gte: start, lte: end },
+      };
+
+      if (storeId && storeId !== 'all') {
+        if (storeId === 'central') {
+          condition.OR = [
+            { store: { type: 'CENTRAL' } },
+            { channel: 'ONLINE' },
+            { storeId: null },
+          ];
+        } else {
+          const storeObj = await this.prisma.store.findUnique({
+            where: { id: storeId },
+            select: { type: true },
+          });
+          if (storeObj && storeObj.type === 'CENTRAL') {
+            condition.OR = [
+              { storeId: storeId },
+              { store: { type: 'CENTRAL' } },
+              { channel: 'ONLINE' },
+              { storeId: null },
+            ];
+          } else {
+            condition.storeId = storeId;
+          }
+        }
+      }
+      return condition;
+    };
+
+    const currentFilter = await buildOrderFilter(currentStart, currentEnd);
+    const previousFilter = await buildOrderFilter(previousStart, currentStart);
+
     // Current period orders
     const currentOrders = await this.prisma.order.findMany({
-      where: {
-        createdAt: { gte: currentStart, lte: currentEnd },
-      },
+      where: currentFilter,
       select: {
         finalAmount: true,
         refundAmount: true,
@@ -124,9 +195,7 @@ export class AnalyticsService {
 
     // Previous period orders (for % change)
     const previousOrders = await this.prisma.order.findMany({
-      where: {
-        createdAt: { gte: previousStart, lt: currentStart },
-      },
+      where: previousFilter,
       select: {
         finalAmount: true,
         refundAmount: true,
@@ -209,8 +278,38 @@ export class AnalyticsService {
     const inventoryValue = inventories.reduce((sum, inv) => sum + (inv.onHand * (inv.variant.purchasePrice || 0)), 0);
 
     // Success & Return Rates
+    const returnFilter: any = { createdAt: { gte: currentStart, lte: currentEnd } };
+    if (storeId && storeId !== 'all') {
+      if (storeId === 'central') {
+        returnFilter.order = {
+          OR: [
+            { store: { type: 'CENTRAL' } },
+            { channel: 'ONLINE' },
+            { storeId: null },
+          ]
+        };
+      } else {
+        const storeObj = await this.prisma.store.findUnique({
+          where: { id: storeId },
+          select: { type: true },
+        });
+        if (storeObj && storeObj.type === 'CENTRAL') {
+          returnFilter.order = {
+            OR: [
+              { storeId: storeId },
+              { store: { type: 'CENTRAL' } },
+              { channel: 'ONLINE' },
+              { storeId: null },
+            ]
+          };
+        } else {
+          returnFilter.order = { storeId: storeId };
+        }
+      }
+    }
+
     const returnsCount = await this.prisma.returnRequest.count({
-      where: { createdAt: { gte: currentStart, lte: currentEnd } }
+      where: returnFilter
     });
     const successRate = totalOrders > 0 ? (completedOrders / totalOrders) * 100 : 100;
     const returnRate = totalOrders > 0 ? (returnsCount / totalOrders) * 100 : 0;
@@ -239,9 +338,10 @@ export class AnalyticsService {
    * @param period 'week' | 'month' | 'year'
    */
   async getSalesTrend(
-    period: 'week' | 'month' | 'year' | 'quarter' = 'month',
+    period: 'today' | 'week' | 'month' | 'year' | 'quarter' = 'month',
     startDate?: string,
     endDate?: string,
+    storeId?: string,
   ): Promise<SalesTrendPoint[]> {
     const now = new Date();
     let start: Date;
@@ -252,6 +352,10 @@ export class AnalyticsService {
       end = new Date(endDate);
     } else {
       switch (period) {
+        case 'today':
+          start = new Date(now);
+          start.setHours(0, 0, 0, 0);
+          break;
         case 'week':
           start = new Date(now);
           start.setDate(start.getDate() - 7);
@@ -270,7 +374,9 @@ export class AnalyticsService {
           start.setDate(start.getDate() - 30);
           break;
       }
-      start.setHours(0, 0, 0, 0);
+      if (period !== 'today') {
+        start.setHours(0, 0, 0, 0);
+      }
     }
 
     const paidStatuses: PaymentStatus[] = [
@@ -278,11 +384,38 @@ export class AnalyticsService {
       PaymentStatus.PARTIALLY_REFUNDED,
     ];
 
+    const whereClause: any = {
+      createdAt: { gte: start, lte: end },
+      paymentStatus: { in: paidStatuses },
+    };
+
+    if (storeId && storeId !== 'all') {
+      if (storeId === 'central') {
+        whereClause.OR = [
+          { store: { type: 'CENTRAL' } },
+          { channel: 'ONLINE' },
+          { storeId: null }
+        ];
+      } else {
+        const storeObj = await this.prisma.store.findUnique({
+          where: { id: storeId },
+          select: { type: true }
+        });
+        if (storeObj && storeObj.type === 'CENTRAL') {
+          whereClause.OR = [
+            { storeId: storeId },
+            { store: { type: 'CENTRAL' } },
+            { channel: 'ONLINE' },
+            { storeId: null }
+          ];
+        } else {
+          whereClause.storeId = storeId;
+        }
+      }
+    }
+
     const orders = await this.prisma.order.findMany({
-      where: {
-        createdAt: { gte: start, lte: end },
-        paymentStatus: { in: paidStatuses },
-      },
+      where: whereClause,
       select: {
         finalAmount: true,
         refundAmount: true,
@@ -290,6 +423,30 @@ export class AnalyticsService {
       },
       orderBy: { createdAt: 'asc' },
     });
+
+    if (period === 'today') {
+      const hourMap = new Map<string, { revenue: number; orders: number }>();
+      for (let i = 0; i < 24; i++) {
+        const hourStr = `${i.toString().padStart(2, '0')}:00`;
+        hourMap.set(hourStr, { revenue: 0, orders: 0 });
+      }
+
+      for (const order of orders) {
+        const hour = order.createdAt.getHours();
+        const hourStr = `${hour.toString().padStart(2, '0')}:00`;
+        const entry = hourMap.get(hourStr);
+        if (entry) {
+          entry.revenue += order.finalAmount - order.refundAmount;
+          entry.orders += 1;
+        }
+      }
+
+      return Array.from(hourMap.entries()).map(([hourKey, val]) => ({
+        date: hourKey,
+        revenue: val.revenue,
+        orders: val.orders,
+      }));
+    }
 
     // Group by date
     const map = new Map<string, { revenue: number; orders: number }>();
@@ -341,16 +498,43 @@ export class AnalyticsService {
   /**
    * Top selling products (by quantity sold)
    */
-  async getTopProducts(limit = 5): Promise<TopProductDto[]> {
+  async getTopProducts(limit = 5, storeId?: string): Promise<TopProductDto[]> {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+    const orderWhere: any = {
+      createdAt: { gte: thirtyDaysAgo },
+      paymentStatus: { in: [PaymentStatus.PAID, PaymentStatus.PARTIALLY_REFUNDED] },
+    };
+
+    if (storeId && storeId !== 'all') {
+      if (storeId === 'central') {
+        orderWhere.OR = [
+          { store: { type: 'CENTRAL' } },
+          { channel: 'ONLINE' },
+          { storeId: null }
+        ];
+      } else {
+        const storeObj = await this.prisma.store.findUnique({
+          where: { id: storeId },
+          select: { type: true }
+        });
+        if (storeObj && storeObj.type === 'CENTRAL') {
+          orderWhere.OR = [
+            { storeId: storeId },
+            { store: { type: 'CENTRAL' } },
+            { channel: 'ONLINE' },
+            { storeId: null }
+          ];
+        } else {
+          orderWhere.storeId = storeId;
+        }
+      }
+    }
+
     const items = await this.prisma.orderItem.findMany({
       where: {
-        order: {
-          createdAt: { gte: thirtyDaysAgo },
-          paymentStatus: { in: [PaymentStatus.PAID, PaymentStatus.PARTIALLY_REFUNDED] },
-        },
+        order: orderWhere,
       },
       include: {
         variant: {
@@ -696,8 +880,7 @@ export class AnalyticsService {
     });
 
     return healthItems
-      .sort((a, b) => a.daysRemaining - b.daysRemaining)
-      .slice(0, 20);
+      .sort((a, b) => a.daysRemaining - b.daysRemaining);
   }
 
   /**
@@ -713,27 +896,17 @@ export class AnalyticsService {
       select: { id: true, name: true, address: true }
     });
 
-    // 2. Get top 20 variants by total sales
-    const topSales = await this.prisma.orderItem.groupBy({
-      by: ['variantId'],
-      where: {
-        order: {
-          createdAt: { gte: thirtyDaysAgo },
-          paymentStatus: { in: [PaymentStatus.PAID, PaymentStatus.PARTIALLY_REFUNDED] },
-        },
-      },
-      _sum: { quantity: true },
-      orderBy: { _sum: { quantity: 'desc' } },
-      take: 20
-    });
-
-    const variantIds = topSales.map(s => s.variantId);
-
-    // 3. Get full variant/product info
+    // 2. Get all active product variants alphabetically
     const variants = await this.prisma.productVariant.findMany({
-      where: { id: { in: variantIds } },
-      include: { product: { select: { name: true } } }
+      where: { isActive: true },
+      include: { product: { select: { name: true } } },
+      orderBy: [
+        { product: { name: 'asc' } },
+        { name: 'asc' }
+      ]
     });
+
+    const variantIds = variants.map(v => v.id);
 
     // 4. Get sales per store per variant (using findMany since groupBy has limits on nested relations)
     const salesItems = await this.prisma.orderItem.findMany({

@@ -45,6 +45,12 @@ export class QueryProductsDto {
   lowStock?: any;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  lowStockThreshold?: number;
+
+  @IsOptional()
   @IsString()
   notes?: string;
 

@@ -69,7 +69,7 @@ export default function AdminDashboard() {
     const t = useTranslations('dashboard.admin');
 
     // Period and Date state
-    const [period, setPeriod] = useState<'week' | 'month' | 'year' | 'quarter' | 'custom'>('month');
+    const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom'>('month');
     const [dateRange, setDateRange] = useState<{ start?: string; end?: string }>({});
 
     // Overview state
@@ -79,6 +79,8 @@ export default function AdminDashboard() {
     // Chart state
     const [trend, setTrend] = useState<SalesTrendPoint[]>([]);
     const [trendLoading, setTrendLoading] = useState(true);
+    const [selectedChartStoreId, setSelectedChartStoreId] = useState<string>('all');
+    const [stores, setStores] = useState<any[]>([]);
 
     // Widgets state
     const [topProducts, setTopProducts] = useState<TopProductDto[]>([]);
@@ -99,11 +101,16 @@ export default function AdminDashboard() {
     const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
     // ── Fetchers ────────────────────────────────────────────────────────────
-    const fetchOverview = useCallback(async (start?: string, end?: string) => {
+    const fetchOverview = useCallback(async (p: string, start?: string, end?: string, storeId?: string) => {
         try {
             setOverviewLoading(true);
             const { data } = await api.get<OverviewData>('/analytics/overview', {
-                params: { startDate: start, endDate: end }
+                params: { 
+                    period: p,
+                    startDate: start, 
+                    endDate: end,
+                    storeId: storeId || selectedChartStoreId
+                }
             });
             setOverview(data);
         } catch (e) {
@@ -111,16 +118,17 @@ export default function AdminDashboard() {
         } finally {
             setOverviewLoading(false);
         }
-    }, []);
+    }, [selectedChartStoreId]);
 
-    const fetchTrend = useCallback(async (p: string, start?: string, end?: string) => {
+    const fetchTrend = useCallback(async (p: string, start?: string, end?: string, storeId?: string) => {
         try {
             setTrendLoading(true);
             const { data } = await api.get<SalesTrendPoint[]>('/analytics/sales-trend', {
                 params: { 
                     period: p === 'custom' ? 'month' : p, 
                     startDate: start, 
-                    endDate: end 
+                    endDate: end,
+                    storeId: storeId || selectedChartStoreId
                 } 
             });
             setTrend(data);
@@ -129,19 +137,24 @@ export default function AdminDashboard() {
         } finally {
             setTrendLoading(false);
         }
-    }, []);
+    }, [selectedChartStoreId]);
 
-    const fetchTopProducts = useCallback(async () => {
+    const fetchTopProducts = useCallback(async (storeId?: string) => {
         try {
             setTopLoading(true);
-            const { data } = await api.get<TopProductDto[]>('/analytics/top-products', { params: { limit: 4 } });
+            const { data } = await api.get<TopProductDto[]>('/analytics/top-products', { 
+                params: { 
+                    limit: 4,
+                    storeId: storeId || selectedChartStoreId
+                } 
+            });
             setTopProducts(data);
         } catch (e) {
             console.error('Top products error:', e);
         } finally {
             setTopLoading(false);
         }
-    }, []);
+    }, [selectedChartStoreId]);
 
     const fetchChannel = useCallback(async () => {
         try {
@@ -179,33 +192,45 @@ export default function AdminDashboard() {
         }
     }, []);
 
+    const fetchStores = useCallback(async () => {
+        try {
+            const { data } = await api.get('/stores');
+            setStores(data);
+        } catch (e) {
+            console.error('Fetch stores list error:', e);
+        }
+    }, []);
+
     const refreshAll = useCallback(() => {
-        fetchOverview(dateRange.start, dateRange.end);
-        fetchTrend(period, dateRange.start, dateRange.end);
-        fetchTopProducts();
+        fetchOverview(period, dateRange.start, dateRange.end, selectedChartStoreId);
+        fetchTrend(period, dateRange.start, dateRange.end, selectedChartStoreId);
+        fetchTopProducts(selectedChartStoreId);
         fetchChannel();
         fetchRecentOrders();
         fetchAiConversion();
+        fetchStores();
         setLastRefreshed(new Date());
-    }, [fetchOverview, fetchTrend, period, dateRange, fetchTopProducts, fetchChannel, fetchRecentOrders, fetchAiConversion]);
+    }, [fetchOverview, fetchTrend, period, dateRange, selectedChartStoreId, fetchTopProducts, fetchChannel, fetchRecentOrders, fetchAiConversion, fetchStores]);
 
-    // Initial load & Re-fetch when dateRange or period changes
+    // Initial load & Re-fetch when dateRange, period or selectedChartStoreId changes
     useEffect(() => {
         if (period !== 'custom') {
-            fetchOverview(undefined, undefined);
-            fetchTrend(period, undefined, undefined);
+            fetchOverview(period, undefined, undefined, selectedChartStoreId);
+            fetchTrend(period, undefined, undefined, selectedChartStoreId);
+            fetchTopProducts(selectedChartStoreId);
         } else if (dateRange.start && dateRange.end) {
-            fetchOverview(dateRange.start, dateRange.end);
-            fetchTrend('custom', dateRange.start, dateRange.end);
+            fetchOverview('custom', dateRange.start, dateRange.end, selectedChartStoreId);
+            fetchTrend('custom', dateRange.start, dateRange.end, selectedChartStoreId);
+            fetchTopProducts(selectedChartStoreId);
         }
-    }, [period, dateRange, fetchOverview, fetchTrend]);
+    }, [period, dateRange, selectedChartStoreId, fetchOverview, fetchTrend, fetchTopProducts]);
 
     useEffect(() => {
-        fetchTopProducts();
         fetchChannel();
         fetchRecentOrders();
         fetchAiConversion();
-    }, [fetchTopProducts, fetchChannel, fetchRecentOrders, fetchAiConversion]);
+        fetchStores();
+    }, [fetchChannel, fetchRecentOrders, fetchAiConversion, fetchStores]);
 
     // ── Stat card definitions ────────────────────────────────────────────────
     const statCards = overview
@@ -259,6 +284,11 @@ export default function AdminDashboard() {
         ]
         : [];
 
+    const activeStoreObj = stores.find(s => s.id === selectedChartStoreId);
+    const activeStoreName = activeStoreObj 
+        ? (activeStoreObj.type === 'CENTRAL' ? `${activeStoreObj.name} - Bán Online` : activeStoreObj.name)
+        : (selectedChartStoreId === 'all' ? 'Toàn Hệ Thống' : undefined);
+
     return (
         <AuthGuard allowedRoles={['admin']}>
             <div className="flex flex-col gap-6 md:gap-7 py-6 md:py-8 px-4 sm:px-6 md:px-8 max-w-[1600px] mx-auto">
@@ -276,6 +306,7 @@ export default function AdminDashboard() {
 
                     <div className="flex flex-wrap items-center gap-4 bg-background/40 p-2 rounded-[2rem] border border-border shadow-2xl backdrop-blur-xl">
                         {[
+                            { id: 'today', label: 'Today' },
                             { id: 'week', label: '7D' },
                             { id: 'month', label: '30D' },
                             { id: 'quarter', label: 'Quarter' },
@@ -396,9 +427,12 @@ export default function AdminDashboard() {
                             period={period}
                             onPeriodChange={setPeriod}
                             loading={trendLoading}
+                            stores={stores}
+                            selectedStoreId={selectedChartStoreId}
+                            onStoreChange={(id) => setSelectedChartStoreId(id)}
                         />
                     </div>
-                    <TopProductsList data={topProducts} loading={topLoading} />
+                    <TopProductsList data={topProducts} loading={topLoading} selectedStoreName={activeStoreName} />
                 </section>
 
                 {/* ── Channel + Low Stock + Recent Orders ───────────────── */}

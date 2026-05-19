@@ -12,28 +12,35 @@ export class AnalyticsController {
   /** Dashboard overview stats (revenue, orders, customers, AI consultations) */
   @Get('overview')
   async getOverview(
+    @Query('period') period?: 'today' | 'week' | 'month' | 'year' | 'quarter',
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('storeId') storeId?: string,
   ) {
-    return this.analyticsService.getOverview(startDate, endDate);
+    return this.analyticsService.getOverview(period || 'month', startDate, endDate, storeId);
   }
 
   /** Sales trend data for charting – ?period=week|month|year|quarter */
   @Get('sales-trend')
   async getSalesTrend(
-    @Query('period') period?: 'week' | 'month' | 'year' | 'quarter',
+    @Query('period') period?: 'today' | 'week' | 'month' | 'year' | 'quarter',
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('storeId') storeId?: string,
   ) {
-    return this.analyticsService.getSalesTrend(period || 'month', startDate, endDate);
+    return this.analyticsService.getSalesTrend(period || 'month', startDate, endDate, storeId);
   }
 
   /** Top selling products – ?limit=5 */
   @Get('top-products')
-  async getTopProducts(@Query('limit') limit?: string) {
+  async getTopProducts(
+    @Query('limit') limit?: string,
+    @Query('storeId') storeId?: string,
+  ) {
     const parsedLimit = Number(limit ?? 5);
     return this.analyticsService.getTopProducts(
       Number.isFinite(parsedLimit) ? parsedLimit : 5,
+      storeId,
     );
   }
 

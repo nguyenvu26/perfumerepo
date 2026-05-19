@@ -26,19 +26,28 @@ export interface SalesTrendPoint {
 
 interface SalesChartProps {
     data: SalesTrendPoint[];
-    period: 'week' | 'month' | 'year' | 'quarter' | 'custom';
-    onPeriodChange: (p: 'week' | 'month' | 'year' | 'quarter' | 'custom') => void;
+    period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom';
+    onPeriodChange: (p: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom') => void;
     loading?: boolean;
+    stores?: any[];
+    selectedStoreId?: string;
+    onStoreChange?: (storeId: string) => void;
 }
 
 const PERIODS = [
+    { key: 'today', label: 'Today' },
     { key: 'week', label: '7D' },
     { key: 'month', label: '30D' },
+    { key: 'quarter', label: 'Quarter' },
     { key: 'year', label: '1Y' },
 ] as const;
 
 /** Format a date key (YYYY-MM-DD or YYYY-MM) to a short readable label */
-function formatDateLabel(dateStr: string, period: 'week' | 'month' | 'year' | 'quarter' | 'custom'): string {
+function formatDateLabel(dateStr: string, period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom'): string {
+    if (period === 'today') {
+        return dateStr; // e.g. "09:00"
+    }
+
     if (period === 'year') {
         const [, month] = dateStr.split('-');
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -48,6 +57,7 @@ function formatDateLabel(dateStr: string, period: 'week' | 'month' | 'year' | 'q
     
     if (period === 'quarter') {
         const parts = dateStr.split('-');
+        if (parts.length < 3) return dateStr;
         return `${parts[1]}/${parts[2]}`;
     }
 
@@ -84,7 +94,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     );
 };
 
-export function SalesChart({ data, period, onPeriodChange, loading }: SalesChartProps) {
+export function SalesChart({ 
+    data, 
+    period, 
+    onPeriodChange, 
+    loading,
+    stores,
+    selectedStoreId,
+    onStoreChange
+}: SalesChartProps) {
     const t = useTranslations('admin_dashboard');
     const [chartType, setChartType] = useState<'area' | 'bar'>('area');
 
@@ -116,9 +134,25 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2.5">
+                    {/* Store Selector */}
+                    {stores && (
+                        <select
+                            value={selectedStoreId || 'all'}
+                            onChange={(e) => onStoreChange?.(e.target.value)}
+                            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold/50 cursor-pointer hover:bg-white/10 text-foreground max-w-[180px] h-[34px] truncate"
+                        >
+                            <option value="all" className="bg-zinc-950 text-foreground">Toàn hệ thống</option>
+                            {stores.map((s: any) => (
+                                <option key={s.id} value={s.id} className="bg-zinc-950 text-foreground">
+                                    {s.type === 'CENTRAL' ? `${s.name} - Bán Online` : s.name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+
                     {/* Chart type toggle */}
-                    <div className="flex rounded-xl border border-border overflow-hidden">
+                    <div className="flex rounded-xl border border-border overflow-hidden h-[34px]">
                         <button
                             onClick={() => setChartType('area')}
                             className={`p-2 transition-all ${chartType === 'area' ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:text-foreground'}`}
@@ -136,7 +170,7 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
                     </div>
 
                     {/* Period selector */}
-                    <div className="flex rounded-xl border border-border overflow-hidden">
+                    <div className="flex rounded-xl border border-border overflow-hidden h-[34px]">
                         {PERIODS.map(({ key, label }) => (
                             <button
                                 key={key}

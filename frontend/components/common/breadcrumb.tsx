@@ -31,7 +31,7 @@ export const Breadcrumb = ({ items, className }: BreadcrumbProps) => {
                 <li className="flex items-center">
                     <Link 
                         href="/" 
-                        className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-heading text-muted-foreground hover:text-gold transition-colors min-h-[44px] px-2"
+                        className="flex items-center gap-2 text-xs uppercase tracking-widest font-heading text-muted-foreground hover:text-gold transition-colors min-h-[44px] px-2"
                         aria-label={t('home')}
                     >
                         <Home size={14} strokeWidth={1.5} />
@@ -45,14 +45,14 @@ export const Breadcrumb = ({ items, className }: BreadcrumbProps) => {
                         {item.href && !item.active ? (
                             <Link 
                                 href={item.href}
-                                className="text-[10px] uppercase tracking-widest font-heading text-muted-foreground hover:text-gold transition-colors min-h-[44px] px-2 flex items-center"
+                                className="text-xs uppercase tracking-widest font-heading text-muted-foreground hover:text-gold transition-colors min-h-[44px] px-2 flex items-center"
                             >
                                 {item.label}
                             </Link>
                         ) : (
                             <span 
                                 className={cn(
-                                    "text-[10px] uppercase tracking-widest font-heading px-2 min-h-[44px] flex items-center shrink-0",
+                                    "text-xs uppercase tracking-widest font-heading px-2 min-h-[44px] flex items-center shrink-0",
                                     item.active ? "text-gold font-bold" : "text-muted-foreground"
                                 )}
                                 aria-current={item.active ? "page" : undefined}
