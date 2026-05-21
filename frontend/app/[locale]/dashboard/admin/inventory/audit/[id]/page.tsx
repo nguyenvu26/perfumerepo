@@ -122,12 +122,12 @@ export default function AuditDetailPage() {
                     "px-4 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest",
                     audit.status === 'COMPLETED' ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' : 'text-blue-500 bg-blue-500/10 border-blue-500/20'
                   )}>
-                    {audit.status}
+                    {t(`audit.status.${audit.status}`)}
                   </span>
                   <span className="text-[10px] text-muted-foreground font-bold">#{audit.code}</span>
                </div>
                <h1 className="text-5xl font-heading italic gold-gradient uppercase tracking-tighter">
-                 Audit manifest
+                 {t('audit.manifest')}
                </h1>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function AuditDetailPage() {
                    <Building2 className="w-6 h-6 text-gold/40" />
                 </div>
                 <div>
-                   <p className="text-[8px] uppercase font-black tracking-widest text-muted-foreground">Warehouse</p>
+                   <p className="text-[8px] uppercase font-black tracking-widest text-muted-foreground">{t('audit.warehouse')}</p>
                    <p className="text-sm font-bold uppercase">{audit.warehouse.name}</p>
                 </div>
              </div>
@@ -147,7 +147,7 @@ export default function AuditDetailPage() {
                    <Calendar className="w-6 h-6 text-gold/40" />
                 </div>
                 <div>
-                   <p className="text-[8px] uppercase font-black tracking-widest text-muted-foreground">Started Date</p>
+                   <p className="text-[8px] uppercase font-black tracking-widest text-muted-foreground">{t('audit.started_date')}</p>
                    <p className="text-sm font-bold">{format.dateTime(new Date(audit.createdAt), { dateStyle: 'medium' })}</p>
                 </div>
              </div>
@@ -158,9 +158,9 @@ export default function AuditDetailPage() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8 mb-12">
            <div className="xl:col-span-3 glass p-10 rounded-[3rem] border-white/5">
               <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                 <div className="flex-1 w-full space-y-4">
+                  <div className="flex-1 w-full space-y-4">
                     <div className="flex justify-between items-end mb-2">
-                       <p className="text-[10px] uppercase font-black tracking-widest text-gold italic">Audit Progress</p>
+                       <p className="text-[10px] uppercase font-black tracking-widest text-gold italic">{t('audit.progress')}</p>
                        <p className="text-xl font-heading italic">{Math.round((stats.counted / stats.total) * 100)}%</p>
                     </div>
                     <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
@@ -171,7 +171,7 @@ export default function AuditDetailPage() {
                        />
                     </div>
                     <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
-                       {stats.counted} of {stats.total} SKUs counted · {stats.variance > 0 ? '+' : ''}{stats.variance} Variance
+                       {t('audit.summary', { counted: stats.counted, total: stats.total, variance: stats.variance })}
                     </p>
                  </div>
                  
@@ -193,11 +193,11 @@ export default function AuditDetailPage() {
            <div className="glass p-8 rounded-[3rem] border-white/5 flex flex-col justify-center gap-2">
               <div className="flex items-center gap-3 text-muted-foreground">
                  <Search className="w-4 h-4" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">Global Asset Search</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest">{t('audit.asset_search')}</span>
               </div>
               <input 
                 type="text"
-                placeholder="Search items..."
+                placeholder={t('audit.asset_placeholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="bg-transparent border-none outline-none font-heading italic text-xl w-full text-gold placeholder:opacity-20"
@@ -210,11 +210,11 @@ export default function AuditDetailPage() {
            <table className="w-full text-left border-collapse">
               <thead>
                  <tr className="border-b border-white/5 text-[9px] uppercase tracking-[0.3em] font-black text-muted-foreground/40 italic">
-                    <th className="pl-12 py-8">Product Asset</th>
+                    <th className="pl-12 py-8">{t('audit.table_asset')}</th>
                     <th className="px-6 py-8 text-center">{t('audit.system_qty')}</th>
                     <th className="px-6 py-8 text-center">{t('audit.counted_qty')}</th>
                     <th className="px-6 py-8 text-center">{t('audit.variance')}</th>
-                    <th className="pr-12 py-8 text-right">Action</th>
+                    <th className="pr-12 py-8 text-right">{t('audit.table_action')}</th>
                  </tr>
               </thead>
               <tbody className="divide-y divide-white/5">

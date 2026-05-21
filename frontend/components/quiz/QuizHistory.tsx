@@ -15,7 +15,11 @@ import {
   Palette,
   CloudSun,
   LayoutGrid,
-  History
+  History,
+  Wind,
+  Crown,
+  Award,
+  CalendarHeart
 } from 'lucide-react';
 import { quizService } from '@/services/quiz.service';
 
@@ -38,9 +42,12 @@ export function QuizHistory({ onViewResult, onBack }: QuizHistoryProps) {
   }, []);
 
   const getTranslatedValue = (step: string, value: string) => {
+    if (!value) return '';
     try {
       // Try to find the translation in quiz.steps.[step].options.[value]
-      return t(`steps.${step}.options.${value.toLowerCase()}`);
+      // Replace spaces with underscores for translation key compatibility (e.g. "Young Adult" -> "young_adult")
+      const normalizedValue = value.toLowerCase().replace(/\s+/g, '_');
+      return t(`steps.${step}.options.${normalizedValue}`);
     } catch {
       return value;
     }
@@ -171,6 +178,36 @@ export function QuizHistory({ onViewResult, onBack }: QuizHistoryProps) {
                             {item.budgetMax > 10000000 
                               ? `> ${format.number(5000000)}đ` 
                               : `${format.number(item.budgetMin)}đ - ${format.number(item.budgetMax)}đ`}
+                          </div>
+                        )}
+                        {item.sillage && (
+                          <div className="px-5 py-2 rounded-full bg-muted/30 border border-border/50 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
+                            <Wind size={13} className="text-gold" />
+                            {getTranslatedValue('sillage', item.sillage)}
+                          </div>
+                        )}
+                        {item.season && (
+                          <div className="px-5 py-2 rounded-full bg-muted/30 border border-border/50 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
+                            <CalendarHeart size={13} className="text-gold" />
+                            {getTranslatedValue('season', item.season)}
+                          </div>
+                        )}
+                        {item.timeOfDay && (
+                          <div className="px-5 py-2 rounded-full bg-muted/30 border border-border/50 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
+                            <Clock size={13} className="text-gold" />
+                            {getTranslatedValue('time_of_day', item.timeOfDay)}
+                          </div>
+                        )}
+                        {item.style && (
+                          <div className="px-5 py-2 rounded-full bg-muted/30 border border-border/50 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
+                            <Crown size={13} className="text-gold" />
+                            {getTranslatedValue('style', item.style)}
+                          </div>
+                        )}
+                        {item.targetAge && (
+                          <div className="px-5 py-2 rounded-full bg-muted/30 border border-border/50 flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest text-foreground/80">
+                            <Award size={13} className="text-gold" />
+                            {getTranslatedValue('target_age', item.targetAge)}
                           </div>
                         )}
                       </div>

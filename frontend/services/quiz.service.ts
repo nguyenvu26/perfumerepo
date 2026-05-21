@@ -7,6 +7,11 @@ export interface QuizAnswers {
     budgetMax?: number;
     preferredFamily?: string;
     longevity?: string;
+    sillage?: string;
+    season?: string;
+    timeOfDay?: string;
+    style?: string;
+    targetAge?: string;
 }
 
 export interface QuizRecommendation {

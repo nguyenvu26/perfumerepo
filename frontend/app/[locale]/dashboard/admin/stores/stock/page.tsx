@@ -556,6 +556,7 @@ export default function AdminStockRedesignPage() {
                 DS Phiếu Điều Chuyển →
               </button>
               <button
+                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/audit`)}
                 className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
               >
                 <ClipboardCheck className="w-4 h-4 text-gold" />

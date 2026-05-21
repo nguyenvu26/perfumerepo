@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 interface StoreDto {
     id: string;
     name: string;
+    type: string;
 }
 
 interface StoreRevenueData {
@@ -31,9 +32,10 @@ export function StoreRevenueWidget() {
         const fetchStores = async () => {
             try {
                 const { data } = await api.get<StoreDto[]>('/stores');
-                setStores(data);
-                if (data.length > 0) {
-                    setSelectedStoreId(data[0].id);
+                const filteredStores = data.filter(s => s.type !== 'CENTRAL');
+                setStores(filteredStores);
+                if (filteredStores.length > 0) {
+                    setSelectedStoreId(filteredStores[0].id);
                 }
             } catch (e) {
                 console.error('Failed to fetch stores', e);

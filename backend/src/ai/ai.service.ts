@@ -772,6 +772,11 @@ INSTRUCTIONS:
       budgetMax?: number;
       preferredFamily?: string;
       longevity?: string;
+      sillage?: string;
+      season?: string;
+      timeOfDay?: string;
+      style?: string;
+      targetAge?: string;
     },
     userId?: string,
   ): Promise<{ analysis: string; recommendations: Array<{ productId: string; name: string; reason: string; price: number; matchScore?: number }> }> {
@@ -791,6 +796,11 @@ INSTRUCTIONS:
       }
       if (answers.preferredFamily) customerInfo.push(`Gia đình hương: ${answers.preferredFamily}`);
       if (answers.longevity) customerInfo.push(`Thời gian lưu hương: ${answers.longevity}`);
+      if (answers.sillage) customerInfo.push(`Độ tỏa hương: ${answers.sillage}`);
+      if (answers.season) customerInfo.push(`Mùa thời tiết: ${answers.season}`);
+      if (answers.timeOfDay) customerInfo.push(`Thời điểm sử dụng: ${answers.timeOfDay}`);
+      if (answers.style) customerInfo.push(`Phong cách cá nhân: ${answers.style}`);
+      if (answers.targetAge) customerInfo.push(`Độ tuổi mong muốn: ${answers.targetAge}`);
 
       const prompt = `Bạn là chuyên gia tư vấn nước hoa tại PerfumeGPT. Khách hàng đã trả lời khảo sát với thông tin sau:
 

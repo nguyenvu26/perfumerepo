@@ -426,6 +426,53 @@
           "long_lasting": "Extended Persistence",
           "very_long": "Absolute Performance"
         }
+      },
+      "sillage": {
+        "title": "Desired olfactory projection.",
+        "subtitle": "Select the ideal perimeter of your scent bubble.",
+        "options": {
+          "soft": "Skin Scent",
+          "moderate": "Arm's Length",
+          "strong": "Strong Presence"
+        }
+      },
+      "season": {
+        "title": "In which season will it be worn most?",
+        "subtitle": "Seasons define the chemical performance of the fragrance notes.",
+        "options": {
+          "summer": "Hot Summer Days",
+          "winter": "Cold Winter Nights",
+          "spring": "Warm Spring Breeze",
+          "autumn": "Cool Autumn Vibe"
+        }
+      },
+      "time_of_day": {
+        "title": "At what time of day will you wear it?",
+        "subtitle": "Daily schedules influence active molecular evaporation.",
+        "options": {
+          "morning": "Bright Daylight",
+          "night": "Sensual Nighttime",
+          "all": "All Day Balance"
+        }
+      },
+      "style": {
+        "title": "What style best represents you?",
+        "subtitle": "Aligning your presentation style with the fragrance DNA.",
+        "options": {
+          "elegant": "Elegant & Refined",
+          "sporty": "Sporty & Fresh",
+          "mysterious": "Mysterious & Alluring",
+          "luxury": "Luxury & Niche"
+        }
+      },
+      "target_age": {
+        "title": "Desired age energy affinity.",
+        "subtitle": "Age mapping provides a target vibe for molecular character.",
+        "options": {
+          "teenager": "Youthful & Sweet",
+          "young_adult": "Modern & Confident",
+          "mature": "Refined & Mature"
+        }
       }
     },
     "analyzing": {

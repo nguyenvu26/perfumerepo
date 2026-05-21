@@ -95,7 +95,8 @@
       "home": "Trang Chủ",
       "collection": "Bộ Sưu Tập"
     },
-    "engine_version": "Được Bảo Mật Bởi Perfume GPT"
+    "engine_version": "Được Bảo Mật Bởi Perfume GPT",
+    "cancel": "Hủy bỏ"
   },
   "notifications": {
     "title": "Thông báo",
@@ -426,6 +427,53 @@
           "moderate": "Vừa phải (4-6 tiếng)",
           "long_lasting": "Lâu (6-8 tiếng)",
           "very_long": "Rất lâu (8 tiếng+)"
+        }
+      },
+      "sillage": {
+        "title": "Độ tỏa hương mong muốn là bao nhiêu?",
+        "subtitle": "Chọn phạm vi lan tỏa mùi hương xung quanh bạn.",
+        "options": {
+          "soft": "Kín đáo (Skin scent)",
+          "moderate": "Vừa phải (Arm's length)",
+          "strong": "Nổi bật (Strong project)"
+        }
+      },
+      "season": {
+        "title": "Bạn định dùng vào mùa nào nhiều nhất?",
+        "subtitle": "Mỗi mùa tương ứng với điều kiện nhiệt độ lý tưởng khác nhau.",
+        "options": {
+          "summer": "Mùa hè oi ả",
+          "winter": "Mùa đông lạnh giá",
+          "spring": "Mùa xuân ấm áp",
+          "autumn": "Mùa thu se lạnh"
+        }
+      },
+      "time_of_day": {
+        "title": "Khoảng thời gian nào bạn sẽ dùng nhiều nhất?",
+        "subtitle": "Thời điểm sử dụng quyết định sắc thái hương thơm phù hợp.",
+        "options": {
+          "morning": "Ban ngày tươi sáng",
+          "night": "Ban đêm lãng mạn",
+          "all": "Linh hoạt cả ngày"
+        }
+      },
+      "style": {
+        "title": "Phong cách cá nhân nào đại diện cho bạn?",
+        "subtitle": "Chọn thuộc tính tinh thần chủ đạo của hương thơm.",
+        "options": {
+          "elegant": "Thanh lịch & Tinh tế",
+          "sporty": "Năng động & Khỏe khoắn",
+          "mysterious": "Bí ẩn & Quyến rũ",
+          "luxury": "Sang trọng & Đẳng cấp"
+        }
+      },
+      "target_age": {
+        "title": "Bạn muốn hương thơm phản chiếu năng lượng nào?",
+        "subtitle": "Độ tuổi gợi ý giúp định vị phong thái mùi hương tốt nhất.",
+        "options": {
+          "teenager": "Trẻ trung & Tươi vui",
+          "young_adult": "Hiện đại & Tự tin",
+          "mature": "Chín chắn & Quý phái"
         }
       }
     },
@@ -3259,14 +3307,40 @@
       "title": "Kiểm Kê Kho",
       "subtitle": "Đối soát số lượng thực tế tại kho để điều chỉnh sai lệch.",
       "create_btn": "Bắt đầu kiểm kê",
-      "status": "Trạng thái",
+      "status_label": "Trạng thái",
       "system_qty": "Tồn hệ thống",
       "counted_qty": "Thực tế đếm",
       "variance": "Chênh lệch",
       "complete_btn": "Hoàn tất & Chốt kho",
       "success_complete": "Đã hoàn tất kiểm kê và tự động điều chỉnh tồn kho.",
       "in_progress": "Đang kiểm đếm",
-      "empty": "Chưa có đợt kiểm kê nào."
+      "empty": "Chưa có đợt kiểm kê nào.",
+      "badge": "Kiểm kê & Tuân thủ",
+      "score": "Điểm chính xác",
+      "code": "Mã kiểm kê",
+      "warehouse": "Kho hàng",
+      "started_on": "Bắt đầu lúc",
+      "syncing": "Đang đồng bộ hóa dữ liệu kiểm kê...",
+      "analytics": {
+        "total_value": "Giá trị kho hàng",
+        "low_stock": "Cảnh báo hết hàng"
+      },
+      "manifest": "Bản kê kiểm soát",
+      "started_date": "Ngày bắt đầu",
+      "progress": "Tiến độ kiểm soát",
+      "summary": "{counted} trên {total} mã hàng đã kiểm - Lệch: {variance}",
+      "asset_search": "Tìm kiếm tài sản",
+      "asset_placeholder": "Nhập tên sản phẩm...",
+      "table_asset": "Sản phẩm / Tài sản",
+      "table_action": "Thao tác",
+      "status": {
+        "IN_PROGRESS": "ĐANG TIẾN HÀNH",
+        "COMPLETED": "ĐÃ HOÀN TẤT"
+      },
+      "badge_skus": "Mã hàng (SKUs)",
+      "select_warehouse_label": "Chọn kho hàng",
+      "select_warehouse_placeholder": "--- Vui lòng chọn kho ---",
+      "create_modal_desc": "Hệ thống sẽ tạo bản chụp (Snapshot) số lượng tồn kho hiện tại của tất cả sản phẩm trong kho bạn chọn. Bạn có thể cập nhật số lượng thực tế sau đó."
     },
     "analytics": {
       "title": "Báo Cáo Tồn Kho",

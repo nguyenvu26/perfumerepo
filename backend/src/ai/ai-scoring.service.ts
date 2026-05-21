@@ -11,6 +11,11 @@ export interface QuizAnswers {
   intensity?: 'soft' | 'moderate' | 'intense';
   prioritizePopularity?: boolean;
   vibe?: string;
+  sillage?: string;
+  season?: string;
+  timeOfDay?: string;
+  style?: string;
+  targetAge?: string;
 }
 
 export interface ProductScore {
@@ -59,6 +64,11 @@ export class AiScoringService {
         longevity: true,
         concentration: true,
         isBestseller: true,
+        sillage: true,
+        seasons: true,
+        timeOfDay: true,
+        styles: true,
+        targetAge: true,
         brand: { select: { name: true } },
         category: { select: { name: true } },
         scentFamily: { select: { name: true } },
@@ -254,6 +264,39 @@ export class AiScoringService {
           if (p.description?.toLowerCase().includes(vibeLower) || p.name.toLowerCase().includes(vibeLower)) {
             qcs += 30;
           }
+        }
+
+        // Sillage (New: +25)
+        if (quizAnswers.sillage && p.sillage === quizAnswers.sillage) {
+          qcs += 25;
+        }
+
+        // Seasons (New: +20)
+        if (quizAnswers.season && Array.isArray(p.seasons)) {
+          if (p.seasons.some(s => s.toLowerCase() === quizAnswers.season!.toLowerCase())) {
+            qcs += 20;
+          }
+        }
+
+        // Time of Day (New: +20)
+        if (quizAnswers.timeOfDay && Array.isArray(p.timeOfDay)) {
+          if (quizAnswers.timeOfDay.toLowerCase() === 'all') {
+            qcs += 20;
+          } else if (p.timeOfDay.some(t => t.toLowerCase() === quizAnswers.timeOfDay!.toLowerCase())) {
+            qcs += 20;
+          }
+        }
+
+        // Style (New: +25)
+        if (quizAnswers.style && Array.isArray(p.styles)) {
+          if (p.styles.some(s => s.toLowerCase() === quizAnswers.style!.toLowerCase())) {
+            qcs += 25;
+          }
+        }
+
+        // Target Age (New: +15)
+        if (quizAnswers.targetAge && p.targetAge === quizAnswers.targetAge) {
+          qcs += 15;
         }
       }
 

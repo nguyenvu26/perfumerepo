@@ -25,6 +25,9 @@ import {
   Wind,
   Zap,
   Leaf,
+  SunMoon,
+  Crown,
+  Award,
 } from 'lucide-react';
 
 import { type QuizAnswers } from '@/services/quiz.service';
@@ -132,6 +135,33 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
             long_lasting: 'Giữ mùi đủ lâu cho ngày dài hoặc các cuộc hẹn quan trọng.',
             very_long: 'Ưu tiên độ bám tỏa rõ rệt và cảm giác đậm dấu ấn hơn.',
           },
+          sillage: {
+            soft: 'Hương thơm ôm sát da, dịu nhẹ và kín đáo.',
+            moderate: 'Tỏa hương vừa phải trong tầm cánh tay, lịch thiệp.',
+            strong: 'Tỏa hương xa, tạo ấn tượng nổi bật và cuốn hút mạnh mẽ.',
+          },
+          season: {
+            Spring: 'Thời tiết ấm áp nhẹ nhàng, nốt hương cỏ hoa tươi mát.',
+            Summer: 'Ngày hè năng động, sảng khoái với cam chanh, bạc hà.',
+            Autumn: 'Mùa thu se lạnh, nốt hương gỗ ấm và hoắc hương lắng đọng.',
+            Winter: 'Đông lạnh, ưu tiên các nốt gia vị ngọt ấm, hổ phách nồng nàn.',
+          },
+          timeOfDay: {
+            Morning: 'Ban ngày tươi sáng, nạp đầy năng lượng cho công việc và dạo phố.',
+            Night: 'Ban đêm quyến rũ, đậm đà cho các buổi tiệc hay hẹn hò lãng mạn.',
+            All: 'Cân bằng, dễ chịu và dễ dùng vào bất kỳ thời điểm nào.',
+          },
+          style: {
+            Elegant: 'Lịch sự, nhã nhặn, tôn vinh nét chỉn chu tinh tế.',
+            Sporty: 'Khỏe khoắn, sảng khoái, tràn đầy sinh khí năng động.',
+            Mysterious: 'Sâu sắc, cuốn hút, khơi gợi nét bí ẩn và ngọt ngào.',
+            Luxury: 'Kiêu kỳ, độc bản, khẳng định đẳng cấp nghệ thuật niche.',
+          },
+          targetAge: {
+            Teenager: 'Năng lượng trẻ trung, ngọt ngào và tinh nghịch.',
+            'Young Adult': 'Tự tin, hiện đại, thanh lịch phù hợp công sở.',
+            Mature: 'Chín chắn, trải nghiệm, toát lên phong thái quyền lực.',
+          },
         }
         : {
           gender: {
@@ -165,6 +195,33 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
             moderate: 'Balanced for comfort and steady presence.',
             long_lasting: 'Suitable for long workdays and important plans.',
             very_long: 'Prioritizes stronger projection and lasting impact.',
+          },
+          sillage: {
+            soft: 'Keeps close to the skin, subtle and highly intimate.',
+            moderate: 'Projects within arm\'s length, elegant and professional.',
+            strong: 'Projects widely, making a lasting statement as you move.',
+          },
+          season: {
+            Spring: 'Warm, breezy weather featuring fresh botanical green notes.',
+            Summer: 'Hot days calling for crisp citrus, ozone, or mint highlights.',
+            Autumn: 'Cool, crisp climate perfectly matched with cozy, earthy woods.',
+            Winter: 'Cold weather needing rich spices, amber, and vanilla warmth.',
+          },
+          timeOfDay: {
+            Morning: 'Bright daylight vibes, perfect for boosting morning focus.',
+            Night: 'Sensual evening notes, excellent for dinners or dates.',
+            All: 'A balanced composition suited for any time of day.',
+          },
+          style: {
+            Elegant: 'Refined, clean, and classic tailored appearance.',
+            Sporty: 'Energetic, fresh, and highly active presence.',
+            Mysterious: 'Deep, warm, and highly attractive scent trail.',
+            Luxury: 'Niche quality, unique, and absolute collection statement.',
+          },
+          targetAge: {
+            Teenager: 'Playful, sweet, and highly vibrant youthful energy.',
+            'Young Adult': 'Confident, modern, and perfectly suited for professionals.',
+            Mature: 'Sophisticated, composed, and highly distinguished character.',
           },
         },
     [locale],
@@ -238,6 +295,68 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
         { label: t('steps.longevity.options.very_long'), value: 'very_long', icon: Zap },
       ],
     },
+    {
+      id: 6,
+      titleKey: 'steps.sillage.title',
+      subtitleKey: 'steps.sillage.subtitle',
+      key: 'sillage',
+      stepIcon: Wind,
+      options: [
+        { label: t('steps.sillage.options.soft'), value: 'soft', icon: Wind },
+        { label: t('steps.sillage.options.moderate'), value: 'moderate', icon: Wind },
+        { label: t('steps.sillage.options.strong'), value: 'strong', icon: Zap },
+      ],
+    },
+    {
+      id: 7,
+      titleKey: 'steps.season.title',
+      subtitleKey: 'steps.season.subtitle',
+      key: 'season',
+      stepIcon: CalendarHeart,
+      options: [
+        { label: t('steps.season.options.summer'), value: 'Summer', icon: SunMoon },
+        { label: t('steps.season.options.winter'), value: 'Winter', icon: Flame },
+        { label: t('steps.season.options.spring'), value: 'Spring', icon: Flower2 },
+        { label: t('steps.season.options.autumn'), value: 'Autumn', icon: Leaf },
+      ],
+    },
+    {
+      id: 8,
+      titleKey: 'steps.time_of_day.title',
+      subtitleKey: 'steps.time_of_day.subtitle',
+      key: 'timeOfDay',
+      stepIcon: Clock,
+      options: [
+        { label: t('steps.time_of_day.options.morning'), value: 'Morning', icon: Clock },
+        { label: t('steps.time_of_day.options.night'), value: 'Night', icon: Star },
+        { label: t('steps.time_of_day.options.all'), value: 'All', icon: Sparkles },
+      ],
+    },
+    {
+      id: 9,
+      titleKey: 'steps.style.title',
+      subtitleKey: 'steps.style.subtitle',
+      key: 'style',
+      stepIcon: Crown,
+      options: [
+        { label: t('steps.style.options.elegant'), value: 'Elegant', icon: Crown },
+        { label: t('steps.style.options.sporty'), value: 'Sporty', icon: Zap },
+        { label: t('steps.style.options.mysterious'), value: 'Mysterious', icon: Sparkles },
+        { label: t('steps.style.options.luxury'), value: 'Luxury', icon: Award },
+      ],
+    },
+    {
+      id: 10,
+      titleKey: 'steps.target_age.title',
+      subtitleKey: 'steps.target_age.subtitle',
+      key: 'targetAge',
+      stepIcon: Award,
+      options: [
+        { label: t('steps.target_age.options.teenager'), value: 'Teenager', icon: Heart },
+        { label: t('steps.target_age.options.young_adult'), value: 'Young Adult', icon: User },
+        { label: t('steps.target_age.options.mature'), value: 'Mature', icon: Award },
+      ],
+    },
   ];
 
   const totalSteps = steps.length;
@@ -278,6 +397,11 @@ export function QuizForm({ onSubmit, isSubmitting }: QuizFormProps) {
       occasion: newAnswers.occasion || undefined,
       preferredFamily: newAnswers.preferredFamily || undefined,
       longevity: newAnswers.longevity || undefined,
+      sillage: newAnswers.sillage || undefined,
+      season: newAnswers.season || undefined,
+      timeOfDay: newAnswers.timeOfDay || undefined,
+      style: newAnswers.style || undefined,
+      targetAge: newAnswers.targetAge || undefined,
     };
 
     const budgetVal = newAnswers.budgetMin;

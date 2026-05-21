@@ -11,6 +11,11 @@ export interface QuizAnswers {
     budgetMax?: number;
     preferredFamily?: string;
     longevity?: string;
+    sillage?: string;
+    season?: string;
+    timeOfDay?: string;
+    style?: string;
+    targetAge?: string;
 }
 
 export interface QuizRecommendation {
@@ -56,6 +61,11 @@ export class QuizService {
                 budgetMax: answers.budgetMax,
                 preferredFamily: answers.preferredFamily,
                 longevity: answers.longevity,
+                sillage: answers.sillage,
+                season: answers.season,
+                timeOfDay: answers.timeOfDay,
+                style: answers.style,
+                targetAge: answers.targetAge,
                 recommendation: enriched as any,
                 analysis: aiResult.analysis,
             },

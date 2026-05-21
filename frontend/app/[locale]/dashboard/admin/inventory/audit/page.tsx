@@ -6,6 +6,7 @@ import {
   Plus, 
   Search, 
   ArrowRight,
+  ArrowLeft,
   Building2,
   Calendar,
   CheckCircle2,
@@ -85,17 +86,21 @@ export default function InventoryAuditPage() {
     <AuthGuard allowedRoles={['admin']}>
       <main className="p-4 sm:p-8 md:p-12 max-w-[1600px] mx-auto min-h-screen">
         <header className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-[1px] bg-gold" />
-              <span className="text-[10px] uppercase tracking-[.4em] font-black text-gold/80 italic">Audit & Compliance</span>
+          <div className="space-y-6">
+            <button 
+              onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock`)}
+              className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> {commonT('back')}
+            </button>
+            <div>
+              <h1 className="text-5xl sm:text-6xl font-heading gold-gradient mb-4 uppercase tracking-tighter italic leading-tight">
+                {t('audit.title')}
+              </h1>
+              <p className="text-sm text-muted-foreground max-w-2xl font-medium opacity-70">
+                {t('audit.subtitle')}
+              </p>
             </div>
-            <h1 className="text-5xl sm:text-6xl font-heading gold-gradient mb-4 uppercase tracking-tighter italic leading-tight">
-              {t('audit.title')}
-            </h1>
-            <p className="text-sm text-muted-foreground max-w-2xl font-medium opacity-70">
-              {t('audit.subtitle')}
-            </p>
           </div>
 
           <button
@@ -114,7 +119,7 @@ export default function InventoryAuditPage() {
                 <TrendingDown className="w-8 h-8 text-rose-500" />
               </div>
               <div>
-                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">{t('analytics.low_stock')}</p>
+                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">{t('audit.analytics.low_stock')}</p>
                 <h4 className="text-3xl font-heading italic text-rose-500">{lowStockCount} <span className="text-sm opacity-50 not-italic">SKUs</span></h4>
               </div>
            </div>
@@ -124,9 +129,9 @@ export default function InventoryAuditPage() {
                 <Coins className="w-8 h-8 text-gold" />
               </div>
               <div>
-                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">{t('analytics.value')}</p>
+                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">{t('audit.analytics.total_value')}</p>
                 <h4 className="text-3xl font-heading italic gold-gradient">
-                  {format.number(totalValue, { style: 'currency', currency: 'VND' })}
+                  {format.number(totalValue || 0, { style: 'currency', currency: 'VND' })}
                 </h4>
               </div>
            </div>
@@ -136,7 +141,7 @@ export default function InventoryAuditPage() {
                 <BarChart3 className="w-8 h-8 text-blue-500" />
               </div>
               <div>
-                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Audit Score</p>
+                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">{t('audit.score')}</p>
                 <h4 className="text-3xl font-heading italic text-blue-500">98.5%</h4>
               </div>
            </div>
@@ -147,7 +152,7 @@ export default function InventoryAuditPage() {
           {loading ? (
             <div className="py-40 flex flex-col items-center justify-center gap-6">
               <div className="w-12 h-12 border-4 border-gold/10 border-t-gold rounded-full animate-spin" />
-              <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse font-black italic">Synchronizing Audits...</p>
+              <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse font-black italic">{t('audit.syncing')}</p>
             </div>
           ) : audits.length === 0 ? (
             <div className="glass py-40 rounded-[3rem] border-white/5 flex flex-col items-center justify-center text-center space-y-6">
@@ -175,10 +180,10 @@ export default function InventoryAuditPage() {
                       'text-muted-foreground bg-white/5 border-white/10'
                     )}>
                       {audit.status === 'COMPLETED' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
-                      {audit.status}
+                      {t(`audit.status.${audit.status}`)}
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase tracking-widest font-black opacity-30 mb-1">Audit Code</p>
+                      <p className="text-[10px] uppercase tracking-widest font-black opacity-30 mb-1">{t('audit.code')}</p>
                       <h3 className="font-heading text-xl italic group-hover:text-gold transition-colors">{audit.code}</h3>
                     </div>
                   </div>
@@ -186,7 +191,7 @@ export default function InventoryAuditPage() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 text-muted-foreground opacity-40">
                       <Building2 className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase font-black tracking-widest">Warehouse</span>
+                      <span className="text-[9px] uppercase font-black tracking-widest">{t('audit.warehouse')}</span>
                     </div>
                     <p className="text-lg font-bold uppercase tracking-tight">{audit.warehouse.name}</p>
                   </div>
@@ -194,7 +199,7 @@ export default function InventoryAuditPage() {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 text-muted-foreground opacity-40">
                       <Calendar className="w-3.5 h-3.5" />
-                      <span className="text-[9px] uppercase font-black tracking-widest">Started On</span>
+                      <span className="text-[9px] uppercase font-black tracking-widest">{t('audit.started_on')}</span>
                     </div>
                     <p className="text-sm font-bold">{format.dateTime(new Date(audit.createdAt), { dateStyle: 'medium', timeStyle: 'short' })}</p>
                   </div>
@@ -202,7 +207,7 @@ export default function InventoryAuditPage() {
                   <div className="w-full lg:w-auto flex items-center gap-8 lg:border-l border-white/10 lg:pl-8">
                      <div className="text-center">
                         <p className="text-3xl font-heading italic text-gold">{audit._count?.items || 0}</p>
-                        <p className="text-[9px] uppercase font-black tracking-widest opacity-30">SKUs</p>
+                        <p className="text-[9px] uppercase font-black tracking-widest opacity-30">{t('audit.badge_skus', { defaultValue: 'Mã hàng (SKUs)' })}</p>
                      </div>
                      <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-gold group-hover:translate-x-2 transition-all duration-500" />
                   </div>
@@ -233,17 +238,17 @@ export default function InventoryAuditPage() {
                 
                 <h3 className="text-3xl font-heading italic gold-gradient uppercase mb-4">{t('audit.create_btn')}</h3>
                 <p className="text-sm text-muted-foreground mb-10 leading-relaxed">
-                   Hệ thống sẽ tạo bản chụp (Snapshot) số lượng tồn kho hiện tại của tất cả sản phẩm trong kho bạn chọn. Bạn có thể cập nhật số lượng thực tế sau đó.
+                   {t('audit.create_modal_desc', { defaultValue: 'Hệ thống sẽ tạo bản chụp (Snapshot) số lượng tồn kho hiện tại của tất cả sản phẩm trong kho bạn chọn. Bạn có thể cập nhật số lượng thực tế sau đó.' })}
                 </p>
 
                 <div className="space-y-4 mb-10">
-                   <label className="text-[10px] uppercase font-black tracking-widest text-gold/60 ml-2">Chọn kho hàng</label>
+                   <label className="text-[10px] uppercase font-black tracking-widest text-gold/60 ml-2">{t('audit.select_warehouse_label', { defaultValue: 'Chọn kho hàng' })}</label>
                    <select
                      className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 text-sm outline-none focus:border-gold transition-all appearance-none cursor-pointer"
                      value={selectedWarehouseId}
                      onChange={(e) => setSelectedWarehouseId(e.target.value)}
                    >
-                     <option value="" disabled>--- Vui lòng chọn kho ---</option>
+                     <option value="" disabled>{t('audit.select_warehouse_placeholder', { defaultValue: '--- Vui lòng chọn kho ---' })}</option>
                      {stores.map(s => (
                        <option key={s.id} value={s.id}>{s.name} ({s.type})</option>
                      ))}

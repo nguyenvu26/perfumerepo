@@ -149,6 +149,11 @@ model QuizResult {
   budgetMax       Int?
   preferredFamily String?
   longevity       String?
+  sillage         String?
+  season          String?
+  timeOfDay       String?
+  style           String?
+  targetAge       String?
   createdAt       DateTime @default(now())
   recommendation  Json?
   analysis        String?  @db.Text

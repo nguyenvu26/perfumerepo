@@ -399,7 +399,9 @@ export class ProductsService {
           variants: {
             where: { isActive: true },
             include: {
-              inventories: true,
+              inventories: {
+                where: { warehouse: { type: 'CENTRAL' } }
+              },
             },
           },
           notes: { include: { note: true } },
@@ -457,7 +459,13 @@ export class ProductsService {
         },
         variants: {
           where: { isActive: true },
-          include: { inventories: true },
+          include: { 
+            inventories: {
+              where: {
+                warehouse: { type: 'CENTRAL' }
+              }
+            } 
+          },
         },
         reviews: true,
         notes: {
@@ -505,7 +513,9 @@ export class ProductsService {
             orderItems: {
               select: { quantity: true }
             },
-            inventories: true,
+            inventories: {
+              where: { warehouse: { type: 'CENTRAL' } }
+            },
           }
         },
         notes: { include: { note: true } }
@@ -553,7 +563,13 @@ export class ProductsService {
         images: { orderBy: { order: 'asc' } },
         variants: {
           where: { isActive: true },
-          include: { inventories: true },
+          include: { 
+            inventories: {
+              where: {
+                warehouse: { type: 'CENTRAL' }
+              }
+            } 
+          },
         },
         reviews: true,
         notes: { include: { note: true } }

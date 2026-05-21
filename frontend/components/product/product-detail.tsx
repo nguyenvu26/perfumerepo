@@ -312,7 +312,10 @@ export default function ProductDetail({ product }: { product: Product }) {
     <div className="space-y-16">
       <section className="grid gap-12 lg:grid-cols-[minmax(320px,0.86fr)_minmax(420px,1.14fr)] lg:items-start">
         <div className="lg:sticky lg:top-28">
-          <div className="grid gap-5 md:grid-cols-[84px_minmax(0,1fr)] md:items-start">
+          <div className={cn(
+            "grid gap-5 md:items-start",
+            product.images && product.images.length > 1 ? "md:grid-cols-[84px_minmax(0,1fr)]" : "grid-cols-1"
+          )}>
             {product.images && product.images.length > 1 && (
               <div className="order-2 flex gap-3 overflow-x-auto md:order-1 md:flex-col md:overflow-visible">
                 {product.images.map((image, index) => (
@@ -433,7 +436,21 @@ export default function ProductDetail({ product }: { product: Product }) {
                 >
                   -
                 </button>
-                <div className="flex flex-1 items-center justify-center text-base font-semibold">{quantity}</div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={quantity}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    const num = parseInt(val);
+                    if (val === '') {
+                      setQuantity(1);
+                    } else if (num > 0) {
+                      setQuantity(Math.min(selectedVariant?.stock ?? 99, num));
+                    }
+                  }}
+                  className="flex flex-1 items-center justify-center bg-transparent text-center text-base font-semibold outline-none w-full"
+                />
                 <button
                   type="button"
                   onClick={() =>
