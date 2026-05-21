@@ -242,6 +242,11 @@ html[lang="vi"] .text-\[10px\] {
 
   /* Print Styles for Receipt */
   @media print {
+    @page {
+      size: portrait;
+      margin: 0;
+    }
+
     .no-print {
       display: none !important;
     }

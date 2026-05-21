@@ -882,7 +882,6 @@ export class AnalyticsService {
     return healthItems
       .sort((a, b) => a.daysRemaining - b.daysRemaining);
   }
-
   /**
    * Stock Movement Heatmap: Matrix of products vs stores showing velocity & stock
    */
@@ -987,5 +986,58 @@ export class AnalyticsService {
       matrix,
       recommendations
     };
+  }
+
+  async getExpiryAlerts(storeId?: string) {
+    const now = new Date();
+    const sixMonthsFromNow = new Date(now);
+    sixMonthsFromNow.setMonth(now.getMonth() + 6);
+
+    const where: any = {
+      currentQuantity: { gt: 0 },
+      expiryDate: { not: null }
+    };
+    
+    if (storeId) {
+      where.inventory = { warehouseId: storeId };
+    }
+
+    const batches = await this.prisma.inventoryBatch.findMany({
+      where,
+      include: {
+        inventory: {
+          include: {
+            warehouse: { select: { id: true, name: true } },
+            variant: {
+              include: {
+                product: { select: { id: true, name: true, images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } } } }
+              }
+            }
+          }
+        }
+      },
+      orderBy: { expiryDate: 'asc' }
+    });
+
+    return batches.map(b => {
+      const daysUntilExpiry = b.expiryDate ? Math.ceil((b.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 999;
+      let status = 'HEALTHY';
+      if (daysUntilExpiry < 60) status = 'CRITICAL';
+      else if (daysUntilExpiry < 180) status = 'WARNING';
+
+      return {
+        batchId: b.id,
+        batchCode: b.batchCode,
+        variantId: b.inventory.variantId,
+        productName: b.inventory.variant.product.name,
+        variantName: b.inventory.variant.name,
+        imageUrl: b.inventory.variant.product.images?.[0]?.url ?? null,
+        warehouseName: b.inventory.warehouse.name,
+        currentQuantity: b.currentQuantity,
+        expiryDate: b.expiryDate,
+        daysUntilExpiry,
+        status
+      };
+    });
   }
 }

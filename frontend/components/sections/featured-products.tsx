@@ -201,7 +201,7 @@ export const FeaturedProducts = () => {
                                     <article className="flex flex-col h-full overflow-hidden rounded-[1.8rem] border border-black/6 dark:border-white/10 bg-white dark:bg-zinc-900 shadow-[0_16px_48px_-24px_rgba(15,23,42,0.18)] transition-all duration-400 group-hover:border-[#C5A059]/40 group-hover:shadow-[0_24px_60px_-28px_rgba(197,160,89,0.35)] pointer-events-none">
 
                                         {/* Image Zone */}
-                                        <div className="relative aspect-[3/4] overflow-hidden bg-[linear-gradient(160deg,#faf8f3_0%,#f3ede0_100%)] dark:bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))]">
+                                        <div className="relative aspect-square overflow-hidden bg-[linear-gradient(160deg,#faf8f3_0%,#f3ede0_100%)] dark:bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02))]">
                                             {perfume.images?.[0] ? (
                                                 <Image
                                                     src={perfume.images[0].url}

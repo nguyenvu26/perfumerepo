@@ -9,7 +9,6 @@ import {
     CheckCircle2, 
     Info,
     ChevronRight,
-    TrendingUp,
     Store,
     Target,
     Zap,
@@ -73,25 +72,30 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
         fetchHeatmap();
     }, []);
 
-    const getHeatColor = (days: number, velocity: number) => {
-        if (velocity === 0) return 'bg-secondary/10 border-border text-muted-foreground/40';
-        if (days < 5) return 'bg-red-500/90 border-red-400 text-white font-black shadow-[0_0_15px_rgba(239,68,68,0.3)] ring-1 ring-red-400/50';
-        if (days < 15) return 'bg-amber-500/80 border-amber-400 text-white font-black';
-        if (days > 45) return 'bg-emerald-500/80 border-emerald-400 text-white font-black opacity-80';
-        return 'bg-blue-500/40 border-blue-400/30 text-white/90 font-bold';
+    const getCellStatus = (days: number, velocity: number, stock: number) => {
+        if (stock === 0 && velocity === 0) return { label: 'Không kinh doanh', color: 'bg-secondary/10 text-muted-foreground/50 border-border/30' };
+        if (stock === 0 && velocity > 0) return { label: 'Đã hết hàng', color: 'bg-red-500/20 text-red-500 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]' };
+        
+        if (velocity === 0) {
+            if (stock < 5) return { label: 'Tồn rất thấp (0 bán)', color: 'bg-red-500/20 text-red-500 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]' };
+            if (stock < 15) return { label: 'Tồn thấp (0 bán)', color: 'bg-amber-500/20 text-amber-500 border-amber-500/50' };
+            return { label: 'Kho trệ (0 bán)', color: 'bg-purple-500/20 text-purple-400 border-purple-500/50' };
+        }
+        
+        if (days < 5) return { label: `Cháy hàng (<5 ngày)`, color: 'bg-red-500/20 text-red-500 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]' };
+        if (days < 15) return { label: `Sắp hết (${Math.floor(days)} ngày)`, color: 'bg-amber-500/20 text-amber-500 border-amber-500/50' };
+        if (days > 45) return { label: `Thừa kho (>45 ngày)`, color: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/50' };
+        return { label: `Ổn định (${Math.floor(days)} ngày)`, color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' };
     };
 
     const isCriticalRow = (row: HeatmapData['matrix'][0]) => {
-        return row.stores.some(s => s.daysRemaining < 15 && s.velocity > 0);
+        return row.stores.some(s => 
+            (s.daysRemaining < 15 && s.velocity > 0) || 
+            (s.stock > 0 && s.stock < 15 && s.velocity === 0) ||
+            (s.stock === 0 && s.velocity > 0)
+        );
     };
 
-    const getStableTrendScore = (id: string) => {
-        let hash = 0;
-        for (let i = 0; i < id.length; i++) {
-            hash = id.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        return Math.abs(hash % 21) + 80;
-    };
 
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -126,7 +130,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
 
     return (
         <div className={cn(
-            "glass bg-background/40 rounded-[3rem] border border-border/60 overflow-hidden flex flex-col w-full group/widget hover:border-gold/30 transition-all duration-700 shadow-2xl relative",
+            "glass dark:bg-background/40 rounded-[3rem] border border-border/60 overflow-hidden flex flex-col w-full group/widget hover:border-gold/30 transition-all duration-700 shadow-2xl relative",
             !isExpanded && "hover:bg-secondary/10 cursor-pointer"
         )} onClick={!isExpanded ? onToggle : undefined}>
             
@@ -134,7 +138,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
             <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] rounded-full pointer-events-none" />
 
             {/* Redesigned Header */}
-            <div className="px-10 py-6 border-b border-border/50 bg-secondary/5 flex items-center justify-between gap-6">
+            <div className="px-10 py-6 border-b border-border/50 bg-secondary/30 flex items-center justify-between gap-6">
                 <div className="flex items-center gap-5">
                     <div className="relative">
                         <div className="p-3.5 rounded-2xl bg-gold/10 text-gold border border-gold/20 shadow-inner">
@@ -199,7 +203,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                     )}
 
                     {isExpanded && (
-                        <div className="flex bg-secondary/30 p-1.5 rounded-2xl border border-border shadow-inner">
+                        <div className="flex bg-secondary/50 dark:bg-secondary/30 p-1.5 rounded-2xl border border-border shadow-inner">
                             <button 
                                 onClick={() => setActiveTab('matrix')}
                                 className={cn(
@@ -256,17 +260,17 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                     <table className="w-full border-separate border-spacing-x-3 border-spacing-y-4 relative">
                                         <thead>
                                             <tr>
-                                                <th className="sticky top-0 bg-[#0c0c0f]/95 backdrop-blur-xl z-20 text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 pb-6 pr-10 border-b border-border/20 shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">
+                                                <th className="sticky top-0 bg-background/95 backdrop-blur-xl z-20 text-left text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 pb-6 pr-6 border-b border-border/30">
                                                     Sản phẩm / Biến thể
                                                 </th>
                                                 {data.stores.map(store => (
-                                                    <th key={store.id} className="sticky top-0 bg-[#0c0c0f]/95 backdrop-blur-xl z-20 pb-6 px-1 border-b border-border/20 shadow-[0_1px_0_0_rgba(255,255,255,0.03)]">
+                                                    <th key={store.id} className="sticky top-0 bg-background/95 backdrop-blur-xl z-20 pb-6 px-3 border-b border-border/30 min-w-[200px]">
                                                         <div className="flex flex-col items-center">
                                                             <div className="w-8 h-8 rounded-xl bg-secondary/30 flex items-center justify-center mb-2 border border-border/50">
                                                                 <Store className="w-4 h-4 text-gold/50" />
                                                             </div>
-                                                            <span className="text-[10px] font-black uppercase tracking-tighter text-foreground whitespace-nowrap">{store.name}</span>
-                                                            <span className="text-[8px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em]">{store.city}</span>
+                                                            <span className="text-[11px] font-black uppercase tracking-widest text-foreground whitespace-nowrap">{store.name}</span>
+                                                            <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">{store.city}</span>
                                                         </div>
                                                     </th>
                                                 ))}
@@ -296,41 +300,43 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                                                 <span className="text-[12px] font-bold text-foreground/90 group-hover/row:text-gold transition-colors truncate max-w-[240px]">
                                                                     {row.variantName}
                                                                 </span>
-                                                                <div className="flex items-center gap-2 mt-1.5 opacity-30 group-hover/row:opacity-60 transition-opacity">
-                                                                    <TrendingUp className="w-3 h-3" />
-                                                                    <span className="text-[8px] font-black uppercase tracking-widest">
-                                                                        Trend Score: {getStableTrendScore(row.variantId)}
-                                                                    </span>
-                                                                </div>
                                                             </div>
                                                         </td>
-                                                        {row.stores.map(cell => (
-                                                            <td key={cell.storeId} className="p-0">
-                                                                <motion.div 
-                                                                    whileHover={{ scale: 1.05, zIndex: 10 }}
-                                                                    className={cn(
-                                                                        "h-20 w-28 rounded-[1.5rem] border-2 flex flex-col items-center justify-center gap-1.5 transition-all relative overflow-hidden group/cell cursor-help",
-                                                                        getHeatColor(cell.daysRemaining, cell.velocity),
-                                                                        isFocusMode && cell.daysRemaining >= 15 && cell.velocity > 0 && "opacity-20 grayscale scale-95 blur-[0.5px]"
-                                                                    )}
-                                                                >
-                                                                    <div className="absolute inset-0 bg-white opacity-0 group-hover/cell:opacity-10 transition-opacity" />
-                                                                    <span className="text-[18px] font-heading font-black">{cell.stock}</span>
-                                                                    <div className="flex items-center gap-1 bg-black/10 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/5">
-                                                                        <span className="text-[8px] font-black uppercase opacity-60">Vel.</span>
-                                                                        <span className="text-[11px] font-black">{cell.velocity}</span>
+                                                        {row.stores.map(cell => {
+                                                            const status = getCellStatus(cell.daysRemaining, cell.velocity, cell.stock);
+                                                            const isFaded = isFocusMode && !((cell.daysRemaining < 15 && cell.velocity > 0) || (cell.stock > 0 && cell.stock < 15 && cell.velocity === 0) || (cell.stock === 0 && cell.velocity > 0));
+                                                            
+                                                            return (
+                                                                <td key={cell.storeId} className="p-0 align-middle">
+                                                                    <div className={cn(
+                                                                        "flex flex-col gap-3 p-4 rounded-[1.2rem] border transition-all relative overflow-hidden",
+                                                                        status.color,
+                                                                        isFaded && "opacity-20 grayscale scale-95 blur-[0.5px]"
+                                                                    )}>
+                                                                        <div className="flex items-center justify-between gap-4 relative z-10">
+                                                                            <div className="flex flex-col">
+                                                                                <span className="text-[9px] uppercase font-black tracking-widest opacity-60 mb-0.5">Tồn kho</span>
+                                                                                <span className="text-2xl font-heading font-black leading-none">{cell.stock}</span>
+                                                                            </div>
+                                                                            <div className="flex flex-col items-end text-right">
+                                                                                <span className="text-[9px] uppercase font-black tracking-widest opacity-60 mb-0.5">Tốc độ bán</span>
+                                                                                <span className="text-sm font-bold bg-background/80 dark:bg-background/50 px-2 py-0.5 rounded-md border border-current/10">
+                                                                                    {cell.velocity}/ngày
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="mt-1 pt-2 border-t border-current/20 flex items-center justify-between relative z-10">
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                                                                {status.label}
+                                                                            </span>
+                                                                            {(status.label.includes('Cháy') || status.label.includes('hết')) && (
+                                                                                <AlertTriangle className="w-3 h-3 animate-pulse" />
+                                                                            )}
+                                                                        </div>
                                                                     </div>
-                                                                    
-                                                                    {/* Hover Info Tooltip (Visual only) */}
-                                                                    <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover/cell:opacity-100 transition-opacity p-2">
-                                                                        <p className="text-[9px] font-black uppercase text-center text-white/90">
-                                                                            Dự kiến hết trong<br/>
-                                                                            <span className="text-gold text-xs">{cell.daysRemaining > 90 ? '> 3 tháng' : `${cell.daysRemaining} ngày`}</span>
-                                                                        </p>
-                                                                    </div>
-                                                                </motion.div>
-                                                            </td>
-                                                        ))}
+                                                                </td>
+                                                            );
+                                                        })}
                                                     </motion.tr>
                                                 ))
                                             )}
@@ -412,8 +418,8 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                                         </div>
                                                     </div>
 
-                                                    <div className="flex items-center gap-6 bg-background/40 backdrop-blur-xl p-5 rounded-[2rem] border border-border shadow-inner">
-                                                        <div className="text-center px-6 border-r border-white/5">
+                                                    <div className="flex items-center gap-6 bg-background/80 dark:bg-background/40 backdrop-blur-xl p-5 rounded-[2rem] border border-border shadow-inner">
+                                                        <div className="text-center px-6 border-r border-border/50">
                                                             <p className="text-[8px] text-muted-foreground/50 uppercase font-black tracking-widest mb-1.5">Nguồn cấp</p>
                                                             <div className="flex items-center gap-2">
                                                                 <Store className="w-3 h-3 text-gold/60" />
@@ -426,7 +432,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                                             </div>
                                                             <span className="text-[14px] font-black text-gold">x{rec.suggestedQuantity}</span>
                                                         </div>
-                                                        <div className="text-center px-6 border-l border-white/5">
+                                                        <div className="text-center px-6 border-l border-border/50">
                                                             <p className="text-[8px] text-muted-foreground/50 uppercase font-black tracking-widest mb-1.5">Đích đến</p>
                                                             <div className="flex items-center gap-2">
                                                                 <Store className="w-3 h-3 text-emerald-500/60" />
@@ -463,18 +469,26 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                     </div>
 
                     {/* Legend Footer */}
-                    <div className="px-10 py-6 bg-secondary/5 border-t border-border/50 flex items-center gap-10 overflow-x-auto no-scrollbar">
-                        <div className="flex items-center gap-3">
-                            <div className="w-4 h-4 rounded-lg bg-red-500/90 shadow-[0_0_10px_rgba(239,68,68,0.3)]" />
+                    <div className="px-10 py-6 bg-secondary/30 flex items-center gap-8 overflow-x-auto no-scrollbar">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-3.5 h-3.5 rounded-md bg-red-500/20 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Cháy hàng (&lt;5 ngày)</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-4 h-4 rounded-lg bg-amber-500/80" />
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-3.5 h-3.5 rounded-md bg-amber-500/20 border border-amber-500/50" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Sắp hết (&lt;15 ngày)</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-4 h-4 rounded-lg bg-emerald-500/80" />
-                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Thừa tồn kho (&gt;45 ngày)</span>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-3.5 h-3.5 rounded-md bg-blue-500/20 border border-blue-500/50" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Ổn định</span>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-3.5 h-3.5 rounded-md bg-emerald-500/20 border border-emerald-500/50" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Thừa kho (&gt;45 ngày)</span>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-3.5 h-3.5 rounded-md bg-purple-500/20 border border-purple-500/50" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Kho trệ (0 bán)</span>
                         </div>
                         <div className="ml-auto flex items-center gap-2 text-muted-foreground/30 px-6 py-2 bg-secondary/10 rounded-full border border-border/50">
                             <Info className="w-3.5 h-3.5" />

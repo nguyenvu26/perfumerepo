@@ -38,8 +38,7 @@ export class InventoryService {
 
   /**
    * Chốt xuất kho khi đơn hàng được giao thành công hoặc bán POS tại quầy.
-   * Nếu là Online (đã allocate): giảm onHand, giảm reserved.
-   * Nếu là POS (bán trực tiếp): giảm cả onHand và available.
+   * Sử dụng thuật toán FEFO (First-Expired-First-Out).
    */
   async commitStock(
     variantId: string,
@@ -49,21 +48,70 @@ export class InventoryService {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx || this.prisma;
+    const deductedBatches: { batchCode: string; quantity: number }[] = [];
 
-    if (isPreAllocated) {
-      const inventory = await client.inventory.findUnique({
-        where: { warehouseId_variantId: { warehouseId, variantId } },
-      });
-      if (!inventory) {
-        throw new BadRequestException('Không tìm thấy bản ghi tồn kho.');
+    // 1. Fetch Inventory & Batches
+    const inventory = await client.inventory.findUnique({
+      where: { warehouseId_variantId: { warehouseId, variantId } },
+      include: { 
+        batches: { 
+          where: { currentQuantity: { gt: 0 } }, 
+          orderBy: [
+            { expiryDate: 'asc' }, // FEFO: Earlier expiry first
+            { createdAt: 'asc' }   // Fallback: Older batches first (FIFO)
+          ] 
+        } 
       }
+    });
+
+    if (!inventory) {
+      throw new BadRequestException('Không tìm thấy bản ghi tồn kho.');
+    }
+
+    // 2. Perform Validation
+    if (isPreAllocated) {
       if (inventory.onHand < quantity || inventory.reserved < quantity) {
         throw new BadRequestException(
           `Không đủ số lượng thực tế hoặc dự giữ để xuất kho. (onHand: ${inventory.onHand}, reserved: ${inventory.reserved}, yêu cầu: ${quantity})`,
         );
       }
-      // Đã đặt trước (Online) -> Trừ onHand và reserved
-      return client.inventory.update({
+    } else {
+      if (inventory.onHand < quantity || inventory.available < quantity) {
+        throw new BadRequestException(
+          `Không đủ tồn kho thực tế hoặc khả dụng để xuất. (onHand: ${inventory.onHand}, available: ${inventory.available}, yêu cầu: ${quantity})`,
+        );
+      }
+    }
+
+    // 3. FEFO Logic: Deduct from batches
+    let remainingToDeduct = quantity;
+    for (const batch of inventory.batches) {
+      if (remainingToDeduct <= 0) break;
+      const deduct = Math.min(batch.currentQuantity, remainingToDeduct);
+      
+      await client.inventoryBatch.update({
+        where: { id: batch.id },
+        data: { currentQuantity: { decrement: deduct } }
+      });
+      
+      deductedBatches.push({ 
+        batchCode: batch.batchCode ?? 'N/A', 
+        quantity: deduct 
+      });
+      remainingToDeduct -= deduct;
+    }
+
+    // 4. Data Integrity Check & System Alert
+    if (remainingToDeduct > 0) {
+      console.error(`[FEFO Warning] Inconsistent stock for variant ${variantId} at store ${warehouseId}. Missing ${remainingToDeduct} items in specific batches.`);
+      // We continue to deduct the aggregate count to keep inventory syncing, 
+      // but the batch tracking for this specific sale will be partial.
+    }
+
+    // 5. Update Aggregate Inventory Table
+    if (isPreAllocated) {
+      // Online Order: reduce onHand and reserved
+      await client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
         data: {
           onHand: { decrement: quantity },
@@ -71,14 +119,8 @@ export class InventoryService {
         },
       });
     } else {
-      // Bán trực tiếp (POS) -> Trừ thẳng onHand và available
-      const inventory = await client.inventory.findUnique({
-        where: { warehouseId_variantId: { warehouseId, variantId } },
-      });
-      if (!inventory || inventory.available < quantity || inventory.onHand < quantity) {
-        throw new BadRequestException('Không đủ tồn kho khả dụng hoặc thực tế để xuất.');
-      }
-      return client.inventory.update({
+      // POS / In-store: reduce onHand and available
+      await client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
         data: {
           onHand: { decrement: quantity },
@@ -86,6 +128,8 @@ export class InventoryService {
         },
       });
     }
+
+    return { deductedBatches };
   }
 
   /**

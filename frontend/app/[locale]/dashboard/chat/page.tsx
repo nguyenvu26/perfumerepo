@@ -42,6 +42,8 @@ export default function DashboardChatPage() {
   const tRoles = useTranslations("dashboard.profile.roles");
   const tFeatured = useTranslations("featured");
   const format = useFormatter();
+  const locale = useLocale();
+  const isVi = locale === 'vi';
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>("conversations");
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -567,12 +569,34 @@ export default function DashboardChatPage() {
                                                 const key = `${msg.id}-${idx}`;
                                                 setShowScoreDetails(showScoreDetails === key ? null : key);
                                               }}
-                                              className="flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded-full bg-gold/10 border border-gold/20 hover:bg-gold/20 transition-colors group/score"
+                                              className={`flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full border transition-all hover:bg-opacity-20 group/score ${
+                                                rec.matchScore >= 200
+                                                  ? 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                                  : rec.matchScore >= 120
+                                                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                                  : rec.matchScore >= 50
+                                                  ? 'border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                                                  : 'border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-400'
+                                              }`}
                                             >
-                                              <span className="text-[9px] font-black text-gold">
-                                                {Math.min(99, Math.round((rec.matchScore / 120) * 100))}% MATCH
+                                              <Sparkles size={8} className={`animate-pulse ${
+                                                rec.matchScore >= 200 ? 'text-amber-500' :
+                                                rec.matchScore >= 120 ? 'text-emerald-500' :
+                                                rec.matchScore >= 50 ? 'text-blue-500' :
+                                                'text-slate-500'
+                                              }`} />
+                                              <span className="text-[9px] font-black tracking-wider uppercase">
+                                                {rec.matchScore} {isVi ? 'ĐIỂM' : 'PTS'}
                                               </span>
-                                              <Info size={8} className="text-gold/60 group-hover/score:text-gold" />
+                                              <span className="text-[8px] font-medium opacity-85">
+                                                • {
+                                                  rec.matchScore >= 200 ? (isVi ? 'Hoàn hảo' : 'Perfect') :
+                                                  rec.matchScore >= 120 ? (isVi ? 'Tương thích cao' : 'High Match') :
+                                                  rec.matchScore >= 50 ? (isVi ? 'Phù hợp' : 'Good Fit') :
+                                                  (isVi ? 'Gợi ý thêm' : 'Curated')
+                                                }
+                                              </span>
+                                              <Info size={8} className="opacity-70 group-hover/score:opacity-100" />
                                             </button>
 
                                             <AnimatePresence>

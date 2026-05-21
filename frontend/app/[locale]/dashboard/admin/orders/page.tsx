@@ -208,6 +208,7 @@ export default function AdminOrders() {
                 <head>
                     <title>${t('print.title')}</title>
                     <style>
+                        @page { size: portrait; margin: 10mm; }
                         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
                         body { font-family: 'Inter', sans-serif; padding: 40px; color: #1a1a1a; }
                         .label { border: 2px solid #000; padding: 30px; border-radius: 8px; max-width: 500px; margin: auto; }

@@ -556,11 +556,11 @@ export default function AdminStoresPage() {
                             </div>
 
                             {/* Footer */}
-                            <div className="shrink-0 h-28 border-t border-white/10 px-12 flex items-center justify-end gap-6 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                            <div className="shrink-0 h-auto min-h-24 sm:min-h-28 border-t border-white/10 p-6 sm:px-12 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-4 sm:gap-6 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="px-10 py-4 rounded-full text-[10px] uppercase tracking-widest font-black text-muted-foreground hover:text-foreground transition-all active:scale-95 font-heading"
+                                    className="px-6 sm:px-10 py-4 rounded-full text-[10px] uppercase tracking-widest font-black text-muted-foreground hover:text-foreground transition-all active:scale-95 font-heading w-full sm:w-auto text-center"
                                 >
                                     {t('messages.cancel') || 'HUỶ BỎ'}
                                 </button>
@@ -568,16 +568,16 @@ export default function AdminStoresPage() {
                                     type="submit"
                                     form="storeForm"
                                     disabled={saving}
-                                    className="px-16 py-5 rounded-full bg-gold text-primary-foreground font-heading text-[11px] uppercase tracking-[.3em] font-black disabled:opacity-50 shadow-2xl shadow-gold/30 hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center gap-3"
+                                    className="px-8 sm:px-16 py-4 sm:py-5 rounded-full bg-gold text-primary-foreground font-heading text-[11px] uppercase tracking-[.3em] font-black disabled:opacity-50 shadow-2xl shadow-gold/30 hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center justify-center gap-3 w-full sm:w-auto whitespace-nowrap"
                                 >
                                     {saving ? (
                                         <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            <Loader2 className="w-5 h-5 animate-spin shrink-0" />
                                             {t('messages.saving') || 'ĐANG LƯU...'}
                                         </>
                                     ) : (
                                         <>
-                                            <Save size={20} />
+                                            <Save size={20} className="shrink-0" />
                                             {modal === 'create' ? (t('messages.save') || 'XÁC LẬP THỰC THỂ') : (t('messages.save') || 'CẬP NHẬT BIẾN THỂ')}
                                         </>
                                     )}
@@ -668,11 +668,11 @@ export default function AdminStoresPage() {
                             </div>
 
                             {/* Footer */}
-                            <div className="shrink-0 h-28 border-t border-white/10 px-12 flex items-center justify-end bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                            <div className="shrink-0 h-auto min-h-24 sm:min-h-28 border-t border-white/10 p-6 sm:px-12 flex items-center justify-stretch sm:justify-end bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
                                 <button
                                     type="button"
                                     onClick={() => setAssignModal(null)}
-                                    className="px-14 py-5 rounded-full bg-secondary/10 border border-white/10 font-heading text-[11px] uppercase tracking-[.3em] font-black hover:bg-white/5 transition-all active:scale-95"
+                                    className="w-full sm:w-auto px-14 py-4 sm:py-5 rounded-full bg-secondary/10 border border-white/10 font-heading text-[11px] uppercase tracking-[.3em] font-black hover:bg-white/5 transition-all active:scale-95 whitespace-nowrap text-center"
                                 >
                                     {t('modal.close') || 'HOÀN TẤT'}
                                 </button>

@@ -18,23 +18,25 @@ interface AiConversionWidgetProps {
 const COLORS = ['#8b5cf6', '#334155'];
 
 const CustomTooltip = ({ active, payload }: any) => {
+    const t = useTranslations('admin_dashboard');
     if (!active || !payload?.length) return null;
     return (
         <div className="glass bg-background/90 border border-border rounded-2xl p-3 shadow-xl">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{payload[0].name}</p>
-            <p className="text-sm font-heading text-foreground mt-1">{payload[0].value} items</p>
+            <p className="text-sm font-heading text-foreground mt-1">{t('items_suffix', { count: payload[0].value })}</p>
         </div>
     );
 };
 
 const CustomLabel = ({ cx, cy, rate }: { cx: number; cy: number; rate: number }) => {
+    const t = useTranslations('admin_dashboard');
     return (
         <>
             <text x={cx} y={cy - 4} textAnchor="middle" fill="currentColor" fontSize={24} fontWeight={700} fontFamily="inherit">
                 {rate}%
             </text>
             <text x={cx} y={cy + 16} textAnchor="middle" fill="#8b5cf6" fontSize={9} fontFamily="inherit" fontWeight={700} letterSpacing="2">
-                WIN RATE
+                {t('win_rate')}
             </text>
         </>
     );
@@ -49,8 +51,8 @@ export function AiConversionWidget({ data, loading }: AiConversionWidgetProps) {
     const rate = data?.conversionRate || 0;
 
     const chartData = [
-        { name: 'AI Recommended', value: aiItems },
-        { name: 'Organic/Other', value: otherItems },
+        { name: t('ai_driven_items'), value: aiItems },
+        { name: t('organic_items'), value: otherItems },
     ];
 
     return (
@@ -65,8 +67,8 @@ export function AiConversionWidget({ data, loading }: AiConversionWidgetProps) {
                     <BrainCircuit className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">AI Conversion</h3>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">Impact of AI Recommendations</p>
+                    <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">{t('ai_conversion')}</h3>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{t('ai_conversion_subtitle')}</p>
                 </div>
             </div>
 
@@ -76,7 +78,7 @@ export function AiConversionWidget({ data, loading }: AiConversionWidgetProps) {
                 </div>
             ) : total === 0 ? (
                 <div className="h-[200px] flex items-center justify-center">
-                    <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">No Data Available</p>
+                    <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-bold">{t('no_data')}</p>
                 </div>
             ) : (
                 <>
@@ -110,20 +112,20 @@ export function AiConversionWidget({ data, loading }: AiConversionWidgetProps) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#8b5cf6]" />
-                                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">AI Driven Items</span>
+                                <span className="text-[10px] text-muted-foreground font-bold">{t('ai_driven_items')}</span>
                             </div>
                             <span className="text-[11px] font-bold text-foreground">{aiItems}</span>
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-[#334155]" />
-                                <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Organic/Other Items</span>
+                                <span className="text-[10px] text-muted-foreground font-bold">{t('organic_items')}</span>
                             </div>
                             <span className="text-[11px] font-bold text-foreground">{otherItems}</span>
                         </div>
                         <div className="pt-3 mt-1 border-t border-border/50 flex items-center justify-between">
-                             <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Total Consultations</span>
-                             <span className="text-[11px] font-bold text-violet-400">{data?.totalConsultations || 0} sessions</span>
+                             <span className="text-[10px] text-muted-foreground font-bold">{t('total_consultations')}</span>
+                             <span className="text-[11px] font-bold text-violet-400">{t('sessions_suffix', { count: data?.totalConsultations || 0 })}</span>
                         </div>
                     </div>
                 </>

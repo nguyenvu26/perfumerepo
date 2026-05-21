@@ -35,11 +35,11 @@ interface SalesChartProps {
 }
 
 const PERIODS = [
-    { key: 'today', label: 'Today' },
-    { key: 'week', label: '7D' },
-    { key: 'month', label: '30D' },
-    { key: 'quarter', label: 'Quarter' },
-    { key: 'year', label: '1Y' },
+    { key: 'today', label: 'Hôm nay' },
+    { key: 'week', label: '7 ngày' },
+    { key: 'month', label: '30 ngày' },
+    { key: 'quarter', label: 'Quý' },
+    { key: 'year', label: '1 năm' },
 ] as const;
 
 /** Format a date key (YYYY-MM-DD or YYYY-MM) to a short readable label */
@@ -50,8 +50,8 @@ function formatDateLabel(dateStr: string, period: 'today' | 'week' | 'month' | '
 
     if (period === 'year') {
         const [, month] = dateStr.split('-');
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const months = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+            'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
         return months[parseInt(month) - 1] ?? dateStr;
     }
     
@@ -84,9 +84,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             {payload.map((entry: any) => (
                 <div key={entry.name} className="flex items-center gap-2 text-xs">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-                    <span className="text-muted-foreground capitalize">{entry.name}:</span>
+                    <span className="text-muted-foreground">{entry.name}:</span>
                     <span className="font-bold text-foreground">
-                        {entry.name === 'revenue' ? `₫${formatVND(entry.value)}` : entry.value}
+                        {entry.name === 'revenue' || entry.name === 'Doanh thu' ? `₫${formatVND(entry.value)}` : entry.value}
                     </span>
                 </div>
             ))}
@@ -119,28 +119,28 @@ export function SalesChart({
             className="glass bg-background/40 rounded-[2rem] border border-border p-6 md:p-8"
         >
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 pb-4 border-b border-border/5">
                 <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-2xl bg-gold/10 text-gold">
+                    <div className="p-3 rounded-2xl bg-gold/10 text-gold shadow-lg shadow-gold/5">
                         <TrendingUp className="w-5 h-5" />
                     </div>
                     <div>
                         <h3 className="text-sm font-heading uppercase tracking-widest text-foreground">
                             {t('sales_overview')}
                         </h3>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5 opacity-60">
                             {t('revenue_trend')}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                     {/* Store Selector */}
                     {stores && (
                         <select
                             value={selectedStoreId || 'all'}
                             onChange={(e) => onStoreChange?.(e.target.value)}
-                            className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold/50 cursor-pointer hover:bg-white/10 text-foreground max-w-[180px] h-[34px] truncate"
+                            className="bg-background/40 hover:bg-foreground/5 border border-border rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold/50 cursor-pointer text-foreground max-w-[180px] h-[34px] truncate transition-all"
                         >
                             <option value="all" className="bg-zinc-950 text-foreground">Toàn hệ thống</option>
                             {stores.map((s: any) => (
@@ -151,38 +151,40 @@ export function SalesChart({
                         </select>
                     )}
 
-                    {/* Chart type toggle */}
-                    <div className="flex rounded-xl border border-border overflow-hidden h-[34px]">
-                        <button
-                            onClick={() => setChartType('area')}
-                            className={`p-2 transition-all ${chartType === 'area' ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:text-foreground'}`}
-                            title="Area chart"
-                        >
-                            <TrendingUp className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                            onClick={() => setChartType('bar')}
-                            className={`p-2 transition-all ${chartType === 'bar' ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:text-foreground'}`}
-                            title="Bar chart"
-                        >
-                            <BarChart3 className="w-3.5 h-3.5" />
-                        </button>
-                    </div>
-
-                    {/* Period selector */}
-                    <div className="flex rounded-xl border border-border overflow-hidden h-[34px]">
-                        {PERIODS.map(({ key, label }) => (
+                    <div className="flex items-center gap-3">
+                        {/* Chart type toggle */}
+                        <div className="flex items-center rounded-xl border border-border bg-background/40 p-0.5 h-[34px]">
                             <button
-                                key={key}
-                                onClick={() => onPeriodChange(key)}
-                                className={`px-3 py-2 text-[10px] font-bold uppercase tracking-widest transition-all ${period === key
-                                    ? 'bg-gold text-black'
-                                    : 'text-muted-foreground hover:text-foreground'
-                                    }`}
+                                onClick={() => setChartType('area')}
+                                className={`h-full px-2.5 flex items-center justify-center rounded-lg transition-all ${chartType === 'area' ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:text-foreground'}`}
+                                title="Biểu đồ vùng"
                             >
-                                {label}
+                                <TrendingUp className="w-3.5 h-3.5" />
                             </button>
-                        ))}
+                            <button
+                                onClick={() => setChartType('bar')}
+                                className={`h-full px-2.5 flex items-center justify-center rounded-lg transition-all ${chartType === 'bar' ? 'bg-gold/10 text-gold' : 'text-muted-foreground hover:text-foreground'}`}
+                                title="Biểu đồ cột"
+                            >
+                                <BarChart3 className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+
+                        {/* Period selector */}
+                        <div className="flex items-center rounded-xl border border-border bg-background/40 p-0.5 h-[34px]">
+                            {PERIODS.map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => onPeriodChange(key)}
+                                    className={`h-full px-3 flex items-center justify-center rounded-lg text-[10px] font-medium transition-all duration-300 whitespace-nowrap ${period === key
+                                        ? 'bg-gold text-zinc-950 font-bold shadow-[0_0_12px_rgba(212,175,55,0.35)]'
+                                        : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.02]'
+                                        }`}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -252,6 +254,7 @@ export function SalesChart({
                                 yAxisId="revenue"
                                 type="monotone"
                                 dataKey="revenue"
+                                name="Doanh thu"
                                 stroke="#C5A059"
                                 strokeWidth={2}
                                 fill="url(#revenueGrad)"
@@ -262,6 +265,7 @@ export function SalesChart({
                                 yAxisId="orders"
                                 type="monotone"
                                 dataKey="orders"
+                                name="Đơn hàng"
                                 stroke="#6366f1"
                                 strokeWidth={2}
                                 fill="url(#ordersGrad)"
@@ -305,6 +309,7 @@ export function SalesChart({
                             <Bar
                                 yAxisId="revenue"
                                 dataKey="revenue"
+                                name="Doanh thu"
                                 fill="#C5A059"
                                 radius={[6, 6, 0, 0]}
                                 maxBarSize={32}
@@ -313,6 +318,7 @@ export function SalesChart({
                             <Bar
                                 yAxisId="orders"
                                 dataKey="orders"
+                                name="Đơn hàng"
                                 fill="#6366f1"
                                 radius={[6, 6, 0, 0]}
                                 maxBarSize={32}

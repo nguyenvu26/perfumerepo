@@ -18,6 +18,7 @@ import { PaymentsService } from '../payments/payments.service';
 import { StoresService } from '../stores/stores.service';
 import { OrdersService } from '../orders/orders.service';
 import { PromotionsService } from '../promotions/promotions.service';
+import { InventoryService } from '../inventory/inventory.service';
 
 import { LoyaltyService } from '../loyalty/loyalty.service';
 
@@ -28,6 +29,7 @@ export class StaffPosService {
     private readonly paymentsService: PaymentsService,
     private readonly storesService: StoresService,
     private readonly loyaltyService: LoyaltyService,
+    private readonly inventoryService: InventoryService,
     private readonly ordersService: OrdersService,
     private readonly promotionsService: PromotionsService,
   ) { }
@@ -564,33 +566,19 @@ export class StaffPosService {
     await this.prisma.$transaction(async (tx) => {
       if (order.storeId) {
         for (const item of order.items) {
-          const inventory = await tx.inventory.findUnique({
-            where: {
-              warehouseId_variantId: {
-                warehouseId: order.storeId!,
-                variantId: item.variantId,
-              },
-            },
-          });
-          const qty = inventory?.available ?? 0;
-          if (qty < item.quantity) {
-            throw new BadRequestException(
-              `Insufficient store stock for variant ${item.variantId}`,
-            );
-          }
-          await tx.inventory.update({
-            where: {
-              warehouseId_variantId: {
-                warehouseId: order.storeId!,
-                variantId: item.variantId,
-              },
-            },
-            data: {
-              onHand: { decrement: item.quantity },
-              available: { decrement: item.quantity },
-              updatedAt: new Date(),
-            },
-          });
+          const { deductedBatches } = await this.inventoryService.commitStock(
+            item.variantId,
+            order.storeId!,
+            item.quantity,
+            false, // isPreAllocated = false for POS (immediate sale)
+            tx,
+          );
+
+          // Log physical removal with batch details
+          const batchInfo = deductedBatches
+            .map(b => `${b.batchCode} (-${b.quantity})`)
+            .join(', ');
+
           await tx.inventoryLog.create({
             data: {
               variantId: item.variantId,
@@ -598,7 +586,7 @@ export class StaffPosService {
               storeId: order.storeId!,
               type: InventoryLogType.SALE_POS,
               quantity: -item.quantity,
-              reason: `POS order ${order.code}`,
+              reason: `[Lô: ${batchInfo}] POS order ${order.code}`,
             },
           });
         }

@@ -57,9 +57,9 @@ export default async function CollectionDetailPage({ params }: { params: Promise
 
   let similarProducts: any[] = [];
   try {
-     const filter = product.brandId ? { brandId: product.brandId, take: 4 } : { take: 4 };
+     const filter = product.brandId ? { brandId: product.brandId, take: 5 } : { take: 5 };
      const res = await productService.list(filter);
-     similarProducts = res.items.filter(p => p.id !== product.id).slice(0, 3);
+     similarProducts = res.items.filter(p => p.id !== product.id).slice(0, 4);
   } catch (e) {
   }
 
@@ -112,13 +112,13 @@ export default async function CollectionDetailPage({ params }: { params: Promise
             <h2 className="text-2xl font-heading text-foreground mb-8 uppercase tracking-widest text-center">
               Các sản phẩm khác từ {product.brand?.name || 'thương hiệu này'}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {similarProducts.map((p) => {
                 const price = getMinPrice(p);
                 return (
                   <Link key={p.id} href={`/collection/${p.id}`} className="group block h-full">
-                      <div className="bg-background glass rounded-[2.5rem] overflow-hidden hover:border-gold/30 transition-all duration-500 flex flex-col h-full border border-border shadow-sm hover:shadow-xl hover:shadow-gold/5">
-                          <div className="relative aspect-[3/4] bg-secondary/10 overflow-hidden shrink-0">
+                      <div className="bg-background glass rounded-2xl md:rounded-3xl overflow-hidden hover:border-gold/30 transition-all duration-500 flex flex-col h-full border border-border shadow-sm hover:shadow-xl hover:shadow-gold/5">
+                          <div className="relative aspect-square bg-secondary/10 overflow-hidden shrink-0">
                               {p.images?.[0]?.url ? (
                                   <img
                                       src={p.images[0].url}
@@ -127,12 +127,12 @@ export default async function CollectionDetailPage({ params }: { params: Promise
                                   />
                               ) : (
                                   <div className="absolute inset-0 flex items-center justify-center text-gold/20">
-                                      <ShoppingBag size={48} strokeWidth={0.5} />
+                                      <ShoppingBag size={40} strokeWidth={0.5} />
                                   </div>
                               )}
 
-                              <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <span className="px-4 py-2 rounded-full bg-white/90 dark:bg-black/90 text-foreground text-[8px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
+                              <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <span className="px-3 py-1.5 rounded-full bg-white/90 dark:bg-black/90 text-foreground text-[8px] font-black uppercase tracking-[0.2em] backdrop-blur-md">
                                       {genderLabel(p.gender)}
                                   </span>
                               </div>
@@ -140,19 +140,19 @@ export default async function CollectionDetailPage({ params }: { params: Promise
                               <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
 
-                          <div className="p-8 flex flex-col flex-1">
-                              <p className="text-[9px] text-gold uppercase tracking-[0.3em] font-black mb-2">
+                          <div className="p-4 md:p-6 flex flex-col flex-1">
+                              <p className="text-[9px] text-gold uppercase tracking-[0.3em] font-black mb-1.5 line-clamp-1">
                                   {p.brand?.name ?? '—'}
                               </p>
-                              <h3 className="text-base font-heading font-medium text-foreground line-clamp-2 uppercase tracking-wide group-hover:text-gold transition-colors leading-[1.4]">
+                              <h3 className="text-sm md:text-base font-heading font-medium text-foreground line-clamp-2 uppercase tracking-wide group-hover:text-gold transition-colors leading-[1.4]">
                                   {p.name}
                               </h3>
-                              <div className="mt-auto pt-6 flex items-center justify-between border-t border-border/50">
-                                  <p className="text-lg font-serif text-foreground">
+                              <div className="mt-auto pt-4 flex items-center justify-between border-t border-border/50">
+                                  <p className="text-sm md:text-base font-serif text-foreground">
                                       {price != null ? formatCurrency(price) : '—'}
                                   </p>
                                   <div className="text-gold transition-transform group-hover:scale-110 group-hover:translate-x-1 duration-300">
-                                      <Sparkles size={16} />
+                                      <Sparkles size={14} />
                                   </div>
                               </div>
                           </div>

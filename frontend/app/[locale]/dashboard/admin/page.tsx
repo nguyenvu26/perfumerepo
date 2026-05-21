@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import {
     TrendingUp, ArrowUpRight, ArrowDownRight,
     Users, BrainCircuit, ShoppingBag, RefreshCw,
-    CheckCircle, RotateCcw,
+    CheckCircle, RotateCcw, Coins, Sparkles,
 } from 'lucide-react';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { SalesChart, SalesTrendPoint } from '@/components/dashboard/admin/SalesChart';
@@ -250,12 +250,19 @@ export default function AdminDashboard() {
                 color: 'bg-blue-500/10 text-blue-400',
             },
             {
-                label: t('home.stats.success_rate'),
-                value: `${(overview.successRate || 0).toFixed(1)}%`,
+                label: 'Giá trị đơn hàng TB (AOV)',
+                value: overview.totalOrders > 0 ? formatVND(Math.round(overview.totalRevenue / overview.totalOrders)) : '0₫',
                 change: null,
-                icon: CheckCircle,
-                color: 'bg-emerald-500/10 text-emerald-400',
-                href: '/dashboard/admin/orders',
+                icon: Coins,
+                color: 'bg-amber-500/10 text-amber-400',
+            },
+            {
+                label: 'Tư vấn AI',
+                value: `${(overview.aiConsultations || 0).toLocaleString()} lượt`,
+                change: null,
+                icon: Sparkles,
+                color: 'bg-purple-500/10 text-purple-400',
+                href: '/dashboard/admin/ai-logs',
             },
             {
                 label: t('home.stats.orders'),
@@ -271,6 +278,14 @@ export default function AdminDashboard() {
                 icon: RefreshCw,
                 color: 'bg-violet-500/10 text-violet-400',
                 subtext: t('home.stats.stock_value_suffix'),
+            },
+            {
+                label: t('home.stats.success_rate'),
+                value: `${(overview.successRate || 0).toFixed(1)}%`,
+                change: null,
+                icon: CheckCircle,
+                color: 'bg-emerald-500/10 text-emerald-400',
+                href: '/dashboard/admin/orders',
             },
             {
                 label: t('home.stats.cancellation_rate'),
@@ -306,12 +321,12 @@ export default function AdminDashboard() {
 
                     <div className="flex flex-wrap items-center gap-4 bg-background/40 p-2 rounded-[2rem] border border-border shadow-2xl backdrop-blur-xl">
                         {[
-                            { id: 'today', label: 'Today' },
-                            { id: 'week', label: '7D' },
-                            { id: 'month', label: '30D' },
-                            { id: 'quarter', label: 'Quarter' },
-                            { id: 'year', label: '1Y' },
-                            { id: 'custom', label: 'Custom' },
+                            { id: 'today', label: 'Hôm nay' },
+                            { id: 'week', label: '7 Ngày' },
+                            { id: 'month', label: '30 Ngày' },
+                            { id: 'quarter', label: 'Quý này' },
+                            { id: 'year', label: '1 Năm' },
+                            { id: 'custom', label: 'Tùy chọn' },
                         ].map((p) => (
                             <button
                                 key={p.id}
@@ -334,7 +349,7 @@ export default function AdminDashboard() {
                                     className="bg-background/60 border border-border rounded-lg px-2 py-1 text-[10px] text-foreground focus:outline-none focus:border-gold/50 cursor-pointer"
                                     onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                                 />
-                                <span className="text-muted-foreground/50 text-[10px]">to</span>
+                                <span className="text-muted-foreground/50 text-[10px]">đến</span>
                                 <input 
                                     type="date" 
                                     className="bg-background/60 border border-border rounded-lg px-2 py-1 text-[10px] text-foreground focus:outline-none focus:border-gold/50 cursor-pointer"
@@ -359,9 +374,9 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* ── KPI Stats ──────────────────────────────────────────── */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                     {overviewLoading
-                        ? Array.from({ length: 6 }).map((_, i) => (
+                        ? Array.from({ length: 8 }).map((_, i) => (
                             <div key={i} className="glass bg-background/40 rounded-[2rem] border border-border p-8 animate-pulse h-40" />
                         ))
                         : statCards.map((card: any, i) => {

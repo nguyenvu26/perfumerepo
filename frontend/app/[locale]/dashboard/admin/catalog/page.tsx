@@ -260,9 +260,9 @@ export default function AdminCatalog() {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center sm:p-4 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm" onClick={closeModal}>
             <div
-              className="bg-background border-t sm:border border-border rounded-t-[2.5rem] sm:rounded-[2.5rem] max-w-lg w-full h-[90vh] sm:h-auto flex flex-col p-6 sm:p-10 shadow-2xl relative mt-auto sm:mt-0"
+              className="bg-background border border-border rounded-[2.5rem] max-w-lg w-full h-auto max-h-[90vh] flex flex-col p-6 sm:p-10 shadow-2xl relative"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-8 shrink-0">

@@ -12,7 +12,9 @@ import {
   Search,
   X,
   Image as ImageIcon,
+  Barcode,
 } from "lucide-react";
+import { BarcodePrintModal } from "@/components/staff/barcode-print-modal";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -62,6 +64,8 @@ export default function StaffInventory() {
   const [showInspectionModal, setShowInspectionModal] = useState(false);
   const [inspectingTransfer, setInspectingTransfer] = useState<TransferOrder | null>(null);
   const [inspectionData, setInspectionData] = useState<Record<string, { actualQty: number; note: string }>>({});
+  const [barcodeStoreId, setBarcodeStoreId] = useState<string | null>(null);
+  const [barcodeVariantIds, setBarcodeVariantIds] = useState<string[] | undefined>(undefined);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadMyStores = useCallback(async () => {
@@ -272,14 +276,27 @@ export default function StaffInventory() {
             </p>
           </div>
           {selectedStoreId && (
-            <button
-              type="button"
-              onClick={openImportModal}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-foreground font-heading text-[10px] uppercase tracking-widest hover:bg-gold/90 transition-colors shadow-lg w-full sm:w-auto justify-center"
-            >
-              <PackagePlus className="w-4 h-4" />
-              {t("operations.import_btn")}
-            </button>
+            <div className="flex w-full sm:w-auto gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setBarcodeStoreId(selectedStoreId);
+                  setBarcodeVariantIds(undefined);
+                }}
+                className="flex flex-1 sm:flex-initial items-center gap-2 px-6 py-3 rounded-full bg-violet-500 text-white font-heading text-[10px] uppercase tracking-widest hover:bg-violet-600 transition-colors shadow-lg justify-center"
+              >
+                <Barcode className="w-4 h-4" />
+                In mã vạch
+              </button>
+              <button
+                type="button"
+                onClick={openImportModal}
+                className="flex flex-1 sm:flex-initial items-center gap-2 px-6 py-3 rounded-full bg-gold text-primary-foreground font-heading text-[10px] uppercase tracking-widest hover:bg-gold/90 transition-colors shadow-lg justify-center"
+              >
+                <PackagePlus className="w-4 h-4" />
+                {t("operations.import_btn")}
+              </button>
+            </div>
           )}
         </header>
 
@@ -475,14 +492,26 @@ export default function StaffInventory() {
                                           : "bg-success/10 border-success/30 text-success"
                                     }`}
                                   >
-                                    {row.stock === 0
-                                      ? t("status.out")
-                                      : isLow
-                                        ? t("status.low")
-                                        : t("status.optimal")}
+                                      {row.stock === 0
+                                        ? t("status.out")
+                                        : isLow
+                                          ? t("status.low")
+                                          : t("status.optimal")}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setBarcodeStoreId(null);
+                                        setBarcodeVariantIds([row.id]);
+                                      }}
+                                      className="p-2 ml-2 rounded-full border border-violet-500/30 text-violet-500 hover:bg-violet-500 hover:text-white transition-colors"
+                                      title="In tem"
+                                    >
+                                      <Barcode className="w-4 h-4" />
+                                    </button>
                                   </div>
-                                </div>
-                              </button>
+                                </button>
                             );
                           })}
                         </div>
@@ -977,6 +1006,18 @@ export default function StaffInventory() {
             </div>
           </div>
         )}
+
+        <BarcodePrintModal
+          open={!!barcodeStoreId || !!barcodeVariantIds}
+          onOpenChange={(v) => {
+            if (!v) {
+              setBarcodeStoreId(null);
+              setBarcodeVariantIds(undefined);
+            }
+          }}
+          storeId={barcodeStoreId || undefined}
+          variantIds={barcodeVariantIds}
+        />
       </main>
     </AuthGuard>
   );

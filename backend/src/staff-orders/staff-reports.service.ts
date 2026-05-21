@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { OrderChannel, PaymentStatus } from '@prisma/client';
+import { getVietnamDayRangeUtc } from '../common/vietnam-time';
 
 export interface DailyReport {
   date: string;
@@ -40,10 +41,7 @@ export class StaffReportsService {
     storeId?: string,
   ): Promise<DailyReport> {
     const today = dateStr ? new Date(dateStr) : new Date();
-    const startOfDay = new Date(today);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(today);
-    endOfDay.setHours(23, 59, 59, 999);
+    const { startUtc: startOfDay, endUtc: endOfDay, vnDate } = getVietnamDayRangeUtc(today);
 
     let finalStartOfDay = startOfDay;
 
@@ -191,14 +189,18 @@ export class StaffReportsService {
     }
 
     for (const order of paidOrders) {
-        // Simple hour extraction, adjust for timezone if needed
-        const hour = new Date(order.createdAt).getUTCHours() + 7; 
-        const normalizedHour = hour >= 24 ? hour - 24 : hour;
-        const entry = hourlySalesMap.get(normalizedHour);
-        if (entry) {
-            entry.revenue += (order.finalAmount - order.refundAmount);
-            entry.orderCount += 1;
-        }
+      // Hour in VN time zone (0-23)
+      const hourStr = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: '2-digit',
+        hour12: false,
+      }).format(order.createdAt);
+      const hour = Number(hourStr);
+      const entry = hourlySalesMap.get(hour);
+      if (entry) {
+        entry.revenue += order.finalAmount - order.refundAmount;
+        entry.orderCount += 1;
+      }
     }
 
     const hourlySales = Array.from(hourlySalesMap.entries()).map(([hour, stats]) => ({
@@ -207,7 +209,8 @@ export class StaffReportsService {
     }));
 
     return {
-      date: startOfDay.toISOString().slice(0, 10),
+      // Always return VN calendar date so frontend won't display "yesterday" due to UTC ISO string.
+      date: vnDate,
       totalRevenue,
       cashRevenue,
       transferRevenue,

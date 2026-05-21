@@ -335,10 +335,10 @@ export default function ProductDetail({ product }: { product: Product }) {
               <button
                 type="button"
                 onClick={() => activeImage && setZoomed(true)}
-                className="relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden bg-[#f7f4ef]"
+                className="relative flex aspect-[3/4] w-full items-center justify-center overflow-hidden bg-[#f7f4ef]"
               >
                 {activeImage ? (
-                  <img src={activeImage} alt={product.name} className="h-full w-full object-contain p-8 md:p-10" />
+                  <img src={activeImage} alt={product.name} className="h-full w-full object-cover scale-[1.03]" />
                 ) : (
                   <span className="px-8 text-center text-sm text-muted-foreground">{t('visual_data_unavailable')}</span>
                 )}

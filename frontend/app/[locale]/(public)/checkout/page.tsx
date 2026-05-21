@@ -75,12 +75,14 @@ function PaymentOptionRow({
     icon: Icon,
     selected,
     onSelect,
+    imageSrc,
 }: {
     title: string;
     description: string;
     icon: any;
     selected: boolean;
     onSelect: () => void;
+    imageSrc?: string;
 }) {
     return (
         <button
@@ -101,9 +103,15 @@ function PaymentOptionRow({
                     <p className="text-xs text-muted-foreground">{description}</p>
                 </div>
             </div>
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted/40 text-gold">
-                <Icon size={18} />
-            </div>
+            {imageSrc ? (
+                <div className="flex h-8 px-2 flex-shrink-0 items-center justify-center rounded-lg bg-white p-1 border border-border/40 shadow-sm">
+                    <img src={imageSrc} alt={title} className="h-full w-auto object-contain" />
+                </div>
+            ) : (
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-muted/40 text-gold">
+                    <Icon size={18} />
+                </div>
+            )}
         </button>
     );
 }
@@ -116,7 +124,7 @@ export default function CheckoutPage() {
     const format = useFormatter();
     const tFeatured = useTranslations('featured');
     const { isAuthenticated } = useAuth();
-    
+
     const [view, setView] = useState<'checkout' | 'qr'>('checkout');
     const [cartItems, setCartItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -156,14 +164,16 @@ export default function CheckoutPage() {
         {
             key: 'COD' as const,
             title: codTitle,
-            description: locale === 'vi' ? 'Thanh toán bằng tiền mặt khi shipper giao hàng' : 'Pay with cash upon delivery',
+            description: locale === 'vi' ? 'Thanh toán bằng tiền mặt khi nhận hàng' : 'Pay with cash upon delivery',
             icon: Wallet,
+            imageSrc: '/COD1.webp',
         },
         {
             key: 'ONLINE' as const,
             title: onlineTitle,
-            description: locale === 'vi' ? 'VietQR, PayOS, Thẻ tín dụng' : 'VietQR, PayOS, Credit card',
+            description: locale === 'vi' ? 'VietQR, PayOS' : 'VietQR, PayOS',
             icon: CreditCard,
+            imageSrc: '/PAYOS.png',
         }
     ];
 
@@ -198,7 +208,7 @@ export default function CheckoutPage() {
                     }
                     setView('qr');
                     setLoading(false);
-                    
+
                     // Fetch configured ghn
                     ghnService.isConfigured().then((r) => {
                         if (r.configured) setGhnEnabled(true);
@@ -283,8 +293,7 @@ export default function CheckoutPage() {
 
     const subtotal = cartItems.reduce((acc, i) => acc + i.variant.price * i.quantity, 0);
     const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-    const vat = subtotal * 0.08; // Added VAT visual like the design
-    const total = Math.max(0, subtotal - couponDiscount + shippingFee + vat);
+    const total = Math.max(0, subtotal - couponDiscount + shippingFee);
 
     useEffect(() => {
         if (!paymentExpiresAt) return;
@@ -523,9 +532,9 @@ export default function CheckoutPage() {
         <div className="min-h-screen bg-background text-foreground transition-colors">
             <main className="container-responsive pt-28 pb-12 lg:pt-36 lg:pb-16">
                 <div className="mx-auto max-w-[1440px]">
-                    
+
                     <div className="grid gap-10 xl:gap-14 lg:grid-cols-[minmax(0,1fr)_420px]">
-                        
+
                         {/* Left Column */}
                         <div className="space-y-6">
                             {/* Shipping & Payment Method Section */}
@@ -533,10 +542,10 @@ export default function CheckoutPage() {
                                 <h2 className="text-xl font-semibold text-foreground">
                                     {locale === 'vi' ? 'Phương thức giao hàng & Thanh toán' : 'Shipping & Payment'}
                                 </h2>
-                                
+
                                 <div className="rounded-2xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
                                     <div className="grid gap-8 md:grid-cols-2 md:divide-x md:divide-border/40">
-                                        
+
                                         {/* Left: Payment Method */}
                                         <div className="md:pr-8">
                                             <h3 className="text-base font-medium text-foreground mb-4">
@@ -551,6 +560,7 @@ export default function CheckoutPage() {
                                                         icon={option.icon}
                                                         selected={paymentMethod === option.key}
                                                         onSelect={() => setPaymentMethod(option.key)}
+                                                        imageSrc={option.imageSrc}
                                                     />
                                                 ))}
                                             </div>
@@ -574,23 +584,28 @@ export default function CheckoutPage() {
                                                                 key={service.service_id}
                                                                 onClick={() => setSelectedServiceId(service.service_id)}
                                                                 className={cn(
-                                                                    'w-full flex flex-col gap-0.5 rounded-xl border px-4 py-3 text-left transition-all',
+                                                                    'w-full flex items-center justify-between gap-4 rounded-xl border px-4 py-3 text-left transition-all',
                                                                     selectedServiceId === service.service_id
                                                                         ? 'border-gold bg-gold/[0.05]'
                                                                         : 'border-border/60 bg-muted/20 hover:border-gold/40'
                                                                 )}
                                                             >
-                                                                <p className="text-sm font-semibold text-foreground">{service.short_name}</p>
-                                                                <p className="text-xs text-muted-foreground">GHN Express</p>
-                                                                {selectedServiceId === service.service_id && (
-                                                                    <p className={cn('text-[13px] font-medium mt-1.5', feeError ? 'text-red-400' : 'text-gold')}>
-                                                                        {loadingFee
-                                                                            ? (locale === 'vi' ? 'Đang tính phí...' : 'Calculating...')
-                                                                            : feeError
-                                                                                ? feeError
-                                                                                : t('estimated_shipping_fee', { fee: formatCurrency(shippingFee) })}
-                                                                    </p>
-                                                                )}
+                                                                <div className="flex flex-col gap-0.5 flex-1">
+                                                                    <p className="text-sm font-semibold text-foreground">{service.short_name}</p>
+                                                                    <p className="text-xs text-muted-foreground">GHN Express</p>
+                                                                    {selectedServiceId === service.service_id && (
+                                                                        <p className={cn('text-[13px] font-medium mt-1.5', feeError ? 'text-red-400' : 'text-gold')}>
+                                                                            {loadingFee
+                                                                                ? (locale === 'vi' ? 'Đang tính phí...' : 'Calculating...')
+                                                                                : feeError
+                                                                                    ? feeError
+                                                                                    : t('estimated_shipping_fee', { fee: formatCurrency(shippingFee) })}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex h-8 px-2 flex-shrink-0 items-center justify-center rounded-lg bg-white p-1 border border-border/40 shadow-sm">
+                                                                    <img src="/GHN.png" alt="GHN Express" className="h-full w-auto object-contain" />
+                                                                </div>
                                                             </button>
                                                         ))}
                                                     </div>
@@ -610,7 +625,7 @@ export default function CheckoutPage() {
                                 <h2 className="text-xl font-semibold text-foreground">
                                     {locale === 'vi' ? 'Thông tin giao hàng' : 'Shipping Information'}
                                 </h2>
-                                
+
                                 <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
                                     <AddressSelector
                                         selectedId={selectedAddress?.id}
@@ -706,7 +721,7 @@ export default function CheckoutPage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <button 
+                                        <button
                                             onClick={() => setIsVoucherModalOpen(true)}
                                             className="flex items-center gap-2 text-xs font-medium text-gold hover:text-gold-dark transition-colors pl-1"
                                         >
@@ -728,10 +743,7 @@ export default function CheckoutPage() {
                                             {ghnEnabled && shippingFee === 0 ? (locale === 'vi' ? 'Miễn phí' : 'Free') : formatCurrency(shippingFee)}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between items-center text-muted-foreground">
-                                        <span>{locale === 'vi' ? 'Thuế VAT (8%)' : 'VAT (8%)'}</span>
-                                        <span className="font-medium text-foreground">{formatCurrency(vat)}</span>
-                                    </div>
+
                                 </div>
 
                                 {/* Total */}
@@ -739,9 +751,7 @@ export default function CheckoutPage() {
                                     <span className="text-base font-semibold text-foreground">{t('total')}</span>
                                     <div className="text-right">
                                         <span className="text-2xl font-bold text-gold tracking-tight">{formatCurrency(total)}</span>
-                                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
-                                            {locale === 'vi' ? '(Đã bao gồm VAT)' : '(VAT included)'}
-                                        </p>
+
                                     </div>
                                 </div>
 
@@ -757,7 +767,7 @@ export default function CheckoutPage() {
                                         locale === 'vi' ? 'Đặt hàng ngay' : 'Place order'
                                     )}
                                 </button>
-                                
+
                                 <p className="mt-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
                                     <Lock size={12} />
                                     {locale === 'vi' ? 'Thông tin của bạn được bảo mật tuyệt đối' : 'Your information is highly secure'}

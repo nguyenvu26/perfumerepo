@@ -681,7 +681,23 @@ export class ShippingService implements OnModuleInit, OnModuleDestroy {
         try {
           await this.syncShipmentStatus(s.id);
         } catch (e: any) {
-          console.warn(`GHN fallback sync failed for ${s.id}: ${e?.message}`);
+          const errorMsg = e?.response?.data?.message || e?.message || e;
+          console.warn(
+            `GHN fallback sync failed for shipment ${s.id} (Order: ${s.ghnOrderCode}): ${errorMsg}`,
+          );
+
+          // Update updatedAt to push the failing shipment to the back of the queue
+          await this.prisma.shipment
+            .update({
+              where: { id: s.id },
+              data: { updatedAt: new Date() },
+            })
+            .catch((dbErr) => {
+              console.error(
+                `Failed to update shipment timestamp for ${s.id}:`,
+                dbErr,
+              );
+            });
         }
       }
     } finally {

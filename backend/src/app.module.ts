@@ -35,12 +35,15 @@ import { AiPreferencesModule } from './ai-preferences/ai-preferences.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { DailyClosingModule } from './daily-closing/daily-closing.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { BarcodeModule } from './barcode/barcode.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -73,6 +76,7 @@ import { InventoryModule } from './inventory/inventory.module';
     AnalyticsModule,
     DailyClosingModule,
     InventoryModule,
+    BarcodeModule,
   ],
 
   controllers: [AppController],

@@ -43,8 +43,8 @@ export function ChannelDonutChart({ online, pos, loading }: ChannelDonutChartPro
     const t = useTranslations('admin_dashboard');
     const total = online + pos;
     const chartData = [
-        { name: 'Online', value: online },
-        { name: 'POS (In-store)', value: pos },
+        { name: t('channel_online'), value: online },
+        { name: t('channel_pos'), value: pos },
     ];
 
     return (
@@ -99,7 +99,7 @@ export function ChannelDonutChart({ online, pos, loading }: ChannelDonutChartPro
                             <Legend
                                 iconType="circle"
                                 iconSize={8}
-                                wrapperStyle={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
+                                wrapperStyle={{ fontSize: '9px', fontWeight: 600, letterSpacing: '0.05em' }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
@@ -110,7 +110,7 @@ export function ChannelDonutChart({ online, pos, loading }: ChannelDonutChartPro
                             <div key={item.name} className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i] }} />
-                                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">{item.name}</span>
+                                    <span className="text-[10px] text-muted-foreground font-bold">{item.name}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="text-[10px] font-bold text-foreground">{item.value}</span>

@@ -40,8 +40,12 @@ import {
   User,
   ArrowLeft,
   Wallet,
+  Zap,
+  Barcode,
+  Calendar,
 } from "lucide-react";
 import { inventoryTransferService } from "@/services/inventory-transfer.service";
+import { BarcodePrintModal } from "@/components/staff/barcode-print-modal";
 import { useLocale } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -49,6 +53,9 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useTranslations, useFormatter } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { InventoryHealthWidget } from "@/components/dashboard/admin/InventoryHealthWidget";
+import { StockHeatmapWidget } from "@/components/dashboard/admin/StockHeatmapWidget";
+import { ExpiryAlertWidget } from "@/components/dashboard/admin/ExpiryAlertWidget";
 
 type BatchItem = {
   variantId: string;
@@ -57,10 +64,13 @@ type BatchItem = {
   brandName: string;
   quantity: number;
   costPrice: number; // New field for Purchase Price
+  batchCode?: string;
+  mfgDate?: string;
+  expiryDate?: string;
   sku?: string;
 };
 
-type TabType = "overview" | "batch-import" | "transfer" | "requests" | "history";
+type TabType = "overview" | "batch-import" | "transfer" | "requests" | "history" | "ai-toolbox";
 
 export default function AdminStockRedesignPage() {
   const t = useTranslations("dashboard.admin.stock");
@@ -110,6 +120,15 @@ export default function AdminStockRedesignPage() {
   const [historyFilterType, setHistoryFilterType] = useState<string>("");
   const historyTake = 20;
 
+  // AI Toolbox State
+  const [isAiToolboxExpanded, setIsAiToolboxExpanded] = useState(true);
+  const [activeAiTool, setActiveAiTool] = useState<"health" | "heatmap" | "expiry">("health");
+
+  // Barcode Print State
+  const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [barcodeVariantIds, setBarcodeVariantIds] = useState<string[]>([]);
+  const [barcodeInitialQuantities, setBarcodeInitialQuantities] = useState<Record<string, number>>({});
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -147,6 +166,26 @@ export default function AdminStockRedesignPage() {
       })),
     );
   }, [products]);
+
+  const variantStockMapping = useMemo(() => {
+    const mapping = new Map<string, { globalTotal: number; storeStocks: Record<string, number> }>();
+    if (!overview) return mapping;
+    
+    overview.stores.forEach((storeData) => {
+      const storeId = storeData.store.id;
+      storeData.variants.forEach((v) => {
+        const variantId = v.variantId;
+        const qty = Number(v.available) || 0;
+        if (!mapping.has(variantId)) {
+          mapping.set(variantId, { globalTotal: 0, storeStocks: {} });
+        }
+        const entry = mapping.get(variantId)!;
+        entry.globalTotal += qty;
+        entry.storeStocks[storeId] = qty;
+      });
+    });
+    return mapping;
+  }, [overview]);
 
   const filteredVariantsImport = useMemo(() => {
     if (!importSearch.trim()) return allVariants;
@@ -345,6 +384,9 @@ export default function AdminStockRedesignPage() {
         brandName: variant.brandName,
         quantity: 1,
         costPrice: variant.purchasePrice || 0,
+        batchCode: "",
+        mfgDate: "",
+        expiryDate: "",
       },
     ]);
     setImportSearch("");
@@ -377,7 +419,10 @@ export default function AdminStockRedesignPage() {
         items: importItems.map(item => ({
           variantId: item.variantId,
           quantity: item.quantity,
-          purchasePrice: item.costPrice
+          purchasePrice: item.costPrice,
+          batchCode: item.batchCode,
+          mfgDate: item.mfgDate,
+          expiryDate: item.expiryDate,
         })),
         reason: importReason || t("import.default_reason"),
       });
@@ -489,7 +534,7 @@ export default function AdminStockRedesignPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-16 h-[1px] bg-gold/50" />
-                <span className="text-[11px] uppercase tracking-[.5em] font-black text-gold italic">Global Logistics Intelligence</span>
+                <span className="text-[11px] uppercase tracking-[.5em] font-black text-gold italic">Hệ thống Điều vận Toàn hệ thống</span>
               </div>
               <h1 className="text-7xl sm:text-8xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-[0.8]">
                 {t('title')}
@@ -539,18 +584,19 @@ export default function AdminStockRedesignPage() {
                 { id: "transfer", icon: ArrowRightLeft, label: t('tabs.transfer') },
                 { id: "requests", icon: ClipboardCheck, label: t('tabs.requests') },
                 { id: "history", icon: History, label: tInv('history_title') },
+                { id: "ai-toolbox", icon: Zap, label: "Điều Vận" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={cn(
-                    "flex items-center gap-3 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500",
+                    "flex items-center gap-3 px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 whitespace-nowrap shrink-0",
                     activeTab === tab.id 
                       ? "bg-gold text-white shadow-[0_10px_30px_rgba(212,175,55,0.3)] scale-105" 
                       : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                   )}
                 >
-                  <tab.icon className="w-4 h-4" /> {tab.label}
+                  <tab.icon className="w-4 h-4 shrink-0" /> {tab.label}
                 </button>
               ))}
             </div>
@@ -597,10 +643,10 @@ export default function AdminStockRedesignPage() {
                   {/* Summary Stats Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     {[
-                      { label: tInv('matrix.stats.total_sku'), value: stats.totalSku, icon: Layers, color: "text-blue-500", bg: "from-blue-500/10" },
-                      { label: tInv('matrix.stats.global_stock'), value: stats.globalUnits, icon: Globe, color: "text-emerald-500", bg: "from-emerald-500/10" },
-                      { label: tInv('matrix.stats.low_stock_alerts'), value: stats.lowStockAlerts, icon: AlertCircle, color: "text-amber-500", highlight: stats.lowStockAlerts > 0, bg: "from-amber-500/10" },
-                      { label: tInv('matrix.stats.active_warehouses'), value: stats.activeHubs, icon: Building2, color: "text-gold", bg: "from-gold/10" },
+                      { label: tInv('matrix.stats.total_sku'), value: stats.totalSku, icon: Layers, color: "text-blue-500", bg: "from-blue-500/10", unit: "Sản phẩm" },
+                      { label: tInv('matrix.stats.global_stock'), value: stats.globalUnits, icon: Globe, color: "text-emerald-500", bg: "from-emerald-500/10", unit: "Đơn vị" },
+                      { label: tInv('matrix.stats.low_stock_alerts'), value: stats.lowStockAlerts, icon: AlertCircle, color: "text-amber-500", highlight: stats.lowStockAlerts > 0, bg: "from-amber-500/10", unit: "Sản phẩm" },
+                      { label: tInv('matrix.stats.active_warehouses'), value: stats.activeHubs, icon: Building2, color: "text-gold", bg: "from-gold/10", unit: "Kho" },
                     ].map((stat, i) => (
                       <motion.div
                         key={i}
@@ -624,7 +670,7 @@ export default function AdminStockRedesignPage() {
                             </div>
                             {stat.highlight && (
                               <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500 animate-pulse">Critical Alert</span>
+                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500 animate-pulse">Cảnh báo nghiêm trọng</span>
                               </div>
                             )}
                           </div>
@@ -638,7 +684,7 @@ export default function AdminStockRedesignPage() {
                               )}>
                                 {stat.value}
                               </span>
-                              <span className="text-[10px] font-bold opacity-20 uppercase tracking-widest mb-1 italic">Records</span>
+                              <span className="text-[10px] font-bold opacity-20 uppercase tracking-widest mb-1 italic">{stat.unit || 'Mục'}</span>
                             </div>
                           </div>
                         </div>
@@ -676,35 +722,14 @@ export default function AdminStockRedesignPage() {
                           type="text"
                           value={matrixSearch}
                           onChange={(e) => setMatrixSearch(e.target.value)}
-                          placeholder="Search global assets by SKU, brand, or name..."
+                          placeholder="Tìm kiếm tài sản toàn hệ thống theo SKU, thương hiệu, hoặc tên..."
                           className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-[11px] font-bold tracking-wider outline-none focus:border-gold/50 focus:bg-white/[0.07] transition-all placeholder:text-muted-foreground/30 shadow-inner"
                         />
                       </div>
 
-                      {/* Configurable Low Stock Threshold Control */}
-                      <div className="flex items-center gap-2.5 bg-white/5 border border-white/10 rounded-2xl px-5 py-3 shadow-inner shrink-0">
-                        <span className="text-[8px] uppercase font-black tracking-widest text-muted-foreground whitespace-nowrap">Báo Động: ≤</span>
-                        <input
-                          type="number"
-                          value={lowStockThreshold}
-                          onChange={(e) => setLowStockThreshold(Math.max(0, parseInt(e.target.value) || 0))}
-                          className="w-12 bg-transparent text-gold font-heading text-sm italic leading-none focus:outline-none text-center border-b border-gold/30 focus:border-gold"
-                        />
-                        <span className="text-[8px] uppercase font-bold text-muted-foreground/60 whitespace-nowrap">Qty</span>
-                      </div>
+
                       
-                      {viewMode === "store" && (
-                        <select
-                          value={selectedStoreId || ""}
-                          onChange={(e) => setSelectedStoreId(e.target.value || null)}
-                          className="bg-white/5 border border-white/10 rounded-2xl px-8 py-4 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold/50 transition-all cursor-pointer hover:bg-white/10 min-w-[200px]"
-                        >
-                          <option value="">All Locations</option>
-                          {warehouses.map(w => (
-                            <option key={w.id} value={w.id}>{w.name}</option>
-                          ))}
-                        </select>
-                      )}
+
                     </div>
                   </div>
 
@@ -731,7 +756,7 @@ export default function AdminStockRedesignPage() {
                                 {tInv('matrix.global_total')}
                               </th>
                               <th className="px-8 py-10 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center min-w-[100px]">
-                                Ops
+                                Thao tác
                               </th>
                             </tr>
                           </thead>
@@ -741,8 +766,8 @@ export default function AdminStockRedesignPage() {
                                 <td colSpan={warehouses.length + 3} className="px-12 py-40 text-center">
                                   <div className="flex flex-col items-center justify-center opacity-20 italic">
                                     <PackageSearch className="w-20 h-20 mb-6" />
-                                    <p className="text-3xl font-heading uppercase tracking-widest">No assets discovered</p>
-                                    <p className="text-xs mt-2 font-black">Refine your search parameters or check warehouse sync</p>
+                                    <p className="text-3xl font-heading uppercase tracking-widest">Không tìm thấy tài sản nào</p>
+                                    <p className="text-xs mt-2 font-black">Hãy điều chỉnh bộ lọc tìm kiếm hoặc kiểm tra đồng bộ kho</p>
                                   </div>
                                 </td>
                               </tr>
@@ -804,7 +829,7 @@ export default function AdminStockRedesignPage() {
                                             {qty}
                                           </span>
                                           {qty > 0 && qty <= lowStockThreshold && (
-                                            <span className="text-[8px] uppercase font-black tracking-tighter text-amber-500/50">Low Stock</span>
+                                            <span className="text-[8px] uppercase font-black tracking-tighter text-amber-500/50">Sắp Hết</span>
                                           )}
                                         </div>
                                       </td>
@@ -818,7 +843,7 @@ export default function AdminStockRedesignPage() {
                                       )}>
                                         {v.total}
                                       </span>
-                                      <span className="text-[9px] uppercase font-black tracking-[.3em] opacity-30 italic">Total Global</span>
+                                      <span className="text-[9px] uppercase font-black tracking-[.3em] opacity-30 italic">Tổng Toàn Hệ Thống</span>
                                     </div>
                                   </td>
                                   <td className="px-8 py-8 text-center">
@@ -885,7 +910,7 @@ export default function AdminStockRedesignPage() {
                             <div className="flex items-center gap-4">
                               <div className="glass px-8 py-5 rounded-[1.5rem] border-white/10 text-center min-w-[150px] shadow-xl">
                                 <p className="font-heading text-3xl text-gold leading-none italic">{storeData.totalUnits}</p>
-                                <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-40 mt-2">Active Assets</p>
+                                <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-black opacity-40 mt-2">Tổng Tồn Kho</p>
                               </div>
                               <button 
                                 onClick={() => {
@@ -955,7 +980,7 @@ export default function AdminStockRedesignPage() {
                                           )}>
                                             {v.available}
                                           </span>
-                                          {v.available <= 5 && <span className="text-[8px] uppercase font-black text-amber-500/50 mt-1">Low Stock</span>}
+                                          {v.available <= 5 && <span className="text-[8px] uppercase font-black text-amber-500/50 mt-1">Sắp Hết</span>}
                                         </div>
                                       </td>
                                     </tr>
@@ -1032,51 +1057,80 @@ export default function AdminStockRedesignPage() {
                   </div>
                   <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
                     <div className="grid grid-cols-1 gap-3">
-                      {filteredVariantsImport.map((v) => (
-                        <button
-                          key={v.id}
-                          onClick={() => addImportItem(v)}
-                          className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 hover:bg-gold/10 border border-border hover:border-gold/30 transition-all text-left group"
-                        >
-                          <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
-                            {v.imageUrl ? (
-                              <img
-                                src={v.imageUrl}
-                                alt={v.productName}
-                                className="w-12 h-12 rounded-xl object-cover border border-border group-hover:border-gold/30 transition-all shrink-0"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 rounded-xl bg-secondary/50 border border-border flex items-center justify-center shrink-0">
-                                <PackageSearch className="w-5 h-5 text-muted-foreground/30" />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[9px] font-heading uppercase text-gold mb-1">
-                                {v.brandName}
-                              </p>
-                              <p className="text-xs font-bold uppercase tracking-tight leading-tight group-hover:text-gold transition-colors">
-                                {v.productName}
-                              </p>
-                              <div className="flex items-center gap-3 mt-2">
-                                <span className="text-[9px] px-3 py-0.5 bg-background border border-border rounded-full font-heading text-foreground uppercase tracking-widest">
-                                  {v.variantName}
-                                </span>
-                                <span className="text-[8px] text-muted-foreground font-mono tracking-tighter">
-                                  SKU: {v.sku || "N/A"}
-                                </span>
-                                <span
-                                  className={`text-[8px] font-heading px-2 py-0.5 rounded-full ${v.stock === 0 ? "bg-destructive/10 text-destructive" : v.stock <= 5 ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}
-                                >
-                                  {t('import.stock_label', { count: v.stock })}
-                                </span>
+                      {filteredVariantsImport.map((v) => {
+                        const stockInfo = variantStockMapping.get(v.id) || { globalTotal: 0, storeStocks: {} };
+                        const globalTotal = stockInfo.globalTotal;
+                        const destStock = importStoreId ? (stockInfo.storeStocks[importStoreId] || 0) : 0;
+
+                        return (
+                          <button
+                            key={v.id}
+                            onClick={() => addImportItem(v)}
+                            className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 hover:bg-gold/10 border border-border hover:border-gold/30 transition-all text-left group"
+                          >
+                            <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
+                              {v.imageUrl ? (
+                                <img
+                                  src={v.imageUrl}
+                                  alt={v.productName}
+                                  className="w-12 h-12 rounded-xl object-cover border border-border group-hover:border-gold/30 transition-all shrink-0"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-xl bg-secondary/50 border border-border flex items-center justify-center shrink-0">
+                                  <PackageSearch className="w-5 h-5 text-muted-foreground/30" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[9px] font-heading uppercase text-gold mb-1">
+                                  {v.brandName}
+                                </p>
+                                <p className="text-xs font-bold uppercase tracking-tight leading-tight group-hover:text-gold transition-colors">
+                                  {v.productName}
+                                </p>
+                                <div className="flex flex-wrap items-center gap-3 mt-2">
+                                  <span className="text-[9px] px-3 py-0.5 bg-background border border-border rounded-full font-heading text-foreground uppercase tracking-widest">
+                                    {v.variantName}
+                                  </span>
+                                  <span className="text-[8px] text-muted-foreground font-mono tracking-tighter">
+                                    SKU: {v.sku || "N/A"}
+                                  </span>
+                                  
+                                  {/* Global Stock Badge */}
+                                  <span
+                                    className={`text-[8px] font-heading px-2 py-0.5 rounded-full border ${
+                                      globalTotal === 0
+                                        ? "bg-destructive/10 text-destructive border-destructive/20"
+                                        : globalTotal <= 5
+                                        ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                        : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                                    }`}
+                                  >
+                                    Hệ thống: {globalTotal}
+                                  </span>
+
+                                  {/* Destination Stock Badge (when store is selected) */}
+                                  {importStoreId && (
+                                    <span
+                                      className={`text-[8px] font-heading px-2 py-0.5 rounded-full border ${
+                                        destStock === 0
+                                          ? "bg-red-500/10 text-red-500 border-red-500/20"
+                                          : destStock <= 5
+                                          ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                          : "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                                      }`}
+                                    >
+                                      Kho đích: {destStock}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div className="p-3 bg-background rounded-xl border border-border group-hover:bg-gold group-hover:text-primary-foreground transition-all">
-                            <Plus className="w-4 h-4" />
-                          </div>
-                        </button>
-                      ))}
+                            <div className="p-3 bg-background rounded-xl border border-border group-hover:bg-gold group-hover:text-primary-foreground transition-all">
+                              <Plus className="w-4 h-4" />
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -1111,98 +1165,158 @@ export default function AdminStockRedesignPage() {
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, scale: 0.95 }}
                               key={item.variantId}
-                              className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 border border-border hover:border-gold/30 transition-all text-left group"
+                              className="flex flex-col p-5 rounded-2xl bg-secondary/20 border border-border hover:border-gold/30 transition-all text-left group"
                             >
-                              <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
-                                {(() => {
-                                  const variant = allVariants.find(
-                                    (v) => v.id === item.variantId,
-                                  );
-                                  const imgUrl = variant?.imageUrl;
-                                  return imgUrl ? (
-                                    <img
-                                      src={imgUrl}
-                                      alt={item.productName}
-                                      className="w-10 h-10 rounded-lg object-cover border border-border shrink-0"
-                                    />
-                                  ) : (
-                                    <div className="w-10 h-10 rounded-lg bg-secondary/50 border border-border flex items-center justify-center shrink-0">
-                                      <PackageSearch className="w-4 h-4 text-muted-foreground/30" />
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
+                                  {(() => {
+                                    const variant = allVariants.find(
+                                      (v) => v.id === item.variantId,
+                                    );
+                                    const imgUrl = variant?.imageUrl;
+                                    return imgUrl ? (
+                                      <img
+                                        src={imgUrl}
+                                        alt={item.productName}
+                                        className="w-10 h-10 rounded-lg object-cover border border-border shrink-0"
+                                      />
+                                    ) : (
+                                      <div className="w-10 h-10 rounded-lg bg-secondary/50 border border-border flex items-center justify-center shrink-0">
+                                        <PackageSearch className="w-4 h-4 text-muted-foreground/30" />
+                                      </div>
+                                    );
+                                  })()}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[9px] font-heading uppercase text-gold mb-1">
+                                      {item.brandName}
+                                    </p>
+                                    <p className="text-xs font-bold uppercase tracking-tight leading-tight">
+                                      {item.productName}
+                                    </p>
+                                    <div className="flex items-center gap-3 mt-2">
+                                      <span className="text-[9px] px-3 py-0.5 bg-background border border-border rounded-full font-heading text-foreground uppercase tracking-widest">
+                                        {item.variantName}
+                                      </span>
                                     </div>
-                                  );
-                                })()}
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[9px] font-heading uppercase text-gold mb-1">
-                                    {item.brandName}
-                                  </p>
-                                  <p className="text-xs font-bold uppercase tracking-tight leading-tight">
-                                    {item.productName}
-                                  </p>
-                                  <div className="flex items-center gap-3 mt-2">
-                                    <span className="text-[9px] px-3 py-0.5 bg-background border border-border rounded-full font-heading text-foreground uppercase tracking-widest">
-                                      {item.variantName}
-                                    </span>
                                   </div>
                                 </div>
-                              </div>
-                              <div className="flex items-center gap-6">
-                                <div className="flex flex-col items-end">
-                                  <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
-                                    Giá nhập (VNĐ)
-                                  </label>
-                                  <div className="relative group/price">
+                                <div className="flex items-center gap-6">
+                                  <div className="flex flex-col items-end">
+                                    <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
+                                      Giá nhập (VNĐ)
+                                    </label>
+                                    <div className="relative group/price">
+                                      <input
+                                        type="number"
+                                        value={item.costPrice || ""}
+                                        onChange={(e) => {
+                                          const val = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
+                                          setImportItems((prev) =>
+                                            prev.map((it, i) =>
+                                              i === idx ? { ...it, costPrice: val } : it,
+                                            ),
+                                          );
+                                        }}
+                                        onFocus={(e) => e.target.select()}
+                                        placeholder="0"
+                                        className="w-32 bg-background border border-border rounded-xl pl-3 pr-8 py-2 text-right font-heading text-xs focus:border-emerald-500 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
+                                      />
+                                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] opacity-30 font-black">đ</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col items-end">
+                                    <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
+                                      {t('import.qty_label')}
+                                    </label>
                                     <input
                                       type="number"
-                                      value={item.costPrice || ""}
+                                      value={item.quantity || ""}
                                       onChange={(e) => {
-                                        const val = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
+                                        const val =
+                                          e.target.value === ""
+                                            ? 0
+                                            : parseInt(e.target.value, 10);
                                         setImportItems((prev) =>
                                           prev.map((it, i) =>
-                                            i === idx ? { ...it, costPrice: val } : it,
+                                            i === idx
+                                              ? { ...it, quantity: val }
+                                              : it,
                                           ),
                                         );
                                       }}
                                       onFocus={(e) => e.target.select()}
-                                      placeholder="0"
-                                      className="w-32 bg-background border border-border rounded-xl pl-3 pr-8 py-2 text-right font-heading text-xs focus:border-emerald-500 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
+                                      className="w-20 bg-background border border-border rounded-xl px-3 py-2 text-center font-heading text-xs focus:border-gold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
                                     />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] opacity-30 font-black">đ</span>
                                   </div>
+                                  <button
+                                    onClick={() =>
+                                      setImportItems((prev) =>
+                                        prev.filter((_, i) => i !== idx),
+                                      )
+                                    }
+                                    className="p-3 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
                                 </div>
-                                <div className="flex flex-col items-end">
-                                  <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
-                                    {t('import.qty_label')}
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-6 mt-5 pt-5 border-t border-border/10">
+                                <div>
+                                  <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1 block">
+                                    Mã lô (Batch Code)
                                   </label>
                                   <input
-                                    type="number"
-                                    value={item.quantity || ""}
+                                    type="text"
+                                    value={item.batchCode || ""}
                                     onChange={(e) => {
-                                      const val =
-                                        e.target.value === ""
-                                          ? 0
-                                          : parseInt(e.target.value, 10);
+                                      const val = e.target.value;
                                       setImportItems((prev) =>
                                         prev.map((it, i) =>
-                                          i === idx
-                                            ? { ...it, quantity: val }
-                                            : it,
+                                          i === idx ? { ...it, batchCode: val } : it,
                                         ),
                                       );
                                     }}
-                                    onFocus={(e) => e.target.select()}
-                                    className="w-20 bg-background border border-border rounded-xl px-3 py-2 text-center font-heading text-xs focus:border-gold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
+                                    placeholder="BATCH-001"
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-2 font-heading text-[10px] focus:border-gold outline-none transition-all"
                                   />
                                 </div>
-                                <button
-                                  onClick={() =>
-                                    setImportItems((prev) =>
-                                      prev.filter((_, i) => i !== idx),
-                                    )
-                                  }
-                                  className="p-3 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
+                                <div>
+                                  <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1 block">
+                                    Ngày sản xuất
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={item.mfgDate || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setImportItems((prev) =>
+                                        prev.map((it, i) =>
+                                          i === idx ? { ...it, mfgDate: val } : it,
+                                        ),
+                                      );
+                                    }}
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-2 font-heading text-[10px] focus:border-gold outline-none transition-all"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1 block">
+                                    Hạn sử dụng
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={item.expiryDate || ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setImportItems((prev) =>
+                                        prev.map((it, i) =>
+                                          i === idx ? { ...it, expiryDate: val } : it,
+                                        ),
+                                      );
+                                    }}
+                                    className="w-full bg-background border border-border rounded-xl px-4 py-2 font-heading text-[10px] focus:border-gold outline-none transition-all"
+                                  />
+                                </div>
                               </div>
                             </motion.div>
                           ))}
@@ -1210,7 +1324,23 @@ export default function AdminStockRedesignPage() {
                       </div>
                     )}
                   </div>
-                  <div className="p-10 border-t border-border bg-secondary/5">
+                  <div className="p-10 border-t border-border bg-secondary/5 flex flex-col gap-4">
+                    <button
+                      onClick={() => {
+                        const variantIds = importItems.map(i => i.variantId);
+                        const initialQuantities = Object.fromEntries(
+                          importItems.map(i => [i.variantId, i.quantity])
+                        );
+                        setBarcodeVariantIds(variantIds);
+                        setBarcodeInitialQuantities(initialQuantities);
+                        setShowBarcodeModal(true);
+                      }}
+                      disabled={importItems.length === 0}
+                      className="w-full py-4 glass text-foreground border border-gold/30 hover:border-gold/60 font-heading font-bold uppercase tracking-[0.2em] text-[10px] rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-[1.01] transition-all disabled:opacity-50"
+                    >
+                      <Barcode className="w-5 h-5" />
+                      In {importItems.length} mã vạch thuộc lô nhập này
+                    </button>
                     <button
                       onClick={handleBatchImport}
                       disabled={
@@ -1795,11 +1925,11 @@ export default function AdminStockRedesignPage() {
                     <motion.div
                       layout
                       key={req.id}
-                      className="glass rounded-[2.5rem] border-white/5 overflow-hidden group/req"
+                      className="glass rounded-[2.5rem] border-border/50 overflow-hidden group/req"
                     >
-                      <div className="p-8 border-b border-white/5 flex justify-between items-start">
+                      <div className="p-8 border-b border-border/50 flex justify-between items-start">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
+                          <div className="w-12 h-12 rounded-2xl bg-secondary/30 dark:bg-white/5 flex items-center justify-center border border-border/50">
                             <ClipboardCheck className="w-6 h-6 text-gold" />
                           </div>
                           <div>
@@ -1826,7 +1956,7 @@ export default function AdminStockRedesignPage() {
                           <span className="font-bold">{req.quantity} units</span>
                         </div>
                         {req.reason && (
-                          <div className="p-4 bg-white/5 rounded-2xl border border-white/5 italic text-[11px] text-muted-foreground">
+                          <div className="p-4 bg-secondary/30 dark:bg-white/5 rounded-2xl border border-border/50 italic text-[11px] text-muted-foreground">
                             "{req.reason}"
                           </div>
                         )}
@@ -1860,12 +1990,12 @@ export default function AdminStockRedesignPage() {
           {activeTab === "history" && (
             <div className="space-y-10 animate-in fade-in duration-700">
               <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-white/5 p-1.5 rounded-[2rem] border border-border dark:border-white/10 backdrop-blur-xl">
                    <button
                      onClick={() => setHistoryFilterType('')}
                      className={cn(
                        "px-8 py-3 rounded-full text-[10px] uppercase tracking-widest font-black transition-all",
-                       historyFilterType === '' ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-white/5"
+                       historyFilterType === '' ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-secondary/40 dark:hover:bg-white/5"
                      )}
                    >
                      Tất cả
@@ -1876,7 +2006,7 @@ export default function AdminStockRedesignPage() {
                        onClick={() => setHistoryFilterType(type)}
                        className={cn(
                          "px-8 py-3 rounded-full text-[10px] uppercase tracking-widest font-black transition-all",
-                         historyFilterType === type ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-white/5"
+                         historyFilterType === type ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-secondary/40 dark:hover:bg-white/5"
                        )}
                      >
                        {getTypeText(type)}
@@ -1889,17 +2019,17 @@ export default function AdminStockRedesignPage() {
                       <History className="w-5 h-5" />
                    </div>
                    <div>
-                      <p className="text-[9px] uppercase tracking-widest font-black opacity-40 leading-none mb-1">Audit Records</p>
+                      <p className="text-[9px] uppercase tracking-widest font-black opacity-40 leading-none mb-1">Lịch sử Biến động</p>
                       <p className="text-2xl font-heading italic leading-none">{historyTotal}</p>
                    </div>
                 </div>
               </div>
 
-              <section className="glass bg-white/[0.01] rounded-[3.5rem] border-white/5 overflow-hidden shadow-2xl">
+              <section className="glass bg-secondary/10 dark:bg-white/[0.01] rounded-[3.5rem] border-border overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-white/[0.03] backdrop-blur-md">
+                      <tr className="bg-secondary/20 dark:bg-white/[0.03] backdrop-blur-md">
                         <th className="pl-12 pr-4 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Sản phẩm</th>
                         <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Cửa hàng / Kho</th>
                         <th className="px-8 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center">Loại</th>
@@ -1914,7 +2044,7 @@ export default function AdminStockRedesignPage() {
                         Array.from({ length: 10 }).map((_, i) => (
                           <tr key={i} className="animate-pulse">
                             <td colSpan={7} className="px-12 py-8">
-                              <div className="h-10 bg-white/5 rounded-2xl w-full" />
+                              <div className="h-10 bg-secondary/30 dark:bg-white/5 rounded-2xl w-full" />
                             </td>
                           </tr>
                         ))
@@ -1926,10 +2056,10 @@ export default function AdminStockRedesignPage() {
                         </tr>
                       ) : (
                         historyLogs.map((log, i) => (
-                          <tr key={log.id} className="group/log hover:bg-white/[0.02] transition-colors duration-500">
+                          <tr key={log.id} className="group/log hover:bg-secondary/10 dark:hover:bg-white/[0.02] transition-colors duration-500">
                             <td className="pl-12 pr-4 py-6">
                               <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 relative rounded-2xl overflow-hidden border border-white/10 shadow-xl group-hover/log:scale-105 transition-transform duration-700">
+                                <div className="w-14 h-14 relative rounded-2xl overflow-hidden border border-border dark:border-white/10 shadow-xl group-hover/log:scale-105 transition-transform duration-700">
                                   {log.variant?.product?.images?.[0] ? (
                                     <Image 
                                       src={log.variant.product.images[0].url} 
@@ -1971,7 +2101,7 @@ export default function AdminStockRedesignPage() {
                             </td>
                             <td className="px-8 py-6">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                <div className="w-9 h-9 rounded-full bg-secondary/30 dark:bg-white/5 border border-border dark:border-white/10 flex items-center justify-center overflow-hidden">
                                    <User className="w-4 h-4 text-muted-foreground/50" />
                                 </div>
                                 <div>
@@ -2016,17 +2146,17 @@ export default function AdminStockRedesignPage() {
                    <button
                      disabled={historySkip === 0}
                      onClick={() => setHistorySkip(Math.max(0, historySkip - historyTake))}
-                     className="px-10 py-4 rounded-full border border-white/10 font-heading text-[10px] uppercase tracking-[0.3em] font-black hover:bg-gold hover:text-white transition-all disabled:opacity-30 bg-white/[0.02]"
+                     className="px-10 py-4 rounded-full border border-border dark:border-white/10 font-heading text-[10px] uppercase tracking-[0.3em] font-black hover:bg-gold hover:text-white transition-all disabled:opacity-30 bg-secondary/30 dark:bg-white/[0.02]"
                    >
                      Previous
                    </button>
-                   <div className="px-8 py-4 rounded-full bg-white/5 border border-white/10 font-heading text-[10px] tracking-widest italic gold-gradient">
+                   <div className="px-8 py-4 rounded-full bg-secondary/30 dark:bg-white/5 border border-border dark:border-white/10 font-heading text-[10px] tracking-widest italic gold-gradient">
                       {Math.floor(historySkip / historyTake) + 1} <span className="mx-2 opacity-30">/</span> {Math.ceil(historyTotal / historyTake)}
                    </div>
                    <button
                      disabled={historySkip + historyTake >= historyTotal}
                      onClick={() => setHistorySkip(historySkip + historyTake)}
-                     className="px-10 py-4 rounded-full border border-white/10 font-heading text-[10px] uppercase tracking-[0.3em] font-black hover:bg-gold hover:text-white transition-all disabled:opacity-30 bg-white/[0.02]"
+                     className="px-10 py-4 rounded-full border border-border dark:border-white/10 font-heading text-[10px] uppercase tracking-[0.3em] font-black hover:bg-gold hover:text-white transition-all disabled:opacity-30 bg-secondary/30 dark:bg-white/[0.02]"
                    >
                      Next
                    </button>
@@ -2034,8 +2164,111 @@ export default function AdminStockRedesignPage() {
               )}
             </div>
           )}
+          {/* --- TAB: AI TOOLBOX --- */}
+          {activeTab === "ai-toolbox" && (
+            <div className="animate-in fade-in duration-1000">
+              <div className="glass rounded-[3rem] border border-border dark:bg-black/40 backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col">
+                <div className="p-8 border-b border-border/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)] rounded-full blur-3xl pointer-events-none" />
+                  
+                  <div className="flex items-center gap-5 relative z-10">
+                    <div className="p-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold shadow-[0_0_20px_rgba(212,175,55,0.15)] flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+                    </div>
+                    <div>
+                      <h2 className="text-[14px] font-black uppercase tracking-[0.2em] text-gold mb-1">
+                        Hộp Công Cụ Điều Vận
+                      </h2>
+                      <p className="text-[10px] text-foreground/60 font-bold uppercase tracking-widest">
+                        Tối ưu hóa vòng quay hàng tồn & tự động phát hiện mất cân đối chi nhánh
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => setIsAiToolboxExpanded(!isAiToolboxExpanded)}
+                    className="relative z-10 px-6 py-2.5 rounded-full bg-secondary/50 hover:bg-gold/10 border border-border hover:border-gold/30 text-[10px] font-black uppercase tracking-widest text-foreground/60 hover:text-gold transition-all"
+                  >
+                    {isAiToolboxExpanded ? "Thu gọn Cockpit" : "Mở rộng Cockpit"}
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {isAiToolboxExpanded && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-8 flex justify-center border-b border-border/50">
+                        <div className="flex gap-2 p-1.5 rounded-3xl bg-secondary/30 dark:bg-black/40 border border-border/50 shadow-inner backdrop-blur-md">
+                          <button
+                            onClick={() => setActiveAiTool("health")}
+                            className={cn(
+                              "flex items-center gap-3 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300",
+                              activeAiTool === "health" 
+                                ? "bg-gold/20 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+                            )}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-activity"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            Sức Khỏe & Dự Báo Kho
+                          </button>
+                          <button
+                            onClick={() => setActiveAiTool("heatmap")}
+                            className={cn(
+                              "flex items-center gap-3 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300",
+                              activeAiTool === "heatmap" 
+                                ? "bg-gold/20 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+                            )}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+                            Bản Đồ Nhiệt Luồng Hàng
+                          </button>
+                          <button
+                            onClick={() => setActiveAiTool("expiry")}
+                            className={cn(
+                              "flex items-center gap-3 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300",
+                              activeAiTool === "expiry" 
+                                ? "bg-gold/20 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+                            )}
+                          >
+                            <Calendar className="w-4 h-4" />
+                            Quản lý Lô & HSD
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="p-8 h-[600px]">
+                        {activeAiTool === "health" && <InventoryHealthWidget isExpanded={true} />}
+                        {activeAiTool === "heatmap" && <StockHeatmapWidget isExpanded={true} />}
+                        {activeAiTool === "expiry" && <ExpiryAlertWidget />}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          )}
+
         </div>
       </main>
+
+      <BarcodePrintModal
+        open={showBarcodeModal}
+        onOpenChange={(v) => {
+          setShowBarcodeModal(v);
+          if (!v) {
+            setBarcodeVariantIds([]);
+            setBarcodeInitialQuantities({});
+          }
+        }}
+        variantIds={barcodeVariantIds.length > 0 ? barcodeVariantIds : undefined}
+        initialQuantities={barcodeInitialQuantities}
+      />
     </AuthGuard>
   );
 }

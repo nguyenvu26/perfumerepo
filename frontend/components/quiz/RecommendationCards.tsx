@@ -18,6 +18,40 @@ import {
 import { Link } from '@/lib/i18n';
 import { type QuizRecommendation, type QuizAnswers } from '@/services/quiz.service';
 
+interface ScoreBadge {
+  text: string;
+  badgeClass: string;
+  colorClass: string;
+}
+
+const getScoreBadge = (score: number, isVi: boolean): ScoreBadge => {
+  if (score >= 200) {
+    return {
+      text: isVi ? 'Tương thích hoàn hảo' : 'Perfect Match',
+      badgeClass: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',
+      colorClass: 'text-amber-600 dark:text-amber-400',
+    };
+  } else if (score >= 120) {
+    return {
+      text: isVi ? 'Tương thích cao' : 'High Alignment',
+      badgeClass: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+      colorClass: 'text-emerald-600 dark:text-emerald-400',
+    };
+  } else if (score >= 50) {
+    return {
+      text: isVi ? 'Khá phù hợp' : 'Good Fit',
+      badgeClass: 'border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400',
+      colorClass: 'text-blue-600 dark:text-blue-400',
+    };
+  } else {
+    return {
+      text: isVi ? 'Gợi ý thêm' : 'Curated Hint',
+      badgeClass: 'border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-400',
+      colorClass: 'text-slate-600 dark:text-slate-400',
+    };
+  }
+};
+
 interface RecommendationCardsProps {
   recommendations: QuizRecommendation[];
   analysis?: string | null;
@@ -198,12 +232,25 @@ export function RecommendationCards({ recommendations, analysis, answers, onReta
             <p className="mt-3 text-sm leading-7 text-muted-foreground">{copy.featuredDetail}</p>
           </div>
 
-          <div className="rounded-[1.5rem] border border-gold/20 bg-gold/10 px-5 py-5">
-            <p className="text-[11px] uppercase tracking-[0.24em] text-gold">{copy.matchingLabel}</p>
-            <p className="mt-3 font-heading text-4xl leading-none tracking-[-0.04em] text-foreground">
-              {featured.matchScore ? Math.min(99.9, Math.round((featured.matchScore / 120) * 100 * 10) / 10) : 98.4}%
-            </p>
-            <p className="mt-3 text-sm leading-7 text-muted-foreground">{copy.matchingDetail}</p>
+          <div className="rounded-[1.5rem] border border-gold/20 bg-gold/10 px-5 py-5 flex flex-col justify-between">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.24em] text-gold">{copy.matchingLabel}</p>
+              <div className="mt-3 flex flex-col gap-1.5">
+                <span className="font-heading text-4xl leading-none tracking-[-0.04em] text-foreground flex items-baseline gap-1">
+                  {featured.matchScore ? `${featured.matchScore}` : '185'}
+                  <span className="text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                    {isVi ? 'Điểm' : 'Pts'}
+                  </span>
+                </span>
+                {featured.matchScore && (
+                  <div className={`mt-1 inline-flex w-fit items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm shadow-sm ${getScoreBadge(featured.matchScore, isVi).badgeClass}`}>
+                    <Sparkles size={8} className="animate-pulse" />
+                    {getScoreBadge(featured.matchScore, isVi).text}
+                  </div>
+                )}
+              </div>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-muted-foreground">{copy.matchingDetail}</p>
           </div>
         </div>
       </motion.section>
@@ -335,9 +382,22 @@ export function RecommendationCards({ recommendations, analysis, answers, onReta
                     </div>
                   ) : null}
                   {rec.matchScore ? (
-                    <div className="absolute right-4 top-4 rounded-full border border-gold/30 bg-gold/90 px-2.5 py-1 text-xs font-bold text-luxury-black backdrop-blur shadow-lg flex items-center gap-1">
-                      <Sparkles size={10} />
-                      {Math.min(99, Math.round((rec.matchScore / 120) * 100))}% Match
+                    <div className="absolute right-4 top-4 rounded-full border border-white/10 bg-luxury-black/80 px-2.5 py-1 text-xs font-bold text-white backdrop-blur shadow-lg flex items-center gap-1.5">
+                      <Sparkles size={10} className={
+                        rec.matchScore >= 200 ? 'text-amber-400' :
+                        rec.matchScore >= 120 ? 'text-emerald-400' :
+                        rec.matchScore >= 50 ? 'text-blue-400' :
+                        'text-slate-400'
+                      } />
+                      <span>{rec.matchScore}</span>
+                      <span className={`text-[9px] font-medium tracking-wider uppercase opacity-80 ${
+                        rec.matchScore >= 200 ? 'text-amber-400' :
+                        rec.matchScore >= 120 ? 'text-emerald-400' :
+                        rec.matchScore >= 50 ? 'text-blue-400' :
+                        'text-slate-400'
+                      }`}>
+                        {isVi ? 'ĐIỂM' : 'PTS'}
+                      </span>
                     </div>
                   ) : null}
                 </div>

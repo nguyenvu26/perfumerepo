@@ -22,6 +22,18 @@ class BatchImportItemDto {
   @IsOptional()
   @Type(() => Number)
   purchasePrice?: number;
+
+  @IsOptional()
+  @IsString()
+  batchCode?: string;
+
+  @IsOptional()
+  @IsString()
+  mfgDate?: string;
+
+  @IsOptional()
+  @IsString()
+  expiryDate?: string;
 }
 
 export class BatchImportDto {

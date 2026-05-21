@@ -95,4 +95,10 @@ export class AnalyticsController {
   async getStockMovementHeatmap() {
     return this.analyticsService.getStockMovementHeatmap();
   }
+
+  @Get('expiry-alerts')
+  @Roles('ADMIN')
+  async getExpiryAlerts(@Query('storeId') storeId?: string) {
+    return this.analyticsService.getExpiryAlerts(storeId);
+  }
 }

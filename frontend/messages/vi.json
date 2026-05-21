@@ -1577,6 +1577,11 @@
           "report_btn": "Tạo Báo Cáo Đầy Đủ"
         }
       },
+      "expiry_alerts": {
+        "title": "Cảnh báo Hạn sử dụng",
+        "no_alerts": "Không có cảnh báo tồn kho sắp hết hạn",
+        "view_details": "Xem chi tiết lô hàng"
+      },
       "manageJournal": {
         "list": {
           "title": "Quản Lý Tạp Chí",
@@ -3293,8 +3298,18 @@
     "revenue_trend": "Xu hướng doanh thu & đơn hàng",
     "top_products": "Sản phẩm bán chạy",
     "top_products_subtitle": "30 ngày qua · Theo số lượng bán",
-    "sales_channel": "Kênh bán hàng",
+    "sales_channel": "Phân chia kênh bán hàng (Omnichannel)",
     "sales_channel_subtitle": "Trực tuyến vs Tại cửa hàng · 30 ngày",
+    "channel_online": "Trực tuyến (Website)",
+    "channel_pos": "Tại quầy (POS)",
+    "ai_conversion": "Chuyển đổi từ AI",
+    "ai_conversion_subtitle": "Tác động của gợi ý AI đến mua sắm",
+    "ai_driven_items": "Từ gợi ý AI",
+    "organic_items": "Tự nhiên / Khác",
+    "total_consultations": "Tổng lượt tư vấn",
+    "win_rate": "TỶ LỆ CHỐT",
+    "items_suffix": "{count} sản phẩm",
+    "sessions_suffix": "{count} lượt",
     "low_stock_alerts": "Cảnh báo sắp hết hàng",
     "low_stock_subtitle": "Các phiên bản còn ≤ 10 sản phẩm",
     "recent_orders": "Đơn hàng gần đây",

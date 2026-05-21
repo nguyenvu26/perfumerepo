@@ -164,17 +164,17 @@ export default function AiLogsPage() {
                                             <stop offset="95%" stopColor="#C5A059" stopOpacity={0}/>
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#888888" strokeOpacity={0.2} vertical={false} />
                                     <XAxis 
                                         dataKey="date" 
-                                        stroke="#ffffff40" 
+                                        stroke="#888888" 
                                         fontSize={10} 
                                         tickFormatter={(val) => format(new Date(val), 'MMM dd')}
                                     />
-                                    <YAxis stroke="#ffffff40" fontSize={10} />
+                                    <YAxis stroke="#888888" fontSize={10} />
                                     <Tooltip 
-                                        contentStyle={{ backgroundColor: '#111', border: '1px solid #C5A05930', borderRadius: '12px' }}
-                                        itemStyle={{ color: '#fff', fontSize: '12px' }}
+                                        contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                                        itemStyle={{ color: 'hsl(var(--foreground))', fontSize: '12px' }}
                                     />
                                     <Area 
                                         type="monotone" 
@@ -224,7 +224,8 @@ export default function AiLogsPage() {
                                         ))}
                                     </Pie>
                                     <Tooltip 
-                                        contentStyle={{ backgroundColor: '#111', border: '1px solid #ffffff10', borderRadius: '12px' }}
+                                        contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '12px' }}
+                                        itemStyle={{ color: 'hsl(var(--foreground))' }}
                                     />
                                 </PieChart>
                             </ResponsiveContainer>

@@ -511,6 +511,9 @@ export class StoresService {
         variantId: it.variantId,
         quantity: Number(it.quantity),
         purchasePrice: it.purchasePrice ? Number(it.purchasePrice) : undefined,
+        batchCode: it.batchCode,
+        mfgDate: it.mfgDate ? new Date(it.mfgDate) : undefined,
+        expiryDate: it.expiryDate ? new Date(it.expiryDate) : undefined,
       }))
       .filter(
         (it) => it.variantId && Number.isFinite(it.quantity) && it.quantity > 0,
@@ -521,47 +524,10 @@ export class StoresService {
       return this.getStockOverview(dto.storeId);
     }
 
-    const centralWarehouse = await this.prisma.store.findFirst({ where: { type: 'CENTRAL' } });
-    if (!centralWarehouse) throw new BadRequestException('Central warehouse not found');
-
-    // Validate variants and check stock (single query)
-    const centralInventories = await this.prisma.inventory.findMany({
-      where: { 
-        warehouseId: centralWarehouse.id,
-        variantId: { in: items.map((i) => i.variantId) } 
-      },
-      select: { variantId: true, available: true },
-    });
-    const inventoryMap = new Map(centralInventories.map((i) => [i.variantId, i.available]));
-    
-    const errors: string[] = [];
-    for (const item of items) {
-      const available = inventoryMap.get(item.variantId) || 0;
-      if (available < item.quantity) {
-        errors.push(
-          `Sản phẩm ${item.variantId} không đủ tồn kho tổng. (Hiện có: ${available}, yêu cầu: ${item.quantity})`,
-        );
-      }
-    }
-
-    if (errors.length) {
-      throw new BadRequestException(errors.join('; '));
-    }
-
     await this.prisma.$transaction(async (tx) => {
       for (const it of items) {
-        // 1. Decrement from central warehouse
-        await tx.inventory.update({
-          where: { warehouseId_variantId: { warehouseId: centralWarehouse.id, variantId: it.variantId } },
-          data: { 
-            onHand: { decrement: it.quantity }, 
-            available: { decrement: it.quantity },
-            updatedAt: new Date()
-          },
-        });
-
-        // 2. Increment store stock
-        await tx.inventory.upsert({
+        // 1. Increment store stock (PURE IMPORT - no internal deduction)
+        const inv = await tx.inventory.upsert({
           where: {
             warehouseId_variantId: {
               warehouseId: dto.storeId,
@@ -581,12 +547,26 @@ export class StoresService {
           },
         });
 
+        // 2b. Create Inventory Batch
+        const batch = await tx.inventoryBatch.create({
+          data: {
+            inventoryId: inv.id,
+            batchCode: it.batchCode,
+            mfgDate: it.mfgDate,
+            expiryDate: it.expiryDate,
+            purchasePrice: it.purchasePrice || 0,
+            initialQuantity: it.quantity,
+            currentQuantity: it.quantity,
+          }
+        });
+
         // 3. Log
         await tx.inventoryLog.create({
           data: {
             variantId: it.variantId,
             staffId: userId,
             storeId: dto.storeId,
+            batchId: batch.id,
             type: InventoryLogType.IMPORT,
             quantity: it.quantity,
             purchasePrice: it.purchasePrice, // Log the purchase price in batch import

@@ -72,12 +72,12 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
 
     return (
         <div className={cn(
-            "glass bg-background/40 rounded-[3rem] border border-border overflow-hidden flex flex-col w-full group/widget hover:border-gold/20 transition-all duration-700 shadow-2xl",
+            "glass dark:bg-background/40 rounded-[3rem] border border-border overflow-hidden flex flex-col w-full group/widget hover:border-gold/20 transition-all duration-700 shadow-2xl",
             !isExpanded && "hover:bg-secondary/10 cursor-pointer"
         )} onClick={!isExpanded ? onToggle : undefined}>
             
             {/* Action Header */}
-            <div className="px-10 py-6 border-b border-border/50 bg-secondary/5 flex items-center justify-between">
+            <div className="px-10 py-6 border-b border-border/50 bg-secondary/30 flex items-center justify-between">
                 <div className="flex items-center gap-5">
                     <div className={cn(
                         "p-3.5 rounded-2xl border transition-all duration-500 shadow-lg",
@@ -112,7 +112,7 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
 
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/admin/stores/stock">
-                        <button className="px-6 py-2.5 rounded-xl bg-secondary/10 hover:bg-gold/10 border border-border transition-all text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold">
+                        <button className="px-6 py-2.5 rounded-xl bg-secondary/30 hover:bg-gold/10 border border-border transition-all text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold">
                             Kho tổng
                         </button>
                     </Link>
@@ -222,14 +222,14 @@ function HealthCard({ item, index, isSmall = false, onReorder }: { item: HealthI
             }}
             transition={{ delay: index * 0.03 }}
             className={cn(
-                "relative rounded-[2.5rem] bg-secondary/5 border border-border/80 p-6 flex flex-col group/card transition-all duration-300",
+                "relative rounded-[2.5rem] bg-secondary/20 dark:bg-secondary/5 border border-border/80 p-6 flex flex-col group/card transition-all duration-300",
                 item.status === 'CRITICAL' && "border-red-500/20 shadow-xl shadow-red-500/5",
                 isSmall && "rounded-[2rem] p-5"
             )}
         >
             <div className="flex gap-5 mb-6">
                 <div className={cn(
-                    "rounded-[1.8rem] overflow-hidden bg-secondary border border-border/50 shrink-0 shadow-xl group-hover/card:scale-110 transition-transform duration-500",
+                    "rounded-[1.8rem] overflow-hidden bg-secondary/50 dark:bg-secondary border border-border/50 shrink-0 shadow-xl group-hover/card:scale-110 transition-transform duration-500",
                     isSmall ? "w-14 h-14" : "w-16 h-16"
                 )}>
                     {item.imageUrl ? (
@@ -270,7 +270,7 @@ function HealthCard({ item, index, isSmall = false, onReorder }: { item: HealthI
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2.5 mb-6 p-4 bg-secondary/30 rounded-3xl border border-white/5 shadow-inner text-[11px]">
+            <div className="flex flex-col gap-2.5 mb-6 p-4 bg-secondary/40 dark:bg-secondary/30 rounded-3xl border border-border/50 shadow-inner text-[11px]">
                 <div className="flex justify-between items-center">
                     <span className="text-[9px] text-muted-foreground/60 uppercase font-black tracking-wider">Vận tốc bán</span>
                     <span className="font-heading font-black text-xs text-foreground">
@@ -278,12 +278,12 @@ function HealthCard({ item, index, isSmall = false, onReorder }: { item: HealthI
                     </span>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-[9px] text-muted-foreground/60 uppercase font-black tracking-wider">Dự báo hết</span>
+                    <span className="text-[9px] text-muted-foreground/60 uppercase font-black tracking-wider">Thời gian còn lại (Days Remaining)</span>
                     <span className={cn(
                         "font-heading font-black text-xs",
                         item.daysRemaining < 7 ? "text-red-500" : "text-gold"
                     )}>
-                        {item.daysRemaining > 90 ? '> 3 tháng' : `${item.daysRemaining} ngày`}
+                        {item.daysRemaining} ngày
                     </span>
                 </div>
             </div>
@@ -294,7 +294,7 @@ function HealthCard({ item, index, isSmall = false, onReorder }: { item: HealthI
                         <span>Tồn kho: {item.currentStock}</span>
                         <span>Vòng quay: {Math.round(item.turnoverRate * 10) / 10}x</span>
                     </div>
-                    <div className="h-1.5 w-full bg-secondary/50 rounded-full overflow-hidden shadow-inner border border-white/5">
+                    <div className="h-1.5 w-full bg-secondary/50 dark:bg-secondary/50 rounded-full overflow-hidden shadow-inner border border-border/50">
                         <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${Math.min(100, (item.monthlySales / Math.max(1, item.currentStock + (item.monthlySales/2))) * 100)}%` }}

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateDailyClosingDto } from './dto/create-daily-closing.dto';
+import { getVietnamDayRangeUtc } from '../common/vietnam-time';
 
 @Injectable()
 export class DailyClosingService {
@@ -112,14 +113,13 @@ export class DailyClosingService {
   }
 
   async checkTodayClosing(storeId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const { startUtc: startOfToday } = getVietnamDayRangeUtc(new Date());
 
     const closing = await this.prisma.dailyClosing.findFirst({
       where: {
         storeId,
         closingDate: {
-          gte: today,
+          gte: startOfToday,
         },
       },
     });

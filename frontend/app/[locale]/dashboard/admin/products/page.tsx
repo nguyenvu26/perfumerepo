@@ -1,7 +1,8 @@
 'use client';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
-import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History, AlertTriangle, XCircle, Zap, Activity, ChevronDown, MoreHorizontal, ExternalLink, Award } from 'lucide-react';
+import { Package, Plus, Search, X, Eye, EyeOff, Pencil, ImagePlus, FolderTree, FlaskConical, Database, Flower2, Box, History, AlertTriangle, XCircle, Zap, Activity, ChevronDown, MoreHorizontal, ExternalLink, Award, Barcode } from 'lucide-react';
+import { BarcodePrintModal } from '@/components/staff/barcode-print-modal';
 import { productService, type Product } from '@/services/product.service';
 import api from '@/lib/axios';
 import { catalogService } from '@/services/catalog.service';
@@ -12,8 +13,6 @@ import { useLocale, useTranslations, useFormatter } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/store/ui.store';
 import { motion, AnimatePresence } from 'framer-motion';
-import { InventoryHealthWidget } from '@/components/dashboard/admin/InventoryHealthWidget';
-import { StockHeatmapWidget } from '@/components/dashboard/admin/StockHeatmapWidget';
 
 const MAX_IMAGES = 10;
 
@@ -49,10 +48,9 @@ export default function AdminProducts() {
   const [saving, setSaving] = useState(false);
   const [lowStockFilter, setLowStockFilter] = useState(false);
   const [bestsellerFilter, setBestsellerFilter] = useState(false);
-  const [showLogisticsCockpit, setShowLogisticsCockpit] = useState(false);
   const [showActionsDropdown, setShowActionsDropdown] = useState(false);
   const [isWidgetExpanded, setIsWidgetExpanded] = useState(false);
-  const [activeCockpitTab, setActiveCockpitTab] = useState<'health' | 'heatmap'>('health');
+  const [barcodeProductId, setBarcodeProductId] = useState<string | null>(null);
   const [healthMap, setHealthMap] = useState<Record<string, { daysRemaining: number; monthlySales: number; status: string; turnoverRate: number }>>({});
   const [stats, setStats] = useState<{
     totalProducts: number;
@@ -136,9 +134,6 @@ export default function AdminProducts() {
     try {
       const s = await productService.adminStats();
       setStats(s);
-      if (s.lowStockVariants > 0) {
-        setShowLogisticsCockpit(true);
-      }
     } catch (e) {
       console.error('Failed to fetch stats:', e);
     }
@@ -557,102 +552,6 @@ export default function AdminProducts() {
           </div>
         </header>
 
-        {/* AI Logistics Cockpit Banner */}
-        <div className="mb-8 glass bg-white/5 border border-white/10 rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:border-gold/20 shadow-xl">
-          <div 
-            onClick={() => setShowLogisticsCockpit(!showLogisticsCockpit)}
-            className="px-8 py-5 flex items-center justify-between cursor-pointer hover:bg-white/[0.02]"
-          >
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gold/10 text-gold rounded-2xl border border-gold/20 shadow-inner">
-                <Zap className="w-5 h-5 fill-gold/10" />
-              </div>
-              <div>
-                <h3 className="text-xs font-black uppercase tracking-[.3em] gold-gradient">Hộp Công Cụ Điều Vận AI</h3>
-                <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest mt-1">
-                  Tối ưu hóa vòng quay hàng tồn & tự động phát hiện mất cân đối chi nhánh
-                </p>
-              </div>
-            </div>
-            <button className="px-5 py-2 rounded-xl bg-gold/10 hover:bg-gold/20 border border-gold/20 text-[9px] font-black uppercase tracking-widest text-gold transition-all">
-              {showLogisticsCockpit ? "Thu gọn Cockpit" : "Mở Cockpit Điều Vận"}
-            </button>
-          </div>
-
-          <AnimatePresence>
-            {showLogisticsCockpit && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="border-t border-white/5 p-6 bg-black/20"
-              >
-                {/* Premium Tab Selector inside Cockpit */}
-                <div className="flex justify-center mb-8 border-b border-white/5 pb-6">
-                  <div className="flex bg-secondary/40 p-1.5 rounded-2xl border border-white/5 shadow-inner backdrop-blur-md">
-                    <button 
-                      onClick={() => setActiveCockpitTab('health')}
-                      className={cn(
-                        "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3",
-                        activeCockpitTab === 'health' 
-                          ? "bg-gold text-black shadow-lg shadow-gold/20" 
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <Activity className="w-4 h-4" /> Sức Khỏe & Dự Báo Kho
-                    </button>
-                    <button 
-                      onClick={() => setActiveCockpitTab('heatmap')}
-                      className={cn(
-                        "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-3",
-                        activeCockpitTab === 'heatmap' 
-                          ? "bg-gold text-black shadow-lg shadow-gold/20" 
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <Zap className="w-4 h-4" /> Bản Đồ Nhiệt Luồng Hàng
-                    </button>
-                  </div>
-                </div>
-
-                {/* Tab Contents - Full Width */}
-                <div className="w-full">
-                  <AnimatePresence mode="wait">
-                    {activeCockpitTab === 'health' ? (
-                      <motion.div
-                        key="health"
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <InventoryHealthWidget 
-                          isExpanded={true} 
-                          onToggle={() => setShowLogisticsCockpit(false)} 
-                        />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="heatmap"
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -15 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <StockHeatmapWidget 
-                          isExpanded={true} 
-                          onToggle={() => setShowLogisticsCockpit(false)} 
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
         {/* Statistics Cards */}
         <section className="grid grid-cols-2 2xl:grid-cols-4 gap-4 mb-10">
           {[
@@ -868,6 +767,16 @@ export default function AdminProducts() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            setBarcodeProductId(p.id);
+                          }}
+                          className="w-10 h-10 bg-violet-500 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-violet-400/20"
+                          title="In mã vạch"
+                        >
+                          <Barcode className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
                             handleToggleVisibility(p.id, p.isActive);
                           }}
                           className="w-10 h-10 bg-zinc-950 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform border border-white/10"
@@ -911,7 +820,7 @@ export default function AdminProducts() {
                                 overallStatus === 'CRITICAL' ? 'text-red-500 animate-pulse' :
                                 overallStatus === 'WARNING' ? 'text-amber-500' : 'text-emerald-500'
                               )} />
-                              <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Logistics Health</span>
+                              <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Sức Khỏe Kho</span>
                             </div>
                             
                             <span className={cn(
@@ -931,13 +840,13 @@ export default function AdminProducts() {
                               <span className="text-foreground font-black tracking-normal">{totalMonthlySales} /tháng</span>
                             </div>
                             <div className="flex flex-col gap-0.5 text-right">
-                              <span className="text-[7px] text-muted-foreground/40 font-bold">Dự báo hết</span>
+                              <span className="text-[7px] text-muted-foreground/40 font-bold">Thời gian còn lại (Days Remaining)</span>
                               <span className={cn(
                                 "font-black tracking-normal",
                                 minDaysRemaining < 7 ? 'text-red-400' :
                                 minDaysRemaining < 15 ? 'text-amber-400' : 'text-gold'
                               )}>
-                                {minDaysRemaining === 999 ? '> 3 tháng' : `${minDaysRemaining} ngày`}
+                                {`${minDaysRemaining} ngày`}
                               </span>
                             </div>
                           </div>
@@ -1591,6 +1500,13 @@ export default function AdminProducts() {
             </div>
           )}
         </AnimatePresence>
+
+        {/* Barcode Print Modal */}
+        <BarcodePrintModal
+          open={!!barcodeProductId}
+          onOpenChange={(open) => { if (!open) setBarcodeProductId(null); }}
+          productId={barcodeProductId || undefined}
+        />
       </main>
     </AuthGuard>
   );

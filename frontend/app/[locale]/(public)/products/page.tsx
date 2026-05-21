@@ -23,7 +23,7 @@ export default function ProductsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
                         <Link key={i} href={`/collection/${i}`} className="group cursor-pointer">
-                            <div className="aspect-[3/4] glass rounded-[3rem] border-border overflow-hidden mb-8 relative group-hover:border-gold/40 transition-all duration-700">
+                            <div className="aspect-square glass rounded-[3rem] border-border overflow-hidden mb-8 relative group-hover:border-gold/40 transition-all duration-700">
                                 <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-background via-background/20 to-transparent opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
                                     <button className="w-full bg-gold text-primary-foreground py-4 rounded-2xl font-heading text-[10px] uppercase font-bold tracking-[0.2em] shadow-xl shadow-gold/20">
                                         Quick Synthesis

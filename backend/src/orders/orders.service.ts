@@ -652,13 +652,28 @@ export class OrdersService {
         if (centralWarehouse) {
           for (const item of order.items) {
             const warehouseId = order.storeId || centralWarehouse.id;
-            await this.inventoryService.commitStock(
+            const { deductedBatches } = await this.inventoryService.commitStock(
               item.variantId,
               warehouseId,
               item.quantity,
               true, // isPreAllocated = true for ONLINE
               tx,
             );
+
+            // Log physical removal with batch details
+            const batchInfo = deductedBatches
+              .map(b => `${b.batchCode} (-${b.quantity})`)
+              .join(', ');
+
+            await tx.inventoryLog.create({
+              data: {
+                variantId: item.variantId,
+                storeId: warehouseId,
+                type: InventoryLogType.SALE_ONLINE,
+                quantity: -item.quantity,
+                reason: `[Lô: ${batchInfo}] Online order ${order.code}`,
+              },
+            });
           }
         }
       }

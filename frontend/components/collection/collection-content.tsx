@@ -43,15 +43,15 @@ export function CollectionContent() {
       setFavoriteIds(new Set());
       return;
     }
-    
+
     const loadFavorites = () => {
       favoriteService.getFavorites().then(items => {
         setFavoriteIds(new Set(items.map(i => i.id)));
-      }).catch(() => {});
+      }).catch(() => { });
     };
 
     loadFavorites();
-    
+
     const handleUpdate = () => loadFavorites();
     window.addEventListener(favoriteService.eventName, handleUpdate);
     return () => window.removeEventListener(favoriteService.eventName, handleUpdate);
@@ -73,7 +73,7 @@ export function CollectionContent() {
         else next.delete(productId);
         return next;
       });
-      toast.success(nextFavorite 
+      toast.success(nextFavorite
         ? (isVi ? 'Đã thêm vào danh sách yêu thích' : 'Added to favorites')
         : (isVi ? 'Đã xóa khỏi danh sách yêu thích' : 'Removed from favorites')
       );
@@ -86,101 +86,101 @@ export function CollectionContent() {
     () =>
       isVi
         ? {
-            title: 'Bộ sưu tập nước hoa',
-            subtitle:
-              'Khám phá những mùi hương được sắp xếp rõ ràng, dễ tìm kiếm và dễ lựa chọn hơn cho từng phong cách.',
-            badge: 'Tuyển chọn cao cấp',
-            resultCount: 'Sản phẩm hiện có',
-            brandCount: 'Thương hiệu',
-            filterCount: 'Bộ lọc đang bật',
-            directoryHint: 'Tìm nhanh theo tên, thương hiệu, nhóm hương và mức giá.',
-            searchPlaceholder: 'Tìm theo tên nước hoa, thương hiệu hoặc nhóm hương...',
-            sortLabel: 'Sắp xếp giá',
-            sortHighLow: 'Cao đến thấp',
-            sortLowHigh: 'Thấp đến cao',
-            filterLabel: 'Bộ lọc',
-            mobileFilterTitle: 'Bộ lọc sản phẩm',
-            clearFilters: 'Xóa tất cả bộ lọc',
-            brandSearch: 'Tìm nhanh thương hiệu',
-            all: 'Tất cả',
-            categorySection: 'Danh mục',
-            genderSection: 'Giới tính',
-            male: 'Nam',
-            female: 'Nữ',
-            unisex: 'Unisex',
-            priceSection: 'Mức giá',
-            scentSection: 'Nhóm hương',
-            seasonSection: 'Mùa sử dụng',
-            spring: 'Xuân',
-            summer: 'Hạ',
-            autumn: 'Thu',
-            winter: 'Đông',
-            activeFilters: 'Bộ lọc đang áp dụng',
-            productGridTitle: 'Danh sách sản phẩm',
-            productGridDesc: 'Bố cục rõ ràng, dễ đọc và tối ưu cho việc so sánh nhanh.',
-            loading: 'Đang tải bộ sưu tập...',
-            emptyTitle: 'Chưa tìm thấy sản phẩm phù hợp',
-            emptyDesc: 'Thử đổi từ khóa tìm kiếm hoặc bộ lọc để xem thêm gợi ý.',
-            prev: 'Trước',
-            next: 'Sau',
-            page: 'Trang',
-            detail: 'Xem chi tiết',
-            from: 'Từ',
-            noPrice: 'Liên hệ',
-            allBrands: 'Tất cả thương hiệu',
-            heroCardTitle: 'Lựa chọn dễ dàng hơn',
-            heroCardDesc:
-              'Trang được sắp xếp lại để người dùng tìm sản phẩm nhanh hơn và theo dõi thông tin rõ ràng hơn.',
-            heroCardNote: 'Tập trung vào filter, search và card sản phẩm dễ đọc.',
-          }
+          title: 'Bộ sưu tập nước hoa',
+          subtitle:
+            'Khám phá những mùi hương được sắp xếp rõ ràng, dễ tìm kiếm và dễ lựa chọn hơn cho từng phong cách.',
+          badge: 'Tuyển chọn cao cấp',
+          resultCount: 'Sản phẩm hiện có',
+          brandCount: 'Thương hiệu',
+          filterCount: 'Bộ lọc đang bật',
+          directoryHint: 'Tìm nhanh theo tên, thương hiệu, nhóm hương và mức giá.',
+          searchPlaceholder: 'Tìm theo tên nước hoa, thương hiệu hoặc nhóm hương...',
+          sortLabel: 'Sắp xếp giá',
+          sortHighLow: 'Cao đến thấp',
+          sortLowHigh: 'Thấp đến cao',
+          filterLabel: 'Bộ lọc',
+          mobileFilterTitle: 'Bộ lọc sản phẩm',
+          clearFilters: 'Xóa tất cả bộ lọc',
+          brandSearch: 'Tìm nhanh thương hiệu',
+          all: 'Tất cả',
+          categorySection: 'Danh mục',
+          genderSection: 'Giới tính',
+          male: 'Nam',
+          female: 'Nữ',
+          unisex: 'Unisex',
+          priceSection: 'Mức giá',
+          scentSection: 'Nhóm hương',
+          seasonSection: 'Mùa sử dụng',
+          spring: 'Xuân',
+          summer: 'Hạ',
+          autumn: 'Thu',
+          winter: 'Đông',
+          activeFilters: 'Bộ lọc đang áp dụng',
+          productGridTitle: 'Danh sách sản phẩm',
+          productGridDesc: 'Bố cục rõ ràng, dễ đọc và tối ưu cho việc so sánh nhanh.',
+          loading: 'Đang tải bộ sưu tập...',
+          emptyTitle: 'Chưa tìm thấy sản phẩm phù hợp',
+          emptyDesc: 'Thử đổi từ khóa tìm kiếm hoặc bộ lọc để xem thêm gợi ý.',
+          prev: 'Trước',
+          next: 'Sau',
+          page: 'Trang',
+          detail: 'Xem chi tiết',
+          from: 'Từ',
+          noPrice: 'Liên hệ',
+          allBrands: 'Tất cả thương hiệu',
+          heroCardTitle: 'Lựa chọn dễ dàng hơn',
+          heroCardDesc:
+            'Trang được sắp xếp lại để người dùng tìm sản phẩm nhanh hơn và theo dõi thông tin rõ ràng hơn.',
+          heroCardNote: 'Tập trung vào filter, search và card sản phẩm dễ đọc.',
+        }
         : {
-            title: 'Fragrance Collection',
-            subtitle:
-              'Discover fragrances through a cleaner layout, larger type, and a clearer premium browsing experience.',
-            badge: 'Curated selection',
-            resultCount: 'Available products',
-            brandCount: 'Brands',
-            filterCount: 'Active filters',
-            directoryHint: 'Search faster by product name, brand, scent family, and price.',
-            searchPlaceholder: 'Search by fragrance name, brand, or scent family...',
-            sortLabel: 'Sort by price',
-            sortHighLow: 'High to low',
-            sortLowHigh: 'Low to high',
-            filterLabel: 'Filters',
-            mobileFilterTitle: 'Product filters',
-            clearFilters: 'Clear all filters',
-            brandSearch: 'Search brands',
-            all: 'All',
-            categorySection: 'Category',
-            genderSection: 'Gender',
-            male: 'Male',
-            female: 'Female',
-            unisex: 'Unisex',
-            priceSection: 'Price',
-            scentSection: 'Scent family',
-            seasonSection: 'Season',
-            spring: 'Spring',
-            summer: 'Summer',
-            autumn: 'Autumn',
-            winter: 'Winter',
-            activeFilters: 'Applied filters',
-            productGridTitle: 'Product archive',
-            productGridDesc: 'A clearer layout built for quick comparison and easier browsing.',
-            loading: 'Loading collection...',
-            emptyTitle: 'No products matched your filters',
-            emptyDesc: 'Try adjusting your search or filters to explore more options.',
-            prev: 'Previous',
-            next: 'Next',
-            page: 'Page',
-            detail: 'View details',
-            from: 'From',
-            noPrice: 'Contact us',
-            allBrands: 'All brands',
-            heroCardTitle: 'Designed for easier discovery',
-            heroCardDesc:
-              'This layout emphasizes readability, cleaner controls, and more polished product presentation.',
-            heroCardNote: 'Search, filters, and cards now feel more structured and premium.',
-          },
+          title: 'Fragrance Collection',
+          subtitle:
+            'Discover fragrances through a cleaner layout, larger type, and a clearer premium browsing experience.',
+          badge: 'Curated selection',
+          resultCount: 'Available products',
+          brandCount: 'Brands',
+          filterCount: 'Active filters',
+          directoryHint: 'Search faster by product name, brand, scent family, and price.',
+          searchPlaceholder: 'Search by fragrance name, brand, or scent family...',
+          sortLabel: 'Sort by price',
+          sortHighLow: 'High to low',
+          sortLowHigh: 'Low to high',
+          filterLabel: 'Filters',
+          mobileFilterTitle: 'Product filters',
+          clearFilters: 'Clear all filters',
+          brandSearch: 'Search brands',
+          all: 'All',
+          categorySection: 'Category',
+          genderSection: 'Gender',
+          male: 'Male',
+          female: 'Female',
+          unisex: 'Unisex',
+          priceSection: 'Price',
+          scentSection: 'Scent family',
+          seasonSection: 'Season',
+          spring: 'Spring',
+          summer: 'Summer',
+          autumn: 'Autumn',
+          winter: 'Winter',
+          activeFilters: 'Applied filters',
+          productGridTitle: 'Product archive',
+          productGridDesc: 'A clearer layout built for quick comparison and easier browsing.',
+          loading: 'Loading collection...',
+          emptyTitle: 'No products matched your filters',
+          emptyDesc: 'Try adjusting your search or filters to explore more options.',
+          prev: 'Previous',
+          next: 'Next',
+          page: 'Page',
+          detail: 'View details',
+          from: 'From',
+          noPrice: 'Contact us',
+          allBrands: 'All brands',
+          heroCardTitle: 'Designed for easier discovery',
+          heroCardDesc:
+            'This layout emphasizes readability, cleaner controls, and more polished product presentation.',
+          heroCardNote: 'Search, filters, and cards now feel more structured and premium.',
+        },
     [isVi]
   );
 
@@ -405,36 +405,36 @@ export function CollectionContent() {
     selectedScent ? { key: 'scent', label: selectedScent } : null,
     gender
       ? {
-          key: 'gender',
-          label:
-            gender === 'MALE' ? labels.male : gender === 'FEMALE' ? labels.female : labels.unisex,
-        }
+        key: 'gender',
+        label:
+          gender === 'MALE' ? labels.male : gender === 'FEMALE' ? labels.female : labels.unisex,
+      }
       : null,
     priceRange
       ? {
-          key: 'price',
-          label:
-            priceRange === 'P1'
-              ? '< 1.500.000'
-              : priceRange === 'P2'
-                ? '1.500.000 - 3.000.000'
-                : priceRange === 'P3'
-                  ? '3.000.000 - 5.000.000'
-                  : '> 5.000.000',
-        }
+        key: 'price',
+        label:
+          priceRange === 'P1'
+            ? '< 1.500.000'
+            : priceRange === 'P2'
+              ? '1.500.000 - 3.000.000'
+              : priceRange === 'P3'
+                ? '3.000.000 - 5.000.000'
+                : '> 5.000.000',
+      }
       : null,
     selectedSeason
       ? {
-          key: 'season',
-          label:
-            selectedSeason === 'XUAN'
-              ? labels.spring
-              : selectedSeason === 'HA'
-                ? labels.summer
-                : selectedSeason === 'THU'
-                  ? labels.autumn
-                  : labels.winter,
-        }
+        key: 'season',
+        label:
+          selectedSeason === 'XUAN'
+            ? labels.spring
+            : selectedSeason === 'HA'
+              ? labels.summer
+              : selectedSeason === 'THU'
+                ? labels.autumn
+                : labels.winter,
+      }
       : null,
   ].filter(Boolean) as Array<{ key: string; label: string }>;
 
@@ -774,12 +774,12 @@ export function CollectionContent() {
                       >
                         <Link href={`/collection/${product.id}`} className="group block">
                           {/* Image container */}
-                          <div className="relative aspect-square overflow-hidden bg-[#f7f5f0] dark:bg-zinc-900 mb-3">
+                          <div className="relative aspect-[3/4] overflow-hidden bg-[#f7f5f0] dark:bg-zinc-900 mb-3">
                             {product.images?.[0]?.url ? (
                               <img
                                 src={product.images[0].url}
                                 alt={product.name}
-                                className="absolute inset-0 h-full w-full object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105"
+                                className="absolute inset-0 h-full w-full object-cover scale-[1.03] transition-transform duration-500 ease-out group-hover:scale-110"
                               />
                             ) : (
                               <div className="absolute inset-0 flex items-center justify-center text-[#C5A059]/25">
