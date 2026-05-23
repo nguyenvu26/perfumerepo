@@ -2200,7 +2200,7 @@ export default function AdminStockRedesignPage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
+                      className="overflow-visible"
                     >
                       <div className="p-8 flex justify-center border-b border-border/50">
                         <div className="flex gap-2 p-1.5 rounded-3xl bg-secondary/30 dark:bg-black/40 border border-border/50 shadow-inner backdrop-blur-md">
@@ -2243,7 +2243,7 @@ export default function AdminStockRedesignPage() {
                         </div>
                       </div>
 
-                      <div className="p-8 h-[600px]">
+                      <div className="p-8">
                         {activeAiTool === "health" && <InventoryHealthWidget isExpanded={true} />}
                         {activeAiTool === "heatmap" && <StockHeatmapWidget isExpanded={true} />}
                         {activeAiTool === "expiry" && <ExpiryAlertWidget />}

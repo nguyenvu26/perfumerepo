@@ -13,10 +13,11 @@ import {
   X,
   Image as ImageIcon,
   Barcode,
+  PackageSearch,
 } from "lucide-react";
 import { BarcodePrintModal } from "@/components/staff/barcode-print-modal";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useFormatter } from "next-intl";
 import { cn } from "@/lib/utils";
 import {
   staffInventoryService,
@@ -37,6 +38,7 @@ import { toast } from "sonner";
 export default function StaffInventory() {
   const t = useTranslations("dashboard.admin.inventory");
   const tTrans = useTranslations("inventory");
+  const format = useFormatter();
   const [myStores, setMyStores] = useState<StoreType[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState<string>("");
   const [overview, setOverview] = useState<StaffInventoryOverview | null>(null);
@@ -49,7 +51,11 @@ export default function StaffInventory() {
   const [adjustDelta, setAdjustDelta] = useState<number>(0);
   const [adjustReason, setAdjustReason] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
-  const [activeMainTab, setActiveMainTab] = useState<"inventory" | "transfers">("inventory");
+  const [activeMainTab, setActiveMainTab] = useState<"inventory" | "batches" | "transfers" | "stocktakes">("inventory");
+  const [stocktakes, setStocktakes] = useState<any[]>([]);
+  const [loadingStocktakes, setLoadingStocktakes] = useState(false);
+  const [inspectingStocktake, setInspectingStocktake] = useState<any | null>(null);
+  const [stocktakeCountData, setStocktakeCountData] = useState<Record<string, { countedQty: number; reason: string }>>({});
   const [incomingTransfers, setIncomingTransfers] = useState<TransferOrder[]>([]);
   const [loadingTransfers, setLoadingTransfers] = useState(false);
   // Import modal state
@@ -133,17 +139,32 @@ export default function StaffInventory() {
     }
   }, [selectedStoreId]);
 
+  const loadStocktakes = useCallback(async () => {
+    if (!selectedStoreId) return;
+    setLoadingStocktakes(true);
+    try {
+      const data = await staffInventoryService.listStocktakes(selectedStoreId);
+      setStocktakes(data.items || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingStocktakes(false);
+    }
+  }, [selectedStoreId]);
+
   useEffect(() => {
     if (selectedStoreId) {
       void loadOverview();
       void loadLogs();
       void loadTransfers();
+      void loadStocktakes();
     } else {
       setOverview(null);
       setLogs([]);
       setIncomingTransfers([]);
+      setStocktakes([]);
     }
-  }, [selectedStoreId, loadOverview, loadLogs, loadTransfers]);
+  }, [selectedStoreId, loadOverview, loadLogs, loadTransfers, loadStocktakes]);
 
   const handleImport = async () => {
     if (!selectedStoreId || !selectedImportVariant || importQty <= 0) return;
@@ -247,6 +268,64 @@ export default function StaffInventory() {
       void loadOverview();
     } catch (e: any) {
       toast.error(e.response?.data?.message || "Lỗi khi kiểm hàng");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleStocktakeItemChange = (itemId: string, countedQty: number, reason: string) => {
+    setStocktakeCountData(prev => ({
+      ...prev,
+      [itemId]: { countedQty, reason }
+    }));
+  };
+
+  const handleCompleteStocktake = async () => {
+    if (!inspectingStocktake || !selectedStoreId) return;
+    
+    // Check if all items have reasons if there is a variance
+    const hasUnexplainedVariance = inspectingStocktake.items.some((item: any) => {
+      const count = stocktakeCountData[item.id]?.countedQty ?? 0;
+      const reason = stocktakeCountData[item.id]?.reason ?? "";
+      return count !== item.systemQty && !reason.trim();
+    });
+
+    if (hasUnexplainedVariance) {
+      toast.error("Vui lòng nhập lý do cho tất cả các mặt hàng có sai số.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Sync all items first (in case we didn't update them one by one)
+      // Actually, my current backend updates one by one. 
+      // To be safe and efficient, we should probably update them all.
+      // But let's follow the existing backend pattern of individual updates if needed.
+      // Or we can add a bulk update if it's too slow.
+      // For now, let's assume we update them individually when they change, 
+      // or we just call the complete.
+      
+      // I'll update all items in parallel first
+      await Promise.all(
+        inspectingStocktake.items.map((item: any) => {
+          const data = stocktakeCountData[item.id];
+          return staffInventoryService.updateStocktakeItem(
+            selectedStoreId,
+            inspectingStocktake.id,
+            item.id,
+            data.countedQty,
+            data.reason
+          );
+        })
+      );
+
+      await staffInventoryService.completeStocktake(selectedStoreId, inspectingStocktake.id);
+      toast.success("Đã hoàn tất kiểm kê kho thành công!");
+      setInspectingStocktake(null);
+      void loadStocktakes();
+      void loadOverview();
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || "Lỗi khi hoàn tất kiểm kê");
     } finally {
       setSubmitting(false);
     }
@@ -413,6 +492,33 @@ export default function StaffInventory() {
                   </span>
                 )}
               </button>
+              <button
+                onClick={() => setActiveMainTab("batches")}
+                className={cn(
+                  "relative px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border",
+                  activeMainTab === "batches"
+                    ? "bg-gold text-white border-gold shadow-lg"
+                    : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                Quản lý Lô
+              </button>
+              <button
+                onClick={() => setActiveMainTab("stocktakes")}
+                className={cn(
+                  "relative px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border",
+                  activeMainTab === "stocktakes"
+                    ? "bg-gold text-white border-gold shadow-lg"
+                    : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                Phiếu kiểm kê
+                {stocktakes.filter(s => s.status === 'IN_PROGRESS').length > 0 && (
+                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center border-4 border-background animate-bounce">
+                    {stocktakes.filter(s => s.status === 'IN_PROGRESS').length}
+                  </span>
+                )}
+              </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -450,75 +556,150 @@ export default function StaffInventory() {
                             const isLow = row.stock > 0 && row.stock <= 5;
                             const isSelected = selectedVariant === row.id;
                             return (
-                              <button
-                                key={row.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedVariant(row.id);
-                                  void loadLogs(row.id);
-                                }}
-                                className={`w-full flex items-center justify-between p-4 rounded-3xl border transition-all text-left ${
-                                  isSelected
-                                    ? "border-gold bg-gold/5 shadow-[0_0_20px_rgba(197,160,89,0.1)]"
-                                    : "bg-card border border-border/50 hover:border-gold/40"
-                                }`}
-                              >
-                                <div>
-                                  <p className="text-[10px] text-gold uppercase tracking-[0.2em] font-bold">
-                                    {row.brand ?? "—"}
-                                  </p>
-                                  <h4 className="font-heading uppercase text-xs tracking-wider">
-                                    {row.name} ({row.variantName})
-                                  </h4>
-                                  {row.barcode && (
-                                    <p className="text-[9px] text-muted-foreground font-mono mt-0.5">
-                                      BC: {row.barcode}
+                              <div key={row.id} className="w-full">
+                                <div
+                                  onClick={() => {
+                                    setSelectedVariant(row.id);
+                                    void loadLogs(row.id);
+                                  }}
+                                  className={`w-full flex items-center justify-between p-4 rounded-3xl border transition-all text-left cursor-pointer ${
+                                    isSelected
+                                      ? "border-gold bg-gold/5 shadow-[0_0_20px_rgba(197,160,89,0.1)]"
+                                      : "bg-card border border-border/50 hover:border-gold/40"
+                                  }`}
+                                >
+                                  <div>
+                                    <p className="text-[10px] text-gold uppercase tracking-[0.2em] font-bold">
+                                      {row.brand ?? "—"}
                                     </p>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-8">
-                                  <div className="text-right">
-                                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-                                      {t("quantity")}
-                                    </p>
-                                    <p className="font-heading">{row.stock}</p>
+                                    <h4 className="font-heading uppercase text-xs tracking-wider">
+                                      {row.name} ({row.variantName})
+                                    </h4>
+                                    {row.barcode && (
+                                      <p className="text-[9px] text-muted-foreground font-mono mt-0.5">
+                                        BC: {row.barcode}
+                                      </p>
+                                    )}
                                   </div>
-                                  <div
-                                    className={`px-3 py-1.5 rounded-full border text-[8px] uppercase tracking-widest font-bold ${
-                                      row.stock === 0
-                                        ? "bg-error/10 border-error/30 text-error"
-                                        : isLow
-                                          ? "bg-warning/10 border-warning/30 text-warning"
-                                          : "bg-success/10 border-success/30 text-success"
-                                    }`}
-                                  >
-                                      {row.stock === 0
-                                        ? t("status.out")
-                                        : isLow
-                                          ? t("status.low")
-                                          : t("status.optimal")}
+                                  <div className="flex items-center gap-8">
+                                    <div className="text-right">
+                                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                                        {t("quantity")}
+                                      </p>
+                                      <p className="font-heading">{row.stock}</p>
                                     </div>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setBarcodeStoreId(null);
-                                        setBarcodeVariantIds([row.id]);
-                                      }}
-                                      className="p-2 ml-2 rounded-full border border-violet-500/30 text-violet-500 hover:bg-violet-500 hover:text-white transition-colors"
-                                      title="In tem"
+                                    <div
+                                      className={`px-3 py-1.5 rounded-full border text-[8px] uppercase tracking-widest font-bold ${
+                                        row.stock === 0
+                                          ? "bg-error/10 border-error/30 text-error"
+                                          : isLow
+                                            ? "bg-warning/10 border-warning/30 text-warning"
+                                            : "bg-success/10 border-success/30 text-success"
+                                      }`}
                                     >
-                                      <Barcode className="w-4 h-4" />
-                                    </button>
+                                        {row.stock === 0
+                                          ? t("status.out")
+                                          : isLow
+                                            ? t("status.low")
+                                            : t("status.optimal")}
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setBarcodeStoreId(null);
+                                          setBarcodeVariantIds([row.id]);
+                                        }}
+                                        className="p-2 ml-2 rounded-full border border-violet-500/30 text-violet-500 hover:bg-violet-500 hover:text-white transition-colors"
+                                        title="In tem"
+                                      >
+                                        <Barcode className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                </div>
+                                </div>
+                              );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : activeMainTab === "batches" ? (
+                  <>
+                    <div className="p-6 border-b border-border flex items-center justify-between gap-4">
+                      <h2 className="font-heading text-lg uppercase tracking-widest italic gold-gradient">
+                        Quản lý Lô & Hạn Sử Dụng
+                      </h2>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                          <input
+                            type="text"
+                            value={variantFilter}
+                            onChange={(e) => setVariantFilter(e.target.value)}
+                            placeholder="Tìm theo sản phẩm hoặc số lô..."
+                            className="text-[10px] rounded-full border border-border bg-background pl-8 pr-4 py-2 outline-none focus:border-gold/60 w-64"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-6 max-h-[480px] overflow-y-auto custom-scrollbar">
+                      {!overview ? (
+                         <div className="flex items-center justify-center py-20 text-muted-foreground text-sm italic opacity-40">
+                            Hệ thống đang đồng bộ dữ liệu lô hàng...
+                         </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {overview.variants.flatMap(v => (v.batches || []).map(b => ({ ...b, product: v }))).filter(b => 
+                            b.product.name.toLowerCase().includes(variantFilter.toLowerCase()) || 
+                            b.batchCode?.toLowerCase().includes(variantFilter.toLowerCase())
+                          ).sort((a,b) => {
+                             if (!a.expiryDate) return 1;
+                             if (!b.expiryDate) return -1;
+                             return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+                          }).map((batch) => {
+                            const isExpired = batch.expiryDate && new Date(batch.expiryDate).getTime() < new Date().getTime();
+                            const isNearExpiry = !isExpired && batch.expiryDate && new Date(batch.expiryDate).getTime() < new Date().getTime() + 90 * 24 * 60 * 60 * 1000;
+                            
+                            return (
+                              <div key={batch.id} className="glass p-5 rounded-3xl border-white/5 hover:border-gold/20 transition-all group">
+                                <div className="flex flex-col md:flex-row justify-between gap-4">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-3">
+                                      <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-gold italic group-hover:bg-gold/10 group-hover:border-gold/20 transition-all">
+                                        Lô: {batch.batchCode || 'N/A'}
+                                      </span>
+                                      {isExpired ? (
+                                        <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[8px] font-black uppercase text-rose-500">Hết hạn</span>
+                                      ) : isNearExpiry ? (
+                                        <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[8px] font-black uppercase text-amber-500">Sắp hết hạn</span>
+                                      ) : null}
+                                    </div>
+                                    <h4 className="font-heading text-sm uppercase tracking-wider group-hover:text-gold transition-colors">{batch.product.name}</h4>
+                                    <p className="text-[10px] text-muted-foreground uppercase opacity-60 tracking-tighter">{batch.product.variantName}</p>
                                   </div>
-                                </button>
+
+                                  <div className="flex items-center gap-8 md:gap-12 text-right">
+                                    <div className="hidden sm:block">
+                                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1 italic opacity-40">Hạn sử dụng</p>
+                                      <p className={cn("font-heading text-[10px] uppercase tracking-widest", isExpired ? "text-rose-500" : isNearExpiry ? "text-amber-500" : "text-emerald-500")}>
+                                        {batch.expiryDate ? format.dateTime(new Date(batch.expiryDate), { dateStyle: 'medium' }) : 'Không có'}
+                                      </p>
+                                    </div>
+                                    <div className="min-w-16">
+                                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1 italic opacity-40">Số lượng</p>
+                                      <p className="font-heading text-2xl gold-gradient">{batch.currentQuantity}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             );
                           })}
                         </div>
                       )}
                     </div>
                   </>
-                ) : (
+                ) : activeMainTab === "transfers" ? (
                   <>
                     <div className="p-6 border-b border-border flex items-center justify-between gap-4">
                       <h2 className="font-heading text-lg uppercase tracking-widest">
@@ -567,6 +748,69 @@ export default function StaffInventory() {
                                 className="px-8 py-4 bg-emerald-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-emerald-600/20 disabled:opacity-50"
                               >
                                 {submitting ? "Processing..." : t("transfers.receive_btn")}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="p-6 border-b border-border flex items-center justify-between gap-4">
+                      <h2 className="font-heading text-lg uppercase tracking-widest">
+                        Phiếu Kiểm Kê Tồn Kho
+                      </h2>
+                    </div>
+                    <div className="p-6 max-h-[480px] overflow-y-auto custom-scrollbar">
+                      {loadingStocktakes ? (
+                        <div className="flex items-center justify-center py-10 text-muted-foreground text-sm">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t("loading")}
+                        </div>
+                      ) : stocktakes.length === 0 ? (
+                        <div className="text-center py-20 space-y-4">
+                          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto border border-white/5">
+                            <Box className="w-8 h-8 text-muted-foreground/20" />
+                          </div>
+                          <p className="text-muted-foreground italic text-sm">Không có phiếu kiểm kê nào.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {stocktakes.map((st) => (
+                            <div
+                              key={st.id}
+                              className="p-6 rounded-[2rem] border border-white/5 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-6 hover:border-gold/30 transition-all group"
+                            >
+                              <div className="flex-1 space-y-3">
+                                <div className="flex items-center gap-3">
+                                  <span className={cn("px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest", st.status === 'IN_PROGRESS' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' : st.status === 'COMPLETED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-rose-500/10 border-rose-500/20 text-rose-500')}>
+                                    {st.status === 'IN_PROGRESS' ? 'ĐANG TIẾN HÀNH' : st.status === 'COMPLETED' ? 'ĐÃ HOÀN TẤT' : 'ĐÃ HỦY'}
+                                  </span>
+                                  <span className="text-[10px] font-black opacity-30">#{st.code}</span>
+                                </div>
+                                <h4 className="font-heading text-sm italic">Ngày tạo: {new Date(st.createdAt).toLocaleDateString("vi-VN")}</h4>
+                                <p className="text-xs text-muted-foreground">Số loại sản phẩm: {st._count?.items || 0}</p>
+                              </div>
+                               <button
+                                onClick={async () => {
+                                  try {
+                                    setLoadingStocktakes(true);
+                                    const details = await staffInventoryService.getStocktakeById(selectedStoreId!, st.id);
+                                    setInspectingStocktake(details);
+                                    const initData: any = {};
+                                    details.items.forEach((item: any) => {
+                                      initData[item.id] = { countedQty: item.countedQty ?? item.systemQty, reason: item.reason || '' };
+                                    });
+                                    setStocktakeCountData(initData);
+                                  } catch (e) {
+                                    console.error(e);
+                                  } finally {
+                                    setLoadingStocktakes(false);
+                                  }
+                                }}
+                                className="px-6 py-3 bg-white/10 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all border border-white/10"
+                              >
+                                Xem chi tiết
                               </button>
                             </div>
                           ))}
@@ -1002,6 +1246,156 @@ export default function StaffInventory() {
                     "Xác nhận nhập kho"
                   )}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Stocktake Inspection Modal */}
+        {inspectingStocktake && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => !submitting && setInspectingStocktake(null)}
+            />
+            <div className="relative w-full max-w-4xl max-h-[90vh] bg-background rounded-[2.5rem] border border-border shadow-2xl flex flex-col overflow-hidden">
+              <div className="p-8 border-b border-border flex items-center justify-between bg-gold/5">
+                <div>
+                  <h2 className="font-heading text-xl uppercase tracking-widest gold-gradient flex items-center gap-3">
+                    <Activity className="w-6 h-6 animate-pulse" />
+                    Tiến Hành Kiểm Kê
+                  </h2>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">
+                    Phiếu: #{inspectingStocktake.code} • Kho: {inspectingStocktake.warehouse?.name}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setInspectingStocktake(null)}
+                  disabled={submitting}
+                  className="p-2 rounded-full hover:bg-muted transition-colors disabled:opacity-50"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
+                <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl flex items-start gap-3">
+                  <PackageSearch className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-blue-700 dark:text-blue-400">
+                    Bạn đang thực hiện kiểm kê kho. Vui lòng nhập số lượng thực tế đếm được. 
+                    <span className="font-bold underline ml-1">Bắt buộc nhập lý do</span> nếu có sai lệch so với hệ thống (hàng vỡ, mất cắp, nhầm mã...).
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {inspectingStocktake.items.map((item: any) => {
+                    const currentData = stocktakeCountData[item.id] || { countedQty: item.systemQty, reason: "" };
+                    const isDiff = currentData.countedQty !== item.systemQty;
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={cn(
+                          "p-6 rounded-[2rem] border transition-all",
+                          isDiff ? "border-rose-500/40 bg-rose-500/5 shadow-inner" : "border-border bg-card"
+                        )}
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                           <div className="flex items-center gap-4 flex-1">
+                             {item.variant.product.images?.length > 0 ? (
+                               <img src={item.variant.product.images[0].url} alt="" className="w-12 h-12 rounded-xl object-cover border border-border/50" />
+                             ) : (
+                               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center border border-border/50">
+                                 <ImageIcon className="w-5 h-5 text-muted-foreground/40" />
+                               </div>
+                             )}
+                            <div className="flex-1">
+                              <h4 className="font-heading text-sm uppercase tracking-wider">
+                                {item.variant.product.name}
+                              </h4>
+                              <p className="text-[11px] text-muted-foreground">
+                                {item.variant.name}
+                              </p>
+                              <div className="mt-2 flex items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase text-muted-foreground bg-secondary/20 px-2 py-0.5 rounded">
+                                  Hệ thống: {item.systemQty}
+                                </span>
+                                {isDiff && (
+                                  <span className={cn("text-[10px] font-bold uppercase px-2 py-0.5 rounded animate-pulse", (currentData.countedQty - item.systemQty) > 0 ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600")}>
+                                    Sai lệch: {currentData.countedQty - item.systemQty > 0 ? '+' : ''}{currentData.countedQty - item.systemQty}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                            <div className="w-full sm:w-32">
+                              <label className="block text-[9px] uppercase tracking-[0.2em] text-muted-foreground mb-1.5 font-black">
+                                Thực tế đếm
+                              </label>
+                              <input
+                                type="number"
+                                value={currentData.countedQty}
+                                min={0}
+                                disabled={inspectingStocktake.status !== 'IN_PROGRESS'}
+                                onChange={(e) => {
+                                  const val = Math.max(0, parseInt(e.target.value) || 0);
+                                  handleStocktakeItemChange(item.id, val, currentData.reason);
+                                }}
+                                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-heading focus:border-gold outline-none disabled:opacity-50"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-[200px]">
+                              <label className={cn("block text-[9px] uppercase tracking-[0.2em] mb-1.5 font-black", isDiff && !currentData.reason ? "text-rose-500 animate-bounce" : "text-muted-foreground")}>
+                                Lý do sai lệch {isDiff && <span className="text-rose-500">*</span>}
+                              </label>
+                              <input
+                                type="text"
+                                value={currentData.reason}
+                                disabled={inspectingStocktake.status !== 'IN_PROGRESS'}
+                                onChange={(e) => {
+                                  handleStocktakeItemChange(item.id, currentData.countedQty, e.target.value);
+                                }}
+                                placeholder={isDiff ? "Vui lòng nhập lý do..." : "Ghi chú thêm (không bắt buộc)"}
+                                className={cn("w-full bg-background border rounded-xl px-4 py-2.5 text-sm outline-none transition-all", isDiff && !currentData.reason ? "border-rose-500 focus:border-rose-600 ring-4 ring-rose-500/5" : "border-border focus:border-gold")}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="p-8 border-t border-border bg-muted/30 flex items-center justify-between gap-6">
+                <button
+                  type="button"
+                  onClick={() => setInspectingStocktake(null)}
+                  disabled={submitting}
+                  className="px-8 py-3 text-xs font-heading uppercase tracking-widest text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  Đóng lại
+                </button>
+                {inspectingStocktake.status === 'IN_PROGRESS' && (
+                  <button
+                    type="button"
+                    onClick={handleCompleteStocktake}
+                    disabled={submitting}
+                    className="px-12 py-4 bg-gold text-primary-foreground rounded-full font-heading text-xs uppercase tracking-widest shadow-xl shadow-gold/20 hover:scale-105 transition-all disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Đang hoàn tất...
+                      </>
+                    ) : (
+                      "Hoàn tất kiểm kê"
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>

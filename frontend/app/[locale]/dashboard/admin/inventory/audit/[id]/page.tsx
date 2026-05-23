@@ -223,11 +223,22 @@ export default function AuditDetailPage() {
                        <td className="pl-12 py-8">
                           <div className="flex items-center gap-6">
                              <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center relative overflow-hidden group-hover:scale-110 transition-transform">
-                                <Package className="w-6 h-6 text-muted-foreground/30" />
+                                {item.variant.product.images?.length > 0 ? (
+                                  <img src={item.variant.product.images[0].url} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                  <Package className="w-6 h-6 text-muted-foreground/30" />
+                                )}
                              </div>
                              <div>
                                 <p className="font-heading text-lg italic uppercase leading-none group-hover:text-gold transition-colors">{item.variant.product.name}</p>
-                                <p className="text-[10px] font-black uppercase tracking-tighter opacity-30 mt-1.5">{item.variant.name}</p>
+                                <div className="flex items-center gap-3 mt-1.5">
+                                  <p className="text-[10px] font-black uppercase tracking-tighter opacity-30">{item.variant.name}</p>
+                                  {(item.variance || 0) !== 0 && item.reason && (
+                                    <span className="text-[9px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-bold uppercase tracking-widest border border-rose-500/20">
+                                      Lý do: {item.reason}
+                                    </span>
+                                  )}
+                                </div>
                              </div>
                           </div>
                        </td>

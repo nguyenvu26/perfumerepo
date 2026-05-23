@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, AlertCircle, ShoppingCart, ArrowRight, Activity } from 'lucide-react';
+import { Package, AlertCircle, ShoppingCart, ArrowRight, Activity, Store, HelpCircle, X, Zap } from 'lucide-react';
 import api from '@/lib/axios';
+import { storesService } from '@/services/stores.service';
 import { cn } from '@/lib/utils';
 import { Link } from '@/lib/i18n';
 import Image from 'next/image';
@@ -28,20 +29,31 @@ interface InventoryHealthWidgetProps {
 export function InventoryHealthWidget({ isExpanded = false, onToggle }: InventoryHealthWidgetProps) {
     const [data, setData] = useState<HealthItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [stores, setStores] = useState<any[]>([]);
+    const [selectedStoreId, setSelectedStoreId] = useState<string>('all');
+    const [showAlgorithm, setShowAlgorithm] = useState(false);
+
+    const fetchHealth = async () => {
+        try {
+            setLoading(true);
+            const { data } = await api.get('/analytics/inventory-health', {
+                params: { storeId: selectedStoreId }
+            });
+            setData(data);
+        } catch (e) {
+            console.error('Inventory health error:', e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchHealth = async () => {
-            try {
-                setLoading(true);
-                const { data } = await api.get('/analytics/inventory-health');
-                setData(data);
-            } catch (e) {
-                console.error('Inventory health error:', e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchHealth();
+        storesService.list().then(res => setStores(res.filter((s: any) => s.type !== 'CENTRAL'))).catch(console.error);
     }, []);
+
+    useEffect(() => {
+        fetchHealth();
+    }, [selectedStoreId]);
 
     const groupedData = useMemo(() => {
         const groups = {
@@ -85,10 +97,18 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                     )}>
                         <Activity className="w-5 h-5" />
                     </div>
-                    <div>
-                        <h3 className="text-sm font-black uppercase tracking-[.3em] gold-gradient">
-                            Sức Khỏe Kho & Dự Báo Thông Minh
-                        </h3>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-black uppercase tracking-[.3em] gold-gradient">
+                                Sức Khỏe Kho & Dự Báo Thông Minh
+                            </h3>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); setShowAlgorithm(true); }}
+                                className="p-1 rounded-full hover:bg-gold/10 text-muted-foreground hover:text-gold transition-colors"
+                            >
+                                <HelpCircle className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
                         {!isExpanded ? (
                             <div className="flex items-center gap-4 mt-1.5">
                                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
@@ -111,6 +131,21 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                 </div>
 
                 <div className="flex items-center gap-4">
+                    {/* Store Filter */}
+                    <div className="relative group/select flex items-center gap-2 px-4 py-2 bg-background/20 border border-border rounded-xl focus-within:border-gold/40 transition-all">
+                        <Store className="w-3.5 h-3.5 text-gold/60" />
+                        <select 
+                            value={selectedStoreId}
+                            onChange={(e) => { e.stopPropagation(); setSelectedStoreId(e.target.value); }}
+                            className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none min-w-[140px]"
+                        >
+                            <option value="all">Toàn hệ thống</option>
+                            {stores.map(s => (
+                                <option key={s.id} value={s.id}>{s.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     <Link href="/dashboard/admin/stores/stock">
                         <button className="px-6 py-2.5 rounded-xl bg-secondary/30 hover:bg-gold/10 border border-border transition-all text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold">
                             Kho tổng
@@ -206,6 +241,147 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                     </div>
                 </motion.div>
             )}
+
+            {/* Algorithm Explanation - Side Drawer */}
+            <AnimatePresence>
+                {showAlgorithm && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowAlgorithm(false)}
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+                        />
+                        {/* Side Panel */}
+                        <motion.div 
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 28, stiffness: 250 }}
+                            className="fixed top-0 right-0 h-full w-full max-w-xl bg-zinc-950 border-l border-gold/20 shadow-2xl shadow-black/50 z-[201] flex flex-col"
+                        >
+                            {/* Panel Header */}
+                            <div className="flex items-center justify-between px-8 py-6 border-b border-white/5 bg-zinc-900/80 shrink-0">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-2.5 rounded-xl bg-gold/10 text-gold border border-gold/20">
+                                        <Zap className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-sm font-black uppercase tracking-[.2em] gold-gradient">
+                                            Thuật Toán Vận Hành
+                                        </h2>
+                                        <p className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-widest mt-0.5">
+                                            Sức Khỏe Kho & Dự Báo Thông Minh
+                                        </p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setShowAlgorithm(false)}
+                                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto px-8 py-8 space-y-10">
+
+                                {/* Section 1: DSR */}
+                                <section>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-8 h-8 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center text-gold text-[11px] font-black">01</div>
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-gold/80">
+                                            Vận tốc bán (Daily Sales Rate)
+                                        </h4>
+                                    </div>
+                                    <p className="text-[13px] leading-relaxed text-stone-400 mb-4">
+                                        Hệ thống phân tích dữ liệu bán hàng trong <span className="text-white font-bold">30 ngày gần nhất</span> để tính trung bình số lượng tiêu thụ mỗi ngày cho từng sản phẩm.
+                                    </p>
+                                    <div className="p-4 bg-black/40 rounded-2xl border border-white/5 font-mono text-center">
+                                        <span className="text-gold/70 text-[12px]">DSR = Tổng số lượng bán (30 ngày) / 30 ngày</span>
+                                    </div>
+                                </section>
+
+                                <div className="border-t border-white/5" />
+
+                                {/* Section 2: Days Remaining */}
+                                <section>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-[11px] font-black">02</div>
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-blue-400">
+                                            Thời gian còn lại (Days Remaining)
+                                        </h4>
+                                    </div>
+                                    <p className="text-[13px] leading-relaxed text-stone-400 mb-4">
+                                        Ước tính số ngày còn lại trước khi sản phẩm cháy hàng dựa trên tồn kho khả dụng hiện tại.
+                                    </p>
+                                    <div className="p-4 bg-black/40 rounded-2xl border border-white/5 font-mono text-center">
+                                        <span className="text-blue-400/70 text-[12px]">Số ngày còn lại = Tồn kho hiện tại / DSR</span>
+                                    </div>
+                                    <p className="text-[12px] text-stone-500 mt-3 leading-relaxed">
+                                        Nếu DSR = 0 (không có lịch sử bán), hệ thống mặc định hiển thị <span className="text-white/70 font-bold">999 ngày</span> để tránh cảnh báo nhầm.
+                                    </p>
+                                </section>
+
+                                <div className="border-t border-white/5" />
+
+                                {/* Section 3: Thresholds */}
+                                <section>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 text-[11px] font-black">03</div>
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-red-400">
+                                            Cơ chế Cảnh Báo (Status Thresholds)
+                                        </h4>
+                                    </div>
+                                    <div className="space-y-2.5">
+                                        {[
+                                            { bg: 'bg-red-500/10 border-red-500/20', dot: 'bg-red-500', label: 'CẠN KIỆT (CRITICAL)', color: 'text-red-400', desc: 'Dưới 7 ngày tồn kho – cần nhập hàng khẩn cấp' },
+                                            { bg: 'bg-amber-500/10 border-amber-500/20', dot: 'bg-amber-500', label: 'SẮP HẾT (WARNING)', color: 'text-amber-400', desc: 'Từ 7–15 ngày – nên chuẩn bị đơn nhập hàng' },
+                                            { bg: 'bg-emerald-500/10 border-emerald-500/20', dot: 'bg-emerald-500', label: 'LÝ TƯỞNG (HEALTHY)', color: 'text-emerald-400', desc: 'Trên 15 ngày – tồn kho ở mức an toàn' },
+                                        ].map(item => (
+                                            <div key={item.label} className={`flex items-start gap-3 p-4 rounded-2xl border ${item.bg}`}>
+                                                <div className={`w-2.5 h-2.5 rounded-full ${item.dot} mt-1 shrink-0`} />
+                                                <div>
+                                                    <span className={`text-[11px] font-black uppercase tracking-wider block ${item.color}`}>{item.label}</span>
+                                                    <span className="text-[11px] text-stone-500">{item.desc}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                <div className="border-t border-white/5" />
+
+                                {/* Section 4: Vòng quay */}
+                                <section>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/40 text-[11px] font-black">04</div>
+                                        <h4 className="text-[11px] font-black uppercase tracking-widest text-white/40">
+                                            Vòng Quay Tồn Kho (Turnover Rate)
+                                        </h4>
+                                    </div>
+                                    <p className="text-[13px] leading-relaxed text-stone-400 mb-4">
+                                        Đo lường hiệu quả luân chuyển vốn của sản phẩm trong kỳ.
+                                    </p>
+                                    <div className="p-4 bg-black/40 rounded-2xl border border-white/5 font-mono text-center">
+                                        <span className="text-white/40 text-[12px]">Vòng quay = Tổng bán (30 ngày) / Tồn kho hiện tại</span>
+                                    </div>
+                                    <p className="text-[12px] text-stone-500 mt-3 leading-relaxed">
+                                        Ví dụ: Vòng quay <span className="text-white/70 font-bold">2.1x</span> nghĩa là lượng bán ra trong tháng gấp 2.1 lần tồn kho hiện có – sản phẩm đang bán rất chạy.
+                                    </p>
+                                </section>
+
+                                {/* Footer */}
+                                <p className="text-[10px] italic text-stone-600 text-center pb-4">
+                                    * Dữ liệu cập nhật thời gian thực sau mỗi giao dịch thành công
+                                </p>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -254,8 +254,8 @@ export class AnalyticsService {
       },
     });
 
-    // AI consultations (chat + quiz) in current period
-    const aiConsultations = await this.prisma.aiRequestLog.count({
+    // AI consultations (Quiz results) in current period
+    const aiConsultations = await this.prisma.quizResult.count({
       where: {
         createdAt: { gte: currentStart, lte: currentEnd },
       },
@@ -721,21 +721,60 @@ export class AnalyticsService {
   /**
    * AI Conversion tracking: How many sold items were recommended by AI
    */
-  async getAiConversionRate() {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  async getAiConversionRate(
+    period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom' = 'month',
+    startDate?: string,
+    endDate?: string,
+  ) {
+    const now = new Date();
+    let start: Date;
+    let end: Date = now;
+
+    if (period === 'custom' && startDate && endDate) {
+      start = new Date(startDate);
+      end = new Date(endDate);
+    } else {
+      const actualPeriod = period === 'custom' ? 'month' : period;
+      switch (actualPeriod) {
+        case 'today':
+          start = new Date(now);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          start = new Date(now);
+          start.setDate(start.getDate() - 7);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'quarter':
+          start = new Date(now);
+          start.setMonth(start.getMonth() - 3);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'year':
+          start = new Date(now);
+          start.setFullYear(start.getFullYear() - 1);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'month':
+        default:
+          start = new Date(now);
+          start.setDate(start.getDate() - 30);
+          start.setHours(0, 0, 0, 0);
+          break;
+      }
+    }
 
     const [totalItems, aiRecommendedItems, totalConsultations] = await Promise.all([
       this.prisma.orderItem.aggregate({
-        where: { order: { createdAt: { gte: thirtyDaysAgo }, paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] } } },
+        where: { order: { createdAt: { gte: start, lte: end }, paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] } } },
         _sum: { quantity: true }
       }),
       this.prisma.orderItem.aggregate({
-        where: { order: { createdAt: { gte: thirtyDaysAgo }, paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] } }, isAiRecommended: true },
+        where: { order: { createdAt: { gte: start, lte: end }, paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] } }, isAiRecommended: true },
         _sum: { quantity: true }
       }),
       this.prisma.quizResult.count({
-        where: { createdAt: { gte: thirtyDaysAgo } }
+        where: { createdAt: { gte: start, lte: end } }
       })
     ]);
 
@@ -810,7 +849,7 @@ export class AnalyticsService {
   /**
    * Inventory turnover and predicted stock-out dates
    */
-  async getInventoryHealth() {
+  async getInventoryHealth(storeId?: string) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -821,6 +860,7 @@ export class AnalyticsService {
         order: {
           createdAt: { gte: thirtyDaysAgo },
           paymentStatus: { in: [PaymentStatus.PAID, PaymentStatus.PARTIALLY_REFUNDED] },
+          storeId: storeId && storeId !== 'all' ? storeId : undefined,
         },
       },
       _sum: { quantity: true },
@@ -830,6 +870,7 @@ export class AnalyticsService {
 
     // Get current stock
     const inventories = await this.prisma.inventory.findMany({
+      where: storeId && storeId !== 'all' ? { warehouseId: storeId } : {},
       include: { 
         variant: { 
           include: { 

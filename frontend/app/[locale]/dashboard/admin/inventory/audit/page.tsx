@@ -14,7 +14,8 @@ import {
   AlertCircle,
   BarChart3,
   TrendingDown,
-  Coins
+  Coins,
+  Filter
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useTranslations, useFormatter, useLocale } from 'next-intl';
@@ -43,6 +44,10 @@ export default function InventoryAuditPage() {
   const [lowStockCount, setLowStockCount] = useState(0);
   const [totalValue, setTotalValue] = useState(0);
 
+  // Filter State
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'IN_PROGRESS' | 'COMPLETED'>('ALL');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'CENTRAL' | 'STORE'>('ALL');
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -55,7 +60,7 @@ export default function InventoryAuditPage() {
       setAudits(auditRes.items);
       setStores(storeRes);
       setLowStockCount(lowRes.length);
-      setTotalValue(valRes.global.totalValue);
+      setTotalValue(valRes.global.totalCostValue);
     } catch (err) {
       console.error(err);
       toast.error(commonT('error'));
@@ -147,6 +152,47 @@ export default function InventoryAuditPage() {
            </div>
         </div>
 
+        {/* Filters */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+           <div className="flex items-center gap-4 bg-white/5 p-1.5 rounded-full border border-white/5">
+              {[
+                { id: 'ALL', label: 'Tất cả trạng thái' },
+                { id: 'IN_PROGRESS', label: 'Đang tiến hành' },
+                { id: 'COMPLETED', label: 'Hoàn tất' }
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setStatusFilter(f.id as any)}
+                  className={cn(
+                    "px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                    statusFilter === f.id ? "bg-gold text-white shadow-lg shadow-gold/20" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+           </div>
+
+           <div className="flex items-center gap-4 bg-white/5 p-1.5 rounded-full border border-white/5">
+              {[
+                { id: 'ALL', label: 'Tất cả kho' },
+                { id: 'CENTRAL', label: 'Kho Tổng (Central)' },
+                { id: 'STORE', label: 'Cửa hàng (Store)' }
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setTypeFilter(f.id as any)}
+                  className={cn(
+                    "px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all",
+                    typeFilter === f.id ? "bg-white text-black shadow-lg shadow-white/10" : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+           </div>
+        </div>
+
         {/* Audit List */}
         <div className="space-y-6">
           {loading ? (
@@ -154,15 +200,17 @@ export default function InventoryAuditPage() {
               <div className="w-12 h-12 border-4 border-gold/10 border-t-gold rounded-full animate-spin" />
               <p className="text-[10px] uppercase tracking-[0.5em] text-muted-foreground animate-pulse font-black italic">{t('audit.syncing')}</p>
             </div>
-          ) : audits.length === 0 ? (
+          ) : audits.filter(a => (statusFilter === 'ALL' || a.status === statusFilter) && (typeFilter === 'ALL' || a.warehouse.type === typeFilter)).length === 0 ? (
             <div className="glass py-40 rounded-[3rem] border-white/5 flex flex-col items-center justify-center text-center space-y-6">
               <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
                 <ClipboardCheck className="w-10 h-10 text-muted-foreground opacity-20" />
               </div>
-              <p className="text-xl font-serif italic text-muted-foreground/40">{t('audit.empty')}</p>
+              <p className="text-xl font-serif italic text-muted-foreground/40">Không tìm thấy bản kê nào.</p>
             </div>
           ) : (
-            audits.map((audit, idx) => (
+            audits
+              .filter(a => (statusFilter === 'ALL' || a.status === statusFilter) && (typeFilter === 'ALL' || a.warehouse.type === typeFilter))
+              .map((audit, idx) => (
               <motion.div
                 key={audit.id}
                 initial={{ opacity: 0, x: -20 }}

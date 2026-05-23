@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Receipt, Search, Filter, Eye, Printer,
@@ -11,11 +12,20 @@ import {
 } from 'lucide-react';
 import { useTranslations, useFormatter } from 'next-intl';
 import { orderService, type Order } from '@/services/order.service';
+import { storesService } from '@/services/stores.service';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 export default function AdminOrders() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AdminOrdersContent />
+        </Suspense>
+    );
+}
+
+function AdminOrdersContent() {
     const t = useTranslations('dashboard.admin.orders');
     const format = useFormatter();
 
@@ -49,32 +59,40 @@ export default function AdminOrders() {
     const [loadingRefundInfo, setLoadingRefundInfo] = useState(false);
     const [filterDate, setFilterDate] = useState('');
     const [uploadingEvidence, setUploadingEvidence] = useState(false);
+    const [stores, setStores] = useState<any[]>([]);
+    const [selectedStoreId, setSelectedStoreId] = useState<string>('all');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const printRef = useRef<HTMLDivElement>(null);
+    const searchParams = useSearchParams();
+    const statusParam = searchParams.get('status');
+
+    useEffect(() => {
+        if (statusParam) {
+            const status = statusParam.toUpperCase();
+            if (['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELLED', 'REFUND_REQUIRED'].includes(status)) {
+                setActiveTab(status as any);
+            }
+        }
+    }, [statusParam]);
 
     const fetchOrders = useCallback(async () => {
-        setLoading(true);
         try {
-            let startDate: string | undefined;
-            let endDate: string | undefined;
-
-            if (filterDate) {
-                const start = new Date(`${filterDate}T00:00:00`);
-                const end = new Date(`${filterDate}T23:59:59`);
-                startDate = start.toISOString();
-                endDate = end.toISOString();
-            }
-
-            const res = await orderService.listAll(skip, take, startDate, endDate);
+            setLoading(true);
+            const [startDate, endDate] = filterDate ? filterDate.split(' to ') : [undefined, undefined];
+            const res = await orderService.listAll(skip, take, startDate, endDate, activeTab, selectedStoreId, activeChannel);
             setOrders(res.data);
             setTotal(res.total);
             setCounts(res.counts || {});
         } catch (error) {
-            console.error('Failed to fetch orders:', error);
+            console.error('Fetch orders error:', error);
         } finally {
             setLoading(false);
         }
-    }, [skip, take, filterDate]);
+    }, [skip, take, filterDate, activeTab, selectedStoreId, activeChannel]);
+
+    useEffect(() => {
+        storesService.list().then(setStores).catch(console.error);
+    }, []);
 
     useEffect(() => {
         fetchOrders();
@@ -348,6 +366,22 @@ export default function AdminOrders() {
                                 {channel.label}
                             </button>
                         ))}
+
+                        {activeChannel === 'POS' && (
+                            <div className="flex items-center gap-3 ml-auto animate-in fade-in slide-in-from-right-4 duration-500">
+                                <span className="text-[10px] font-black uppercase tracking-[.3em] text-stone-400">Cửa hàng:</span>
+                                <select 
+                                    value={selectedStoreId}
+                                    onChange={(e) => setSelectedStoreId(e.target.value)}
+                                    className="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.1em] outline-none focus:border-gold transition-all shadow-sm cursor-pointer min-w-[200px]"
+                                >
+                                    <option value="all">Tất cả cửa hàng</option>
+                                    {stores.filter(s => s.type !== 'CENTRAL').map(store => (
+                                        <option key={store.id} value={store.id}>{store.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
 
                     {/* Bottom Row: Progress Status Filters */}

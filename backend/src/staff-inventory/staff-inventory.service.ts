@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { InventoryLogType, InventoryRequestStatus } from '@prisma/client';
 import { StoresService } from '../stores/stores.service';
 import { InventoryGateway } from './inventory.gateway';
+import { StocktakeService } from '../inventory/stocktake.service';
 
 @Injectable()
 export class StaffInventoryService {
@@ -15,6 +16,7 @@ export class StaffInventoryService {
     private readonly prisma: PrismaService,
     private readonly storesService: StoresService,
     private readonly inventoryGateway: InventoryGateway,
+    private readonly stocktakeService: StocktakeService,
   ) {}
 
   /** List inventory overview for a store. storeId required for staff. */
@@ -24,6 +26,10 @@ export class StaffInventoryService {
     const storeStocks = await this.prisma.inventory.findMany({
       where: { warehouseId: storeId },
       include: {
+        batches: {
+          orderBy: { expiryDate: 'asc' },
+          where: { currentQuantity: { gt: 0 } },
+        },
         variant: {
           include: {
             product: {
@@ -69,6 +75,13 @@ export class StaffInventoryService {
         imageUrl: ss.variant.product.images?.[0]?.url ?? null,
         stock: ss.available,
         updatedAt: ss.updatedAt,
+        batches: ss.batches.map(b => ({
+          id: b.id,
+          batchCode: b.batchCode,
+          mfgDate: b.mfgDate,
+          expiryDate: b.expiryDate,
+          currentQuantity: b.currentQuantity,
+        })),
       })),
     };
   }
@@ -523,5 +536,39 @@ export class StaffInventoryService {
       },
     });
     return logs;
+  }
+
+  // --- STAFF STOCKTAKE DELEGATION ---
+
+  async listStocktakes(storeId: string, userId: string, role: string, skip: number = 0, take: number = 20) {
+    await this.storesService.ensureStaffCanAccessStore(userId, storeId, role);
+    return this.stocktakeService.list({ warehouseId: storeId, skip, take });
+  }
+
+  async getStocktakeById(id: string, storeId: string, userId: string, role: string) {
+    await this.storesService.ensureStaffCanAccessStore(userId, storeId, role);
+    const stocktake = await this.stocktakeService.getById(id);
+    if (stocktake.warehouseId !== storeId) {
+      throw new ForbiddenException('You cannot access stocktakes of other stores.');
+    }
+    return stocktake;
+  }
+
+  async updateStocktakeItem(id: string, storeId: string, itemId: string, countedQty: number, reason: string | undefined, userId: string, role: string) {
+    await this.storesService.ensureStaffCanAccessStore(userId, storeId, role);
+    const stocktake = await this.stocktakeService.getById(id);
+    if (stocktake.warehouseId !== storeId) {
+      throw new ForbiddenException('You cannot access stocktakes of other stores.');
+    }
+    return this.stocktakeService.updateItem(id, itemId, countedQty, reason);
+  }
+
+  async completeStocktake(id: string, storeId: string, userId: string, role: string) {
+    await this.storesService.ensureStaffCanAccessStore(userId, storeId, role);
+    const stocktake = await this.stocktakeService.getById(id);
+    if (stocktake.warehouseId !== storeId) {
+      throw new ForbiddenException('You cannot access stocktakes of other stores.');
+    }
+    return this.stocktakeService.complete(id, userId);
   }
 }

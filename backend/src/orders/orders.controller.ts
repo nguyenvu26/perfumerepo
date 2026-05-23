@@ -45,6 +45,9 @@ export class OrdersController {
     @Query('take') take?: string | number,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('status') status?: string,
+    @Query('storeId') storeId?: string,
+    @Query('channel') channel?: string,
   ) {
     const parsedSkip = Number(skip ?? 0);
     const parsedTake = Number(take ?? 10);
@@ -53,6 +56,9 @@ export class OrdersController {
       Number.isFinite(parsedTake) ? parsedTake : 10,
       startDate,
       endDate,
+      status,
+      storeId,
+      channel,
     );
   }
 

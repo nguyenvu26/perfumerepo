@@ -19,7 +19,7 @@ import { RecentOrdersFeed, RecentOrderDto } from '@/components/dashboard/admin/R
 import { StoreRevenueWidget } from '@/components/dashboard/admin/StoreRevenueWidget';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
-import { Link } from '@/lib/i18n';
+import { Link, useRouter } from '@/lib/i18n';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface OverviewData {
@@ -67,6 +67,7 @@ function ChangeChip({ value }: { value: number }) {
 
 export default function AdminDashboard() {
     const t = useTranslations('dashboard.admin');
+    const router = useRouter();
 
     // Period and Date state
     const [period, setPeriod] = useState<'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom'>('month');
@@ -180,10 +181,16 @@ export default function AdminDashboard() {
         }
     }, []);
 
-    const fetchAiConversion = useCallback(async () => {
+    const fetchAiConversion = useCallback(async (p: string, start?: string, end?: string) => {
         try {
             setAiConversionLoading(true);
-            const { data } = await api.get('/analytics/ai-conversion');
+            const { data } = await api.get('/analytics/ai-conversion', {
+                params: {
+                    period: p,
+                    startDate: start,
+                    endDate: end
+                }
+            });
             setAiConversion(data);
         } catch (e) {
             console.error('AI conversion error:', e);
@@ -207,7 +214,7 @@ export default function AdminDashboard() {
         fetchTopProducts(selectedChartStoreId);
         fetchChannel();
         fetchRecentOrders();
-        fetchAiConversion();
+        fetchAiConversion(period, dateRange.start, dateRange.end);
         fetchStores();
         setLastRefreshed(new Date());
     }, [fetchOverview, fetchTrend, period, dateRange, selectedChartStoreId, fetchTopProducts, fetchChannel, fetchRecentOrders, fetchAiConversion, fetchStores]);
@@ -218,19 +225,20 @@ export default function AdminDashboard() {
             fetchOverview(period, undefined, undefined, selectedChartStoreId);
             fetchTrend(period, undefined, undefined, selectedChartStoreId);
             fetchTopProducts(selectedChartStoreId);
+            fetchAiConversion(period, undefined, undefined);
         } else if (dateRange.start && dateRange.end) {
             fetchOverview('custom', dateRange.start, dateRange.end, selectedChartStoreId);
             fetchTrend('custom', dateRange.start, dateRange.end, selectedChartStoreId);
             fetchTopProducts(selectedChartStoreId);
+            fetchAiConversion('custom', dateRange.start, dateRange.end);
         }
     }, [period, dateRange, selectedChartStoreId, fetchOverview, fetchTrend, fetchTopProducts]);
 
     useEffect(() => {
         fetchChannel();
         fetchRecentOrders();
-        fetchAiConversion();
         fetchStores();
-    }, [fetchChannel, fetchRecentOrders, fetchAiConversion, fetchStores]);
+    }, [fetchChannel, fetchRecentOrders, fetchStores]);
 
     // ── Stat card definitions ────────────────────────────────────────────────
     const statCards = overview
@@ -257,7 +265,7 @@ export default function AdminDashboard() {
                 color: 'bg-amber-500/10 text-amber-400',
             },
             {
-                label: 'Tư vấn AI',
+                label: 'Phiên tư vấn AI',
                 value: `${(overview.aiConsultations || 0).toLocaleString()} lượt`,
                 change: null,
                 icon: Sparkles,
@@ -285,7 +293,7 @@ export default function AdminDashboard() {
                 change: null,
                 icon: CheckCircle,
                 color: 'bg-emerald-500/10 text-emerald-400',
-                href: '/dashboard/admin/orders',
+                href: { pathname: '/dashboard/admin/orders', query: { status: 'COMPLETED' } },
             },
             {
                 label: t('home.stats.cancellation_rate'),
@@ -293,8 +301,9 @@ export default function AdminDashboard() {
                 change: null,
                 icon: RotateCcw,
                 color: 'bg-red-500/10 text-red-400',
-                href: '/dashboard/admin/orders',
+                href: { pathname: '/dashboard/admin/orders', query: { status: 'CANCELLED' } },
                 subtext: `Tỉ lệ Hoàn trả: ${(overview.returnRate || 0).toFixed(1)}%`,
+                subtextHref: '/dashboard/admin/returns',
             },
         ]
         : [];
@@ -386,45 +395,61 @@ export default function AdminDashboard() {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: i * 0.1 }}
-                                    className={cn(
-                                        "glass bg-background/40 rounded-[2rem] border border-border p-6 hover:border-gold/20 hover:shadow-xl hover:shadow-gold/5 transition-all group flex flex-col justify-between h-full min-h-[165px]",
-                                        card.href && "cursor-pointer"
-                                    )}
+                                    className="glass bg-background/40 rounded-[2.5rem] border border-border hover:border-gold/20 hover:shadow-2xl hover:shadow-gold/5 transition-all group flex flex-col h-full min-h-[200px]"
                                 >
-                                    <div className="flex justify-between items-center mb-4">
-                                        <div className={`p-3 rounded-xl ${card.color} group-hover:scale-110 transition-transform shadow-lg shadow-black/5`}>
-                                            <card.icon className="w-5 h-5" />
-                                        </div>
-                                        {card.change !== null && card.change !== undefined && (
-                                            <ChangeChip value={card.change} />
+                                    <Link
+                                        href={card.href || ''}
+                                        className={cn(
+                                            "p-8 flex-1 flex flex-col justify-between",
+                                            !card.href && "pointer-events-none"
                                         )}
-                                    </div>
-                                    
-                                    <div className="flex flex-col justify-end flex-1">
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em] mb-1 opacity-70">
-                                            {card.label}
-                                        </p>
-                                        <h4 className="text-2xl sm:text-3xl font-heading text-foreground tracking-tight leading-none">
-                                            {card.value}
-                                        </h4>
-                                        <div className="min-h-[14px] mt-1">
-                                            {card.subtext && (
-                                                <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-medium opacity-40">
-                                                    {card.subtext}
-                                                </p>
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <div className={`p-4 rounded-2xl ${card.color} group-hover:scale-110 transition-all duration-500 shadow-xl shadow-black/10 flex items-center justify-center relative`}>
+                                                <div className="absolute inset-0 rounded-2xl bg-current opacity-0 group-hover:opacity-10 blur-md transition-opacity" />
+                                                <card.icon className="w-6 h-6 relative z-10" />
+                                            </div>
+                                            {card.change !== null && card.change !== undefined && (
+                                                <ChangeChip value={card.change} />
                                             )}
                                         </div>
+                                        
+                                        <div className="mt-6 flex flex-col">
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] mb-2 opacity-50 group-hover:opacity-80 transition-opacity">
+                                                {card.label}
+                                            </p>
+                                            <h4 className="text-3xl sm:text-4xl font-heading text-foreground tracking-tight leading-none group-hover:text-gold transition-colors duration-300">
+                                                {card.value}
+                                            </h4>
+                                        </div>
+                                    </Link>
+
+                                    {/* Footer area with fixed height for alignment */}
+                                    <div className="px-8 pb-7 min-h-[36px] flex items-center">
+                                        {card.subtext ? (
+                                            <button 
+                                                onClick={(e) => {
+                                                    if (card.subtextHref) {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        router.push(card.subtextHref);
+                                                    }
+                                                }}
+                                                className={cn(
+                                                    "text-[10px] text-muted-foreground uppercase tracking-[0.1em] font-medium opacity-30 transition-all text-left",
+                                                    card.subtextHref && "hover:text-gold hover:opacity-100 hover:tracking-[0.2em] cursor-pointer"
+                                                )}
+                                            >
+                                                {card.subtext}
+                                            </button>
+                                        ) : (
+                                            <div className="h-px w-8 bg-border/20" /> /* Placeholder line */
+                                        )}
                                     </div>
                                 </motion.div>
                             );
 
-                            return card.href ? (
-                                <Link key={i} href={card.href}>
-                                    {CardContent}
-                                </Link>
-                            ) : (
-                                <div key={i}>{CardContent}</div>
-                            );
+                            return CardContent;
                         })
                     }
                 </section>

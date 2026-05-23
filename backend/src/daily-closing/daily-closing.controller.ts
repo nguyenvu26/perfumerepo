@@ -15,8 +15,12 @@ export class DailyClosingController {
   }
 
   @Get()
-  findAll(@Query('storeId') storeId?: string) {
-    return this.dailyClosingService.findAll(storeId);
+  findAll(
+    @Query('storeId') storeId?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.dailyClosingService.findAll(storeId, startDate, endDate);
   }
 
   @Get('check-today')

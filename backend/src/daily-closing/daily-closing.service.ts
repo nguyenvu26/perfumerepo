@@ -16,9 +16,17 @@ export class DailyClosingService {
     });
   }
 
-  async findAll(storeId?: string) {
+  async findAll(storeId?: string, startDate?: string, endDate?: string) {
+    const where: any = {};
+    if (storeId && storeId !== 'all') where.storeId = storeId;
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
+
     return this.prisma.dailyClosing.findMany({
-      where: storeId ? { storeId } : {},
+      where,
       include: {
         staff: {
           select: {

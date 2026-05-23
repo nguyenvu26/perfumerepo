@@ -6,10 +6,15 @@ import { StocktakeStatus, InventoryLogType } from '@prisma/client';
 export class StocktakeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(params: { warehouseId?: string; skip?: number; take?: number }) {
-    const { warehouseId, skip = 0, take = 20 } = params;
+  async list(params: { warehouseId?: string; skip?: number; take?: number; restricted?: boolean }) {
+    const { warehouseId, skip = 0, take = 20, restricted = false } = params;
     const where: any = {};
-    if (warehouseId) where.warehouseId = warehouseId;
+    if (warehouseId) {
+      where.warehouseId = warehouseId;
+    }
+
+    // Admin view can see all stocktakes in list to know progress
+    // The restriction will only apply when trying to view details (getById)
 
     const [items, total] = await Promise.all([
       this.prisma.stocktake.findMany({
@@ -28,7 +33,7 @@ export class StocktakeService {
     return { items, total };
   }
 
-  async getById(id: string) {
+  async getById(id: string, restricted?: boolean) {
     const stocktake = await this.prisma.stocktake.findUnique({
       where: { id },
       include: {
@@ -36,13 +41,22 @@ export class StocktakeService {
         items: {
           include: {
             variant: {
-              include: { product: true }
+              include: { 
+                product: {
+                  include: { images: true }
+                } 
+              }
             }
           }
         }
       }
     });
     if (!stocktake) throw new NotFoundException('Không tìm thấy phiếu kiểm kê.');
+
+    if (restricted && stocktake.warehouse.type === 'STORE' && stocktake.status === StocktakeStatus.IN_PROGRESS) {
+      throw new BadRequestException('Bạn chỉ có thể xem chi tiết phiếu kiểm kê của cửa hàng sau khi họ đã hoàn tất.');
+    }
+
     return stocktake;
   }
 

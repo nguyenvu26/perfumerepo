@@ -74,8 +74,12 @@ export class AnalyticsController {
   }
 
   @Get('ai-conversion')
-  async getAiConversionRate() {
-    return this.analyticsService.getAiConversionRate();
+  async getAiConversionRate(
+    @Query('period') period?: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom',
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.analyticsService.getAiConversionRate(period || 'month', startDate, endDate);
   }
 
   @Get('financial')
@@ -86,8 +90,8 @@ export class AnalyticsController {
 
   @Get('inventory-health')
   @Roles('ADMIN')
-  async getInventoryHealth() {
-    return this.analyticsService.getInventoryHealth();
+  async getInventoryHealth(@Query('storeId') storeId?: string) {
+    return this.analyticsService.getInventoryHealth(storeId);
   }
 
   @Get('stock-heatmap')

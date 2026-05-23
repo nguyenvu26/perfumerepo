@@ -1,5 +1,13 @@
 import api from "@/lib/axios";
 
+export type StaffInventoryBatch = {
+  id: string;
+  batchCode: string | null;
+  mfgDate: string | null;
+  expiryDate: string | null;
+  currentQuantity: number;
+};
+
 export type StaffInventoryVariant = {
   id: string;
   name: string;
@@ -8,6 +16,7 @@ export type StaffInventoryVariant = {
   stock: number;
   updatedAt: string;
   barcode?: string | null;
+  batches?: StaffInventoryBatch[];
 };
 
 export type StaffInventoryOverview = {
@@ -132,6 +141,26 @@ export const staffInventoryService = {
       .get<SystemVariant[]>("/staff/inventory/search-products", {
         params: q ? { q } : undefined,
       })
+      .then((r) => r.data);
+  },
+  listStocktakes(storeId: string, skip = 0, take = 20): Promise<any> {
+    return api
+      .get("/staff/inventory/stocktakes", { params: { storeId, skip, take } })
+      .then((r) => r.data);
+  },
+  getStocktakeById(storeId: string, id: string): Promise<any> {
+    return api
+      .get(`/staff/inventory/stocktakes/${id}`, { params: { storeId } })
+      .then((r) => r.data);
+  },
+  updateStocktakeItem(storeId: string, id: string, itemId: string, countedQty: number, reason?: string): Promise<any> {
+    return api
+      .patch(`/staff/inventory/stocktakes/${id}/items/${itemId}`, { storeId, countedQty, reason })
+      .then((r) => r.data);
+  },
+  completeStocktake(storeId: string, id: string): Promise<any> {
+    return api
+      .patch(`/staff/inventory/stocktakes/${id}/complete`, { storeId })
       .then((r) => r.data);
   },
 };

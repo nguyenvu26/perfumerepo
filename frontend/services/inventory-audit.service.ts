@@ -11,7 +11,10 @@ export interface StocktakeItem {
   reason: string | null;
   variant: {
     name: string;
-    product: { name: string };
+    product: { 
+      name: string;
+      images: { url: string }[];
+    };
   };
 }
 
@@ -21,7 +24,10 @@ export interface Stocktake {
   warehouseId: string;
   status: StocktakeStatus;
   createdAt: string;
-  warehouse: { name: string };
+  warehouse: { 
+    name: string;
+    type: 'CENTRAL' | 'STORE' | 'DEFECTIVE';
+  };
   items: StocktakeItem[];
   _count?: { items: number };
 }

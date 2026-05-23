@@ -11,7 +11,10 @@ import api from '@/lib/axios';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { cn } from '@/lib/utils';
 import { ClosingDetailPanel } from '@/components/dashboard/admin/ClosingDetailPanel';
-import { Eye } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
+import { storesService } from '@/services/stores.service';
+import { staffReportsService } from '@/services/staff-reports.service';
+import { useTranslations } from 'next-intl';
 
 interface DailyClosingDto {
     id: string;
@@ -33,20 +36,33 @@ export default function DailyClosingHistoryPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [stores, setStores] = useState<any[]>([]);
+    const [selectedStoreId, setSelectedStoreId] = useState<string>('all');
+    const [filterDate, setFilterDate] = useState('');
+
+    const fetchClosings = async () => {
+        try {
+            setLoading(true);
+            const data = await staffReportsService.getClosingHistory(
+                selectedStoreId,
+                filterDate ? filterDate : undefined,
+                filterDate ? filterDate : undefined // For single day, start = end or just handling on backend
+            );
+            setClosings(data as any);
+        } catch (e) {
+            console.error('Failed to fetch closings', e);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchClosings = async () => {
-            try {
-                const { data } = await api.get<DailyClosingDto[]>('/daily-closing');
-                setClosings(data);
-            } catch (e) {
-                console.error('Failed to fetch closings', e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchClosings();
+        storesService.list().then(res => setStores(res.filter((s: any) => s.type !== 'CENTRAL'))).catch(console.error);
     }, []);
+
+    useEffect(() => {
+        fetchClosings();
+    }, [selectedStoreId, filterDate]);
 
     const formatVND = (v: number) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(v);
@@ -77,17 +93,53 @@ export default function DailyClosingHistoryPage() {
                         </p>
                     </header>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                        {/* Store Selector */}
+                        <div className="relative group">
+                            <Store className="w-3.5 h-3.5 absolute left-4 top-1/2 -translate-y-1/2 text-gold/60" />
+                            <select 
+                                value={selectedStoreId}
+                                onChange={(e) => setSelectedStoreId(e.target.value)}
+                                className="bg-background/40 border border-border rounded-2xl pl-10 pr-8 py-3 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-gold/40 transition-all appearance-none cursor-pointer min-w-[200px]"
+                            >
+                                <option value="all">Tất cả cửa hàng</option>
+                                {stores.map(s => (
+                                    <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Date Picker */}
+                        <div className="relative group">
+                            <Calendar className="w-3.5 h-3.5 absolute left-4 top-1/2 -translate-y-1/2 text-gold/60" />
+                            <input 
+                                type="date"
+                                value={filterDate}
+                                onChange={(e) => setFilterDate(e.target.value)}
+                                className="bg-background/40 border border-border rounded-2xl pl-10 pr-6 py-3 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-gold/40 transition-all cursor-pointer invert dark:invert-0"
+                            />
+                        </div>
+
+                        {/* Search Term */}
                         <div className="relative group">
                             <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-gold transition-colors" />
                             <input 
                                 type="text"
-                                placeholder="Tìm kiếm quầy hoặc nhân viên..."
+                                placeholder="Tìm kiếm nhân viên..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-background/40 border border-border rounded-full pl-11 pr-6 py-3 text-xs font-medium focus:outline-none focus:border-gold/40 w-[300px] transition-all"
+                                className="bg-background/40 border border-border rounded-2xl pl-11 pr-6 py-3 text-[10px] font-bold uppercase tracking-widest focus:outline-none focus:border-gold/40 w-[240px] transition-all"
                             />
                         </div>
+
+                        {/* Reset Button */}
+                        <button 
+                            onClick={() => { setSelectedStoreId('all'); setFilterDate(''); setSearchTerm(''); }}
+                            className="p-3 bg-white/5 border border-white/10 rounded-2xl cursor-pointer hover:border-gold transition-all shadow-sm"
+                            title="Làm mới"
+                        >
+                            <X size={16} className="text-stone-500" />
+                        </button>
                     </div>
                 </div>
 

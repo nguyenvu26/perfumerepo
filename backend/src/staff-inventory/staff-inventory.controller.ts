@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Patch,
   Query,
   Req,
   UseGuards,
@@ -110,6 +111,54 @@ export class StaffInventoryController {
   ) {
     const user = req.user as { userId: string; role: string };
     return this.staffInventoryService.getLogs(query, user.userId, user.role);
+  }
+
+  // --- STAFF STOCKTAKE ENDPOINTS ---
+
+  @Get('stocktakes')
+  listStocktakes(
+    @Req() req: any,
+    @Query('storeId') storeId: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    const user = req.user as { userId: string; role: string };
+    if (!storeId) throw new BadRequestException('storeId is required');
+    return this.staffInventoryService.listStocktakes(storeId, user.userId, user.role, skip ? parseInt(skip) : 0, take ? parseInt(take) : 20);
+  }
+
+  @Get('stocktakes/:id')
+  getStocktakeById(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Query('storeId') storeId: string,
+  ) {
+    const user = req.user as { userId: string; role: string };
+    if (!storeId) throw new BadRequestException('storeId is required');
+    return this.staffInventoryService.getStocktakeById(id, storeId, user.userId, user.role);
+  }
+
+  @Patch('stocktakes/:id/items/:itemId')
+  updateStocktakeItem(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @Body() body: { storeId: string; countedQty: number; reason?: string },
+  ) {
+    const user = req.user as { userId: string; role: string };
+    if (!body.storeId) throw new BadRequestException('storeId is required in body');
+    return this.staffInventoryService.updateStocktakeItem(id, body.storeId, itemId, body.countedQty, body.reason, user.userId, user.role);
+  }
+
+  @Patch('stocktakes/:id/complete')
+  completeStocktake(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { storeId: string },
+  ) {
+    const user = req.user as { userId: string; role: string };
+    if (!body.storeId) throw new BadRequestException('storeId is required in body');
+    return this.staffInventoryService.completeStocktake(id, body.storeId, user.userId, user.role);
   }
 }
 

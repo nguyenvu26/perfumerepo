@@ -90,10 +90,13 @@ export const orderService = {
     return api.get<Order>("/orders/" + id).then((r) => r.data);
   },
   // Admin endpoints
-  listAll(skip: number = 0, take: number = 10, startDate?: string, endDate?: string) {
+  listAll(skip: number = 0, take: number = 10, startDate?: string, endDate?: string, status?: string, storeId?: string, channel?: string) {
     const params: any = { skip, take };
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
+    if (status) params.status = status;
+    if (storeId) params.storeId = storeId;
+    if (channel) params.channel = channel;
     return api
       .get<OrderListResponse>(`/orders/admin/all`, { params })
       .then((r) => r.data);

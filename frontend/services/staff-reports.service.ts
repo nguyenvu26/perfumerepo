@@ -51,10 +51,14 @@ export const staffReportsService = {
             .then((r) => r.data);
     },
 
-    getClosingHistory(storeId?: string): Promise<DailyClosingHistory[]> {
+    getClosingHistory(storeId?: string, startDate?: string, endDate?: string): Promise<DailyClosingHistory[]> {
         return api
             .get<DailyClosingHistory[]>('/daily-closing', {
-                params: storeId ? { storeId } : {},
+                params: {
+                    ...(storeId ? { storeId } : {}),
+                    ...(startDate ? { startDate } : {}),
+                    ...(endDate ? { endDate } : {}),
+                },
             })
             .then((r) => r.data);
     },

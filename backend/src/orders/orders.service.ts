@@ -303,15 +303,41 @@ export class OrdersService {
     };
   }
 
-  async listAllOrders(skip: number, take: number, startDate?: string, endDate?: string) {
+  async listAllOrders(
+    skip: number,
+    take: number,
+    startDate?: string,
+    endDate?: string,
+    status?: string,
+    storeId?: string,
+    channel?: string,
+  ) {
     const where: any = {};
+    if (storeId && storeId !== 'all') {
+      where.storeId = storeId;
+    }
+    if (channel && channel !== 'ALL') {
+      where.channel = channel;
+    }
     if (startDate || endDate) {
       where.createdAt = {};
       if (startDate) where.createdAt.gte = new Date(startDate);
       if (endDate) where.createdAt.lte = new Date(endDate);
     }
 
-    const [rawData, total, statusCounts, refundRequiredCount] = await Promise.all([
+    // Base condition for status counts (should respect channel & store filters)
+    const baseWhere = { ...where };
+
+    if (status && status !== 'ALL') {
+      if (status === 'REFUND_REQUIRED') {
+        where.status = 'CANCELLED';
+        where.paymentStatus = { in: ['PAID', 'PARTIALLY_REFUNDED'] };
+      } else {
+        where.status = status;
+      }
+    }
+
+    const [rawData, filteredTotal, statusCounts, refundRequiredCount, totalForBadges] = await Promise.all([
       this.prisma.order.findMany({
         where,
         skip,
@@ -338,20 +364,21 @@ export class OrdersService {
       this.prisma.order.count({ where }),
       this.prisma.order.groupBy({
         by: ['status'],
+        where: baseWhere,
         _count: { id: true },
       }),
       this.prisma.order.count({
         where: {
+          ...baseWhere,
           status: 'CANCELLED',
           paymentStatus: { in: ['PAID', 'PARTIALLY_REFUNDED'] },
-          // Note: We can't easily check for audit logs inside prisma.count
-          // but we can estimate or leave it for specific tab
         }
-      })
+      }),
+      this.prisma.order.count({ where: baseWhere }), // Total for "ALL" tab badge
     ]);
 
     // Map counts for easy access
-    const counts: Record<string, number> = { ALL: total };
+    const counts: Record<string, number> = { ALL: totalForBadges };
     statusCounts.forEach(sc => {
       counts[sc.status] = sc._count.id;
     });
@@ -402,10 +429,10 @@ export class OrdersService {
 
     return {
       data,
-      total,
+      total: filteredTotal,
       skip,
       take,
-      pages: Math.ceil(total / take),
+      pages: Math.ceil(filteredTotal / take),
       counts,
     };
   }

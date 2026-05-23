@@ -20,12 +20,13 @@ export class StocktakeController {
       warehouseId,
       skip: skip ? parseInt(skip) : 0,
       take: take ? parseInt(take) : 20,
+      restricted: true,
     });
   }
 
   @Get(':id')
   getById(@Param('id') id: string) {
-    return this.stocktakeService.getById(id);
+    return this.stocktakeService.getById(id, true);
   }
 
   @Post()
