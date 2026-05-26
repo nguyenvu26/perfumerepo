@@ -24,8 +24,8 @@ export const userService = {
         const { data } = await api.patch('/users/me', payload);
         return data;
     },
-    async adminListUsers(role?: string): Promise<AdminUser[]> {
-        const { data } = await api.get<AdminUser[]>('/admin/users', { params: role ? { role } : undefined });
+    async adminListUsers(params: { role?: string; search?: string; skip?: number; take?: number } = {}): Promise<{ items: AdminUser[]; total: number }> {
+        const { data } = await api.get<{ items: AdminUser[]; total: number }>('/admin/users', { params });
         return data;
     },
     async adminGetUser(id: string): Promise<AdminUser> {

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { 
     History, Store, User, Calendar, 
     Banknote, CreditCard, ArrowRightLeft, FileText,
-    Search, Filter
+    Search, Filter, ArrowLeft
 } from 'lucide-react';
 import api from '@/lib/axios';
 import { AuthGuard } from '@/components/auth/auth-guard';
@@ -14,7 +14,7 @@ import { ClosingDetailPanel } from '@/components/dashboard/admin/ClosingDetailPa
 import { Eye, X } from 'lucide-react';
 import { storesService } from '@/services/stores.service';
 import { staffReportsService } from '@/services/staff-reports.service';
-import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 
 interface DailyClosingDto {
     id: string;
@@ -32,6 +32,7 @@ interface DailyClosingDto {
 }
 
 export default function DailyClosingHistoryPage() {
+    const router = useRouter();
     const [closings, setClosings] = useState<DailyClosingDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +40,9 @@ export default function DailyClosingHistoryPage() {
     const [stores, setStores] = useState<any[]>([]);
     const [selectedStoreId, setSelectedStoreId] = useState<string>('all');
     const [filterDate, setFilterDate] = useState('');
+
+    const [pageSize, setPageSize] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchClosings = async () => {
         try {
@@ -49,6 +53,7 @@ export default function DailyClosingHistoryPage() {
                 filterDate ? filterDate : undefined // For single day, start = end or just handling on backend
             );
             setClosings(data as any);
+            setCurrentPage(1); // Reset to first page on new fetch
         } catch (e) {
             console.error('Failed to fetch closings', e);
         } finally {
@@ -73,24 +78,25 @@ export default function DailyClosingHistoryPage() {
         c.staff.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Pagination logic
+    const totalPages = Math.ceil(filteredClosings.length / pageSize);
+    const paginatedClosings = filteredClosings.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
     return (
         <AuthGuard allowedRoles={['admin']}>
             <div className="flex flex-col gap-8 py-10 px-10 max-w-[1600px] mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <header className="space-y-1">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-xl bg-gold/10 text-gold">
-                                <History className="w-5 h-5" />
-                            </div>
-                            <span className="text-[10px] font-bold text-gold uppercase tracking-[.3em]">Accounting Audit</span>
-                        </div>
+                    <header className="flex items-center gap-6">
+                        <button 
+                            onClick={() => router.push('/dashboard/admin')}
+                            className="p-3 rounded-2xl bg-white/5 border border-white/10 text-white/40 hover:text-gold hover:border-gold/50 transition-all group"
+                        >
+                            <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
+                        </button>
                         <h1 className="text-4xl font-heading gold-gradient uppercase tracking-tighter">
                             Lịch sử chốt doanh thu
                         </h1>
-                        <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium opacity-60">
-                            Đối soát tiền mặt và doanh thu thực tế tại các quầy
-                        </p>
                     </header>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -143,6 +149,49 @@ export default function DailyClosingHistoryPage() {
                     </div>
                 </div>
 
+                {/* ── Quick Summary ────────────────────────────────────────── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                        { 
+                            label: 'Tổng doanh thu các cửa hàng', 
+                            value: filteredClosings.reduce((sum, c) => sum + c.systemTotal, 0),
+                            icon: History,
+                            color: 'text-gold'
+                        },
+                        { 
+                            label: 'Tổng Thực Tế Bàn Giao', 
+                            value: filteredClosings.reduce((sum, c) => sum + (c.actualCash + (c.actualTransfer || 0)), 0),
+                            icon: Banknote,
+                            color: 'text-emerald-400'
+                        },
+                        { 
+                            label: 'Tổng Chênh Lệch (Net)', 
+                            value: filteredClosings.reduce((sum, c) => sum + c.difference, 0),
+                            icon: ArrowRightLeft,
+                            color: filteredClosings.reduce((sum, c) => sum + c.difference, 0) < 0 ? 'text-red-400' : 'text-emerald-400'
+                        },
+                        { 
+                            label: 'Tổng Số Ca Chốt', 
+                            value: filteredClosings.length,
+                            icon: FileText,
+                            color: 'text-blue-400',
+                            isCount: true
+                        }
+                    ].map((s, idx) => (
+                        <div key={idx} className="glass bg-white/[0.03] border border-white/5 rounded-3xl p-6 flex items-center gap-5">
+                            <div className={cn("p-3.5 rounded-2xl bg-white/5 shadow-inner shadow-white/5", s.color)}>
+                                <s.icon className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1">{s.label}</span>
+                                <span className={cn("text-xl font-heading tracking-tight", s.color)}>
+                                    {s.isCount ? s.value : formatVND(s.value)}
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
                 {/* Main Table */}
                 <div className="glass bg-background/40 rounded-[2.5rem] border border-border overflow-hidden">
                     <div className="overflow-x-auto">
@@ -166,14 +215,14 @@ export default function DailyClosingHistoryPage() {
                                             <td colSpan={6} className="px-8 py-6"><div className="h-12 bg-white/5 rounded-2xl" /></td>
                                         </tr>
                                     ))
-                                ) : filteredClosings.length === 0 ? (
+                                ) : paginatedClosings.length === 0 ? (
                                     <tr>
                                         <td colSpan={6} className="px-8 py-20 text-center text-muted-foreground uppercase text-[10px] tracking-widest">
                                             Không tìm thấy dữ liệu chốt doanh thu
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredClosings.map((closing) => (
+                                    paginatedClosings.map((closing) => (
                                         <motion.tr 
                                             key={closing.id}
                                             initial={{ opacity: 0 }}
@@ -249,7 +298,7 @@ export default function DailyClosingHistoryPage() {
                                                     <span className="text-xs font-medium text-foreground/80">{closing.staff.fullName}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
+                                            <td className="px-8 py-6 text-center">
                                                 <button 
                                                     onClick={() => setSelectedId(closing.id)}
                                                     className="p-3 rounded-2xl bg-white/5 text-white/40 hover:text-gold hover:bg-gold/10 hover:border-gold/20 border border-transparent transition-all group/btn"
@@ -268,6 +317,53 @@ export default function DailyClosingHistoryPage() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Pagination UI */}
+                    {totalPages > 1 && (
+                        <div className="px-8 py-6 bg-white/[0.02] border-t border-white/5 flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                                Trang {currentPage} / {totalPages} ({filteredClosings.length} bản ghi)
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                >
+                                    Trước
+                                </button>
+                                {Array.from({ length: totalPages }).map((_, i) => {
+                                    const page = i + 1;
+                                    // Only show near pages if many
+                                    if (totalPages > 7 && Math.abs(page - currentPage) > 2 && page !== 1 && page !== totalPages) {
+                                        if (page === 2 || page === totalPages - 1) return <span key={page} className="text-white/20 px-1">...</span>;
+                                        return null;
+                                    }
+                                    return (
+                                        <button 
+                                            key={page}
+                                            onClick={() => setCurrentPage(page)}
+                                            className={cn(
+                                                "w-10 h-10 rounded-xl text-[10px] font-black tracking-widest transition-all border",
+                                                currentPage === page 
+                                                    ? "bg-gold text-white border-gold shadow-[0_0_20px_rgba(212,175,55,0.2)]" 
+                                                    : "bg-white/5 text-white/40 border-white/10 hover:border-white/30"
+                                            )}
+                                        >
+                                            {page}
+                                        </button>
+                                    );
+                                })}
+                                <button 
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest hover:border-gold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                >
+                                    Sau
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <ClosingDetailPanel 

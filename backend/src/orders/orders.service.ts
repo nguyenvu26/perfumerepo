@@ -687,6 +687,15 @@ export class OrdersService {
               tx,
             );
 
+            // Calculate weighted average cost from actual FEFO batches
+            const batchCost = this.inventoryService.calculateBatchWeightedCost(deductedBatches);
+
+            // Snapshot actual batch cost into OrderItem
+            await tx.orderItem.update({
+              where: { id: item.id },
+              data: { purchasePrice: batchCost },
+            });
+
             // Log physical removal with batch details
             const batchInfo = deductedBatches
               .map(b => `${b.batchCode} (-${b.quantity})`)
@@ -698,6 +707,7 @@ export class OrdersService {
                 storeId: warehouseId,
                 type: InventoryLogType.SALE_ONLINE,
                 quantity: -item.quantity,
+                purchasePrice: batchCost,
                 reason: `[Lô: ${batchInfo}] Online order ${order.code}`,
               },
             });

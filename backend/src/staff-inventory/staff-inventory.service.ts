@@ -27,8 +27,7 @@ export class StaffInventoryService {
       where: { warehouseId: storeId },
       include: {
         batches: {
-          orderBy: { expiryDate: 'asc' },
-          where: { currentQuantity: { gt: 0 } },
+          orderBy: { createdAt: 'desc' },
         },
         variant: {
           include: {
@@ -80,6 +79,8 @@ export class StaffInventoryService {
           batchCode: b.batchCode,
           mfgDate: b.mfgDate,
           expiryDate: b.expiryDate,
+          purchasePrice: b.purchasePrice,
+          initialQuantity: b.initialQuantity,
           currentQuantity: b.currentQuantity,
         })),
       })),

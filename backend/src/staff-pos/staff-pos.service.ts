@@ -574,6 +574,15 @@ export class StaffPosService {
             tx,
           );
 
+          // Calculate weighted average cost from actual FEFO batches
+          const batchCost = this.inventoryService.calculateBatchWeightedCost(deductedBatches);
+
+          // Snapshot actual batch cost into OrderItem
+          await tx.orderItem.update({
+            where: { id: item.id },
+            data: { purchasePrice: batchCost },
+          });
+
           // Log physical removal with batch details
           const batchInfo = deductedBatches
             .map(b => `${b.batchCode} (-${b.quantity})`)
@@ -586,6 +595,7 @@ export class StaffPosService {
               storeId: order.storeId!,
               type: InventoryLogType.SALE_POS,
               quantity: -item.quantity,
+              purchasePrice: batchCost,
               reason: `[Lô: ${batchInfo}] POS order ${order.code}`,
             },
           });
@@ -943,25 +953,25 @@ export class StaffPosService {
       if (paymentMethod === 'CASH') {
         // Deduct store stock & log
         for (const v of variantData) {
-          const result = await tx.inventory.updateMany({
-            where: {
-              warehouseId: storeId,
-              variantId: v.variantId,
-              available: { gte: v.quantity },
-            },
-            data: {
-              onHand: { decrement: v.quantity },
-              available: { decrement: v.quantity },
-              updatedAt: new Date(),
-            },
+          const { deductedBatches } = await this.inventoryService.commitStock(
+            v.variantId,
+            storeId,
+            v.quantity,
+            false, // isPreAllocated = false for POS
+            tx,
+          );
+
+          const batchCost = this.inventoryService.calculateBatchWeightedCost(deductedBatches);
+
+          // Update OrderItem with actual cost
+          await tx.orderItem.updateMany({
+            where: { orderId: newOrder.id, variantId: v.variantId },
+            data: { purchasePrice: batchCost },
           });
 
-          if (result.count === 0) {
-            const variant = await tx.productVariant.findUnique({ where: { id: v.variantId } });
-            throw new BadRequestException(
-              `Sản phẩm ${variant?.name || v.variantId} không đủ số lượng trong kho tại cửa hàng này.`,
-            );
-          }
+          const batchInfo = deductedBatches
+            .map(b => `${b.batchCode} (-${b.quantity})`)
+            .join(', ');
 
           await tx.inventoryLog.create({
             data: {
@@ -970,7 +980,8 @@ export class StaffPosService {
               storeId,
               type: InventoryLogType.SALE_POS,
               quantity: -v.quantity,
-              reason: `POS order ${newOrder.code}`,
+              purchasePrice: batchCost,
+              reason: `[Lô: ${batchInfo}] POS order ${newOrder.code}`,
             },
           });
         }

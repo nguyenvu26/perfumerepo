@@ -1672,7 +1672,7 @@
       },
       "users": {
         "title": "User Archival Registry",
-        "subtitle": "Management of neural identifiers, role synthesis, and boutique assignment.",
+        "search_placeholder": "Search by name or email...",
         "syncing": "Synchronizing Registry...",
         "filter_role": "Filter Role:",
         "roles": {

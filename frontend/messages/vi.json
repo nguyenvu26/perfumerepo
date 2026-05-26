@@ -1530,6 +1530,7 @@
           "return_rate": "Tỉ lệ Hoàn trả",
           "cancellation_rate": "Tỉ lệ Hủy đơn",
           "orders": "Tổng Đơn hàng",
+          "customers": "Tổng Khách hàng",
           "consultations": "Lượt tư vấn AI",
           "members": "Thành viên Cao cấp",
           "delivery": "Giao hàng Tb.",
@@ -1739,7 +1740,7 @@
       },
       "users": {
         "title": "Quản Lý Người Dùng",
-        "subtitle": "Quản lý tài khoản thành viên và phân quyền trong hệ thống.",
+        "search_placeholder": "Tìm theo tên hoặc email...",
         "syncing": "Đang tải...",
         "filter_role": "Lọc vai trò:",
         "roles": {

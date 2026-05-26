@@ -23,6 +23,7 @@ export interface LowStockItem {
   sku: string;
   available: number;
   onHand: number;
+  imageUrl?: string;
 }
 
 export const inventoryAnalyticsService = {

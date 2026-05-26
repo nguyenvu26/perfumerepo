@@ -106,21 +106,19 @@ export default function CostSetupPage() {
       <main className="p-8 max-w-[1400px] mx-auto space-y-12">
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="space-y-6">
+          <div className="space-y-6">
             <button
               onClick={() => router.back()}
-              className="group flex items-center gap-4 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest font-black hover:bg-gold hover:text-white transition-all active:scale-95 shadow-xl"
+              className="p-4 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:bg-gold hover:text-white transition-all active:scale-95 shadow-xl w-fit group"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Quay lại
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             </button>
             <div className="space-y-2">
-              <h1 className="text-5xl font-heading gold-gradient uppercase tracking-tighter italic">
+              <h1 className="text-5xl font-heading gold-gradient uppercase tracking-tighter italic leading-tight">
                 Thiết lập Giá Vốn
               </h1>
-              <p className="text-sm text-muted-foreground opacity-50 italic">
-                Cập nhật giá nhập mặc định cho các sản phẩm cũ để báo cáo tài chính chính xác hơn.
-              </p>
             </div>
+          </div>
           </div>
 
           <div className="flex items-center gap-4">

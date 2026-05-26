@@ -22,6 +22,10 @@ export default function UsersAdmin() {
   const [saving, setSaving] = useState(false);
   const [editModal, setEditModal] = useState<AdminUser | null>(null);
   const [storeModal, setStoreModal] = useState<AdminUser | null>(null);
+  const [search, setSearch] = useState('');
+  const [skip, setSkip] = useState(0);
+  const [take, setTake] = useState(20);
+  const [total, setTotal] = useState(0);
 
   const handleSetEditModal = (u: AdminUser | null) => {
     setEditModal(u);
@@ -37,14 +41,20 @@ export default function UsersAdmin() {
     setLoading(true);
     setError(null);
     try {
-      const list = await userService.adminListUsers(roleFilter || undefined);
-      setUsers(list);
+      const res = await userService.adminListUsers({ 
+        role: roleFilter || undefined, 
+        search: search || undefined,
+        skip, 
+        take 
+      });
+      setUsers(res.items);
+      setTotal(res.total);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [roleFilter]);
+  }, [roleFilter, search, skip, take]);
  
   const fetchStores = useCallback(async () => {
     try {
@@ -58,6 +68,10 @@ export default function UsersAdmin() {
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  useEffect(() => {
+    setSkip(0);
+  }, [roleFilter, search]);
  
   useEffect(() => {
     if (storeModal) fetchStores();
@@ -114,9 +128,6 @@ export default function UsersAdmin() {
         <header className="mb-8 md:mb-12">
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
-              {t('subtitle')}
-            </p>
           </div>
         </header>
  
@@ -127,26 +138,39 @@ export default function UsersAdmin() {
           </div>
         )}
  
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 bg-secondary/10 dark:bg-black/20 p-4 sm:p-6 rounded-[2rem] border border-stone-200 dark:border-white/5 shadow-sm">
-          <label className="text-[10px] uppercase tracking-[.2em] text-muted-foreground font-extrabold ml-1 leading-none shrink-0">
-            {t('filter_role')}
-          </label>
-          <div className="relative w-full sm:w-auto">
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full sm:w-auto min-w-[200px] rounded-xl border border-stone-200 dark:border-white/10 bg-background dark:bg-zinc-900 px-6 py-3 md:py-3 text-[16px] sm:text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer appearance-none shadow-sm"
-            >
-              <option value="">{t('roles.all')}</option>
-              <option value="ADMIN">{t('roles.admin')}</option>
-              <option value="STAFF">{t('roles.staff')}</option>
-              <option value="CUSTOMER">{t('roles.customer')}</option>
-            </select>
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-              <Users size={12} />
-            </div>
-          </div>
-        </div>
+        <div className="mb-8 flex flex-col xl:flex-row xl:items-center gap-4 xl:gap-6 bg-secondary/10 dark:bg-black/20 p-4 sm:p-6 rounded-[2rem] border border-stone-200 dark:border-white/5 shadow-sm">
+           <div className="flex-1 relative group">
+              <input
+                type="text"
+                placeholder={t('search_placeholder') || 'Tìm theo tên hoặc email...'}
+                className="w-full bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl py-4 pl-14 pr-4 text-sm outline-none focus:border-gold/50 transition-all font-bold uppercase tracking-widest placeholder:text-muted-foreground/30"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Loader2 className={cn("absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground transition-opacity", loading ? "opacity-100 animate-spin" : "opacity-40")} />
+           </div>
+
+           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 shrink-0">
+              <label className="text-[10px] uppercase tracking-[.2em] text-muted-foreground font-extrabold ml-1 leading-none shrink-0">
+                {t('filter_role')}
+              </label>
+              <div className="relative w-full sm:w-auto">
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="w-full sm:w-auto min-w-[200px] rounded-xl border border-stone-200 dark:border-white/10 bg-background dark:bg-zinc-900 px-6 py-3 md:py-3 text-[16px] sm:text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer appearance-none shadow-sm"
+                >
+                  <option value="">{t('roles.all')}</option>
+                  <option value="ADMIN">{t('roles.admin')}</option>
+                  <option value="STAFF">{t('roles.staff')}</option>
+                  <option value="CUSTOMER">{t('roles.customer')}</option>
+                </select>
+                <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
+                  <Users size={12} />
+                </div>
+              </div>
+           </div>
+         </div>
  
         <div className="hidden lg:block glass rounded-[3rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-2xl bg-background/30">
           <table className="w-full text-left font-body text-sm border-collapse">
@@ -321,6 +345,47 @@ export default function UsersAdmin() {
              ))
            )}
         </div>
+  
+         {/* Pagination */}
+         <div className="mt-12 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-20">
+            <p className="text-[10px] uppercase tracking-[.3em] text-muted-foreground font-extrabold text-center md:text-left">
+              {total === 0
+                ? '0'
+                : `${skip + 1}-${Math.min(skip + take, total)} / ${total}`}
+            </p>
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-3">
+              <select
+                value={take}
+                onChange={(e) => setTake(Number(e.target.value))}
+                className="bg-white dark:bg-zinc-900 border border-border rounded-full px-4 py-2 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold shadow-sm text-foreground"
+              >
+                <option value={10}>10 / p</option>
+                <option value={20}>20 / p</option>
+                <option value={50}>50 / p</option>
+              </select>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSkip((s) => Math.max(0, s - take))}
+                  disabled={skip === 0}
+                  className="px-6 py-3.5 md:py-2 rounded-full border border-border text-base md:text-[10px] font-extrabold uppercase tracking-widest disabled:opacity-30 bg-white dark:bg-zinc-900 active:scale-95 transition-all shadow-sm"
+                >
+                  Trước
+                </button>
+                <span className="text-[10px] uppercase tracking-[.3em] font-extrabold text-muted-foreground min-w-16 text-center">
+                  {Math.floor(skip / take) + 1} / {Math.ceil(total / take) || 1}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSkip((s) => (s + take < total ? s + take : s))}
+                  disabled={skip + take >= total}
+                  className="px-6 py-3.5 md:py-2 rounded-full border border-border text-base md:text-[10px] font-extrabold uppercase tracking-widest disabled:opacity-30 bg-white dark:bg-zinc-900 active:scale-95 transition-all shadow-sm"
+                >
+                  Sau
+                </button>
+              </div>
+            </div>
+         </div>
  
         {/* Edit role modal */}
         <AnimatePresence>

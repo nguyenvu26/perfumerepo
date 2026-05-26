@@ -137,7 +137,7 @@ export const returnsService = {
   },
 
   // Admin endpoints (use with admin auth)
-  listAll(skip = 0, take = 20, status?: string, orderId?: string, startDate?: string, endDate?: string) {
+  listAll(skip = 0, take = 20, status?: string, orderId?: string, startDate?: string, endDate?: string, origin?: string, storeId?: string) {
     const params = new URLSearchParams({
       skip: skip.toString(),
       take: take.toString(),
@@ -146,6 +146,8 @@ export const returnsService = {
     if (orderId) params.append("orderId", orderId);
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
+    if (origin) params.append("origin", origin);
+    if (storeId) params.append("storeId", storeId);
     return api.get(`/returns/admin/all?${params}`).then((r) => r.data);
   },
 

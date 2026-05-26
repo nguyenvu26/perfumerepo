@@ -271,17 +271,17 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                     <table className="w-full border-separate border-spacing-x-3 border-spacing-y-4 relative">
                                         <thead>
                                             <tr>
-                                                <th className="sticky top-0 bg-background/95 backdrop-blur-xl z-20 text-left text-[11px] font-black uppercase tracking-widest text-muted-foreground/50 pb-6 pr-6 border-b border-border/30">
+                                                <th className="sticky top-0 bg-secondary/10 backdrop-blur-3xl z-20 text-left text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 pb-5 pr-6 border-b border-white/5">
                                                     Sản phẩm / Biến thể
                                                 </th>
                                                 {data.stores.map(store => (
-                                                    <th key={store.id} className="sticky top-0 bg-background/95 backdrop-blur-xl z-20 pb-6 px-3 border-b border-border/30 min-w-[200px]">
-                                                        <div className="flex flex-col items-center">
-                                                            <div className="w-8 h-8 rounded-xl bg-secondary/30 flex items-center justify-center mb-2 border border-border/50">
-                                                                <Store className="w-4 h-4 text-gold/50" />
+                                                    <th key={store.id} className="sticky top-0 bg-secondary/10 backdrop-blur-3xl z-20 pb-5 px-3 border-b border-white/5 min-w-[200px]">
+                                                        <div className="flex flex-col items-center group/head transition-all">
+                                                            <div className="w-9 h-9 rounded-[1rem] bg-gold/5 flex items-center justify-center mb-2 border border-gold/10 group-hover/head:bg-gold/20 group-hover/head:border-gold/30 transition-all">
+                                                                <Store className="w-4 h-4 text-gold" />
                                                             </div>
-                                                            <span className="text-[11px] font-black uppercase tracking-widest text-foreground whitespace-nowrap">{store.name}</span>
-                                                            <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">{store.city}</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-foreground/80 group-hover/head:text-gold transition-colors whitespace-nowrap">{store.name}</span>
+                                                            <span className="text-[8px] font-bold text-muted-foreground/30 uppercase tracking-[0.25em] mt-0.5">{store.city}</span>
                                                         </div>
                                                     </th>
                                                 ))}

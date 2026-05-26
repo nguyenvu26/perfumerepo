@@ -606,10 +606,16 @@ export class ReturnsService {
     orderId?: string,
     startDate?: string,
     endDate?: string,
+    origin?: string,
+    storeId?: string,
   ) {
     const where: any = {};
     if (status) where.status = status;
     if (orderId) where.orderId = orderId;
+    if (origin) where.origin = origin;
+    if (storeId && storeId !== 'all') {
+      where.order = { storeId };
+    }
     if (startDate || endDate) {
       where.createdAt = {};
       if (startDate) where.createdAt.gte = new Date(startDate);

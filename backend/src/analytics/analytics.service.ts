@@ -74,6 +74,7 @@ export class AnalyticsService {
     startDate?: string,
     endDate?: string,
     storeId?: string,
+    channel?: 'ONLINE' | 'POS',
   ): Promise<OverviewDto> {
     const now = new Date();
     
@@ -140,6 +141,10 @@ export class AnalyticsService {
       const condition: any = {
         createdAt: { gte: start, lte: end },
       };
+
+      if (channel) {
+        condition.channel = channel;
+      }
 
       if (storeId && storeId !== 'all') {
         if (storeId === 'central') {
@@ -271,11 +276,12 @@ export class AnalyticsService {
       return acc + (revenue - cogs);
     }, 0);
 
-    // Inventory Value
-    const inventories = await this.prisma.inventory.findMany({
-      include: { variant: { select: { purchasePrice: true } } }
+    // Inventory Value (Exact Batch Valuation)
+    const activeBatches = await this.prisma.inventoryBatch.findMany({
+      where: { currentQuantity: { gt: 0 } },
+      select: { currentQuantity: true, purchasePrice: true }
     });
-    const inventoryValue = inventories.reduce((sum, inv) => sum + (inv.onHand * (inv.variant.purchasePrice || 0)), 0);
+    const inventoryValue = activeBatches.reduce((sum, b) => sum + (b.currentQuantity * b.purchasePrice), 0);
 
     // Success & Return Rates
     const returnFilter: any = { createdAt: { gte: currentStart, lte: currentEnd } };
@@ -342,20 +348,23 @@ export class AnalyticsService {
     startDate?: string,
     endDate?: string,
     storeId?: string,
+    channel?: 'ONLINE' | 'POS',
   ): Promise<SalesTrendPoint[]> {
     const now = new Date();
     let start: Date;
-    let end: Date = now;
+    let end: Date;
 
-    if (startDate && endDate) {
+    if (period === 'today') {
+      start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      end = now;
+    } else if (startDate && endDate) {
       start = new Date(startDate);
       end = new Date(endDate);
     } else {
-      switch (period) {
-        case 'today':
-          start = new Date(now);
-          start.setHours(0, 0, 0, 0);
-          break;
+      end = now;
+      const actualPeriod = period as string;
+      switch (actualPeriod) {
         case 'week':
           start = new Date(now);
           start.setDate(start.getDate() - 7);
@@ -374,9 +383,15 @@ export class AnalyticsService {
           start.setDate(start.getDate() - 30);
           break;
       }
-      if (period !== 'today') {
-        start.setHours(0, 0, 0, 0);
-      }
+      start.setHours(0, 0, 0, 0);
+    }
+
+    const whereClause: any = {
+      createdAt: { gte: start, lte: end },
+    };
+
+    if (channel) {
+      whereClause.channel = channel;
     }
 
     const paidStatuses: PaymentStatus[] = [
@@ -384,10 +399,7 @@ export class AnalyticsService {
       PaymentStatus.PARTIALLY_REFUNDED,
     ];
 
-    const whereClause: any = {
-      createdAt: { gte: start, lte: end },
-      paymentStatus: { in: paidStatuses },
-    };
+    whereClause.paymentStatus = { in: paidStatuses };
 
     if (storeId && storeId !== 'all') {
       if (storeId === 'central') {
@@ -498,14 +510,60 @@ export class AnalyticsService {
   /**
    * Top selling products (by quantity sold)
    */
-  async getTopProducts(limit = 5, storeId?: string): Promise<TopProductDto[]> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  async getTopProducts(
+    limit = 5,
+    period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom' = 'month',
+    startDate?: string,
+    endDate?: string,
+    storeId?: string,
+    channel?: 'ONLINE' | 'POS',
+  ): Promise<TopProductDto[]> {
+    const now = new Date();
+    let start: Date;
+    let end: Date = now;
+
+    if (period === 'custom' && startDate && endDate) {
+      start = new Date(startDate);
+      end = new Date(endDate);
+    } else {
+      const actualPeriod = period === 'custom' ? 'month' : period;
+      switch (actualPeriod) {
+        case 'today':
+          start = new Date(now);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          start = new Date(now);
+          start.setDate(start.getDate() - 7);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'quarter':
+          start = new Date(now);
+          start.setMonth(start.getMonth() - 3);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'year':
+          start = new Date(now);
+          start.setFullYear(start.getFullYear() - 1);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'month':
+        default:
+          start = new Date(now);
+          start.setDate(start.getDate() - 30);
+          start.setHours(0, 0, 0, 0);
+          break;
+      }
+    }
 
     const orderWhere: any = {
-      createdAt: { gte: thirtyDaysAgo },
+      createdAt: { gte: start, lte: end },
       paymentStatus: { in: [PaymentStatus.PAID, PaymentStatus.PARTIALLY_REFUNDED] },
     };
+
+    if (channel) {
+      orderWhere.channel = channel;
+    }
 
     if (storeId && storeId !== 'all') {
       if (storeId === 'central') {
@@ -654,8 +712,87 @@ export class AnalyticsService {
   /**
    * Recent orders for the live feed section
    */
-  async getRecentOrders(limit = 8): Promise<RecentOrderDto[]> {
+  async getRecentOrders(
+    limit = 8,
+    period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom' = 'month',
+    startDate?: string,
+    endDate?: string,
+    storeId?: string,
+    channel?: 'ONLINE' | 'POS',
+  ): Promise<RecentOrderDto[]> {
+    const now = new Date();
+    let start: Date;
+    let end: Date = now;
+
+    if (period === 'custom' && startDate && endDate) {
+      start = new Date(startDate);
+      end = new Date(endDate);
+    } else {
+      const actualPeriod = period === 'custom' ? 'month' : period;
+      switch (actualPeriod) {
+        case 'today':
+          start = new Date(now);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'week':
+          start = new Date(now);
+          start.setDate(start.getDate() - 7);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'quarter':
+          start = new Date(now);
+          start.setMonth(start.getMonth() - 3);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'year':
+          start = new Date(now);
+          start.setFullYear(start.getFullYear() - 1);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'month':
+        default:
+          start = new Date(now);
+          start.setDate(start.getDate() - 30);
+          start.setHours(0, 0, 0, 0);
+          break;
+      }
+    }
+
+    const whereClause: any = {
+      createdAt: { gte: start, lte: end },
+    };
+
+    if (channel) {
+      whereClause.channel = channel;
+    }
+
+    if (storeId && storeId !== 'all') {
+      if (storeId === 'central') {
+        whereClause.OR = [
+          { store: { type: 'CENTRAL' } },
+          { channel: 'ONLINE' },
+          { storeId: null }
+        ];
+      } else {
+        const storeObj = await this.prisma.store.findUnique({
+          where: { id: storeId },
+          select: { type: true }
+        });
+        if (storeObj && storeObj.type === 'CENTRAL') {
+          whereClause.OR = [
+            { storeId: storeId },
+            { store: { type: 'CENTRAL' } },
+            { channel: 'ONLINE' },
+            { storeId: null }
+          ];
+        } else {
+          whereClause.storeId = storeId;
+        }
+      }
+    }
+
     const orders = await this.prisma.order.findMany({
+      where: whereClause,
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -828,13 +965,12 @@ export class AnalyticsService {
     const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
     const roi = totalCogs > 0 ? (grossProfit / totalCogs) * 100 : 0;
 
-    // Total inventory value at cost
-    const inventories = await this.prisma.inventory.findMany({
-      include: { variant: { select: { purchasePrice: true } } },
+    // Total inventory value at cost (Exact Batch Valuation)
+    const activeBatches = await this.prisma.inventoryBatch.findMany({
+      where: { currentQuantity: { gt: 0 } },
+      select: { currentQuantity: true, purchasePrice: true }
     });
-    const totalInventoryValue = inventories.reduce((sum, inv) => {
-      return sum + (inv.onHand * (inv.variant.purchasePrice || 0));
-    }, 0);
+    const totalInventoryValue = activeBatches.reduce((sum, b) => sum + (b.currentQuantity * b.purchasePrice), 0);
 
     return {
       totalRevenue,
@@ -1029,13 +1165,11 @@ export class AnalyticsService {
     };
   }
 
-  async getExpiryAlerts(storeId?: string) {
+  async getExpiryAlerts(storeId?: string, page: number = 1, limit: number = 20, search?: string) {
     const now = new Date();
-    const sixMonthsFromNow = new Date(now);
-    sixMonthsFromNow.setMonth(now.getMonth() + 6);
+    const skip = (page - 1) * limit;
 
     const where: any = {
-      currentQuantity: { gt: 0 },
       expiryDate: { not: null }
     };
     
@@ -1043,27 +1177,46 @@ export class AnalyticsService {
       where.inventory = { warehouseId: storeId };
     }
 
-    const batches = await this.prisma.inventoryBatch.findMany({
-      where,
-      include: {
-        inventory: {
-          include: {
-            warehouse: { select: { id: true, name: true } },
-            variant: {
-              include: {
-                product: { select: { id: true, name: true, images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } } } }
+    if (search) {
+      where.OR = [
+        { batchCode: { contains: search, mode: 'insensitive' } },
+        { 
+          inventory: { 
+            variant: { 
+              product: { name: { contains: search, mode: 'insensitive' } } 
+            } 
+          } 
+        }
+      ];
+    }
+
+    const [total, batches] = await Promise.all([
+      this.prisma.inventoryBatch.count({ where }),
+      this.prisma.inventoryBatch.findMany({
+        where,
+        include: {
+          inventory: {
+            include: {
+              warehouse: { select: { id: true, name: true } },
+              variant: {
+                include: {
+                  product: { select: { id: true, name: true, images: { select: { url: true }, take: 1, orderBy: { order: 'asc' } } } }
+                }
               }
             }
           }
-        }
-      },
-      orderBy: { expiryDate: 'asc' }
-    });
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      })
+    ]);
 
-    return batches.map(b => {
+    const data = batches.map(b => {
       const daysUntilExpiry = b.expiryDate ? Math.ceil((b.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : 999;
       let status = 'HEALTHY';
-      if (daysUntilExpiry < 60) status = 'CRITICAL';
+      if (b.currentQuantity <= 0) status = 'SOLD_OUT';
+      else if (daysUntilExpiry < 60) status = 'CRITICAL';
       else if (daysUntilExpiry < 180) status = 'WARNING';
 
       return {
@@ -1075,10 +1228,20 @@ export class AnalyticsService {
         imageUrl: b.inventory.variant.product.images?.[0]?.url ?? null,
         warehouseName: b.inventory.warehouse.name,
         currentQuantity: b.currentQuantity,
+        initialQuantity: b.initialQuantity,
+        purchasePrice: b.purchasePrice,
         expiryDate: b.expiryDate,
         daysUntilExpiry,
         status
       };
     });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    };
   }
 }

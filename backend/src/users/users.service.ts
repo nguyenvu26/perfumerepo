@@ -112,28 +112,44 @@ export class UsersService {
     return this.findMe(userId);
   }
 
-  /** Admin: list users with optional role filter, include stores for staff */
-  adminListUsers(role?: string) {
-    const where: { role?: UserRoleEnum } = {};
+  /** Admin: list users with pagination and filters, include stores for staff */
+  async adminListUsers(params: { role?: string; search?: string; skip?: number; take?: number }) {
+    const { role, search, skip = 0, take = 50 } = params;
+    const where: any = {};
+
     if (role && Object.values(UserRoleEnum).includes(role as UserRoleEnum)) {
       where.role = role as UserRoleEnum;
     }
-    return this.prisma.user.findMany({
-      where,
-      select: {
-        id: true,
-        email: true,
-        fullName: true,
-        role: true,
-        isActive: true,
-        createdAt: true,
-        stores: {
-          select: { store: { select: { id: true, name: true, code: true } } },
+
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { fullName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        select: {
+          id: true,
+          email: true,
+          fullName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+          stores: {
+            select: { store: { select: { id: true, name: true, code: true } } },
+          },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 500,
-    });
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return { items, total };
   }
 
   /** Admin: get user by id with stores */

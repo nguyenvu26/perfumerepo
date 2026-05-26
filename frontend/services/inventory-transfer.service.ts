@@ -13,6 +13,14 @@ export interface TransferOrderItem {
       name: string;
     };
   };
+  batches: {
+    id: string;
+    quantity: number;
+    batch: {
+      batchCode: string | null;
+      expiryDate: string | null;
+    };
+  }[];
 }
 
 export interface TransferOrder {
@@ -33,8 +41,20 @@ export const inventoryTransferService = {
     return api.get<{ items: TransferOrder[]; total: number }>('/admin/inventory/transfers', { params }).then(r => r.data);
   },
 
-  create(dto: { fromStoreId: string; toStoreId: string; items: { variantId: string; quantity: number }[] }) {
+  create(dto: { 
+    fromStoreId: string; 
+    toStoreId: string; 
+    items: { 
+      variantId: string; 
+      quantity: number;
+      selectedBatches: { batchId: string; quantity: number }[]
+    }[] 
+  }) {
     return api.post<TransferOrder>('/admin/inventory/transfers', dto).then(r => r.data);
+  },
+
+  getVariantBatches(storeId: string, variantId: string) {
+    return api.get<any[]>('/admin/inventory/transfers-utils/variant-batches', { params: { storeId, variantId } }).then(r => r.data);
   },
 
   ship(id: string) {

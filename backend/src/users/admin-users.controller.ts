@@ -21,8 +21,18 @@ export class AdminUsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async list(@Query('role') role?: string) {
-    return this.usersService.adminListUsers(role);
+  async list(
+    @Query('role') role?: string,
+    @Query('search') search?: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ) {
+    return this.usersService.adminListUsers({
+      role,
+      search,
+      skip: skip ? parseInt(skip) : 0,
+      take: take ? parseInt(take) : 20,
+    });
   }
 
   @Get(':id')

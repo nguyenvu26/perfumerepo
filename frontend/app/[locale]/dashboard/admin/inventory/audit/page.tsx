@@ -94,17 +94,14 @@ export default function InventoryAuditPage() {
           <div className="space-y-6">
             <button 
               onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock`)}
-              className="group flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold transition-colors"
+              className="p-4 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:bg-gold hover:text-white transition-all active:scale-95 shadow-xl w-fit group"
             >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> {commonT('back')}
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             </button>
             <div>
               <h1 className="text-5xl sm:text-6xl font-heading gold-gradient mb-4 uppercase tracking-tighter italic leading-tight">
                 {t('audit.title')}
               </h1>
-              <p className="text-sm text-muted-foreground max-w-2xl font-medium opacity-70">
-                {t('audit.subtitle')}
-              </p>
             </div>
           </div>
 

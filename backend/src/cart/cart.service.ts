@@ -3,6 +3,29 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AddToCartDto } from './dto/add-to-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
+const CART_INCLUDE = {
+  items: {
+    include: {
+      variant: {
+        include: {
+          product: {
+            include: {
+              brand: true,
+              images: {
+                orderBy: { order: 'asc' as const },
+              },
+            },
+          },
+          inventories: {
+            where: { warehouse: { type: 'CENTRAL' as const } },
+            select: { available: true },
+          },
+        },
+      },
+    },
+  },
+};
+
 @Injectable()
 export class CartService {
   constructor(private readonly prisma: PrismaService) {}
@@ -10,26 +33,7 @@ export class CartService {
   async getCart(userId: string) {
     let cart = await this.prisma.cart.findFirst({
       where: { userId },
-      include: {
-        items: {
-          include: {
-            variant: {
-              include: {
-                product: {
-                  include: {
-                    images: {
-                      orderBy: { order: 'asc' },
-                    },
-                  },
-                },
-                inventories: {
-                  select: { available: true },
-                },
-              },
-            },
-          },
-        },
-      },
+      include: CART_INCLUDE,
     });
 
     if (!cart) {
@@ -37,36 +41,21 @@ export class CartService {
         data: {
           userId,
         },
-        include: {
-          items: {
-            include: {
-              variant: {
-                include: {
-                  product: {
-                    include: {
-                      images: {
-                        orderBy: { order: 'asc' },
-                      },
-                    },
-                  },
-                  inventories: {
-                    select: { available: true },
-                  },
-                },
-              },
-            },
-          },
-        },
+        include: CART_INCLUDE,
       });
     }
-
     return cart;
   }
 
-  /** Tổng tồn kho khả dụng của một variant (tất cả kho) */
+  /** Tổng tồn kho khả dụng của một variant (Chỉ tính kho TRUNG TÂM cho bán Online) */
   private async getTotalAvailable(variantId: string): Promise<number> {
     const result = await this.prisma.inventory.aggregate({
-      where: { variantId },
+      where: {
+        variantId,
+        warehouse: {
+          type: 'CENTRAL',
+        },
+      },
       _sum: { available: true },
     });
     return result._sum.available ?? 0;
@@ -92,13 +81,15 @@ export class CartService {
     const currentInCart = existing ? existing.quantity : 0;
     const newTotal = currentInCart + dto.quantity;
 
-    // Kiểm tra tồn kho từ bảng Inventory
+    // Kiểm tra tồn kho từ bảng Inventory (Chỉ tính kho khả dụng bán hàng)
     const totalAvailable = await this.getTotalAvailable(dto.variantId);
-    if (totalAvailable > 0 && newTotal > totalAvailable) {
+
+    // FIX: Luôn kiểm tra tồn kho, kể cả khi bằng 0
+    if (newTotal > totalAvailable) {
       const remaining = totalAvailable - currentInCart;
       if (remaining <= 0) {
         throw new BadRequestException(
-          `Chúng tôi chỉ còn ${totalAvailable} sản phẩm trong kho và bạn đã có đủ trong giỏ hàng.`,
+          `Sản phẩm này hiện đã hết hàng hoặc bạn đã thêm tối đa số lượng có sẵn (${totalAvailable}) vào giỏ hàng.`,
         );
       }
       throw new BadRequestException(
@@ -139,7 +130,8 @@ export class CartService {
 
     if (cartItem) {
       const totalAvailable = await this.getTotalAvailable(cartItem.variantId);
-      if (totalAvailable > 0 && dto.quantity > totalAvailable) {
+      // FIX: Luôn kiểm tra tồn kho
+      if (dto.quantity > totalAvailable) {
         throw new BadRequestException(
           `Chúng tôi chỉ còn ${totalAvailable} sản phẩm trong kho.`,
         );

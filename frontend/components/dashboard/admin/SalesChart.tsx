@@ -27,7 +27,7 @@ export interface SalesTrendPoint {
 interface SalesChartProps {
     data: SalesTrendPoint[];
     period: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom';
-    onPeriodChange: (p: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom') => void;
+    onPeriodChange?: (p: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom') => void;
     loading?: boolean;
     stores?: any[];
     selectedStoreId?: string;
@@ -135,22 +135,6 @@ export function SalesChart({
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                    {/* Store Selector */}
-                    {stores && (
-                        <select
-                            value={selectedStoreId || 'all'}
-                            onChange={(e) => onStoreChange?.(e.target.value)}
-                            className="bg-background/40 hover:bg-foreground/5 border border-border rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest outline-none focus:border-gold/50 cursor-pointer text-foreground max-w-[180px] h-[34px] truncate transition-all"
-                        >
-                            <option value="all" className="bg-zinc-950 text-foreground">Toàn hệ thống</option>
-                            {stores.map((s: any) => (
-                                <option key={s.id} value={s.id} className="bg-zinc-950 text-foreground">
-                                    {s.type === 'CENTRAL' ? `${s.name} - Bán Online` : s.name}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-
                     <div className="flex items-center gap-3">
                         {/* Chart type toggle */}
                         <div className="flex items-center rounded-xl border border-border bg-background/40 p-0.5 h-[34px]">
@@ -168,22 +152,6 @@ export function SalesChart({
                             >
                                 <BarChart3 className="w-3.5 h-3.5" />
                             </button>
-                        </div>
-
-                        {/* Period selector */}
-                        <div className="flex items-center rounded-xl border border-border bg-background/40 p-0.5 h-[34px]">
-                            {PERIODS.map(({ key, label }) => (
-                                <button
-                                    key={key}
-                                    onClick={() => onPeriodChange(key)}
-                                    className={`h-full px-3 flex items-center justify-center rounded-lg text-[10px] font-medium transition-all duration-300 whitespace-nowrap ${period === key
-                                        ? 'bg-gold text-zinc-950 font-bold shadow-[0_0_12px_rgba(212,175,55,0.35)]'
-                                        : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.02]'
-                                        }`}
-                                >
-                                    {label}
-                                </button>
-                            ))}
                         </div>
                     </div>
                 </div>

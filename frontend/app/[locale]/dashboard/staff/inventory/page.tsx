@@ -72,6 +72,7 @@ export default function StaffInventory() {
   const [inspectionData, setInspectionData] = useState<Record<string, { actualQty: number; note: string }>>({});
   const [barcodeStoreId, setBarcodeStoreId] = useState<string | null>(null);
   const [barcodeVariantIds, setBarcodeVariantIds] = useState<string[] | undefined>(undefined);
+  const [batchStatusFilter, setBatchStatusFilter] = useState<"ALL" | "CRITICAL" | "WARNING" | "HEALTHY" | "SOLD_OUT">("ALL");
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadMyStores = useCallback(async () => {
@@ -630,7 +631,21 @@ export default function StaffInventory() {
                       <h2 className="font-heading text-lg uppercase tracking-widest italic gold-gradient">
                         Quản lý Lô & Hạn Sử Dụng
                       </h2>
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-col md:flex-row items-center gap-4">
+                        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar">
+                           {(["ALL", "CRITICAL", "WARNING", "HEALTHY", "SOLD_OUT"] as const).map((f) => (
+                              <button
+                                key={f}
+                                onClick={() => setBatchStatusFilter(f)}
+                                className={cn(
+                                  "px-4 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                                  batchStatusFilter === f ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-white/5"
+                                )}
+                              >
+                                {f === "ALL" ? "Tất cả" : f === "CRITICAL" ? "Khẩn cấp" : f === "WARNING" ? "Cảnh báo" : f === "HEALTHY" ? "An toàn" : "Đã bán hết"}
+                              </button>
+                           ))}
+                        </div>
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
                           <input
@@ -638,7 +653,7 @@ export default function StaffInventory() {
                             value={variantFilter}
                             onChange={(e) => setVariantFilter(e.target.value)}
                             placeholder="Tìm theo sản phẩm hoặc số lô..."
-                            className="text-[10px] rounded-full border border-border bg-background pl-8 pr-4 py-2 outline-none focus:border-gold/60 w-64"
+                            className="text-[10px] rounded-full border border-border bg-background pl-8 pr-4 py-2 outline-none focus:border-gold/60 w-56"
                           />
                         </div>
                       </div>
@@ -650,16 +665,35 @@ export default function StaffInventory() {
                          </div>
                       ) : (
                         <div className="space-y-3">
-                          {overview.variants.flatMap(v => (v.batches || []).map(b => ({ ...b, product: v }))).filter(b => 
-                            b.product.name.toLowerCase().includes(variantFilter.toLowerCase()) || 
-                            b.batchCode?.toLowerCase().includes(variantFilter.toLowerCase())
-                          ).sort((a,b) => {
-                             if (!a.expiryDate) return 1;
-                             if (!b.expiryDate) return -1;
-                             return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
-                          }).map((batch) => {
-                            const isExpired = batch.expiryDate && new Date(batch.expiryDate).getTime() < new Date().getTime();
-                            const isNearExpiry = !isExpired && batch.expiryDate && new Date(batch.expiryDate).getTime() < new Date().getTime() + 90 * 24 * 60 * 60 * 1000;
+                          {overview.variants.flatMap(v => (v.batches || []).map(b => ({ ...b, product: v }))).filter(b => {
+                            const nameMatch = b.product.name.toLowerCase().includes(variantFilter.toLowerCase()) || 
+                                             b.batchCode?.toLowerCase().includes(variantFilter.toLowerCase());
+                            if (!nameMatch) return false;
+
+                            if (batchStatusFilter === "ALL") return true;
+                            
+                            const isSoldOut = b.currentQuantity <= 0;
+                            const isExpired = !isSoldOut && b.expiryDate && new Date(b.expiryDate).getTime() < new Date().getTime();
+                            const isNearExpiry = !isSoldOut && !isExpired && b.expiryDate && new Date(b.expiryDate).getTime() < new Date().getTime() + 90 * 24 * 60 * 60 * 1000;
+                            const isHealthy = !isSoldOut && !isExpired && !isNearExpiry;
+
+                            if (batchStatusFilter === "SOLD_OUT") return isSoldOut;
+                            if (batchStatusFilter === "CRITICAL") return isExpired;
+                            if (batchStatusFilter === "WARNING") return isNearExpiry;
+                            if (batchStatusFilter === "HEALTHY") return isHealthy;
+                            return true;
+                          }).sort((a,b) => {
+                              // Sold out batches at the bottom
+                              if (a.currentQuantity <= 0 && b.currentQuantity > 0) return 1;
+                              if (a.currentQuantity > 0 && b.currentQuantity <= 0) return -1;
+                              // Then by expiry date
+                              if (!a.expiryDate) return 1;
+                              if (!b.expiryDate) return -1;
+                              return new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime();
+                           }).map((batch) => {
+                            const isSoldOut = batch.currentQuantity <= 0;
+                            const isExpired = !isSoldOut && batch.expiryDate && new Date(batch.expiryDate).getTime() < new Date().getTime();
+                            const isNearExpiry = !isSoldOut && !isExpired && batch.expiryDate && new Date(batch.expiryDate).getTime() < new Date().getTime() + 90 * 24 * 60 * 60 * 1000;
                             
                             return (
                               <div key={batch.id} className="glass p-5 rounded-3xl border-white/5 hover:border-gold/20 transition-all group">
@@ -669,11 +703,15 @@ export default function StaffInventory() {
                                       <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-gold italic group-hover:bg-gold/10 group-hover:border-gold/20 transition-all">
                                         Lô: {batch.batchCode || 'N/A'}
                                       </span>
-                                      {isExpired ? (
+                                      {isSoldOut ? (
+                                        <span className="px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/20 text-[8px] font-black uppercase text-zinc-500 italic">Đã bán hết</span>
+                                      ) : isExpired ? (
                                         <span className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[8px] font-black uppercase text-rose-500">Hết hạn</span>
                                       ) : isNearExpiry ? (
                                         <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[8px] font-black uppercase text-amber-500">Sắp hết hạn</span>
-                                      ) : null}
+                                      ) : (
+                                        <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[8px] font-black uppercase text-emerald-500">An toàn</span>
+                                      )}
                                     </div>
                                     <h4 className="font-heading text-sm uppercase tracking-wider group-hover:text-gold transition-colors">{batch.product.name}</h4>
                                     <p className="text-[10px] text-muted-foreground uppercase opacity-60 tracking-tighter">{batch.product.variantName}</p>
@@ -686,9 +724,19 @@ export default function StaffInventory() {
                                         {batch.expiryDate ? format.dateTime(new Date(batch.expiryDate), { dateStyle: 'medium' }) : 'Không có'}
                                       </p>
                                     </div>
-                                    <div className="min-w-16">
-                                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1 italic opacity-40">Số lượng</p>
-                                      <p className="font-heading text-2xl gold-gradient">{batch.currentQuantity}</p>
+                                    <div className="flex items-center gap-8 md:gap-12">
+                                      <div className="text-right">
+                                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1 italic opacity-40">Giá vốn</p>
+                                        <p className="font-heading text-[10px] text-gold">{format.number(batch.purchasePrice, { style: 'currency', currency: 'VND' })}</p>
+                                      </div>
+                                      <div className="text-right">
+                                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1 italic opacity-40">Nhập vào</p>
+                                        <p className="font-heading text-lg text-white/40">{batch.initialQuantity}</p>
+                                      </div>
+                                      <div className="min-w-16 text-right">
+                                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest mb-1 italic opacity-40">Hiện tại</p>
+                                        <p className={cn("font-heading text-2xl gold-gradient", isSoldOut && "opacity-20")}>{batch.currentQuantity}</p>
+                                      </div>
                                     </div>
                                   </div>
                                 </div>

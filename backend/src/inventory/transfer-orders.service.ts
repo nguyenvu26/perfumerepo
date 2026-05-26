@@ -54,8 +54,11 @@ export class TransferOrdersService {
             include: {
               variant: {
                 include: { product: true }
+              },
+              batches: {
+                include: { batch: true }
               }
-            }
+            } as any
           }
         },
         orderBy: { createdAt: 'desc' }
@@ -69,7 +72,11 @@ export class TransferOrdersService {
   async create(dto: {
     fromStoreId: string;
     toStoreId: string;
-    items: { variantId: string; quantity: number }[];
+    items: { 
+      variantId: string; 
+      quantity: number;
+      selectedBatches: { batchId: string; quantity: number }[]
+    }[];
     userId?: string;
   }) {
     if (dto.fromStoreId === dto.toStoreId) {
@@ -89,15 +96,26 @@ export class TransferOrdersService {
           items: {
             create: dto.items.map(item => ({
               variantId: item.variantId,
-              quantity: item.quantity
+              quantity: item.quantity,
+              batches: {
+                create: item.selectedBatches.map(b => ({
+                  batchId: b.batchId,
+                  quantity: b.quantity
+                }))
+              }
             }))
           }
         },
         include: { fromStore: true, toStore: true }
       });
 
-      // 2. Lock (allocate) stock at source warehouse
+      // 2. Physically deduct stock from source warehouse and batches
       for (const item of dto.items) {
+        const totalBatchQty = item.selectedBatches.reduce((s, b) => s + b.quantity, 0);
+        if (totalBatchQty !== item.quantity) {
+          throw new BadRequestException(`Tổng số lượng chọn theo lô (${totalBatchQty}) phải bằng tổng số lượng điều chuyển (${item.quantity}).`);
+        }
+
         const inv = await tx.inventory.findUnique({
           where: { warehouseId_variantId: { warehouseId: dto.fromStoreId, variantId: item.variantId } }
         });
@@ -106,25 +124,39 @@ export class TransferOrdersService {
           throw new BadRequestException(`Không đủ tồn kho khả dụng cho sản phẩm ${item.variantId} tại kho nguồn.`);
         }
 
+        // Deduct from aggregate inventory
         await tx.inventory.update({
           where: { warehouseId_variantId: { warehouseId: dto.fromStoreId, variantId: item.variantId } },
           data: {
             available: { decrement: item.quantity },
-            reserved: { increment: item.quantity }
+            onHand: { decrement: item.quantity }, // We deduct onHand too because it's "leaving" the warehouse
           }
         });
 
-        // Log the allocation
-        await tx.inventoryLog.create({
-          data: {
-            variantId: item.variantId,
-            storeId: dto.fromStoreId,
-            staffId: dto.userId || '',
-            type: InventoryLogType.TRANSFER_OUT,
-            quantity: -item.quantity, // Negative for OUT
-            reason: `Xuất hàng đến ${transfer.toStore.name} (Phiếu ${code})`
+        // Deduct from specific batches
+        for (const sb of item.selectedBatches) {
+          const batch = await tx.inventoryBatch.findUnique({ where: { id: sb.batchId } });
+          if (!batch || batch.currentQuantity < sb.quantity) {
+             throw new BadRequestException(`Lô hàng ${sb.batchId} không đủ số lượng thực tế.`);
           }
-        });
+          await tx.inventoryBatch.update({
+            where: { id: sb.batchId },
+            data: { currentQuantity: { decrement: sb.quantity } }
+          });
+
+          // Log detail for each batch
+          await tx.inventoryLog.create({
+            data: {
+              variantId: item.variantId,
+              batchId: sb.batchId,
+              storeId: dto.fromStoreId,
+              staffId: dto.userId || '',
+              type: InventoryLogType.TRANSFER_OUT,
+              quantity: -sb.quantity,
+              reason: `Đã xuất đi ${transfer.toStore.name} (Lô: ${batch.batchCode || 'N/A'}, Phiếu: ${code})`
+            }
+          });
+        }
       }
 
       return transfer;
@@ -160,7 +192,11 @@ export class TransferOrdersService {
     const transfer = await this.prisma.transferOrder.findUnique({
       where: { id },
       include: { 
-        items: true,
+        items: {
+          include: {
+            batches: { include: { batch: true } }
+          }
+        },
         fromStore: true,
         toStore: true
       }
@@ -183,23 +219,14 @@ export class TransferOrdersService {
       // Create a map for quick lookup
       const actualQtyMap = new Map(dto.items.map(i => [i.variantId, i]));
 
-      for (const item of transfer.items) {
+      for (const item of (transfer as any).items) {
         const inspection = actualQtyMap.get(item.variantId);
         const actualQty = inspection ? inspection.actualQuantity : item.quantity;
-        const diff = item.quantity - actualQty; // Missing or damaged
+        
+        // Ratio to distribute actual received qty across the original batches if there's a discrepancy
+        const ratio = actualQty / item.quantity;
 
-        // 1. Finalize source warehouse: 
-        // We already reserved item.quantity. 
-        // If we only received 'actualQty', the 'diff' must be removed from onHand too (it's lost).
-        await tx.inventory.update({
-          where: { warehouseId_variantId: { warehouseId: transfer.fromStoreId, variantId: item.variantId } },
-          data: {
-            onHand: { decrement: item.quantity },
-            reserved: { decrement: item.quantity }
-          }
-        });
-
-        // 2. Increase at target: only by actualQty
+        // 1. Increase at target: aggregately
         if (actualQty > 0) {
           await tx.inventory.upsert({
             where: { warehouseId_variantId: { warehouseId: transfer.toStoreId, variantId: item.variantId } },
@@ -215,23 +242,60 @@ export class TransferOrdersService {
               available: { increment: actualQty }
             }
           });
-        }
 
-        // 3. Log arrival with notes if any
-        await tx.inventoryLog.create({
-          data: {
-            variantId: item.variantId,
-            storeId: transfer.toStoreId,
-            staffId: userId || '',
-            type: InventoryLogType.TRANSFER_IN,
-            quantity: actualQty, // Positive for IN
-            reason: `Nhận hàng từ ${transfer.fromStore.name} (Phiếu ${transfer.code})${diff > 0 ? ` (Hao hụt: ${diff})` : ''}${inspection?.note ? ` - Lưu ý: ${inspection.note}` : ''}`
+          // 2. Inheritance: Recreate/Update batches at target store
+          const targetInv = await tx.inventory.findUnique({
+            where: { warehouseId_variantId: { warehouseId: transfer.toStoreId, variantId: item.variantId } }
+          });
+
+          for (const itemBatch of (item as any).batches) {
+            const receivedInBatch = Math.round(itemBatch.quantity * ratio);
+            if (receivedInBatch <= 0) continue;
+
+            const originalBatch = itemBatch.batch;
+            
+            // Try to find a matching batch in the destination store (same code and expiry)
+            let targetBatch = await tx.inventoryBatch.findFirst({
+              where: {
+                inventoryId: (targetInv as any)!.id,
+                batchCode: originalBatch.batchCode,
+                expiryDate: originalBatch.expiryDate
+              }
+            });
+
+            if (targetBatch) {
+              await tx.inventoryBatch.update({
+                where: { id: targetBatch.id },
+                data: { currentQuantity: { increment: receivedInBatch } }
+              });
+            } else {
+              targetBatch = await tx.inventoryBatch.create({
+                data: {
+                  inventoryId: (targetInv as any)!.id,
+                  batchCode: originalBatch.batchCode,
+                  mfgDate: originalBatch.mfgDate,
+                  expiryDate: originalBatch.expiryDate,
+                  purchasePrice: originalBatch.purchasePrice,
+                  initialQuantity: receivedInBatch,
+                  currentQuantity: receivedInBatch
+                }
+              });
+            }
+
+            // Log entry for each batch received
+            await tx.inventoryLog.create({
+              data: {
+                variantId: item.variantId,
+                batchId: targetBatch.id,
+                storeId: transfer.toStoreId,
+                staffId: userId || '',
+                type: InventoryLogType.TRANSFER_IN,
+                quantity: receivedInBatch,
+                reason: `Nhận hàng từ ${(transfer as any).fromStore.name} (Lô: ${originalBatch.batchCode || 'N/A'}, Phiếu: ${transfer.code})`
+              }
+            });
           }
-        });
-
-        // 4. Update the item in the transfer order to record what was actually received
-        // Note: You might want to add 'actualQuantity' field to TransferOrderItem in schema later.
-        // For now, we rely on InventoryLogs for the audit trail of the discrepancy.
+        }
       }
 
       return tx.transferOrder.update({
@@ -265,14 +329,23 @@ export class TransferOrdersService {
 
     return this.prisma.$transaction(async (tx) => {
       // Release allocated stock at source
-      for (const item of transfer.items) {
+      for (const item of (transfer as any).items) {
+        // Return to aggregate inventory
         await tx.inventory.update({
-          where: { warehouseId_variantId: { warehouseId: transfer.fromStoreId, variantId: item.variantId } },
+          where: { warehouseId_variantId: { warehouseId: (transfer as any).fromStoreId, variantId: item.variantId } },
           data: {
             available: { increment: item.quantity },
-            reserved: { decrement: item.quantity }
+            onHand: { increment: item.quantity }
           }
         });
+
+        // Return to specific batches
+        for (const itemBatch of (item as any).batches) {
+           await tx.inventoryBatch.update({
+             where: { id: itemBatch.batchId },
+             data: { currentQuantity: { increment: itemBatch.quantity } }
+           });
+        }
       }
 
       return tx.transferOrder.update({
@@ -280,5 +353,18 @@ export class TransferOrdersService {
         data: { status: TransferStatus.CANCELLED }
       });
     });
+  }
+
+  async getVariantBatches(storeId: string, variantId: string) {
+    const inv = await this.prisma.inventory.findUnique({
+      where: { warehouseId_variantId: { warehouseId: storeId, variantId } },
+      include: {
+        batches: {
+          where: { currentQuantity: { gt: 0 } },
+          orderBy: { expiryDate: 'asc' }
+        }
+      }
+    });
+    return inv?.batches || [];
   }
 }

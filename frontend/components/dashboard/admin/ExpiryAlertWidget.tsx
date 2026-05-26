@@ -23,13 +23,12 @@ export function ExpiryAlertWidget({ storeId }: { storeId?: string }) {
   const router = useRouter();
   const [alerts, setAlerts] = useState<ExpiryAlert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"ALL" | "CRITICAL" | "WARNING">("ALL");
 
   useEffect(() => {
     async function fetchAlerts() {
       try {
-        const data = await analyticsService.getExpiryAlerts(storeId);
-        setAlerts(data);
+        const response = await analyticsService.getExpiryAlerts({ storeId, limit: 5 });
+        setAlerts(response.data);
       } catch (error) {
         console.error("Failed to fetch expiry alerts:", error);
       } finally {
@@ -40,10 +39,7 @@ export function ExpiryAlertWidget({ storeId }: { storeId?: string }) {
   }, [storeId]);
 
 
-  const filteredAlerts = alerts.filter(a => {
-    if (filter === "ALL") return true;
-    return a.status === filter;
-  });
+  const displayAlerts = alerts;
 
   if (loading) {
     return (
@@ -62,27 +58,12 @@ export function ExpiryAlertWidget({ storeId }: { storeId?: string }) {
           </div>
           <div>
             <h2 className="text-sm font-heading font-black uppercase tracking-[0.2em]">{t("title") || "Cảnh báo Hạn sử dụng"}</h2>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1 opacity-60">FEFO Inventory Control</p>
           </div>
-        </div>
-        <div className="flex bg-secondary/20 p-1 rounded-xl">
-          {(["ALL", "CRITICAL", "WARNING"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={cn(
-                "px-4 py-2 text-[9px] font-heading font-bold uppercase tracking-widest rounded-lg transition-all",
-                filter === f ? "bg-black dark:bg-white text-white dark:text-black shadow-lg" : "text-muted-foreground hover:bg-secondary/50"
-              )}
-            >
-              {f === "ALL" ? "Tất cả" : f === "CRITICAL" ? "Khẩn cấp" : "Cảnh báo"}
-            </button>
-          ))}
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
-        {filteredAlerts.length === 0 ? (
+        {displayAlerts.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30 py-12">
             <Package className="w-12 h-12 mb-4 opacity-10" />
             <p className="text-[10px] uppercase tracking-widest font-heading">{t("no_alerts") || "Không có cảnh báo tồn kho sắp hết hạn"}</p>
@@ -90,7 +71,7 @@ export function ExpiryAlertWidget({ storeId }: { storeId?: string }) {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             <AnimatePresence mode="popLayout">
-              {filteredAlerts.map((alert) => (
+              {displayAlerts.map((alert) => (
                 <motion.div
                   key={alert.batchId}
                   layout

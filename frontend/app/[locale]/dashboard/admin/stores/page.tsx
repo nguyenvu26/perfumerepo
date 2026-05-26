@@ -62,8 +62,8 @@ export default function AdminStoresPage() {
 
   const fetchStaff = useCallback(async () => {
     try {
-      const list = await userService.adminListUsers('STAFF');
-      setStaffUsers(list);
+      const { items } = await userService.adminListUsers({ role: 'STAFF' });
+      setStaffUsers(items);
     } catch {
       // optional
     }
@@ -171,39 +171,54 @@ export default function AdminStoresPage() {
   return (
     <AuthGuard allowedRoles={["admin"]}>
         <div className="p-4 sm:p-6 md:p-8 space-y-8 md:space-y-12 animate-in fade-in duration-700 max-w-[1600px] mx-auto pb-24">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 sm:gap-8">
+            <header className="space-y-12 border-b border-white/5 pb-12">
                 <div className="space-y-4">
-                    <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
-                       {t('subtitle')}
-                    </p>
+                    <h1 className="text-4xl sm:text-6xl font-heading gold-gradient uppercase tracking-tight italic leading-tight">{t('title')}</h1>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setForm({ name: '', code: '', address: '', isActive: true });
-                            setEditStore(null);
-                            handleSetModal('create');
-                        }}
-                        className="w-full sm:w-auto flex items-center justify-center gap-3 bg-gold text-primary-foreground h-14 sm:h-16 px-10 rounded-full font-black uppercase tracking-[.2em] text-[10px] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20"
-                    >
-                        <Plus className="w-5 h-5 flex-shrink-0" /> {t('add_new')}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={openStockManagement}
-                        className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 h-14 sm:h-16 rounded-full bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-secondary transition-all active:scale-95 shadow-lg"
-                    >
-                        <Warehouse className="w-5 h-5 opacity-60 flex-shrink-0" /> {tx('stock_button') || 'Quản lý tồn kho'}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => router.push(`/${locale}/dashboard/admin/daily-closing`)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 h-14 sm:h-16 rounded-full bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-secondary transition-all active:scale-95 shadow-lg"
-                    >
-                        <History className="w-5 h-5 opacity-60 flex-shrink-0 text-gold" /> Lịch sử chốt ca
-                    </button>
+
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6">
+                    {/* Search Bar (Expands) */}
+                    <div className="relative flex-1 group">
+                        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gold/40 group-focus-within:text-gold transition-colors">
+                            <Search className="w-5 h-5" />
+                        </div>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Tìm kiếm chi nhanh theo tên, mã hiệu hoặc địa chỉ vật lý..."
+                            className="w-full pl-16 pr-8 py-5 rounded-2xl bg-white/[0.03] border border-white/10 text-sm font-medium focus:border-gold/50 focus:bg-white/[0.05] focus:outline-none transition-all placeholder:text-white/20"
+                        />
+                    </div>
+
+                    {/* Buttons (Fixed) */}
+                    <div className="flex flex-wrap items-center gap-4">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setForm({ name: '', code: '', address: '', isActive: true });
+                                setEditStore(null);
+                                handleSetModal('create');
+                            }}
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-gold text-primary-foreground h-16 px-8 rounded-2xl font-black uppercase tracking-[.2em] text-[10px] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 whitespace-nowrap"
+                        >
+                            <Plus className="w-4 h-4 flex-shrink-0" /> {t('add_new')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={openStockManagement}
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-16 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-white/10 transition-all active:scale-95 whitespace-nowrap"
+                        >
+                            <Warehouse className="w-4 h-4 opacity-60 flex-shrink-0" /> {tx('stock_button') || 'Kho hàng'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => router.push(`/${locale}/dashboard/admin/daily-closing`)}
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-16 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-white/10 transition-all active:scale-95 whitespace-nowrap"
+                        >
+                            <History className="w-4 h-4 opacity-60 flex-shrink-0 text-gold" /> Đối soát
+                        </button>
+                    </div>
                 </div>
             </header>
 
@@ -253,24 +268,11 @@ export default function AdminStoresPage() {
                             </div>
                             <div>
                                 <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground">Tổng tồn kho toàn mạng lưới</p>
-                                <h3 className="text-3xl font-heading uppercase italic tracking-tighter mt-1">{totalStockUnits.toLocaleString()} units</h3>
+                                <h3 className="text-3xl font-heading uppercase italic tracking-tighter mt-1">{totalStockUnits.toLocaleString()} sản phẩm</h3>
                             </div>
                         </div>
                     </div>
 
-                    {/* Search / Filter Bar */}
-                    <div className="relative max-w-md w-full">
-                        <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                            <Search className="w-4 h-4 opacity-40 text-gold" />
-                        </div>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Tìm kiếm chi nhánh theo tên, mã, địa chỉ..."
-                            className="w-full pl-12 pr-6 py-4 rounded-full bg-white/5 dark:bg-zinc-900/50 backdrop-blur-md border border-white/10 text-xs font-medium focus:border-gold/50 focus:outline-none transition-all placeholder:opacity-50"
-                        />
-                    </div>
 
                     {/* Store Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 sm:gap-10">
@@ -279,130 +281,93 @@ export default function AdminStoresPage() {
                             key={s.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="group relative glass bg-white dark:bg-zinc-900/40 rounded-[3rem] border border-stone-200 dark:border-white/5 overflow-hidden hover:border-gold/30 transition-all duration-700 shadow-xl flex flex-col"
+                            transition={{ delay: idx * 0.05, type: 'spring', damping: 25 }}
+                            className="group relative glass bg-[#0e0e0e]/40 rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-gold/30 transition-all duration-700 shadow-2xl flex flex-col min-h-[520px]"
                         >
-                            {/* Card Header & Status */}
-                            <div className="p-8 pb-4 flex justify-between items-start">
-                                <div className="space-y-3">
+                            {/* Card Header */}
+                            <div className="p-8 pb-6 border-b border-white/5 bg-white/[0.02]">
+                                <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-3">
                                         <div className={cn(
-                                            "w-3 h-3 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.3)]",
-                                            s.isActive ? "bg-emerald-500" : "bg-zinc-500"
+                                            "w-2 h-2 rounded-full",
+                                            s.isActive ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-zinc-500"
                                         )} />
-                                        <span className="text-[9px] font-black uppercase tracking-[.3em] opacity-40">
-                                            {s.type === 'CENTRAL' ? 'Kho tổng trung tâm' : 'Boutique Store'}
+                                        <span className="text-[9px] font-black uppercase tracking-[.4em] text-gold/60 italic leading-none">
+                                            {s.type === 'CENTRAL' ? 'Kho Tổng Trung Tâm' : 'Chi Nhánh Boutique'}
                                         </span>
                                     </div>
-                                    <h3 className="text-3xl font-heading uppercase italic tracking-tighter group-hover:text-gold transition-colors duration-500 leading-tight">
-                                        {s.name}
-                                    </h3>
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <p className="text-[10px] font-mono tracking-[.3em] uppercase opacity-30 font-black">
-                                            Ref: {s.code || 'NO-CODE'}
-                                        </p>
-                                        {s.totalStockUnits !== undefined && (
-                                            <div className="flex items-center gap-1.5 bg-gold/10 border border-gold/20 text-gold px-2.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-inner">
-                                                <Warehouse className="w-3 h-3 text-gold" />
-                                                Tồn Kho: {s.totalStockUnits.toLocaleString()} Qty
+                                    <div className="flex gap-2">
+                                        <button onClick={() => openEdit(s)} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:text-primary transition-all duration-500"><Pencil className="w-3.5 h-3.5" /></button>
+                                        <button onClick={() => handleDelete(s.id)} className="w-10 h-10 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500/50 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                                    </div>
+                                </div>
+                                <h3 className="text-3xl font-heading uppercase italic tracking-tighter mb-4 group-hover:text-gold transition-colors duration-500 leading-none truncate">
+                                    {s.name}
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-widest opacity-40">Mã: {s.code || 'NA'}</span>
+                                    {s.totalStockUnits !== undefined && (
+                                        <div className="flex items-center gap-2 bg-gold/10 border border-gold/10 text-gold px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                            <Warehouse className="w-3 h-3" />
+                                            {s.totalStockUnits.toLocaleString()} Bản thể sản phẩm
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Card Content - Standardized Heights */}
+                            <div className="p-8 space-y-8 flex-1">
+                                {/* Address Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2 opacity-20">
+                                        <MapPin className="w-3.5 h-3.5" />
+                                        <span className="text-[9px] uppercase tracking-widest font-black italic">Tọa Độ Vật Lý</span>
+                                    </div>
+                                    <p className="text-[11px] text-white/50 font-medium leading-relaxed min-h-[44px] line-clamp-2">
+                                        {s.address || 'Địa chỉ thực thể chưa được đồng bộ hóa trên bản đồ mạng lưới lưu thông toàn cầu...'}
+                                    </p>
+                                </div>
+
+                                {/* Staff Section */}
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2 opacity-20">
+                                            <Users className="w-3.5 h-3.5" />
+                                            <span className="text-[9px] uppercase tracking-widest font-black italic">Nhân Sự Bản Địa</span>
+                                        </div>
+                                        <button onClick={() => setAssignModal(s)} className="text-[9px] font-black uppercase tracking-widest text-gold hover:text-white transition-all decoration-gold/50 underline-offset-4 hover:underline">+ Điều Phối</button>
+                                    </div>
+                                    
+                                    <div className="flex flex-wrap gap-2 min-h-[90px] content-start">
+                                        {(s.users ?? []).length > 0 ? (
+                                            (s.users ?? []).map((u) => (
+                                                <div key={u.user.id} className="group/staff relative flex items-center gap-3 bg-white/5 border border-white/5 rounded-xl p-2 pr-4 hover:bg-white/10 hover:border-white/10 transition-all duration-300">
+                                                    <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold text-[10px] font-black border border-gold/20">
+                                                        {(u.user.fullName?.[0] || u.user.email[0]).toUpperCase()}
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                         <span className="text-[9px] font-bold uppercase tracking-widest text-white/80 leading-none mb-1">{u.user.fullName || 'Nhân viên'}</span>
+                                                         <span className="text-[7px] font-bold uppercase opacity-20 tracking-tighter">Verified Staff</span>
+                                                    </div>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleUnassign(s.id, u.user.id); }} className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/staff:opacity-100 transition-all scale-0 group-hover/staff:scale-100"><X size={8} strokeWidth={4} /></button>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="w-full flex flex-col items-center justify-center py-4 rounded-2xl border border-dashed border-white/5 opacity-10">
+                                                <span className="text-[8px] font-black uppercase tracking-wider">Chưa có nhân sự gán trực</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-
-                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 -translate-y-2 group-hover:translate-y-0">
-                                    <button
-                                        onClick={() => openEdit(s)}
-                                        className="w-12 h-12 rounded-full bg-secondary/10 border border-white/5 flex items-center justify-center hover:bg-gold hover:text-white transition-all active:scale-90"
-                                    >
-                                        <Pencil className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(s.id)}
-                                        className="w-12 h-12 rounded-full bg-red-500/5 border border-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
                             </div>
 
-                            {/* Address Box */}
-                            <div className="px-8 pb-8 flex-1">
-                                <div className="p-6 rounded-[2rem] bg-secondary/5 dark:bg-white/[0.02] border border-white/5 space-y-3 group-hover:border-gold/10 transition-colors">
-                                    <div className="flex items-center gap-2 opacity-30">
-                                        <MapPin className="w-3.5 h-3.5" />
-                                        <span className="text-[8px] uppercase tracking-widest font-black italic">Vị trí địa lý</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground font-medium leading-relaxed min-h-[3rem]">
-                                        {s.address || 'Địa chỉ đang được cập nhật trong hệ thống mạng lưới...'}
-                                    </p>
-                                </div>
+                            {/* Background Decorations */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-24 opacity-0 group-hover:opacity-[0.03] pointer-events-none transition-all duration-1000 scale-[3] group-hover:scale-[2] rotate-12 group-hover:rotate-0">
+                                {s.type === 'CENTRAL' ? <ShieldCheck className="w-64 h-64 text-gold" /> : <Warehouse className="w-64 h-64 text-gold" />}
                             </div>
 
-                            {/* Staff & Actions */}
-                            <div className="px-8 py-8 border-t border-white/5 bg-secondary/[0.02] flex items-center justify-between">
-                                <div className="space-y-4">
-                                    <span className="text-[10px] uppercase tracking-widest font-black opacity-30 italic block leading-none">Nhân sự trực tiếp</span>
-                                    <div className="flex -space-x-4">
-                                        {(s.users ?? []).length > 0 ? (
-                                            (s.users ?? []).map((u, i) => {
-                                                const colors = [
-                                                    'bg-blue-500/20 text-blue-400 border-blue-500/30',
-                                                    'bg-gold/20 text-gold border-gold/30',
-                                                    'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-                                                    'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                                                ];
-                                                const colorClass = colors[i % colors.length];
-                                                
-                                                return (
-                                                    <div 
-                                                        key={u.user.id} 
-                                                        className={cn(
-                                                            "w-14 h-14 rounded-full border-4 border-background flex items-center justify-center relative group/avatar cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:z-30 shadow-xl",
-                                                            colorClass
-                                                        )}
-                                                        title={u.user.fullName || u.user.email}
-                                                    >
-                                                        <span className="text-xs font-black uppercase tracking-tighter">
-                                                            {(u.user.fullName?.[0] || u.user.email[0]).toUpperCase()}
-                                                        </span>
-                                                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center scale-0 group-hover/avatar:scale-100 transition-all duration-300 shadow-lg border-2 border-background">
-                                                            <X 
-                                                                className="w-3 h-3 cursor-pointer" 
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleUnassign(s.id, u.user.id);
-                                                                }}
-                                                            />
-                                                        </div>
-
-                                                        {/* Tooltip on hover */}
-                                                        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-3 py-1 rounded-md bg-zinc-900 text-[9px] text-white font-black uppercase tracking-widest opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none border border-white/10">
-                                                            {u.user.fullName || u.user.email}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })
-                                        ) : (
-                                            <div className="text-[10px] italic opacity-30 font-medium py-4">Chưa có nhân sự gán trực</div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={() => setAssignModal(s)}
-                                    className="h-14 px-8 rounded-full border border-gold/20 text-gold hover:bg-gold hover:text-white transition-all text-[9px] uppercase tracking-widest font-black flex items-center gap-3"
-                                >
-                                    <UserPlus className="w-4 h-4" /> Gán NV
-                                </button>
-                            </div>
-
-                            {/* Type Indicator */}
-                            {s.type === 'CENTRAL' && (
-                                <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                                    <ShieldCheck className="w-32 h-32 text-gold" strokeWidth={0.5} />
-                                </div>
-                            )}
+                            {/* Interactive Footer Reveal */}
+                            <div className="h-1 bg-gold/50 scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
                         </motion.div>
                     ))}
 
@@ -490,7 +455,7 @@ export default function AdminStoresPage() {
                                                     required
                                                     autoFocus
                                                     value={form.name}
-                                                    placeholder={tx('placeholders.name') || 'Tên điểm bán...'}
+                                                    placeholder="Tên điểm bán..."
                                                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                                                     className="w-full h-16 bg-secondary/10 border border-border/50 rounded-2xl px-8 text-sm font-bold outline-none focus:border-gold transition-all placeholder:text-muted-foreground/30"
                                                 />
@@ -500,7 +465,7 @@ export default function AdminStoresPage() {
                                                 <input
                                                     type="text"
                                                     value={form.code}
-                                                    placeholder={tx('placeholders.code') || 'STORE-XXXX'}
+                                                    placeholder="Mã định danh..."
                                                     onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
                                                     className="w-full h-16 bg-secondary/10 border border-border/50 rounded-2xl px-8 font-mono text-sm font-bold uppercase tracking-widest outline-none focus:border-gold transition-all placeholder:text-muted-foreground/30"
                                                 />
@@ -517,7 +482,7 @@ export default function AdminStoresPage() {
                                                     type="text"
                                                     required
                                                     value={form.address}
-                                                    placeholder={tx('placeholders.address') || 'Số nhà, Phố, Quận, Thành phố...'}
+                                                    placeholder="Số nhà, Phố, Quận, Thành phố..."
                                                     onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
                                                     className="w-full h-16 bg-secondary/10 border border-border/50 rounded-2xl pl-16 pr-8 text-sm font-bold outline-none focus:border-gold transition-all placeholder:text-muted-foreground/30"
                                                 />
@@ -573,12 +538,12 @@ export default function AdminStoresPage() {
                                     {saving ? (
                                         <>
                                             <Loader2 className="w-5 h-5 animate-spin shrink-0" />
-                                            {t('messages.saving') || 'ĐANG LƯU...'}
+                                            ĐANG LƯU...
                                         </>
                                     ) : (
                                         <>
                                             <Save size={20} className="shrink-0" />
-                                            {modal === 'create' ? (t('messages.save') || 'XÁC LẬP THỰC THỂ') : (t('messages.save') || 'CẬP NHẬT BIẾN THỂ')}
+                                            XÁC NHẬN
                                         </>
                                     )}
                                 </button>
@@ -603,8 +568,6 @@ export default function AdminStoresPage() {
                             className="relative w-full max-w-[800px] h-full max-h-[70vh] bg-background border border-white/10 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col glass"
                             onClick={(e) => e.stopPropagation()}
                         >
-
-                            
                             {/* Header */}
                             <div className="shrink-0 p-8 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-center bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
                                 <div className="flex items-center gap-6">
@@ -614,7 +577,7 @@ export default function AdminStoresPage() {
                                             <span className="text-[9px] uppercase tracking-[.4em] font-black text-gold/80">Quản Trị Điều Phối</span>
                                         </div>
                                         <h2 className="text-2xl sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
-                                            {t('modal.assign_title', { name: assignModal.name })}
+                                            Điều phối nhân sự: {assignModal.name}
                                         </h2>
                                     </div>
                                 </div>
@@ -637,11 +600,11 @@ export default function AdminStoresPage() {
                                             >
                                                 <div className="flex items-center gap-6">
                                                     <div className="w-14 h-14 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center group-hover:bg-gold group-hover:text-primary transition-all duration-500 shadow-xl border border-white/5">
-                                                        <Warehouse size={22} />
+                                                        <Users size={22} />
                                                     </div>
                                                     <div>
                                                         <h4 className="text-base font-heading uppercase tracking-[.4em] leading-none mb-1 group-hover:text-gold transition-colors font-black">
-                                                            {u.fullName || tx('unnamed_staff')}
+                                                            {u.fullName || 'Nhân viên chưa đặt tên'}
                                                         </h4>
                                                         <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-40">{u.email}</p>
                                                     </div>
@@ -653,7 +616,7 @@ export default function AdminStoresPage() {
                                                     className="h-14 px-8 rounded-full bg-gold text-primary font-black uppercase tracking-widest text-[9px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center gap-2 group/btn"
                                                 >
                                                     <UserPlus size={18} />
-                                                    {t('modal.assign_btn')}
+                                                    Gán ngay
                                                 </button>
                                             </div>
                                         ))}
@@ -661,7 +624,7 @@ export default function AdminStoresPage() {
                                     {staffUsers.filter((u) => !assignModal.users?.some((x) => x.user.id === u.id)).length === 0 && (
                                         <div className="py-24 text-center glass rounded-[4rem] border border-dashed border-white/10 opacity-30 italic font-heading">
                                             <Info size={48} className="mx-auto mb-6 text-gold/20" strokeWidth={0.5} />
-                                            <p className="text-xl tracking-widest uppercase">{t('modal.none_available')}</p>
+                                            <p className="text-xl tracking-widest uppercase">Không có nhân sự khả dụng</p>
                                         </div>
                                     )}
                                 </div>
@@ -674,7 +637,7 @@ export default function AdminStoresPage() {
                                     onClick={() => setAssignModal(null)}
                                     className="w-full sm:w-auto px-14 py-4 sm:py-5 rounded-full bg-secondary/10 border border-white/10 font-heading text-[11px] uppercase tracking-[.3em] font-black hover:bg-white/5 transition-all active:scale-95 whitespace-nowrap text-center"
                                 >
-                                    {t('modal.close') || 'HOÀN TẤT'}
+                                    HOÀN TẤT
                                 </button>
                             </div>
                         </motion.div>

@@ -525,6 +525,8 @@ export class StoresService {
     }
 
     await this.prisma.$transaction(async (tx) => {
+      const variantIds = new Set<string>();
+
       for (const it of items) {
         // 1. Increment store stock (PURE IMPORT - no internal deduction)
         const inv = await tx.inventory.upsert({
@@ -573,6 +575,30 @@ export class StoresService {
             reason: dto.reason ?? 'Batch import from warehouse',
           },
         });
+
+        variantIds.add(it.variantId);
+      }
+
+      // 4. Recalculate WAC for each imported variant
+      for (const variantId of variantIds) {
+        const batches = await tx.inventoryBatch.findMany({
+          where: {
+            currentQuantity: { gt: 0 },
+            inventory: { variantId },
+          },
+          select: { currentQuantity: true, purchasePrice: true },
+        });
+
+        if (batches.length > 0) {
+          const totalQty = batches.reduce((s, b) => s + b.currentQuantity, 0);
+          const totalCost = batches.reduce((s, b) => s + b.currentQuantity * b.purchasePrice, 0);
+          const wac = Math.round(totalCost / totalQty);
+
+          await tx.productVariant.update({
+            where: { id: variantId },
+            data: { purchasePrice: wac },
+          });
+        }
       }
     });
 

@@ -471,9 +471,6 @@ export default function AdminProducts() {
         <header className="mb-8 md:mb-12 flex flex-wrap items-start 2xl:items-end justify-between gap-6">
           <div className="space-y-3 min-w-[300px]">
             <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
-              {t('subtitle')}
-            </p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full 2xl:w-auto relative z-[100]">
             <button
@@ -710,24 +707,24 @@ export default function AdminProducts() {
                       {/* Status Badges */}
                       <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                         {!p.isActive && (
-                          <div className="bg-zinc-950/80 backdrop-blur-md text-zinc-400 text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-white/5">
+                          <div className="bg-zinc-950/80 backdrop-blur-md text-zinc-400 text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest font-black border border-white/5">
                             {t('status.hidden')}
                           </div>
                         )}
                         {overallStatus === 'CRITICAL' && p.isActive && (
-                          <div className="bg-red-500/90 backdrop-blur-md text-white text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-red-400/20 shadow-lg shadow-red-500/20 animate-pulse">
+                          <div className="bg-red-500/90 backdrop-blur-md text-white text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest font-black border border-red-400/20 shadow-lg shadow-red-500/20 animate-pulse">
                             {"Cạn Kiệt Kho"}
                           </div>
                         )}
                         {overallStatus === 'WARNING' && p.isActive && (
-                          <div className="bg-amber-500/90 backdrop-blur-md text-white text-[7px] px-2 py-1 rounded-full uppercase tracking-widest font-black border border-amber-400/20 shadow-lg animate-pulse">
+                          <div className="bg-amber-500/90 backdrop-blur-md text-white text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest font-black border border-amber-400/20 shadow-lg animate-pulse">
                             {"Sắp Hết Hàng"}
                           </div>
                         )}
                       </div>
 
-                      <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/10 px-2 py-1 rounded-full">
-                        <span className="text-[7px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
+                      <div className="absolute top-3 right-3 bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+                        <span className="text-[9px] text-white uppercase tracking-widest font-bold">{p.gender}</span>
                       </div>
 
                       {/* Quick Actions Overlay */}
@@ -791,10 +788,10 @@ export default function AdminProducts() {
                     <div className="p-5">
                       <div className="mb-3">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="text-[9px] text-gold uppercase tracking-widest font-bold opacity-60 truncate">{p.brand?.name ?? '—'}</p>
-                          <div className="flex items-center gap-1">
-                             <div className={cn("w-1.5 h-1.5 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
-                             <span className={cn("text-[8px] font-bold uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
+                          <p className="text-[11px] text-gold uppercase tracking-widest font-bold opacity-60 truncate">{p.brand?.name ?? '—'}</p>
+                          <div className="flex items-center gap-1.5">
+                             <div className={cn("w-2 h-2 rounded-full", p.isActive ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-zinc-500")} />
+                             <span className={cn("text-[10px] font-bold uppercase", p.isActive ? "text-emerald-500" : "text-zinc-500")}>
                                {p.isActive ? "Active" : "Hidden"}
                              </span>
                           </div>
@@ -803,28 +800,28 @@ export default function AdminProducts() {
                       </div>
 
                       <div className="flex flex-wrap gap-1.5 mb-4">
-                        <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
+                        <span className="text-[9px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-2 py-0.5 rounded-md bg-secondary/5">
                           {p.concentration || "Parfum"}
                         </span>
-                        <span className="text-[7px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-1.5 py-0.5 rounded-md bg-secondary/5">
+                        <span className="text-[9px] uppercase tracking-tighter font-bold text-muted-foreground/60 border border-border/40 px-2 py-0.5 rounded-md bg-secondary/5">
                           {p.scentFamily?.name || "Floral"}
                         </span>
                       </div>
 
                       {/* Integrated Logistics Health Status */}
                       {overallStatus !== 'UNKNOWN' && (
-                        <div className="mb-4 bg-secondary/15 border border-border/30 rounded-2xl p-3 space-y-2 relative overflow-hidden transition-all duration-300 hover:bg-secondary/25">
+                        <div className="mb-4 bg-secondary/15 border border-border/30 rounded-2xl p-4 space-y-3 relative overflow-hidden transition-all duration-300 hover:bg-secondary/25">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                              <Activity className={cn("w-3 h-3", 
+                              <Activity className={cn("w-3.5 h-3.5", 
                                 overallStatus === 'CRITICAL' ? 'text-red-500 animate-pulse' :
                                 overallStatus === 'WARNING' ? 'text-amber-500' : 'text-emerald-500'
                               )} />
-                              <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">Sức Khỏe Kho</span>
+                              <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Sức Khỏe Kho</span>
                             </div>
                             
                             <span className={cn(
-                              "text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                              "text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-full border",
                               overallStatus === 'CRITICAL' ? 'bg-red-500/10 border-red-500/20 text-red-500 shadow-[0_0_8px_rgba(239,68,68,0.1)]' :
                               overallStatus === 'WARNING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
                               'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
@@ -834,13 +831,13 @@ export default function AdminProducts() {
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 text-[9px] font-bold uppercase tracking-wider text-muted-foreground pt-1.5 border-t border-white/5">
+                          <div className="grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground pt-2.5 border-t border-white/5">
                             <div className="flex flex-col gap-0.5">
-                              <span className="text-[7px] text-muted-foreground/40 font-bold">Vận tốc bán</span>
+                              <span className="text-[8px] text-muted-foreground/40 font-bold">Vận tốc bán</span>
                               <span className="text-foreground font-black tracking-normal">{totalMonthlySales} /tháng</span>
                             </div>
                             <div className="flex flex-col gap-0.5 text-right">
-                              <span className="text-[7px] text-muted-foreground/40 font-bold">Thời gian còn lại (Days Remaining)</span>
+                              <span className="text-[8px] text-muted-foreground/40 font-bold">Thời gian còn lại</span>
                               <span className={cn(
                                 "font-black tracking-normal",
                                 minDaysRemaining < 7 ? 'text-red-400' :
@@ -853,30 +850,30 @@ export default function AdminProducts() {
                         </div>
                       )}
 
-                      <div className="space-y-3 pt-4 border-t border-white/5">
+                      <div className="space-y-4 pt-5 border-t border-white/5">
                         <div className="flex justify-between items-end">
                           <div className="space-y-0.5">
-                            <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Stock</p>
+                            <p className="text-[9px] text-muted-foreground uppercase font-bold opacity-40">Stock</p>
                             <div className="flex items-baseline gap-1">
                               <span className={cn("text-base font-heading italic", getTotalStock(p) === 0 ? "text-red-500" : getTotalStock(p) <= 10 ? "text-amber-500" : "text-foreground")}>
                                 {getTotalStock(p)}
                               </span>
-                              <span className="text-[8px] text-muted-foreground uppercase font-bold">Qty</span>
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Qty</span>
                             </div>
                           </div>
                           <div className="text-right space-y-0.5">
-                            <p className="text-[7px] text-muted-foreground uppercase font-bold opacity-40">Price Range</p>
-                            <span className="text-xs font-serif italic text-gold">
+                            <p className="text-[9px] text-muted-foreground uppercase font-bold opacity-40">Price Range</p>
+                            <span className="text-sm font-serif italic text-gold">
                               {getPriceRange(p)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="bg-secondary/10 rounded-xl p-2 flex flex-wrap gap-1.5 items-center justify-center">
+                        <div className="bg-secondary/10 rounded-xl p-3 flex flex-wrap gap-1.5 items-center justify-center">
                           {p.variants?.slice(0, 3).map((v) => {
                             const vHealth = healthMap[v.id];
                             return (
-                              <div key={v.id} className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded-lg border border-white/5 shadow-sm">
+                              <div key={v.id} className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-lg border border-white/5 shadow-sm">
                                 {vHealth && (
                                   <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", 
                                     vHealth.status === 'CRITICAL' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.5)]' :
@@ -884,9 +881,9 @@ export default function AdminProducts() {
                                     'bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]'
                                   )} />
                                 )}
-                                <span className="text-[7px] text-muted-foreground uppercase font-bold opacity-50">{v.name}</span>
+                                <span className="text-[9px] text-muted-foreground uppercase font-bold opacity-50">{v.name}</span>
                                 <span className={cn(
-                                  "text-[8px] font-heading",
+                                  "text-[10px] font-heading",
                                   v.stock === 0 ? "text-red-500" : v.stock <= 10 ? "text-amber-500" : "text-foreground"
                                 )}>
                                   {v.stock}

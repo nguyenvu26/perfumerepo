@@ -34,6 +34,8 @@ export class ReturnsAdminController {
     @Query('orderId') orderId?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('origin') origin?: string,
+    @Query('storeId') storeId?: string,
   ) {
     return this.returnsService.listAllReturns(
       Number(skip) || 0,
@@ -42,6 +44,8 @@ export class ReturnsAdminController {
       orderId,
       startDate,
       endDate,
+      origin,
+      storeId,
     );
   }
 

@@ -39,6 +39,7 @@ export class InventoryService {
   /**
    * Chốt xuất kho khi đơn hàng được giao thành công hoặc bán POS tại quầy.
    * Sử dụng thuật toán FEFO (First-Expired-First-Out).
+   * Returns deducted batches WITH their purchase prices for accurate cost tracking.
    */
   async commitStock(
     variantId: string,
@@ -48,7 +49,7 @@ export class InventoryService {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx || this.prisma;
-    const deductedBatches: { batchCode: string; quantity: number }[] = [];
+    const deductedBatches: { batchCode: string; quantity: number; purchasePrice: number }[] = [];
 
     // 1. Fetch Inventory & Batches
     const inventory = await client.inventory.findUnique({
@@ -83,7 +84,7 @@ export class InventoryService {
       }
     }
 
-    // 3. FEFO Logic: Deduct from batches
+    // 3. FEFO Logic: Deduct from batches, capturing purchase price
     let remainingToDeduct = quantity;
     for (const batch of inventory.batches) {
       if (remainingToDeduct <= 0) break;
@@ -96,7 +97,8 @@ export class InventoryService {
       
       deductedBatches.push({ 
         batchCode: batch.batchCode ?? 'N/A', 
-        quantity: deduct 
+        quantity: deduct,
+        purchasePrice: batch.purchasePrice,
       });
       remainingToDeduct -= deduct;
     }
@@ -104,13 +106,10 @@ export class InventoryService {
     // 4. Data Integrity Check & System Alert
     if (remainingToDeduct > 0) {
       console.error(`[FEFO Warning] Inconsistent stock for variant ${variantId} at store ${warehouseId}. Missing ${remainingToDeduct} items in specific batches.`);
-      // We continue to deduct the aggregate count to keep inventory syncing, 
-      // but the batch tracking for this specific sale will be partial.
     }
 
     // 5. Update Aggregate Inventory Table
     if (isPreAllocated) {
-      // Online Order: reduce onHand and reserved
       await client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
         data: {
@@ -119,7 +118,6 @@ export class InventoryService {
         },
       });
     } else {
-      // POS / In-store: reduce onHand and available
       await client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
         data: {
@@ -133,9 +131,69 @@ export class InventoryService {
   }
 
   /**
+   * Tính giá vốn bình quân gia quyền (Weighted Average Cost) từ các batch
+   * đã xuất (FEFO) cho 1 lần bán cụ thể.
+   */
+  calculateBatchWeightedCost(
+    deductedBatches: { quantity: number; purchasePrice: number }[],
+  ): number {
+    const totalQty = deductedBatches.reduce((s, b) => s + b.quantity, 0);
+    if (totalQty === 0) return 0;
+    const totalCost = deductedBatches.reduce(
+      (s, b) => s + b.quantity * b.purchasePrice, 0,
+    );
+    return Math.round(totalCost / totalQty);
+  }
+
+  /**
+   * Tính lại Giá Vốn Bình Quân Gia Quyền (WAC) cho 1 variant
+   * dựa trên tất cả InventoryBatch còn tồn (currentQuantity > 0) trên toàn hệ thống.
+   * Cập nhật ProductVariant.purchasePrice = WAC mới.
+   */
+  async recalculateWAC(
+    variantId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<number> {
+    const client = tx || this.prisma;
+
+    // Lấy tất cả batch còn hàng của variant này, bất kể warehouse nào
+    const batches = await client.inventoryBatch.findMany({
+      where: {
+        currentQuantity: { gt: 0 },
+        inventory: { variantId },
+      },
+      select: {
+        currentQuantity: true,
+        purchasePrice: true,
+      },
+    });
+
+    if (batches.length === 0) {
+      // Không còn batch nào → giữ nguyên giá vốn hiện tại
+      const variant = await client.productVariant.findUnique({
+        where: { id: variantId },
+        select: { purchasePrice: true },
+      });
+      return variant?.purchasePrice ?? 0;
+    }
+
+    const totalQty = batches.reduce((s, b) => s + b.currentQuantity, 0);
+    const totalCost = batches.reduce(
+      (s, b) => s + b.currentQuantity * b.purchasePrice, 0,
+    );
+    const wac = Math.round(totalCost / totalQty);
+
+    // Cập nhật ProductVariant.purchasePrice
+    await client.productVariant.update({
+      where: { id: variantId },
+      data: { purchasePrice: wac },
+    });
+
+    return wac;
+  }
+
+  /**
    * Xả tồn (release) khi đơn hàng bị hủy hoặc giao thất bại.
-   * Nếu đơn chưa giao (chỉ mới allocate): trả lại available, giảm reserved.
-   * Nếu đơn đã giao nhưng trả hàng (nhập lại kho vật lý): tăng onHand, tăng available.
    */
   async releaseStock(
     variantId: string,
@@ -147,7 +205,6 @@ export class InventoryService {
     const client = tx || this.prisma;
 
     if (isRestockPhysical) {
-      // Trả hàng vật lý vào kho
       return client.inventory.upsert({
         where: { warehouseId_variantId: { warehouseId, variantId } },
         create: {
@@ -171,7 +228,6 @@ export class InventoryService {
           `Không thể xả tồn: số lượng dự giữ không hợp lý. (Reserved: ${inventory?.reserved || 0}, yêu cầu: ${quantity})`,
         );
       }
-      // Hủy đơn (chưa giao đi)
       return client.inventory.update({
         where: { warehouseId_variantId: { warehouseId, variantId } },
         data: {

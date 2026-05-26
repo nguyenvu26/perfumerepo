@@ -107,9 +107,7 @@ export default function AiLogsPage() {
                         <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">
                             {t('title')}
                         </h1>
-                        <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
-                            {t('subtitle')}
-                        </p>
+
                     </motion.div>
                 </header>
 

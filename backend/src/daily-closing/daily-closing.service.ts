@@ -80,7 +80,11 @@ export class DailyClosingService {
           include: {
             variant: {
               include: {
-                product: true
+                product: {
+                  include: {
+                    images: { orderBy: { order: 'asc' }, take: 1 }
+                  }
+                }
               }
             }
           }
@@ -99,6 +103,7 @@ export class DailyClosingService {
           id: item.variantId,
           name: item.variant.product.name,
           sku: item.variant.sku,
+          image: item.variant.product.images?.[0]?.url || null,
           quantity: 0,
           revenue: 0,
           purchasePrice: item.purchasePrice ?? item.variant.purchasePrice ?? 0

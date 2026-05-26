@@ -5,6 +5,8 @@ export type StaffInventoryBatch = {
   batchCode: string | null;
   mfgDate: string | null;
   expiryDate: string | null;
+  purchasePrice: number;
+  initialQuantity: number;
   currentQuantity: number;
 };
 

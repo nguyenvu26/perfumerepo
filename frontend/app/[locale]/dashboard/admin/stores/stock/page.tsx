@@ -49,13 +49,21 @@ import { BarcodePrintModal } from "@/components/staff/barcode-print-modal";
 import { useLocale } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useTranslations, useFormatter } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { InventoryHealthWidget } from "@/components/dashboard/admin/InventoryHealthWidget";
 import { StockHeatmapWidget } from "@/components/dashboard/admin/StockHeatmapWidget";
 import { ExpiryAlertWidget } from "@/components/dashboard/admin/ExpiryAlertWidget";
+
+type SelectedBatch = {
+  batchId: string;
+  quantity: number;
+  batchCode: string | null;
+  expiryDate: string | null;
+  currentAvailable?: number;
+};
 
 type BatchItem = {
   variantId: string;
@@ -68,6 +76,7 @@ type BatchItem = {
   mfgDate?: string;
   expiryDate?: string;
   sku?: string;
+  selectedBatches?: SelectedBatch[];
 };
 
 type TabType = "overview" | "batch-import" | "transfer" | "requests" | "history" | "ai-toolbox";
@@ -98,6 +107,10 @@ export default function AdminStockRedesignPage() {
   const [transferToId, setTransferToId] = useState("");
   const [transferItems, setTransferItems] = useState<BatchItem[]>([]);
   const [transferSearch, setTransferSearch] = useState("");
+  const [showTransferBatchModal, setShowTransferBatchModal] = useState(false);
+  const [inspectingTransferItemIdx, setInspectingTransferItemIdx] = useState<number | null>(null);
+  const [availableBatches, setAvailableBatches] = useState<any[]>([]);
+  const [loadingBatches, setLoadingBatches] = useState(false);
   const [transferReason, setTransferReason] = useState("");
 
   // Inventory Requests State
@@ -126,6 +139,19 @@ export default function AdminStockRedesignPage() {
 
   // Barcode Print State
   const [showBarcodeModal, setShowBarcodeModal] = useState(false);
+  const [showUtilityMenu, setShowUtilityMenu] = useState(false);
+  const utilityRef = useRef<HTMLDivElement>(null);
+
+  // Close utility menu on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (utilityRef.current && !utilityRef.current.contains(event.target as Node)) {
+        setShowUtilityMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const [barcodeVariantIds, setBarcodeVariantIds] = useState<string[]>([]);
   const [barcodeInitialQuantities, setBarcodeInitialQuantities] = useState<Record<string, number>>({});
 
@@ -438,8 +464,67 @@ export default function AdminStockRedesignPage() {
     }
   };
 
+  const openBatchSelection = async (index: number) => {
+    const item = transferItems[index];
+    if (!transferFromId) return;
+    
+    setInspectingTransferItemIdx(index);
+    setLoadingBatches(true);
+    setShowTransferBatchModal(true);
+    
+    try {
+      const batches = await inventoryTransferService.getVariantBatches(transferFromId, item.variantId);
+      // Map existing selections
+      const mapped = batches.map((b: any) => ({
+        ...b,
+        selectedQuantity: item.selectedBatches?.find(sb => sb.batchId === b.id)?.quantity || 0
+      }));
+      setAvailableBatches(mapped);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoadingBatches(false);
+    }
+  };
+
+  const saveBatchSelection = () => {
+    if (inspectingTransferItemIdx === null) return;
+    
+    const selected = availableBatches
+      .filter(b => b.selectedQuantity > 0)
+      .map(b => ({
+        batchId: b.id,
+        quantity: b.selectedQuantity,
+        batchCode: b.batchCode,
+        expiryDate: b.expiryDate
+      }));
+      
+    const totalQty = selected.reduce((s, b) => s + b.quantity, 0);
+    
+    setTransferItems(prev => prev.map((it, i) => 
+      i === inspectingTransferItemIdx 
+        ? { ...it, quantity: totalQty, selectedBatches: selected } 
+        : it
+    ));
+    
+    setShowTransferBatchModal(false);
+    setInspectingTransferItemIdx(null);
+  };
+
+  const updateBatchSelectionQuantity = (batchId: string, qty: number) => {
+    setAvailableBatches(prev => prev.map(b => b.id === batchId ? { ...b, selectedQuantity: qty } : b));
+  };
+
   const handleBatchTransfer = async () => {
     if (!transferFromId || !transferToId || transferItems.length === 0) return;
+
+    // Validation: All items must have batches selected if we're enforcing tracked transfers
+    const unselected = transferItems.filter(it => !it.selectedBatches || it.selectedBatches.length === 0);
+    if (unselected.length > 0) {
+      setError(`Vui lòng chọn lô hàng cho sản phẩm: ${unselected.map(it => it.productName).join(', ')}`);
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
@@ -449,6 +534,10 @@ export default function AdminStockRedesignPage() {
         items: transferItems.map((item) => ({
           variantId: item.variantId,
           quantity: item.quantity,
+          selectedBatches: item.selectedBatches!.map(sb => ({
+            batchId: sb.batchId,
+            quantity: sb.quantity
+          }))
         })),
       });
 
@@ -522,84 +611,105 @@ export default function AdminStockRedesignPage() {
   return (
     <AuthGuard allowedRoles={["admin"]}>
       <main className="p-8 max-w-[1800px] mx-auto space-y-12">
-        <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-12">
-          <div className="space-y-8">
-            <button
-              onClick={() => router.push(`/${locale}/dashboard/admin/stores`)}
-              className="group flex items-center gap-4 px-8 py-4 rounded-full bg-white/5 border border-white/20 text-[11px] uppercase tracking-[.3em] font-black hover:bg-gold hover:text-white transition-all active:scale-95 shadow-2xl shadow-gold/5 w-fit hover:border-gold/50"
-            >
-              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-2" />
-              Quay lại hệ thống cửa hàng
-            </button>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 mb-2">
-                <div className="w-16 h-[1px] bg-gold/50" />
-                <span className="text-[11px] uppercase tracking-[.5em] font-black text-gold italic">Hệ thống Điều vận Toàn hệ thống</span>
-              </div>
-              <h1 className="text-7xl sm:text-8xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-[0.8]">
+        <header className="flex flex-col gap-10">
+          {/* Row 1: Identity */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <div className="flex items-center gap-8">
+              <button
+                onClick={() => router.push(`/${locale}/dashboard/admin/stores`)}
+                className="group flex items-center justify-center w-14 h-14 rounded-full border border-white/10 hover:border-gold/50 hover:bg-gold/5 transition-all shadow-xl"
+                title="Quay lại hệ thống cửa hàng"
+              >
+                <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+              </button>
+              <h1 className="text-6xl sm:text-7xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
                 {t('title')}
               </h1>
-              <p className="text-sm text-muted-foreground font-medium opacity-50 italic max-w-xl leading-relaxed">
-                {t('subtitle')}
-              </p>
             </div>
           </div>
           
-          <div className="flex flex-col gap-8">
-            {/* Action Buttons Hub */}
-            <div className="flex flex-wrap gap-4 justify-end">
-              <button
-                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/transfers`)}
-                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
-              >
-                <ArrowRightLeft className="w-4 h-4 text-gold" />
-                DS Phiếu Điều Chuyển →
-              </button>
-              <button
-                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/audit`)}
-                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
-              >
-                <ClipboardCheck className="w-4 h-4 text-gold" />
-                Kiểm Kê Kho →
-              </button>
-              <button
-                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/cost-setup`)}
-                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
-              >
-                <Wallet className="w-4 h-4 text-gold" />
-                Thiết lập Giá Vốn →
-              </button>
-              <button
-                onClick={() => router.push(`/${locale}/dashboard/admin/inventory/reports`)}
-                className="flex items-center gap-3 bg-white/5 hover:bg-gold/10 border border-gold/20 hover:border-gold/40 px-6 py-3 rounded-full text-[10px] uppercase font-black tracking-widest text-gold transition-all duration-300 shadow-md"
-              >
-                <BarChart3 className="w-4 h-4 text-gold" />
-                Báo Cáo Tồn Kho →
-              </button>
-            </div>
-
-            <div className="flex gap-2 bg-white/5 p-2 rounded-[2.5rem] border border-white/10 backdrop-blur-2xl shadow-3xl overflow-x-auto no-scrollbar">
+          {/* Row 2: Navigation Tabs & Utilities */}
+          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+            <nav className="flex items-center gap-1.5 bg-black/40 p-2 rounded-full border border-white/10 backdrop-blur-2xl shadow-3xl overflow-x-auto no-scrollbar max-w-full">
               {[
                 { id: "overview", icon: LayoutGrid, label: t('tabs.overview') },
                 { id: "batch-import", icon: FileInput, label: t('tabs.import') },
                 { id: "transfer", icon: ArrowRightLeft, label: t('tabs.transfer') },
                 { id: "requests", icon: ClipboardCheck, label: t('tabs.requests') },
                 { id: "history", icon: History, label: tInv('history_title') },
-                { id: "ai-toolbox", icon: Zap, label: "Điều Vận" },
+                { id: "ai-toolbox", icon: Zap, label: "AI Matrix" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={cn(
-                    "flex items-center gap-3 px-6 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-500 whitespace-nowrap shrink-0",
+                    "relative flex items-center gap-3 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-700 whitespace-nowrap",
                     activeTab === tab.id 
-                      ? "bg-gold text-white shadow-[0_10px_30px_rgba(212,175,55,0.3)] scale-105" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                      ? "text-primary z-10" 
+                      : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <tab.icon className="w-4 h-4 shrink-0" /> {tab.label}
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-gold rounded-full -z-10 shadow-[0_10px_30px_rgba(212,175,55,0.4)]"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <tab.icon className={cn("w-4 h-4 shrink-0", activeTab === tab.id ? "text-primary" : "text-gold/60")} /> 
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
+            </nav>
+
+            <div ref={utilityRef} className="relative shrink-0">
+              <button 
+                onClick={() => setShowUtilityMenu(!showUtilityMenu)}
+                className={cn(
+                  "flex items-center gap-3 bg-white/5 border border-white/10 px-8 py-4 rounded-full text-[10px] uppercase font-black tracking-widest hover:border-gold/30 hover:bg-gold/5 transition-all shadow-lg",
+                  showUtilityMenu && "border-gold bg-gold/5"
+                )}
+              >
+                <LayoutGrid className="w-4 h-4 text-gold" strokeWidth={2.5} />
+                Công cụ & Tiện ích
+                <ChevronDown className={cn(
+                  "w-3.5 h-3.5 opacity-40 transition-transform duration-500",
+                  showUtilityMenu ? "rotate-180 opacity-100" : ""
+                )} />
+              </button>
+              
+              <AnimatePresence>
+                {showUtilityMenu && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="absolute top-full right-0 mt-4 w-72 glass bg-zinc-950/90 border border-gold/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] overflow-hidden"
+                  >
+                    <div className="p-4 space-y-1">
+                      {[
+                        { href: `/${locale}/dashboard/admin/inventory/transfers`, icon: ArrowRightLeft, label: "DS Phiếu Điều Chuyển" },
+                        { href: `/${locale}/dashboard/admin/inventory/audit`, icon: ClipboardCheck, label: "Kiểm Kê Kho" },
+                        { href: `/${locale}/dashboard/admin/inventory/cost-setup`, icon: Wallet, label: "Thiết lập Giá Vốn" },
+                        { href: `/${locale}/dashboard/admin/inventory/reports`, icon: BarChart3, label: "Báo Cáo Tồn Kho" },
+                      ].map((item, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            router.push(item.href);
+                            setShowUtilityMenu(false);
+                          }}
+                          className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-gold text-[10px] uppercase font-black tracking-widest text-muted-foreground hover:text-primary transition-all text-left"
+                        >
+                          <item.icon className="w-4 h-4" />
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>
@@ -642,12 +752,12 @@ export default function AdminStockRedesignPage() {
               ) : (
                 <>
                   {/* Summary Stats Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
                     {[
-                      { label: tInv('matrix.stats.total_sku'), value: stats.totalSku, icon: Layers, color: "text-blue-500", bg: "from-blue-500/10", unit: "Sản phẩm" },
-                      { label: tInv('matrix.stats.global_stock'), value: stats.globalUnits, icon: Globe, color: "text-emerald-500", bg: "from-emerald-500/10", unit: "Đơn vị" },
-                      { label: tInv('matrix.stats.low_stock_alerts'), value: stats.lowStockAlerts, icon: AlertCircle, color: "text-amber-500", highlight: stats.lowStockAlerts > 0, bg: "from-amber-500/10", unit: "Sản phẩm" },
-                      { label: tInv('matrix.stats.active_warehouses'), value: stats.activeHubs, icon: Building2, color: "text-gold", bg: "from-gold/10", unit: "Kho" },
+                      { label: "Mã hàng đang quản lý", value: stats.totalSku, icon: Layers, color: "text-blue-500", bg: "from-blue-500/10", unit: "SKU" },
+                      { label: "Tổng sản phẩm tồn kho", value: stats.globalUnits, icon: Globe, color: "text-emerald-500", bg: "from-emerald-500/10", unit: "Sản phẩm" },
+                      { label: "Cảnh báo hết hàng", value: stats.lowStockAlerts, icon: AlertCircle, color: "text-amber-500", highlight: stats.lowStockAlerts > 0, bg: "from-amber-500/10", unit: "Mục" },
+                      { label: "Trung tâm đang vận hành", value: stats.activeHubs, icon: Building2, color: "text-gold", bg: "from-gold/10", unit: "Kho/Hub" },
                     ].map((stat, i) => (
                       <motion.div
                         key={i}
@@ -655,37 +765,36 @@ export default function AdminStockRedesignPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                         className={cn(
-                          "relative overflow-hidden glass p-8 rounded-[3rem] border-white/5 group hover:border-gold/30 transition-all duration-700",
-                          "bg-gradient-to-br to-transparent"
+                          "relative overflow-hidden glass p-10 rounded-[3.5rem] border-white/5 group hover:border-gold/30 transition-all duration-700 bg-zinc-900/20"
                         )}
                       >
                         <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", stat.bg)} />
                         
-                        <div className="relative z-10 flex flex-col gap-8">
+                        <div className="relative z-10 flex flex-col gap-10">
                           <div className="flex items-center justify-between">
                             <div className={cn(
-                              "w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 shadow-2xl",
+                              "w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 shadow-2xl",
                               stat.color
                             )}>
-                              <stat.icon className="w-7 h-7" />
+                              <stat.icon className="w-8 h-8" />
                             </div>
                             {stat.highlight && (
-                              <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                                <span className="text-[8px] font-black uppercase tracking-widest text-amber-500 animate-pulse">Cảnh báo nghiêm trọng</span>
+                              <div className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-amber-500 animate-pulse">Chú ý quan trọng</span>
                               </div>
                             )}
                           </div>
                           
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[.3em] font-black text-muted-foreground opacity-50 mb-2 group-hover:text-foreground transition-colors">{stat.label}</p>
+                          <div className="space-y-2">
+                            <p className="text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground opacity-50 group-hover:text-gold transition-colors">{stat.label}</p>
                             <div className="flex items-end gap-3">
                               <span className={cn(
-                                "font-heading text-5xl italic tracking-tighter leading-none",
-                                stat.highlight ? "text-amber-500" : "text-foreground group-hover:text-gold transition-colors"
+                                "font-heading text-6xl italic tracking-tighter leading-none",
+                                stat.highlight ? "text-amber-500" : "text-foreground group-hover:text-white transition-colors"
                               )}>
-                                {stat.value}
+                                {stat.value.toLocaleString()}
                               </span>
-                              <span className="text-[10px] font-bold opacity-20 uppercase tracking-widest mb-1 italic">{stat.unit || 'Mục'}</span>
+                              <span className="text-[10px] font-bold opacity-20 uppercase tracking-widest mb-2 italic">{stat.unit}</span>
                             </div>
                           </div>
                         </div>
@@ -693,71 +802,80 @@ export default function AdminStockRedesignPage() {
                     ))}
                   </div>
 
-                  {/* Matrix Controls */}
-                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 glass p-6 rounded-[3rem] border border-white/10 bg-zinc-900/40 backdrop-blur-2xl sticky top-8 z-40 shadow-3xl">
-                    <div className="flex items-center gap-2 bg-black/20 p-1.5 rounded-2xl border border-white/5 shadow-inner">
+                  {/* Matrix Controls Row */}
+                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-10">
+                    <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-[2rem] border border-white/10 shadow-3xl">
                       {[
-                        { id: "matrix", icon: Layers, label: tInv('matrix.view_comparison') },
-                        { id: "store", icon: Building2, label: tInv('matrix.view_store') },
+                        { id: "matrix", icon: Layers, label: "Ma trận so sánh" },
+                        { id: "store", icon: Building2, label: "Xem theo kho" },
                       ].map((mode) => (
                         <button
                           key={mode.id}
                           onClick={() => setViewMode(mode.id as any)}
                           className={cn(
-                            "flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500",
+                            "flex items-center gap-4 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-700",
                             viewMode === mode.id 
-                              ? "bg-gold text-white shadow-lg shadow-gold/20" 
+                              ? "bg-gold text-white shadow-xl shadow-gold/20 scale-[1.02]" 
                               : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                           )}
                         >
-                          <mode.icon className="w-3.5 h-3.5" />
+                          <mode.icon className="w-4 h-4" />
                           {mode.label}
                         </button>
                       ))}
                     </div>
 
-                    <div className="flex-1 flex items-center gap-4">
-                      <div className="relative flex-1 group">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-gold transition-colors" />
+                    <div className="flex-1 flex flex-col md:flex-row items-center gap-8">
+                      <div className="relative flex-1 group w-full">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gold opacity-40 group-focus-within:opacity-100 transition-opacity" />
                         <input
                           type="text"
                           value={matrixSearch}
                           onChange={(e) => setMatrixSearch(e.target.value)}
-                          placeholder="Tìm kiếm tài sản toàn hệ thống theo SKU, thương hiệu, hoặc tên..."
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 text-[11px] font-bold tracking-wider outline-none focus:border-gold/50 focus:bg-white/[0.07] transition-all placeholder:text-muted-foreground/30 shadow-inner"
+                          placeholder="Tìm mã SKU, tên nước hoa hoặc thương hiệu..."
+                          className="w-full bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-5 text-sm font-bold tracking-wider outline-none focus:border-gold/50 focus:bg-white/10 transition-all placeholder:opacity-20 shadow-inner"
                         />
                       </div>
-
-
                       
-
+                      {viewMode === "store" && (
+                         <select
+                            value={selectedStoreId || ""}
+                            onChange={(e) => setSelectedStoreId(e.target.value || null)}
+                            className="bg-white/5 border border-white/10 rounded-[2rem] px-8 py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold min-w-[280px] hover:bg-white/10 transition-all cursor-pointer shadow-3xl"
+                          >
+                            <option value="">Tất cả kho bãi</option>
+                            {warehouses.map(w => (
+                              <option key={w.id} value={w.id}>{w.name}</option>
+                            ))}
+                          </select>
+                      )}
                     </div>
                   </div>
 
                   {viewMode === "matrix" ? (
                     /* --- MATRIX VIEW --- */
-                    <section className="glass rounded-[3.5rem] border-white/5 overflow-hidden shadow-2xl bg-white/[0.01]">
+                    <section className="glass rounded-[4rem] border-white/10 overflow-hidden shadow-3xl bg-zinc-900/10">
                       <div className="overflow-x-auto custom-scrollbar">
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="bg-white/[0.03] backdrop-blur-md">
-                              <th className="pl-12 pr-4 py-10 text-[10px] uppercase tracking-[.3em] font-black opacity-40 min-w-[350px]">
-                                {tInv('matrix.product_info')}
+                            <tr className="bg-white/[0.05] border-b border-white/5">
+                              <th className="pl-12 pr-4 py-12 text-[10px] uppercase tracking-[.4em] font-black text-gold/60 min-w-[380px]">
+                                Danh mục tài sản / Sản phẩm
                               </th>
                               {warehouses.map((w) => (
-                                <th key={w.id} className="px-6 py-10 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center min-w-[140px] border-l border-white/5">
-                                  <div className="flex flex-col items-center gap-1">
-                                    {w.type === 'CENTRAL' && <Globe className="w-3 h-3 text-gold mb-1" />}
-                                    <span className={cn(w.type === 'CENTRAL' ? "text-gold" : "text-muted-foreground")}>{w.name}</span>
-                                    <span className="text-[7px] opacity-30 font-bold">{w.code || "HUB"}</span>
+                                <th key={w.id} className="px-6 py-12 text-[10px] uppercase tracking-[.4em] font-black opacity-30 text-center min-w-[150px] border-l border-white/5">
+                                  <div className="flex flex-col items-center gap-1.5">
+                                    {w.type === 'CENTRAL' && <Globe className="w-4 h-4 text-gold shadow-glow-sm" strokeWidth={2.5} />}
+                                    <span className={cn(w.type === 'CENTRAL' ? "text-gold opacity-100" : "")}>{w.name}</span>
+                                    <span className="text-[8px] opacity-40 font-black tracking-tighter">{w.code || "HUB"}</span>
                                   </div>
                                 </th>
                               ))}
-                              <th className="px-12 py-10 text-[10px] uppercase tracking-[.3em] font-black text-gold text-right min-w-[180px] border-l border-white/5 bg-gold/5">
-                                {tInv('matrix.global_total')}
+                              <th className="px-12 py-12 text-[11px] uppercase tracking-[.5em] font-black text-gold text-right min-w-[200px] border-l border-white/10 bg-gold/5 italic">
+                                Tồn hệ thống
                               </th>
-                              <th className="px-8 py-10 text-[10px] uppercase tracking-[.3em] font-black opacity-40 text-center min-w-[100px]">
-                                Thao tác
+                              <th className="px-8 py-12 text-[10px] uppercase tracking-[.4em] font-black opacity-30 text-center min-w-[100px]">
+                                Điều vận
                               </th>
                             </tr>
                           </thead>
@@ -873,19 +991,7 @@ export default function AdminStockRedesignPage() {
                     </section>
                   ) : (
                     /* --- STORE DETAIL LIST (Original View) --- */
-                    <div className="grid grid-cols-1 gap-8">
-                       <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                          <select
-                            value={selectedStoreId || ""}
-                            onChange={(e) => setSelectedStoreId(e.target.value || null)}
-                            className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold min-w-[300px]"
-                          >
-                            <option value="">{t('status.all')}</option>
-                            {warehouses.map(w => (
-                              <option key={w.id} value={w.id}>{w.name}</option>
-                            ))}
-                          </select>
-                       </div>
+                    <div className="grid grid-cols-1 gap-8 mt-12">
 
                        {overview?.stores
                         .filter(s => !selectedStoreId || s.store.id === selectedStoreId)
@@ -1487,10 +1593,10 @@ export default function AdminStockRedesignPage() {
                                   {v.productName}
                                 </p>
                                 <div className="flex items-center gap-3 mt-2">
-                                  <span className="text-[9px] px-3 py-0.5 bg-background text-luxury-black border border-border rounded-full font-heading group-hover:bg-white/10 group-hover:text-white">
+                                  <span className="text-[10px] px-3 py-1 bg-gold/10 text-gold border border-gold/20 rounded-lg font-black uppercase tracking-widest group-hover:bg-gold group-hover:text-primary transition-all">
                                     {v.variantName}
                                   </span>
-                                  <span className="text-[8px] text-muted-foreground group-hover:text-gold">
+                                  <span className="text-[10px] text-muted-foreground group-hover:text-gold font-bold">
                                     {t('transfer.in_stock', { count: v.quantity })}
                                   </span>
                                 </div>
@@ -1571,27 +1677,22 @@ export default function AdminStockRedesignPage() {
                             <div className="flex items-center gap-4">
                               <div className="flex flex-col items-end">
                                 <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
-                                  {t('transfer.move_label')}
+                                  Lô hàng & Số lượng
                                 </label>
-                                <input
-                                  type="number"
-                                  value={item.quantity || ""}
-                                  onChange={(e) => {
-                                    const val =
-                                      e.target.value === ""
-                                        ? 0
-                                        : parseInt(e.target.value, 10);
-                                    setTransferItems((prev) =>
-                                      prev.map((it, i) =>
-                                        i === idx
-                                          ? { ...it, quantity: val }
-                                          : it,
-                                      ),
-                                    );
-                                  }}
-                                  onFocus={(e) => e.target.select()}
-                                  className="w-20 bg-background border border-border rounded-xl px-3 py-2 text-center font-heading text-xs focus:border-gold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all"
-                                />
+                                <button
+                                  onClick={() => openBatchSelection(idx)}
+                                  className={cn(
+                                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border",
+                                    item.selectedBatches && item.selectedBatches.length > 0
+                                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20"
+                                      : "bg-gold/10 text-gold border-gold/20 hover:bg-gold/20"
+                                  )}
+                                >
+                                  {item.selectedBatches && item.selectedBatches.length > 0 
+                                    ? `Đã chọn ${item.quantity} SP (${item.selectedBatches.length} lô)`
+                                    : "Chọn Lô Hàng"
+                                  }
+                                </button>
                               </div>
                               <button
                                 onClick={() =>
@@ -1908,84 +2009,6 @@ export default function AdminStockRedesignPage() {
             </div>
           )}
 
-          {/* --- TAB 4: REQUESTS --- */}
-          {activeTab === "requests" && (
-            <div className="space-y-8 animate-in fade-in duration-700">
-              {/* ... existing requests content ... */}
-              {/* Filters removed as per user request to avoid English redundancy */}
-              
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                {requestsLoading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="glass h-64 rounded-[2.5rem] animate-pulse" />
-                  ))
-                ) : requests.length === 0 ? (
-                  <div className="xl:col-span-2 py-32 text-center opacity-20 italic font-serif text-3xl">No inventory requests found</div>
-                ) : (
-                  requests.map(req => (
-                    <motion.div
-                      layout
-                      key={req.id}
-                      className="glass rounded-[2.5rem] border-border/50 overflow-hidden group/req"
-                    >
-                      <div className="p-8 border-b border-border/50 flex justify-between items-start">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-secondary/30 dark:bg-white/5 flex items-center justify-center border border-border/50">
-                            <ClipboardCheck className="w-6 h-6 text-gold" />
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40">Request #{req.id}</p>
-                            <p className="font-heading text-xl italic">{req.staff?.name || 'System'}</p>
-                          </div>
-                        </div>
-                        <span className={cn(
-                          "px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border",
-                          req.status === 'PENDING' ? "bg-amber-500/10 border-amber-500/20 text-amber-500" :
-                          req.status === 'APPROVED' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" :
-                          "bg-rose-500/10 border-rose-500/20 text-rose-500"
-                        )}>
-                          {req.status}
-                        </span>
-                      </div>
-                      <div className="p-8 space-y-4">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Source</span>
-                          <span className="font-bold">{req.store.name}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Items</span>
-                          <span className="font-bold">{req.quantity} units</span>
-                        </div>
-                        {req.reason && (
-                          <div className="p-4 bg-secondary/30 dark:bg-white/5 rounded-2xl border border-border/50 italic text-[11px] text-muted-foreground">
-                            "{req.reason}"
-                          </div>
-                        )}
-                        {req.status === 'PENDING' && (
-                          <div className="flex gap-3 pt-4">
-                            <button 
-                              onClick={() => handleApprove(req.id)}
-                              disabled={reviewingId === req.id}
-                              className="flex-1 py-4 bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform disabled:opacity-50"
-                            >
-                              Approve
-                            </button>
-                            <button 
-                              onClick={() => setShowRejectModal(req.id)}
-                              disabled={reviewingId === req.id}
-                              className="flex-1 py-4 bg-rose-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform disabled:opacity-50"
-                            >
-                              Reject
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </div>
-          )}
 
           {/* --- TAB 5: HISTORY --- */}
           {activeTab === "history" && (
@@ -2165,98 +2188,224 @@ export default function AdminStockRedesignPage() {
               )}
             </div>
           )}
-          {/* --- TAB: AI TOOLBOX --- */}
           {activeTab === "ai-toolbox" && (
-            <div className="animate-in fade-in duration-1000">
-              <div className="glass rounded-[3rem] border border-border dark:bg-black/40 backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col">
-                <div className="p-8 border-b border-border/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)] rounded-full blur-3xl pointer-events-none" />
+            <div className="animate-in fade-in duration-1000 space-y-8">
+              {/* Refined AI Matrix Shell */}
+              <div className="glass rounded-[3.5rem] border border-white/10 dark:bg-black/40 backdrop-blur-3xl overflow-hidden shadow-3xl">
+                {/* Minimalist AI Header & Sub-Nav */}
+                <div className="px-10 py-8 border-b border-white/5 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-gold/5 via-transparent to-transparent pointer-events-none" />
                   
-                  <div className="flex items-center gap-5 relative z-10">
-                    <div className="p-4 rounded-2xl bg-gold/10 border border-gold/20 text-gold shadow-[0_0_20px_rgba(212,175,55,0.15)] flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
+                  <div className="flex items-center gap-6 relative z-10">
+                    <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/20 text-gold flex items-center justify-center shadow-gold/10 shadow-lg shrink-0">
+                      <Zap className="w-6 h-6 fill-gold/20" />
                     </div>
                     <div>
-                      <h2 className="text-[14px] font-black uppercase tracking-[0.2em] text-gold mb-1">
+                      <h2 className="text-xl font-heading gold-gradient uppercase tracking-widest italic leading-none mb-2">
                         Hộp Công Cụ Điều Vận
                       </h2>
-                      <p className="text-[10px] text-foreground/60 font-bold uppercase tracking-widest">
-                        Tối ưu hóa vòng quay hàng tồn & tự động phát hiện mất cân đối chi nhánh
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest opacity-60">
+                          Hệ thống AI đang giám sát chuỗi cung ứng
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  
-                  <button 
-                    onClick={() => setIsAiToolboxExpanded(!isAiToolboxExpanded)}
-                    className="relative z-10 px-6 py-2.5 rounded-full bg-secondary/50 hover:bg-gold/10 border border-border hover:border-gold/30 text-[10px] font-black uppercase tracking-widest text-foreground/60 hover:text-gold transition-all"
-                  >
-                    {isAiToolboxExpanded ? "Thu gọn Cockpit" : "Mở rộng Cockpit"}
-                  </button>
+
+                  {/* Integrated Navigation Pills */}
+                  <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/40 border border-white/10 backdrop-blur-md relative z-10">
+                    {[
+                      { id: "health", icon: BarChart3, label: "Sức Khỏe & Dự Báo" },
+                      { id: "heatmap", icon: Globe, label: "Luồng Hàng Heatmap" },
+                      { id: "expiry", icon: Calendar, label: "Lô & Hạn Sử Dụng" },
+                    ].map((tool) => (
+                      <button
+                        key={tool.id}
+                        onClick={() => setActiveAiTool(tool.id as any)}
+                        className={cn(
+                          "relative flex items-center gap-3 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-500 whitespace-nowrap",
+                          activeAiTool === tool.id 
+                            ? "text-primary z-10" 
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {activeAiTool === tool.id && (
+                          <motion.div
+                            layoutId="activeAiTool"
+                            className="absolute inset-0 bg-gold rounded-full -z-10 shadow-gold/20 shadow-lg"
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                        <tool.icon className={cn("w-3.5 h-3.5", activeAiTool === tool.id ? "text-primary" : "text-gold/60")} />
+                        {tool.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                <AnimatePresence>
-                  {isAiToolboxExpanded && (
+                <div className="p-10 bg-gradient-to-b from-transparent to-black/20">
+                  <AnimatePresence mode="wait">
                     <motion.div 
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-visible"
+                      key={activeAiTool}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <div className="p-8 flex justify-center border-b border-border/50">
-                        <div className="flex gap-2 p-1.5 rounded-3xl bg-secondary/30 dark:bg-black/40 border border-border/50 shadow-inner backdrop-blur-md">
-                          <button
-                            onClick={() => setActiveAiTool("health")}
-                            className={cn(
-                              "flex items-center gap-3 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300",
-                              activeAiTool === "health" 
-                                ? "bg-gold/20 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-                            )}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-activity"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                            Sức Khỏe & Dự Báo Kho
-                          </button>
-                          <button
-                            onClick={() => setActiveAiTool("heatmap")}
-                            className={cn(
-                              "flex items-center gap-3 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300",
-                              activeAiTool === "heatmap" 
-                                ? "bg-gold/20 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-                            )}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>
-                            Bản Đồ Nhiệt Luồng Hàng
-                          </button>
-                          <button
-                            onClick={() => setActiveAiTool("expiry")}
-                            className={cn(
-                              "flex items-center gap-3 px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] transition-all duration-300",
-                              activeAiTool === "expiry" 
-                                ? "bg-gold/20 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]" 
-                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-                            )}
-                          >
-                            <Calendar className="w-4 h-4" />
-                            Quản lý Lô & HSD
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="p-8">
-                        {activeAiTool === "health" && <InventoryHealthWidget isExpanded={true} />}
-                        {activeAiTool === "heatmap" && <StockHeatmapWidget isExpanded={true} />}
-                        {activeAiTool === "expiry" && <ExpiryAlertWidget />}
-                      </div>
+                      {activeAiTool === "health" && <InventoryHealthWidget isExpanded={true} />}
+                      {activeAiTool === "heatmap" && <StockHeatmapWidget isExpanded={true} />}
+                      {activeAiTool === "expiry" && <ExpiryAlertWidget />}
                     </motion.div>
-                  )}
-                </AnimatePresence>
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           )}
 
         </div>
       </main>
+
+      {/* --- BATCH SELECTION MODAL --- */}
+      <AnimatePresence>
+        {showTransferBatchModal && inspectingTransferItemIdx !== null && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowTransferBatchModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              className="relative w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden"
+            >
+              <div className="p-10 border-b border-white/10 bg-gradient-to-br from-gold/10 to-transparent">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-gold/10 rounded-2xl text-gold">
+                      <Layers className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-heading text-white uppercase tracking-widest leading-none">
+                        Chọn Lô Hàng Xuất Kho
+                      </h3>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-2 italic">
+                        {transferItems[inspectingTransferItemIdx].productName}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowTransferBatchModal(false)}
+                    className="p-3 rounded-full hover:bg-white/5 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-10 max-h-[500px] overflow-y-auto custom-scrollbar">
+                {loadingBatches ? (
+                  <div className="py-20 flex flex-col items-center justify-center text-gold/30">
+                    <Loader2 className="w-12 h-12 animate-spin mb-4" />
+                    <p className="text-[10px] uppercase font-black tracking-[.3em]">Đang quét dữ liệu lô hàng...</p>
+                  </div>
+                ) : availableBatches.length === 0 ? (
+                  <div className="py-20 text-center opacity-30">
+                    <AlertCircle className="w-12 h-12 mx-auto mb-4" />
+                    <p className="text-sm font-heading">Sản phẩm này không còn lô hàng nào khả dụng tại kho nguồn.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {availableBatches.map((batch) => (
+                      <div 
+                        key={batch.id}
+                        className={cn(
+                          "p-6 rounded-3xl border transition-all flex items-center justify-between",
+                          batch.selectedQuantity > 0 
+                            ? "bg-gold/5 border-gold/30 shadow-[0_0_20px_rgba(212,175,55,0.05)]" 
+                            : "bg-white/5 border-white/5"
+                        )}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-black text-white uppercase tracking-widest">{batch.batchCode || 'Lô không mã'}</span>
+                            {batch.expiryDate && (
+                              <span className="text-[9px] px-2 py-0.5 rounded-md bg-white/5 text-muted-foreground font-heading">
+                                HSD: {format.dateTime(new Date(batch.expiryDate), { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground font-heading">
+                            Tồn thực tế: <span className="text-white">{batch.currentQuantity}</span> | Giá vốn: <span className="text-gold">{format.number(batch.purchasePrice)}đ</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-col items-end">
+                            <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">Xuất từ lô này</label>
+                            <div className="flex items-center bg-black/40 border border-white/10 rounded-xl overflow-hidden">
+                              <button 
+                                onClick={() => updateBatchSelectionQuantity(batch.id, Math.max(0, batch.selectedQuantity - 1))}
+                                className="px-3 py-2 hover:bg-white/5 text-muted-foreground transition-colors"
+                              >
+                                -
+                              </button>
+                              <input 
+                                type="number"
+                                value={batch.selectedQuantity || ""}
+                                onChange={(e) => {
+                                  let val = e.target.value === "" ? 0 : parseInt(e.target.value);
+                                  val = Math.min(val, batch.currentQuantity);
+                                  updateBatchSelectionQuantity(batch.id, val);
+                                }}
+                                onFocus={(e) => e.target.select()}
+                                className="w-14 bg-transparent text-center text-xs font-black text-gold outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              />
+                              <button 
+                                onClick={() => updateBatchSelectionQuantity(batch.id, Math.min(batch.currentQuantity, batch.selectedQuantity + 1))}
+                                className="px-3 py-2 hover:bg-white/5 text-muted-foreground transition-colors"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="p-10 border-t border-white/10 bg-secondary/5 flex items-center justify-between">
+                <div>
+                  <p className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">Tổng cộng chọn</p>
+                  <p className="text-2xl font-heading text-white">
+                    {availableBatches.reduce((s, b) => s + (b.selectedQuantity || 0), 0)} <span className="text-xs opacity-30">sản phẩm</span>
+                  </p>
+                </div>
+                <div className="flex gap-4">
+                   <button
+                    onClick={() => setShowTransferBatchModal(false)}
+                    className="px-8 py-4 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button
+                    onClick={saveBatchSelection}
+                    disabled={availableBatches.reduce((s, b) => s + (b.selectedQuantity || 0), 0) === 0}
+                    className="px-10 py-4 rounded-full bg-gold text-primary font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-50"
+                  >
+                    Xác nhận chọn lô
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <BarcodePrintModal
         open={showBarcodeModal}

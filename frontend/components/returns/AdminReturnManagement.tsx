@@ -162,6 +162,15 @@ export const AdminReturnManagement = ({
   const [audits, setAudits] = useState<any[]>([]);
   const [auditsLoading, setAuditsLoading] = useState(false);
   const [filterDate, setFilterDate] = useState("");
+  const [stores, setStores] = useState<any[]>([]);
+  const [selectedStoreId, setSelectedStoreId] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (isAdmin) {
+      api.get("/stores").then((res) => setStores(res.data)).catch(console.error);
+    }
+  }, [isAdmin]);
 
   // Evidence photos for rejection
   const [evidenceImages, setEvidenceImages] = useState<string[]>([]);
@@ -274,7 +283,19 @@ export const AdminReturnManagement = ({
         endDate = end.toISOString();
       }
 
-      const resp = await returnsService.listAll(0, 50, undefined, undefined, startDate, endDate);
+      const originFilter = activeTab === "online" ? "ONLINE" : activeTab === "pos" ? "POS" : undefined;
+      const storeFilter = (activeTab === "pos" && selectedStoreId !== "all") ? selectedStoreId : undefined;
+
+      const resp = await returnsService.listAll(
+        0, 
+        100, 
+        undefined, 
+        searchTerm || undefined, 
+        startDate, 
+        endDate,
+        originFilter,
+        storeFilter
+      );
       setData(resp as any);
     } catch (err: any) {
       toast.error(t("toasts.error_fetch"), { description: err.message });
@@ -285,20 +306,16 @@ export const AdminReturnManagement = ({
 
   useEffect(() => {
     loadData();
-  }, [filterDate]);
+  }, [filterDate, activeTab, selectedStoreId]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    loadData();
+  };
 
   const filteredData = useMemo(() => {
-    if (!isAdmin) {
-      return data.data.filter((req) => req.origin === "POS");
-    }
-    if (activeTab === "online") {
-      return data.data.filter((req) => req.origin !== "POS");
-    }
-    if (activeTab === "pos") {
-      return data.data.filter((req) => req.origin === "POS");
-    }
-    return data.data; // "all"
-  }, [data.data, activeTab, isAdmin]);
+    return data.data; 
+  }, [data.data]);
 
   const handleReview = async (action: "approve" | "reject") => {
     if (!selectedReturn || submittingReview) return;
@@ -562,150 +579,177 @@ export const AdminReturnManagement = ({
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-      <div className="overflow-hidden rounded-[2rem] border border-black/6 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(247,242,233,0.9))] p-4 shadow-[0_24px_70px_-48px_rgba(15,23,42,0.24)] dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] lg:p-5">
-        <div className="grid gap-3 lg:grid-cols-3">
-          <div className="flex min-h-[108px] flex-col justify-between rounded-[1.4rem] border border-black/6 bg-white/75 px-5 py-4 dark:border-white/10 dark:bg-white/5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-              {t("status.REQUESTED")}
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-foreground">
-              {overviewStats.newRequests}
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="glass p-8 rounded-[2rem] border border-white/5 bg-gradient-to-br from-blue-500/10 to-transparent relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+             <RefreshCcw className="w-16 h-16" />
           </div>
-          <div className="flex min-h-[108px] flex-col justify-between rounded-[1.4rem] border border-black/6 bg-white/75 px-5 py-4 dark:border-white/10 dark:bg-white/5">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-              {t("status.REVIEWING")}
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-foreground">
-              {overviewStats.inHandling}
-            </p>
+          <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">
+            {t("status.REQUESTED")}
+          </p>
+          <h3 className="text-4xl font-heading italic text-blue-400">
+            {overviewStats.newRequests}
+          </h3>
+        </div>
+        <div className="glass p-8 rounded-[2rem] border border-white/5 bg-gradient-to-br from-purple-500/10 to-transparent relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+             <Eye className="w-16 h-16" />
           </div>
-          <div className="flex min-h-[108px] flex-col justify-between rounded-[1.4rem] border border-gold/20 bg-gold/10 px-5 py-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-gold/80">
-              {t("status.COMPLETED")}
-            </p>
-            <p className="mt-2 text-3xl font-semibold text-gold">
-              {overviewStats.resolved}
-            </p>
+          <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">
+            {t("status.REVIEWING")}
+          </p>
+          <h3 className="text-4xl font-heading italic text-purple-400">
+            {overviewStats.inHandling}
+          </h3>
+        </div>
+        <div className="glass p-8 rounded-[2rem] border border-white/5 bg-gradient-to-br from-gold/10 to-transparent relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+             <Check className="w-16 h-16" />
           </div>
+          <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">
+            {t("status.COMPLETED")}
+          </p>
+          <h3 className="text-4xl font-heading italic gold-gradient">
+            {overviewStats.resolved}
+          </h3>
         </div>
       </div>
-      <div className="grid gap-3 rounded-[1.75rem] border border-black/6 bg-card px-4 py-4 shadow-[0_18px_50px_-44px_rgba(15,23,42,0.2)] dark:border-white/10 sm:px-5 md:ml-auto md:w-fit md:grid-cols-[auto_auto_auto] md:justify-end">
-        <Button
-          variant="outline"
-          className="h-11 rounded-full border-gold/20 bg-white/70 px-5 text-sm font-semibold shadow-sm transition-all hover:border-gold hover:bg-gold/10 dark:bg-white/5"
-          onClick={loadData}
-        >
-          <RefreshCcw className="w-4 h-4 mr-2 text-gold" /> {t("buttons.refresh")}
-        </Button>
-        <div className="relative group">
-          <Calendar className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gold/60 transition-colors group-focus-within:text-gold" />
-          <input
-            type="date"
-            value={filterDate}
-            onChange={(e) => setFilterDate(e.target.value)}
-            className="h-11 w-full rounded-full border border-gold/20 bg-white/70 pl-11 pr-4 text-sm font-medium shadow-sm outline-none transition-all focus:ring-1 focus:ring-gold/30 dark:bg-white/5 md:w-48"
-          />
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 px-2">
+        <div className="flex flex-wrap items-center gap-3">
+          {isAdmin && (
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-fit"
+            >
+              <TabsList className="bg-white/5 border border-white/10 p-1 rounded-full h-12 shadow-inner">
+                <TabsTrigger
+                  value="all"
+                  className="rounded-full px-6 h-10 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
+                >
+                  {t("tabs.all")}
+                  <span className="ml-2 opacity-30 text-[10px]">({counts.all})</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="online"
+                  className="rounded-full px-6 h-10 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
+                >
+                  {t("tabs.online")}
+                  <span className="ml-2 opacity-30 text-[10px]">({counts.online})</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="pos"
+                  className="rounded-full px-6 h-10 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
+                >
+                  {t("tabs.pos")}
+                  <span className="ml-2 opacity-30 text-[10px]">({counts.pos})</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+
+          {isAdmin && activeTab === "pos" && (
+            <div className="relative group min-w-[200px]">
+              <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/60 pointer-events-none z-10" />
+              <select
+                value={selectedStoreId}
+                onChange={(e) => setSelectedStoreId(e.target.value)}
+                className="h-12 w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold outline-none focus:border-gold/50 appearance-none cursor-pointer transition-all shadow-inner hover:bg-white/[0.08]"
+              >
+                <option value="all" className="bg-slate-900">Tất cả cửa hàng</option>
+                {stores.map((s) => (
+                  <option key={s.id} value={s.id} className="bg-slate-900">
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="relative group">
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/60 pointer-events-none z-10" />
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="h-12 w-[180px] bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold outline-none focus:border-gold/50 transition-all shadow-inner hover:bg-white/[0.08]"
+            />
+          </div>
         </div>
-        {!isAdmin && (
+
+        <div className="flex items-center gap-3 w-full xl:w-auto">
+          <form onSubmit={handleSearch} className="relative flex-1 xl:w-72 group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/40 group-focus-within:text-gold transition-colors" />
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Tìm theo mã đơn/yêu cầu..."
+              className="h-12 bg-white/5 border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold focus:border-gold/50 transition-all shadow-inner"
+            />
+          </form>
+
           <Button
-            className="h-11 rounded-full bg-gold px-5 text-sm font-semibold text-primary-foreground shadow-lg shadow-gold/20 hover:bg-gold/90"
-            onClick={() => {
-              setIsPosCreateOpen(true);
-              setPosOrder(null);
-              setPosSearchKey("");
-              setPosReason("");
-              setPosSelectedItems({});
-            }}
+            variant="outline"
+            className="h-12 w-12 rounded-2xl border-white/10 bg-white/5 hover:bg-gold hover:text-white transition-all active:scale-95 group"
+            onClick={loadData}
+            disabled={loading}
           >
-            <RotateCcw className="w-4 h-4 mr-2" /> {t("buttons.create_pos")}
+            <RefreshCcw className={cn("w-4 h-4 transition-transform group-hover:rotate-180", loading && "animate-spin")} />
           </Button>
-        )}
+
+          {!isAdmin && (
+            <Button
+              className="h-12 rounded-2xl bg-gold px-8 text-[10px] uppercase font-black tracking-widest text-white shadow-xl shadow-gold/20 hover:scale-[1.02] active:scale-95 transition-all"
+              onClick={() => {
+                setIsPosCreateOpen(true);
+                setPosOrder(null);
+                setPosSearchKey("");
+                setPosReason("");
+                setPosSelectedItems({});
+              }}
+            >
+              <RotateCcw className="w-4 h-4 mr-2" /> {t("buttons.create_pos")}
+            </Button>
+          )}
+        </div>
       </div>
 
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="w-full space-y-6"
-      >
-        {isAdmin && (
-          <TabsList className="mx-auto !grid !h-auto !w-full max-w-[640px] grid-cols-3 items-stretch rounded-full border border-black/6 bg-card p-1.5 shadow-[0_18px_50px_-42px_rgba(15,23,42,0.24)] dark:border-white/10 md:mx-0">
-            <TabsTrigger
-              value="all"
-              className="!flex !h-11 !w-full min-w-0 items-center justify-center gap-2 rounded-full px-3 text-center text-xs font-semibold whitespace-nowrap data-[state=active]:bg-gold/12 data-[state=active]:text-gold data-[state=active]:shadow-[0_14px_28px_-22px_rgba(197,160,89,0.95)] sm:text-sm"
-            >
-              <Box className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
-              {t("tabs.all")}
-              <Badge
-                variant="secondary"
-                className="flex h-5 min-w-[22px] items-center justify-center rounded-full bg-background/60 px-1.5 text-[9px] sm:text-[10px]"
-              >
-                {counts.all}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="online"
-              className="!flex !h-11 !w-full min-w-0 items-center justify-center gap-2 rounded-full px-3 text-center text-xs font-semibold whitespace-nowrap data-[state=active]:bg-cyan-500/14 data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_14px_28px_-22px_rgba(34,211,238,0.8)] sm:text-sm"
-            >
-              <Globe className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
-              {t("tabs.online")}
-              <Badge
-                variant="secondary"
-                className="flex h-5 min-w-[22px] items-center justify-center rounded-full bg-background/60 px-1.5 text-[9px] sm:text-[10px]"
-              >
-                {counts.online}
-              </Badge>
-            </TabsTrigger>
-            <TabsTrigger
-              value="pos"
-              className="!flex !h-11 !w-full min-w-0 items-center justify-center gap-2 rounded-full px-3 text-center text-xs font-semibold whitespace-nowrap data-[state=active]:bg-rose-500/14 data-[state=active]:text-rose-400 data-[state=active]:shadow-[0_14px_28px_-22px_rgba(244,63,94,0.7)] sm:text-sm"
-            >
-              <Store className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
-              {t("tabs.pos")}
-              <Badge
-                variant="secondary"
-                className="flex h-5 min-w-[22px] items-center justify-center rounded-full bg-background/60 px-1.5 text-[9px] sm:text-[10px]"
-              >
-                {counts.pos}
-              </Badge>
-            </TabsTrigger>
-          </TabsList>
-        )}
+      <div className="w-full">
 
-        <div className="overflow-hidden rounded-[2rem] border border-black/6 bg-card shadow-[0_28px_90px_-54px_rgba(15,23,42,0.32)] dark:border-white/10">
+        <div className="glass rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl">
           {/* Desktop Table View */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:block overflow-x-auto">
             <Table>
               <TableHeader>
-                <tr className="border-black/6 bg-[linear-gradient(135deg,rgba(197,160,89,0.08),rgba(197,160,89,0.02))] hover:bg-transparent dark:border-white/10">
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.source")}</th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Yêu cầu / Đơn hàng</th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.date")}</th>
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.reason")}</th>
-                  {isAdmin && <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.shipping")}</th>}
-                  <th className="px-4 py-4 text-left text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.status")}</th>
-                  <th className="px-4 py-4 text-right text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">{t("table.actions")}</th>
-                </tr>
+                <TableRow className="hover:bg-transparent border-white/5 bg-white/[0.02]">
+                  <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">{t("table.source")}</th>
+                  <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">Mã yêu cầu</th>
+                  <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">{t("table.date")}</th>
+                  <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">{t("table.reason")}</th>
+                  {isAdmin && <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50">{t("table.shipping")}</th>}
+                  <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 text-center">{t("table.status")}</th>
+                  <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-[0.2em] text-gold">{t("table.actions")}</th>
+                </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="divide-y divide-white/5">
                 {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-12">
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <RefreshCcw className="w-8 h-8 animate-spin text-gold/50" />
-                        <p className="text-muted-foreground text-sm">
-                          Dang dong bo du lieu...
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-24">
+                      <div className="flex flex-col items-center justify-center space-y-4">
+                        <Loader2 className="w-10 h-10 animate-spin text-gold opacity-40" />
+                        <p className="text-[10px] uppercase font-black tracking-[0.5em] text-muted-foreground animate-pulse leading-none italic">
+                          Đang đồng bộ dữ liệu...
                         </p>
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : filteredData.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-16">
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <Box className="w-12 h-12 text-muted-foreground/30" />
-                        <p className="text-muted-foreground">
-                          Không tìm thấy yêu cầu trả hàng nào trong mục này
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-32">
+                      <div className="flex flex-col items-center justify-center opacity-20 italic">
+                        <PackageX className="w-16 h-16 mb-4" />
+                        <p className="text-xl font-heading uppercase tracking-widest leading-none">
+                          Trống dữ liệu đổi trả
                         </p>
                       </div>
                     </TableCell>
@@ -714,62 +758,61 @@ export const AdminReturnManagement = ({
                   filteredData.map((req) => (
                     <TableRow
                       key={req.id}
-                      className="group cursor-pointer border-black/6 transition-colors hover:bg-gold/5 dark:border-white/5"
+                      className="group cursor-pointer border-white/5 transition-colors hover:bg-white/[0.03]"
                       onClick={() => {
                         setSelectedReturn(req);
                         setIsReviewOpen(true);
                       }}
                     >
-                      <TableCell className="px-4 py-4 whitespace-nowrap">
+                      <TableCell className="px-8 py-6 whitespace-nowrap">
                         {req.origin === "POS" ? (
-                          <div className="flex items-center gap-2 text-rose-400">
-                             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/10 border border-rose-500/20 shadow-sm">
-                                <Store className="w-4 h-4" />
+                          <div className="flex items-center gap-3 text-rose-400">
+                             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-rose-500/10 border border-rose-500/20 shadow-lg">
+                                <Store className="w-5 h-5" />
                              </div>
-                             <span className="text-[10px] font-bold tracking-widest uppercase">POS</span>
+                             <span className="text-[10px] font-black tracking-widest uppercase italic">Cửa hàng POS</span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 text-cyan-400">
-                             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/10 border border-cyan-500/20 shadow-sm">
-                                <Globe className="w-4 h-4" />
+                          <div className="flex items-center gap-3 text-cyan-400">
+                             <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/10 border border-cyan-500/20 shadow-lg">
+                                <Globe className="w-5 h-5" />
                              </div>
-                             <span className="text-[10px] font-bold tracking-widest uppercase">Web</span>
+                             <span className="text-[10px] font-black tracking-widest uppercase italic">Trực tuyến Web</span>
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap">
+                      <TableCell className="px-8 py-6 whitespace-nowrap">
                         <div className="flex flex-col">
-                           <div className="flex items-center gap-1.5">
-                              <span className="text-[10px] font-black tracking-widest text-gold uppercase">REQ:</span>
-                              <span className="text-xs font-bold text-foreground">#{req.id.substring(0, 8).toUpperCase()}</span>
+                           <div className="flex items-center gap-2">
+                              <span className="text-xs font-heading italic gold-gradient uppercase">#{req.id.substring(0, 8).toUpperCase()}</span>
                            </div>
-                           <div className="flex items-center gap-1.5 mt-0.5 opacity-60">
-                              <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">ORD:</span>
-                              <span className="text-[10px] font-medium text-stone-500">#{req.orderId.substring(0, 8).toUpperCase()}</span>
+                           <div className="flex items-center gap-1.5 mt-1 opacity-20 group-hover:opacity-40 transition-opacity">
+                              <span className="text-[9px] font-black tracking-widest uppercase">Đơn hàng:</span>
+                              <span className="text-[10px] font-medium">#{req.orderId.substring(0, 8).toUpperCase()}</span>
                            </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                           <Calendar size={12} className="opacity-40" />
-                           <span className="text-[11px] font-bold uppercase tracking-tight">
-                              {new Date((req as any).createdAt).toLocaleDateString("vi-VN", { day: '2-digit', month: 'short' })}
+                      <TableCell className="px-8 py-6 whitespace-nowrap">
+                        <div className="flex flex-col">
+                           <span className="text-xs font-bold uppercase tracking-tight">
+                              {new Date((req as any).createdAt).toLocaleDateString("vi-VN", { day: '2-digit', month: 'short', year: 'numeric' })}
                            </span>
+                           <span className="text-[8px] uppercase font-black opacity-20 tracking-tighter">Ngày tạo yêu cầu</span>
                         </div>
                       </TableCell>
-                      <TableCell className="px-4 py-4 max-w-[200px]">
-                        <p className="text-[11px] font-medium leading-relaxed line-clamp-2">
+                      <TableCell className="px-8 py-6 max-w-[250px]">
+                        <p className="text-[11px] font-medium leading-relaxed line-clamp-2 opacity-80 italic">
                            {getReasonLabel(req.reason) || (
-                             <span className="text-muted-foreground/50 italic">
+                             <span className="text-muted-foreground/30">
                                {t("table.no_reason")}
                              </span>
                            )}
                         </p>
                       </TableCell>
                       {isAdmin && (
-                        <TableCell>
+                        <TableCell className="px-8 py-6">
                           {req.shipments && req.shipments.length > 0 ? (
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-2">
                               {req.shipments.map((s, idx) => {
                                 const isAutomated = s.courier === "GHN";
                                 return (
@@ -783,19 +826,19 @@ export const AdminReturnManagement = ({
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className={cn(
-                                        "text-[10px] font-mono font-bold flex items-center gap-1 px-2 py-0.5 rounded border w-fit transition-colors",
+                                        "text-[9px] font-mono font-bold flex items-center justify-between px-3 py-1.5 rounded-lg border w-full transition-all",
                                         isAutomated
-                                          ? "text-cyan-400 bg-cyan-500/10 border-cyan-500/20 hover:bg-cyan-500/20"
-                                          : "text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20",
+                                          ? "text-cyan-400 bg-cyan-500/5 border-cyan-500/10 hover:bg-cyan-500/10 hover:border-cyan-500/20"
+                                          : "text-amber-400 bg-amber-500/5 border-amber-500/10 hover:bg-amber-500/10 hover:border-amber-500/20",
                                       )}
                                       onClick={(e) => e.stopPropagation()}
                                     >
-                                      <Truck className="w-2.5 h-2.5" />
-                                      {s.trackingNumber}
+                                      <div className="flex items-center gap-2">
+                                        <Truck className="w-3 h-3" />
+                                        {s.trackingNumber}
+                                      </div>
                                       {isAutomated && (
-                                        <Badge className="h-3 px-1 text-[7px] bg-cyan-500 text-black border-none ml-1">
-                                          GHN
-                                        </Badge>
+                                        <span className="px-1.5 py-0.5 rounded bg-cyan-500 text-black text-[7px] font-black">GHN</span>
                                       )}
                                     </a>
                                     {s.receivedAt && (
@@ -814,21 +857,21 @@ export const AdminReturnManagement = ({
                           )}
                         </TableCell>
                       )}
-                      <TableCell className="px-3 py-3 whitespace-nowrap">
+                      <TableCell className="px-8 py-6 whitespace-nowrap text-center">
                         <Badge
                           variant="outline"
-                          className={cn(getStatusColor(req.status), "px-2 py-0.5 text-[9px] font-black uppercase tracking-[.15em] border rounded-full shadow-sm")}
+                          className={cn(getStatusColor(req.status), "px-4 py-1.5 text-[9px] font-black uppercase tracking-[.15em] border rounded-full shadow-sm")}
                         >
                           {getStatusLabel(req.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="px-3 py-3 whitespace-nowrap text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <TableCell className="px-8 py-6 whitespace-nowrap text-right">
+                        <div className="flex items-center justify-end gap-3">
                            {isAdmin && ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status) && (
                              <Button
                                size="sm"
                                variant="outline"
-                               className="h-8 w-8 p-0 rounded-lg border-gold/30 text-gold hover:bg-gold hover:text-white transition-all shadow-sm"
+                               className="h-10 w-10 p-0 rounded-xl border-gold/20 text-gold hover:bg-gold hover:text-white transition-all shadow-sm"
                                onClick={(e) => {
                                  e.stopPropagation();
                                  setSelectedReturn(req);
@@ -844,7 +887,7 @@ export const AdminReturnManagement = ({
                            {["RETURNING", "APPROVED"].includes(req.status) && !(isAdmin && req.origin === "POS") && (
                              <Button
                                size="sm"
-                               className="h-8 px-3 rounded-lg bg-teal-600/90 hover:bg-teal-500 text-white text-[10px] font-bold uppercase tracking-tighter transition-all shadow-md shadow-teal-900/20"
+                               className="h-10 px-5 rounded-xl bg-teal-600/90 hover:bg-teal-500 text-white text-[9px] font-black uppercase tracking-widest transition-all shadow-lg shadow-teal-900/20"
                                onClick={(e) => {
                                  e.stopPropagation();
                                  setSelectedReturn(req);
@@ -852,14 +895,14 @@ export const AdminReturnManagement = ({
                                  setIsReceiveOpen(true);
                                }}
                              >
-                               <Box className="w-3.5 h-3.5 mr-1" /> Nhận hàng
+                               <Box className="w-3.5 h-3.5 mr-2" /> Nhận hàng
                              </Button>
                            )}
 
                            {["RECEIVED", "REFUND_FAILED"].includes(req.status) && !(isAdmin && req.origin === "POS") && (
                              <Button
                                size="sm"
-                               className="h-8 px-3 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-white text-[10px] font-bold uppercase tracking-tighter transition-all shadow-md shadow-indigo-900/20"
+                               className="h-10 px-5 rounded-xl bg-indigo-600/90 hover:bg-indigo-500 text-white text-[9px] font-black uppercase tracking-widest transition-all shadow-lg shadow-indigo-900/20"
                                onClick={(e) => {
                                  e.stopPropagation();
                                  setSelectedReturn(req);
@@ -867,7 +910,7 @@ export const AdminReturnManagement = ({
                                  setIsRefundOpen(true);
                                }}
                              >
-                               <CreditCard className="w-3.5 h-3.5 mr-1" /> Hoàn tiền
+                               <CreditCard className="w-3.5 h-3.5 mr-2" /> Hoàn tiền
                              </Button>
                            )}
 
@@ -875,7 +918,7 @@ export const AdminReturnManagement = ({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="h-8 w-8 p-0 rounded-lg border-indigo-500/30 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
+                                className="h-10 w-10 p-0 rounded-xl border-indigo-500/20 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSelectedReturn(req);
@@ -890,7 +933,7 @@ export const AdminReturnManagement = ({
                            <Button
                               size="sm"
                               variant="ghost"
-                              className="h-8 w-8 p-0 rounded-lg text-stone-400 hover:text-gold hover:bg-gold/5 transition-all"
+                              className="h-10 w-10 p-0 rounded-xl text-muted-foreground/30 hover:text-gold hover:bg-gold/5 transition-all"
                               onClick={(e) => {
                                  e.stopPropagation();
                                  setSelectedReturn(req);
@@ -909,67 +952,63 @@ export const AdminReturnManagement = ({
           </div>
 
           {/* Mobile Card View */}
-          <div className="lg:hidden p-4 space-y-4">
+          <div className="lg:hidden p-6 space-y-4">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-12 space-y-3">
-                <RefreshCcw className="w-8 h-8 animate-spin text-gold/50" />
-                <p className="text-muted-foreground text-sm font-medium tracking-wide">
+              <div className="flex flex-col items-center justify-center py-24 space-y-4">
+                <Loader2 className="w-10 h-10 animate-spin text-gold opacity-40" />
+                <p className="text-[10px] uppercase font-black tracking-[0.5em] text-muted-foreground animate-pulse leading-none italic">
                   Đang đồng bộ dữ liệu...
                 </p>
               </div>
             ) : filteredData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 space-y-3">
-                <Box className="w-12 h-12 text-muted-foreground/30" />
-                <p className="text-muted-foreground text-sm text-center">
-                  Không tìm thấy yêu cầu trả hàng nào trong mục này
+              <div className="flex flex-col items-center justify-center py-32 opacity-20 italic">
+                <PackageX className="w-16 h-16 mb-4" />
+                <p className="text-xl font-heading uppercase tracking-widest leading-none">
+                  Trống dữ liệu đổi trả
                 </p>
               </div>
             ) : (
               filteredData.map((req) => (
                 <div
                   key={req.id}
-                  className="bg-background/40 border border-gold/10 rounded-2xl p-5 space-y-4 relative group hover:border-gold/30 transition-all active:scale-[0.98]"
+                  className="glass rounded-[2rem] border border-white/5 p-6 space-y-5 relative group hover:border-gold/20 transition-all active:scale-[0.98]"
                   onClick={() => {
                     setSelectedReturn(req);
                     setIsReviewOpen(true);
                   }}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold text-gold">#{req.id.substring(0, 8).toUpperCase()}</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-heading italic gold-gradient uppercase">#{req.id.substring(0, 8).toUpperCase()}</span>
                         {req.origin === "POS" ? (
-                          <Badge variant="outline" className="border-rose-500/30 text-rose-400 bg-rose-500/10 text-[9px] h-4">
-                            POS
-                          </Badge>
+                          <span className="text-[8px] font-black uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full">POS</span>
                         ) : (
-                          <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10 text-[9px] h-4">
-                            Online
-                          </Badge>
+                          <span className="text-[8px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">Web</span>
                         )}
                       </div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                        Đơn hàng: <span className="text-foreground">{req.orderId.substring(0, 8).toUpperCase()}</span>
+                      <p className="text-[9px] text-muted-foreground/40 uppercase tracking-widest font-black">
+                        Đơn hàng: <span className="text-foreground/60">{req.orderId.substring(0, 8).toUpperCase()}</span>
                       </p>
                     </div>
                     <Badge
                       variant="outline"
-                      className={`${getStatusColor(req.status)} text-[9px] px-2 py-0.5 uppercase font-bold`}
+                      className={`${getStatusColor(req.status)} text-[9px] px-3 py-1 uppercase font-black rounded-full`}
                     >
                       {getStatusLabel(req.status)}
                     </Badge>
                   </div>
 
-                  <div className="space-y-2 border-y border-gold/5 py-3">
+                  <div className="space-y-3 border-y border-white/5 py-4">
                     <div className="flex justify-between text-[11px]">
-                      <span className="text-muted-foreground uppercase font-bold tracking-tight">Ngày yêu cầu:</span>
-                      <span className="text-foreground font-medium">
+                      <span className="text-muted-foreground/40 uppercase font-black tracking-widest text-[9px]">Ngày yêu cầu</span>
+                      <span className="text-foreground font-bold text-xs">
                         {new Date((req as any).createdAt).toLocaleDateString("vi-VN")}
                       </span>
                     </div>
-                    <div className="space-y-1">
-                      <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-tight block">Lý do:</span>
-                      <p className="text-[11px] text-foreground/80 bg-muted/40 p-2 rounded-lg italic">
+                    <div className="space-y-2">
+                      <span className="text-[9px] text-muted-foreground/40 uppercase font-black tracking-widest block">Lý do</span>
+                      <p className="text-[11px] text-foreground/60 bg-white/5 border border-white/5 p-3 rounded-xl italic">
                         {getReasonLabel(req.reason) || "Không có lý do chi tiết"}
                       </p>
                     </div>
@@ -1070,7 +1109,7 @@ export const AdminReturnManagement = ({
             )}
           </div>
         </div>
-      </Tabs>
+      </div>
 
       {/* Review Dialog */}
       <AnimatePresence>

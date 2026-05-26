@@ -148,9 +148,6 @@ export default function PromotionsAdmin() {
         <header className="mb-8 md:mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
-              {t('subtitle')}
-            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
@@ -313,7 +310,7 @@ export default function PromotionsAdmin() {
               <div className="p-6 bg-secondary/10 rounded-full text-muted-foreground">
                 <Search size={32} strokeWidth={1} />
               </div>
-              <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground opacity-60">No signatures found in this sector</p>
+              <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground opacity-60">Không tìm thấy mã ưu đãi nào trong khu vực này</p>
             </div>
           )}
         </div>

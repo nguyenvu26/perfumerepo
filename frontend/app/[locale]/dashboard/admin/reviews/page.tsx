@@ -130,9 +130,6 @@ export default function AdminReviewsPage() {
             <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 sm:gap-8">
                 <div className="space-y-4">
                     <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-60 italic leading-none">
-                        {t('subtitle')}
-                    </p>
                 </div>
 
                 <div className="flex items-center gap-4 sm:gap-6 bg-secondary/10 dark:bg-black/20 p-4 sm:p-5 rounded-[2rem] border border-stone-200 dark:border-white/5 shadow-sm">

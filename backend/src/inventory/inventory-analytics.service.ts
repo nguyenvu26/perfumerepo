@@ -16,7 +16,11 @@ export class InventoryAnalyticsService {
       include: {
         warehouse: true,
         variant: {
-          include: { product: true }
+          include: { 
+            product: {
+              include: { images: true }
+            }
+          }
         }
       },
       orderBy: { available: 'asc' }
@@ -28,39 +32,27 @@ export class InventoryAnalyticsService {
       variant: item.variant.name,
       sku: item.variant.sku,
       available: item.available,
-      onHand: item.onHand
+      onHand: item.onHand,
+      imageUrl: item.variant.product.images?.[0]?.url
     }));
   }
 
   /**
-   * Báo cáo tổng giá trị tồn kho (Dựa trên giá nhập gần nhất)
+   * Báo cáo tổng giá trị tồn kho (Dựa trên giá trị thực tế của từng lô hàng - Batch Tracking)
    */
   async getInventoryValueReport() {
-    // 1. Lấy toàn bộ tồn kho vật lý
+    // 1. Lấy toàn bộ tồn kho vật lý cùng với các lô hàng còn hàng
     const inventories = await this.prisma.inventory.findMany({
       include: {
         variant: {
           include: { product: true }
         },
-        warehouse: true
+        warehouse: true,
+        batches: {
+          where: { currentQuantity: { gt: 0 } }
+        }
       }
     });
-
-    // 2. Lấy giá nhập gần nhất cho từng variant từ PurchaseOrderItems
-    // Chúng ta chỉ lấy từ các PO đã hoàn thành (COMPLETED)
-    const latestPurchasePrices = await this.prisma.purchaseOrderItem.findMany({
-      where: {
-        purchaseOrder: { status: 'COMPLETED' }
-      },
-      orderBy: { purchaseOrder: { createdAt: 'desc' } },
-      distinct: ['variantId'],
-      select: {
-        variantId: true,
-        unitPrice: true
-      }
-    });
-
-    const priceMap = new Map(latestPurchasePrices.map(p => [p.variantId, p.unitPrice]));
 
     const reportByWarehouse: Record<string, { 
       name: string, 
@@ -74,12 +66,13 @@ export class InventoryAnalyticsService {
     let globalUnits = 0;
 
     inventories.forEach(inv => {
-      // Ưu tiên 1: Giá nhập từ phiếu nhập gần nhất
-      // Ưu tiên 2: Giá nhập mặc định được thiết lập thủ công trên variant
-      const costPrice = priceMap.get(inv.variantId) || inv.variant.purchasePrice || 0;
+      // Tính giá trị vốn dựa trên các lô hàng thực tế (Batch Valuation)
+      const costValue = inv.batches.reduce((sum, batch) => {
+        return sum + (batch.currentQuantity * batch.purchasePrice);
+      }, 0);
+
+      // Giá trị bán lẻ vẫn tính theo giá niêm yết hiện tại
       const sellingPrice = inv.variant.price || 0;
-      
-      const costValue = inv.onHand * costPrice;
       const sellingValue = inv.onHand * sellingPrice;
 
       globalCostValue += costValue;

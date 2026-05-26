@@ -80,22 +80,19 @@ export default function InventoryReportsPage() {
       <main className="p-4 sm:p-8 md:p-12 max-w-[1600px] mx-auto min-h-screen">
         <header className="mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
            <div className="space-y-6">
+          <div className="space-y-6">
             <button 
               onClick={() => router.push(`/${locale}/dashboard/admin/stores/stock`)}
-              className="group flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-[.2em] font-black text-muted-foreground hover:bg-gold hover:text-white transition-all active:scale-95 shadow-xl w-fit"
+              className="p-4 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:bg-gold hover:text-white transition-all active:scale-95 shadow-xl w-fit group"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Quay lại quản lý kho
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             </button>
             <div>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-[1px] bg-gold" />
-                <span className="text-[10px] uppercase tracking-[.4em] font-black text-gold/80 italic">Intelligence & Analytics</span>
-              </div>
               <h1 className="text-5xl sm:text-6xl font-heading gold-gradient mb-4 uppercase tracking-tighter italic leading-tight">
                 Báo Cáo Tồn Kho
               </h1>
             </div>
+          </div>
           </div>
 
           <div className="flex gap-4">
@@ -258,9 +255,13 @@ export default function InventoryReportsPage() {
                                >
                                   <div className="flex items-center justify-between">
                                      <div className="flex items-center gap-6">
-                                        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform relative">
-                                           <Package className="w-6 h-6 text-muted-foreground/30" />
-                                           <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 animate-pulse" />
+                                        <div className="w-14 h-14 rounded-2xl bg-white/5 overflow-hidden border border-white/5 flex items-center justify-center group-hover:scale-110 transition-transform relative shrink-0">
+                                           {item.imageUrl ? (
+                                             <img src={item.imageUrl} alt={item.product} className="w-full h-full object-cover" />
+                                           ) : (
+                                             <Package className="w-6 h-6 text-muted-foreground/30" />
+                                           )}
+                                           <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-500 animate-pulse ring-4 ring-black/80" />
                                         </div>
                                         <div>
                                            <p className="font-heading italic uppercase text-xl group-hover:text-gold transition-colors">{item.product}</p>
@@ -272,7 +273,7 @@ export default function InventoryReportsPage() {
                                      </div>
                                      <div className="text-right">
                                         <p className="text-3xl font-heading italic text-rose-500">{item.available}</p>
-                                        <p className="text-[8px] uppercase font-black tracking-widest text-rose-500/40">In Stock</p>
+                                        <p className="text-[8px] uppercase font-black tracking-widest text-rose-500/40">Tồn kho</p>
                                      </div>
                                   </div>
                                </motion.div>

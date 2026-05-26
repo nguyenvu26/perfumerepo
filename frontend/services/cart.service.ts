@@ -19,6 +19,11 @@ export type CartItem = {
     product: {
       id: string;
       name: string;
+      slug: string;
+      brand?: {
+        id: number;
+        name: string;
+      };
       images?: { id: number; url: string; order: number }[];
     };
   };

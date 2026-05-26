@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, AlertCircle, ShoppingCart, ArrowRight, Activity, Store, HelpCircle, X, Zap } from 'lucide-react';
+import { Package, AlertCircle, ShoppingCart, ArrowRight, Activity, Store, HelpCircle, X, Zap, ChevronDown, Check } from 'lucide-react';
 import api from '@/lib/axios';
 import { storesService } from '@/services/stores.service';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,19 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
     const [stores, setStores] = useState<any[]>([]);
     const [selectedStoreId, setSelectedStoreId] = useState<string>('all');
     const [showAlgorithm, setShowAlgorithm] = useState(false);
+    const [isStoreMenuOpen, setIsStoreMenuOpen] = useState(false);
+    const storeMenuRef = useRef<HTMLDivElement>(null);
+
+    // Click outside to close store menu
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (storeMenuRef.current && !storeMenuRef.current.contains(event.target as Node)) {
+                setIsStoreMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const fetchHealth = async () => {
         try {
@@ -129,21 +142,65 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                         )}
                     </div>
                 </div>
-
                 <div className="flex items-center gap-4">
-                    {/* Store Filter */}
-                    <div className="relative group/select flex items-center gap-2 px-4 py-2 bg-background/20 border border-border rounded-xl focus-within:border-gold/40 transition-all">
-                        <Store className="w-3.5 h-3.5 text-gold/60" />
-                        <select 
-                            value={selectedStoreId}
-                            onChange={(e) => { e.stopPropagation(); setSelectedStoreId(e.target.value); }}
-                            className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none min-w-[140px]"
-                        >
-                            <option value="all">Toàn hệ thống</option>
-                            {stores.map(s => (
-                                <option key={s.id} value={s.id}>{s.name}</option>
-                            ))}
-                        </select>
+                    {/* Custom Store Selector */}
+                    <div className="relative" ref={storeMenuRef}>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setIsStoreMenuOpen(!isStoreMenuOpen); }}
+                        className={cn(
+                          "flex items-center gap-3 px-5 py-2.5 rounded-2xl border transition-all duration-500 min-w-[200px] group/btn",
+                          isStoreMenuOpen 
+                            ? "bg-gold/10 border-gold/40 shadow-gold/10 shadow-lg" 
+                            : "bg-white/5 border-white/10 hover:border-gold/20"
+                        )}
+                      >
+                        <Store className={cn("w-4 h-4 transition-colors", isStoreMenuOpen ? "text-gold" : "text-muted-foreground")} />
+                        <span className="flex-1 text-left text-[10px] font-black uppercase tracking-widest leading-none">
+                          {selectedStoreId === 'all' ? 'Toàn hệ thống' : stores.find(s => s.id === selectedStoreId)?.name || 'Chọn chi nhánh'}
+                        </span>
+                        <ChevronDown className={cn("w-4 h-4 transition-transform duration-500", isStoreMenuOpen && "rotate-180 text-gold")} />
+                      </button>
+
+                      <AnimatePresence>
+                        {isStoreMenuOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute top-full mt-3 right-0 w-[240px] glass rounded-[2rem] border border-white/10 shadow-3xl z-[100] overflow-hidden"
+                          >
+                            <div className="p-3 max-h-[300px] overflow-y-auto custom-scrollbar border-t border-white/5">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setSelectedStoreId('all'); setIsStoreMenuOpen(false); }}
+                                className={cn(
+                                  "w-full flex items-center justify-between px-5 py-3.5 rounded-xl transition-all mb-1 group/item",
+                                  selectedStoreId === 'all' ? "bg-gold/10 text-gold" : "hover:bg-white/5 text-muted-foreground font-medium"
+                                )}
+                              >
+                                <span className={cn("text-[10px] uppercase tracking-widest font-black", selectedStoreId === 'all' ? "text-gold" : "group-hover/item:text-foreground")}>Toàn hệ thống</span>
+                                {selectedStoreId === 'all' && <Check className="w-3.5 h-3.5" />}
+                              </button>
+                              
+                              {stores.map(s => (
+                                <button
+                                  key={s.id}
+                                  onClick={(e) => { e.stopPropagation(); setSelectedStoreId(s.id); setIsStoreMenuOpen(false); }}
+                                  className={cn(
+                                    "w-full flex items-center justify-between px-5 py-3.5 rounded-xl transition-all mb-1 group/item text-left",
+                                    selectedStoreId === s.id ? "bg-gold/10 text-gold" : "hover:bg-white/5 text-muted-foreground font-medium"
+                                  )}
+                                >
+                                  <div className="flex flex-col">
+                                    <span className={cn("text-[10px] uppercase tracking-widest font-black", selectedStoreId === s.id ? "text-gold" : "group-hover/item:text-foreground")}>{s.name}</span>
+                                    <span className="text-[8px] opacity-40 uppercase tracking-tighter mt-0.5">{s.type === 'BOUTIQUE' ? 'Cửa hàng' : 'Kho'}</span>
+                                  </div>
+                                  {selectedStoreId === s.id && <Check className="w-3.5 h-3.5" />}
+                                </button>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <Link href="/dashboard/admin/stores/stock">

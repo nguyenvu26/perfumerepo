@@ -61,3 +61,15 @@ export class TransferOrdersController {
     return this.transferService.cancel(id, user.userId, user.role);
   }
 }
+
+@Controller('admin/inventory/transfers-utils')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'STAFF')
+export class TransferUtilsController {
+  constructor(private readonly transferService: TransferOrdersService) {}
+
+  @Get('variant-batches')
+  getVariantBatches(@Query('storeId') storeId: string, @Query('variantId') variantId: string) {
+    return this.transferService.getVariantBatches(storeId, variantId);
+  }
+}

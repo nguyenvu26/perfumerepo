@@ -16,8 +16,9 @@ export class AnalyticsController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('storeId') storeId?: string,
+    @Query('channel') channel?: 'ONLINE' | 'POS',
   ) {
-    return this.analyticsService.getOverview(period || 'month', startDate, endDate, storeId);
+    return this.analyticsService.getOverview(period || 'month', startDate, endDate, storeId, channel);
   }
 
   /** Sales trend data for charting – ?period=week|month|year|quarter */
@@ -27,20 +28,29 @@ export class AnalyticsController {
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('storeId') storeId?: string,
+    @Query('channel') channel?: 'ONLINE' | 'POS',
   ) {
-    return this.analyticsService.getSalesTrend(period || 'month', startDate, endDate, storeId);
+    return this.analyticsService.getSalesTrend(period || 'month', startDate, endDate, storeId, channel);
   }
 
   /** Top selling products – ?limit=5 */
   @Get('top-products')
   async getTopProducts(
     @Query('limit') limit?: string,
+    @Query('period') period?: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom',
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
     @Query('storeId') storeId?: string,
+    @Query('channel') channel?: 'ONLINE' | 'POS',
   ) {
     const parsedLimit = Number(limit ?? 5);
     return this.analyticsService.getTopProducts(
       Number.isFinite(parsedLimit) ? parsedLimit : 5,
+      period || 'month',
+      startDate,
+      endDate,
       storeId,
+      channel
     );
   }
 
@@ -61,10 +71,22 @@ export class AnalyticsController {
 
   /** Recent orders feed */
   @Get('recent-orders')
-  async getRecentOrders(@Query('limit') limit?: string) {
+  async getRecentOrders(
+    @Query('limit') limit?: string,
+    @Query('period') period?: 'today' | 'week' | 'month' | 'year' | 'quarter' | 'custom',
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('storeId') storeId?: string,
+    @Query('channel') channel?: 'ONLINE' | 'POS',
+  ) {
     const parsed = Number(limit ?? 8);
     return this.analyticsService.getRecentOrders(
       Number.isFinite(parsed) ? parsed : 8,
+      period || 'month',
+      startDate,
+      endDate,
+      storeId,
+      channel
     );
   }
 
@@ -102,7 +124,19 @@ export class AnalyticsController {
 
   @Get('expiry-alerts')
   @Roles('ADMIN')
-  async getExpiryAlerts(@Query('storeId') storeId?: string) {
-    return this.analyticsService.getExpiryAlerts(storeId);
+  async getExpiryAlerts(
+    @Query('storeId') storeId?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
+    const p = Number(page ?? 1);
+    const l = Number(limit ?? 20);
+    return this.analyticsService.getExpiryAlerts(
+      storeId,
+      Number.isFinite(p) ? p : 1,
+      Number.isFinite(l) ? l : 20,
+      search,
+    );
   }
 }
