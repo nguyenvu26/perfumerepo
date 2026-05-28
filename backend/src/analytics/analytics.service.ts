@@ -1114,7 +1114,10 @@ export class AnalyticsService {
           .filter(item => item.variantId === v.id && item.order.storeId === s.id)
           .reduce((sum, item) => sum + item.quantity, 0);
 
-        const stock = stockPerStore.find(st => st.variantId === v.id && st.warehouseId === s.id)?.available || 0;
+        const invRecord = stockPerStore.find(st => st.variantId === v.id && st.warehouseId === s.id);
+        const stock = invRecord ? invRecord.available : 0;
+        const isCarrying = !!invRecord;
+
         const velocity = sales / 30; // units per day
         const daysRemaining = velocity > 0 ? Math.floor(stock / velocity) : (stock > 0 ? 999 : 0);
         
@@ -1122,7 +1125,8 @@ export class AnalyticsService {
           storeId: s.id,
           stock,
           velocity: Math.round(velocity * 100) / 100,
-          daysRemaining
+          daysRemaining,
+          isCarrying
         };
       });
 
@@ -1136,23 +1140,35 @@ export class AnalyticsService {
     // 7. Generate Recommendations
     const recommendations: any[] = [];
     matrix.forEach(row => {
-      const criticalStores = row.stores.filter(s => s.daysRemaining < 5 && s.velocity > 0.1);
-      const healthyStores = row.stores.filter(s => s.daysRemaining > 30 && s.stock > 10);
+      // PROACTIVE LOGIC: Recommend if a store is out of stock or very low, but ONLY if they actually carry the product
+      const criticalStores = row.stores.filter(s => s.isCarrying && (s.stock === 0 || (s.daysRemaining < 15 && s.velocity >= 0)));
+      const healthyStores = row.stores.filter(s => s.daysRemaining > 15 && s.stock > 5);
 
       if (criticalStores.length > 0 && healthyStores.length > 0) {
         criticalStores.forEach(target => {
+          // Find the best supplier (store with most excess)
           const source = healthyStores.sort((a, b) => b.stock - a.stock)[0];
           if (source) {
-            recommendations.push({
-              variantId: row.variantId,
-              variantName: row.variantName,
-              fromStoreId: source.storeId,
-              fromStoreName: stores.find(s => s.id === source.storeId)?.name,
-              toStoreId: target.storeId,
-              toStoreName: stores.find(s => s.id === target.storeId)?.name,
-              suggestedQuantity: Math.min(Math.floor(source.stock / 2), 10),
-              reason: `Boutique ${stores.find(s => s.id === target.storeId)?.name} sắp cháy hàng (${target.daysRemaining} ngày), Boutique ${stores.find(s => s.id === source.storeId)?.name} đang dư tồn kho (${source.daysRemaining} ngày).`
-            });
+            // Suggest moving enough to cover 30 days of sales, but at least 2 units if velocity is low
+            const suggestedQuantity = Math.max(
+              Math.ceil(target.velocity * 30), 
+              Math.min(Math.floor(source.stock / 2), 5) // Don't take too much from source
+            );
+
+            if (suggestedQuantity > 0) {
+              recommendations.push({
+                variantId: row.variantId,
+                variantName: row.variantName,
+                fromStoreId: source.storeId,
+                fromStoreName: stores.find(s => s.id === source.storeId)?.name,
+                toStoreId: target.storeId,
+                toStoreName: stores.find(s => s.id === target.storeId)?.name,
+                suggestedQuantity,
+                reason: target.stock === 0 
+                  ? `Boutique ${stores.find(s => s.id === target.storeId)?.name} đã hết sạch hàng. Điều chuyển từ ${stores.find(s => s.id === source.storeId)?.name} để đảm bảo sự hiện diện của sản phẩm.`
+                  : `Boutique ${stores.find(s => s.id === target.storeId)?.name} sắp hết hàng (${target.daysRemaining} ngày).`
+              });
+            }
           }
         });
       }
@@ -1165,7 +1181,7 @@ export class AnalyticsService {
     };
   }
 
-  async getExpiryAlerts(storeId?: string, page: number = 1, limit: number = 20, search?: string) {
+  async getExpiryAlerts(storeId?: string, page: number = 1, limit: number = 20, search?: string, status?: string) {
     const now = new Date();
     const skip = (page - 1) * limit;
 
@@ -1190,6 +1206,33 @@ export class AnalyticsService {
       ];
     }
 
+    if (status && status !== 'ALL') {
+      const sixtyDaysOut = new Date(now.getTime() + (60 * 24 * 60 * 60 * 1000));
+      const oneEightyDaysOut = new Date(now.getTime() + (180 * 24 * 60 * 60 * 1000));
+
+      switch (status) {
+        case 'SOLD_OUT':
+          where.currentQuantity = { lte: 0 };
+          break;
+        case 'CRITICAL':
+          where.currentQuantity = { gt: 0 };
+          where.expiryDate = { lt: sixtyDaysOut };
+          break;
+        case 'WARNING':
+          where.currentQuantity = { gt: 0 };
+          where.expiryDate = { gte: sixtyDaysOut, lt: oneEightyDaysOut };
+          break;
+        case 'HEALTHY':
+          where.currentQuantity = { gt: 0 };
+          where.expiryDate = { gte: oneEightyDaysOut };
+          break;
+      }
+    }
+
+    const orderBy: any = (status && status !== 'ALL')
+      ? { expiryDate: 'asc' }
+      : { createdAt: 'desc' };
+
     const [total, batches] = await Promise.all([
       this.prisma.inventoryBatch.count({ where }),
       this.prisma.inventoryBatch.findMany({
@@ -1206,7 +1249,7 @@ export class AnalyticsService {
             }
           }
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         skip,
         take: limit,
       })

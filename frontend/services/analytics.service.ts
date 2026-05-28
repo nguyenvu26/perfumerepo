@@ -30,11 +30,18 @@ export const analyticsService = {
     page?: number;
     limit?: number;
     search?: string;
+    status?: string;
   }): Promise<PaginatedResponse<ExpiryAlert>> {
     return api
       .get<PaginatedResponse<ExpiryAlert>>("/analytics/expiry-alerts", {
         params,
       })
+      .then((r) => r.data);
+  },
+
+  disposeBatch(batchId: string): Promise<{ success: boolean; disposedQuantity: number }> {
+    return api
+      .post(`/analytics/batch/${batchId}/dispose`)
       .then((r) => r.data);
   },
 };

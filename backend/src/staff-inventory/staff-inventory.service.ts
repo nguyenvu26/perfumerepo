@@ -253,38 +253,57 @@ export class StaffInventoryService {
     status?: string;
     storeId?: string;
     staffId?: string;
+    q?: string;
+    skip?: number;
+    take?: number;
   }) {
     const where: any = {};
     if (params.status) where.status = params.status;
     if (params.storeId) where.storeId = params.storeId;
     if (params.staffId) where.staffId = params.staffId;
 
-    const requests = await this.prisma.inventoryRequest.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: 200,
-      include: {
-        variant: {
-          include: {
-            product: {
-              include: {
-                brand: true,
-                images: {
-                  select: { url: true },
-                  orderBy: { order: 'asc' },
-                  take: 1,
+    if (params.q) {
+      where.OR = [
+        { reason: { contains: params.q, mode: 'insensitive' } },
+        { variant: { name: { contains: params.q, mode: 'insensitive' } } },
+        { variant: { product: { name: { contains: params.q, mode: 'insensitive' } } } },
+        { staff: { fullName: { contains: params.q, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [total, requests] = await Promise.all([
+      this.prisma.inventoryRequest.count({ where }),
+      this.prisma.inventoryRequest.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: params.skip || 0,
+        take: params.take || 50,
+        include: {
+          variant: {
+            include: {
+              product: {
+                include: {
+                  brand: true,
+                  images: {
+                    select: { url: true },
+                    orderBy: { order: 'asc' },
+                    take: 1,
+                  },
                 },
               },
             },
           },
+          store: true,
+          staff: { select: { id: true, fullName: true, email: true } },
+          reviewer: { select: { id: true, fullName: true, email: true } },
         },
-        store: true,
-        staff: { select: { id: true, fullName: true, email: true } },
-        reviewer: { select: { id: true, fullName: true, email: true } },
-      },
-    });
+      }),
+    ]);
 
-    return requests.map((r) => this.formatRequest(r));
+    return {
+      items: requests.map((r) => this.formatRequest(r)),
+      total,
+    };
   }
 
   /** Admin: approve an inventory request */

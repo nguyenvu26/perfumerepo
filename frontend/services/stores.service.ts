@@ -105,7 +105,15 @@ export const storesService = {
   batchImportStock(data: {
     storeId: string;
     reason?: string;
-    items: { variantId: string; quantity: number | string; purchasePrice?: number }[];
+    items: {
+      variantId: string;
+      quantity: number | string;
+      purchasePrice?: number;
+      batchCode?: string;
+      mfgDate?: string;
+      expiryDate?: string;
+    }[];
+    requestIds?: number[];
   }): Promise<StockOverview> {
     return api
       .post<StockOverview>("/stores/stock/batch-import", data)

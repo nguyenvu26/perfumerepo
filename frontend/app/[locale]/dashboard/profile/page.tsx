@@ -360,13 +360,13 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-[linear-gradient(180deg,#f8f6f1_0%,#ffffff_36%,#fbfaf7_100%)] transition-colors dark:bg-[linear-gradient(180deg,#09090b_0%,#0c0c10_35%,#09090b_100%)]">
         <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
           {/* Hero Header Section */}
-          <section className="relative mb-16 overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-2xl dark:border-white/5 dark:bg-zinc-900/40">
+          <section className="relative mb-16 overflow-hidden rounded-[2rem] md:rounded-[3rem] border border-black/5 bg-white shadow-2xl dark:border-white/5 dark:bg-zinc-900/40">
             {/* Banner/Cover Background */}
-            <div className="h-48 w-full bg-[linear-gradient(135deg,rgba(197,160,89,0.2)_0%,rgba(197,160,89,0.05)_100%)] dark:bg-[linear-gradient(135deg,rgba(197,160,89,0.1)_0%,rgba(0,0,0,0)_100%)]" />
+            <div className="h-32 sm:h-40 md:h-48 w-full bg-[linear-gradient(135deg,rgba(197,160,89,0.2)_0%,rgba(197,160,89,0.05)_100%)] dark:bg-[linear-gradient(135deg,rgba(197,160,89,0.1)_0%,rgba(0,0,0,0)_100%)]" />
             
-            <div className="relative -mt-16 flex flex-col items-center px-10 pb-12 text-center md:flex-row md:items-end md:text-left">
+            <div className="relative -mt-12 md:-mt-16 flex flex-col items-center px-6 sm:px-8 md:px-10 pb-8 md:pb-12 text-center md:flex-row md:items-end md:text-left">
               <div className="relative">
-                <div className="h-40 w-40 overflow-hidden rounded-full border-8 border-white bg-white shadow-xl dark:border-zinc-900 dark:bg-zinc-800">
+                <div className="h-32 w-32 md:h-40 md:w-40 overflow-hidden rounded-full border-[6px] md:border-8 border-white bg-white shadow-xl dark:border-zinc-900 dark:bg-zinc-800">
                   {data?.avatarUrl ? (
                     <img src={data.avatarUrl} alt="" className="h-full w-full object-cover transition-transform duration-700 hover:scale-110" />
                   ) : (
@@ -387,7 +387,7 @@ export default function ProfilePage() {
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                      <h1 className="text-4xl font-heading italic gold-gradient tracking-tight">{summaryName}</h1>
+                      <h1 className="text-3xl md:text-4xl font-heading italic gold-gradient tracking-tight">{summaryName}</h1>
                       <div className="flex items-center gap-2 rounded-full bg-gold/10 px-4 py-1 border border-gold/20">
                          <Sparkles className="h-3.5 w-3.5 text-gold" />
                          <span className="text-[10px] font-black uppercase tracking-widest text-gold">{roleLabel}</span>
@@ -451,17 +451,17 @@ export default function ProfilePage() {
             </motion.div>
           )}
 
-          <div className="glass overflow-hidden rounded-[4rem] border border-black/5 bg-white shadow-3xl dark:border-white/10 dark:bg-zinc-900/40">
-             <div className="grid gap-0 lg:grid-cols-12 divide-x divide-black/5 dark:divide-white/5">
+          <div className="glass overflow-hidden rounded-[2.5rem] md:rounded-[4rem] border border-black/5 bg-white shadow-3xl dark:border-white/10 dark:bg-zinc-900/40">
+             <div className="flex flex-col lg:grid lg:grid-cols-12 lg:divide-x divide-black/5 dark:divide-white/5">
                 
                 {/* Left Side: Information Flow */}
                 <div className="lg:col-span-8 divide-y divide-black/5 dark:divide-white/5">
                    
                    {/* Personal Information */}
-                   <section className="p-12 sm:p-16">
-                      <div className="flex items-center justify-between mb-12">
+                   <section className="p-6 sm:p-10 md:p-16">
+                      <div className="flex items-center justify-between mb-8 md:mb-12">
                          <div>
-                            <h2 className="text-3xl font-heading italic tracking-tight">{t('personal_info')}</h2>
+                            <h2 className="text-2xl md:text-3xl font-heading italic tracking-tight">{t('personal_info')}</h2>
                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gold opacity-40 mt-1">{t('title')}</p>
                          </div>
                          <div className="h-12 w-12 flex items-center justify-center rounded-2xl bg-gold/5 text-gold/30">
@@ -469,7 +469,7 @@ export default function ProfilePage() {
                          </div>
                       </div>
                       
-                      <div className="grid gap-x-12 gap-y-12 sm:grid-cols-2">
+                      <div className="grid gap-x-8 gap-y-8 md:gap-x-12 md:gap-y-12 sm:grid-cols-2">
                          {profileFields.map((field) => (
                             <div key={field.key} className={cn("space-y-4", field.key === 'email' && "sm:col-span-2")}>
                                <div className="flex items-center gap-3">
@@ -488,10 +488,10 @@ export default function ProfilePage() {
 
                    {/* Address Management */}
                    {data?.role === 'CUSTOMER' && (
-                     <section className="p-12 sm:p-16">
-                        <div className="flex items-center justify-between mb-12">
+                     <section className="p-6 sm:p-10 md:p-16">
+                        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 md:mb-12">
                            <div>
-                              <h2 className="text-3xl font-heading italic tracking-tight">{isVi ? 'Địa chỉ giao hàng' : 'Shipping Addresses'}</h2>
+                              <h2 className="text-2xl md:text-3xl font-heading italic tracking-tight">{isVi ? 'Địa chỉ giao hàng' : 'Shipping Addresses'}</h2>
                               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gold opacity-40 mt-1">
                                 {isVi ? 'Quản lý điểm nhận hàng.' : 'Delivery locations.'}
                               </p>
@@ -508,13 +508,13 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Right Side: Sidebar Stats & Security */}
-                <div className="lg:col-span-4 bg-black/[0.02] dark:bg-white/[0.01] divide-y divide-black/5 dark:divide-white/5">
+                <div className="lg:col-span-4 bg-black/[0.02] dark:bg-white/[0.01] divide-y divide-black/5 dark:divide-white/5 border-t lg:border-t-0 border-black/5 dark:border-white/5">
                    
                    {/* Budget Section */}
                    {data?.role === 'CUSTOMER' && (
-                     <section className="p-12">
-                        <div className="flex items-center justify-between mb-10">
-                           <h2 className="text-2xl font-heading italic tracking-tight leading-none">{isVi ? 'Ngân sách' : 'Budget'}</h2>
+                     <section className="p-6 sm:p-10 md:p-12">
+                        <div className="flex items-center justify-between mb-8 md:mb-10">
+                           <h2 className="text-xl md:text-2xl font-heading italic tracking-tight leading-none">{isVi ? 'Ngân sách' : 'Budget'}</h2>
                            <Wallet className="h-5 w-5 text-gold/30" strokeWidth={1} />
                         </div>
 
@@ -588,9 +588,9 @@ export default function ProfilePage() {
                    )}
 
                    {/* Security Section */}
-                   <section className="p-12">
-                      <div className="flex items-center justify-between mb-8">
-                         <h2 className="text-2xl font-heading italic tracking-tight leading-none">{t('security.title')}</h2>
+                   <section className="p-6 sm:p-10 md:p-12">
+                      <div className="flex items-center justify-between mb-6 md:mb-8">
+                         <h2 className="text-xl md:text-2xl font-heading italic tracking-tight leading-none">{t('security.title')}</h2>
                          <Shield className="h-5 w-5 text-gold/30" strokeWidth={1} />
                       </div>
 
@@ -639,12 +639,12 @@ export default function ProfilePage() {
               <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="glass w-full max-w-xl overflow-hidden rounded-[3.5rem] border border-white/10 bg-zinc-900 p-10 shadow-3xl sm:p-12"
+                className="glass w-full max-w-xl overflow-hidden rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 bg-zinc-900 p-6 sm:p-10 md:p-12 shadow-3xl"
               >
-                <div className="mb-12 flex items-start justify-between">
+                <div className="mb-8 md:mb-12 flex items-start justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gold mb-3 opacity-70">Security Protocol</p>
-                    <h2 className="text-5xl font-heading italic tracking-tighter leading-none mb-3 text-white">{t('security.change_password')}</h2>
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gold mb-2 md:mb-3 opacity-70">Security Protocol</p>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading italic tracking-tighter leading-none mb-2 md:mb-3 text-white">{t('security.change_password')}</h2>
                     <p className="text-xs text-muted-foreground italic leading-relaxed opacity-60">{t('security.modal_subtitle')}</p>
                   </div>
 

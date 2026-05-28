@@ -6,7 +6,7 @@ import { Package, AlertCircle, ShoppingCart, ArrowRight, Activity, Store, HelpCi
 import api from '@/lib/axios';
 import { storesService } from '@/services/stores.service';
 import { cn } from '@/lib/utils';
-import { Link } from '@/lib/i18n';
+import { Link, useRouter } from '@/lib/i18n';
 import Image from 'next/image';
 import { toast } from 'sonner';
 
@@ -29,6 +29,7 @@ interface InventoryHealthWidgetProps {
 export function InventoryHealthWidget({ isExpanded = false, onToggle }: InventoryHealthWidgetProps) {
     const [data, setData] = useState<HealthItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
     const [stores, setStores] = useState<any[]>([]);
     const [selectedStoreId, setSelectedStoreId] = useState<string>('all');
     const [showAlgorithm, setShowAlgorithm] = useState(false);
@@ -78,9 +79,17 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
     }, [data]);
 
     const handleReorder = (item: HealthItem) => {
-        toast.success(`Đã thêm ${item.name} vào danh sách dự thảo nhập hàng`, {
-            icon: <ShoppingCart className="w-4 h-4" />,
+        // Redirect to stock page with batch-import tab and pre-selected variant/store
+        const query = new URLSearchParams({
+            tab: 'batch-import',
+            variantId: item.variantId
         });
+        
+        if (selectedStoreId !== 'all') {
+            query.append('storeId', selectedStoreId);
+        }
+        
+        router.push(`/dashboard/admin/stores/stock?${query.toString()}`);
     };
 
     if (loading) {

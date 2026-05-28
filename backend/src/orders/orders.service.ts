@@ -183,17 +183,6 @@ export class OrdersService {
             `Sản phẩm ${item.variant.product.name} - ${item.variant.name} đã hết hàng hoặc không đủ số lượng khả dụng.`,
           );
         }
-
-        // Log inventory change
-        await tx.inventoryLog.create({
-          data: {
-            variantId: item.variantId,
-            storeId: centralWarehouse.id,
-            type: InventoryLogType.SALE_ONLINE,
-            quantity: -item.quantity,
-            reason: `Online order ${created.code}`,
-          },
-        });
       }
 
       if (promoData) {

@@ -174,11 +174,17 @@ export class AdminInventoryRequestController {
     @Query('status') status?: string,
     @Query('storeId') storeId?: string,
     @Query('staffId') staffId?: string,
+    @Query('q') q?: string,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
   ) {
     return this.staffInventoryService.listAllRequests({
       status,
       storeId,
       staffId,
+      q,
+      skip: skip ? parseInt(skip) : 0,
+      take: take ? parseInt(take) : 50,
     });
   }
 

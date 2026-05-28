@@ -121,7 +121,7 @@ export const staffInventoryService = {
       })
       .then((r) => r.data);
   },
-  getMyRequests(storeId?: string): Promise<InventoryRequest[]> {
+  listMyRequests(storeId?: string): Promise<InventoryRequest[]> {
     return api
       .get<
         InventoryRequest[]
@@ -172,9 +172,15 @@ export const adminInventoryRequestService = {
     status?: string;
     storeId?: string;
     staffId?: string;
-  }): Promise<InventoryRequest[]> {
+    q?: string;
+    skip?: number;
+    take?: number;
+  }): Promise<{ items: InventoryRequest[]; total: number }> {
     return api
-      .get<InventoryRequest[]>("/admin/inventory/requests", { params })
+      .get<{
+        items: InventoryRequest[];
+        total: number;
+      }>("/admin/inventory/requests", { params })
       .then((r) => r.data);
   },
   approve(

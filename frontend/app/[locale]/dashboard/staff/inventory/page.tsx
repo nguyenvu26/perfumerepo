@@ -14,6 +14,7 @@ import {
   Image as ImageIcon,
   Barcode,
   PackageSearch,
+  Send,
 } from "lucide-react";
 import { BarcodePrintModal } from "@/components/staff/barcode-print-modal";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -51,7 +52,11 @@ export default function StaffInventory() {
   const [adjustDelta, setAdjustDelta] = useState<number>(0);
   const [adjustReason, setAdjustReason] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
-  const [activeMainTab, setActiveMainTab] = useState<"inventory" | "batches" | "transfers" | "stocktakes">("inventory");
+  const [activeMainTab, setActiveMainTab] = useState<"inventory" | "batches" | "transfers" | "stocktakes" | "requests">("inventory");
+  const [myRequests, setMyRequests] = useState<any[]>([]);
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [requestSearch, setRequestSearch] = useState("");
+  const [requestStatusFilter, setRequestStatusFilter] = useState<"ALL" | "PENDING" | "APPROVED" | "REJECTED">("ALL");
   const [stocktakes, setStocktakes] = useState<any[]>([]);
   const [loadingStocktakes, setLoadingStocktakes] = useState(false);
   const [inspectingStocktake, setInspectingStocktake] = useState<any | null>(null);
@@ -153,29 +158,44 @@ export default function StaffInventory() {
     }
   }, [selectedStoreId]);
 
+  const loadMyRequests = useCallback(async () => {
+    if (!selectedStoreId) return;
+    setLoadingRequests(true);
+    try {
+      const data = await staffInventoryService.listMyRequests(selectedStoreId);
+      setMyRequests(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingRequests(false);
+    }
+  }, [selectedStoreId]);
+
   useEffect(() => {
     if (selectedStoreId) {
       void loadOverview();
       void loadLogs();
       void loadTransfers();
       void loadStocktakes();
+      void loadMyRequests();
     } else {
       setOverview(null);
       setLogs([]);
       setIncomingTransfers([]);
       setStocktakes([]);
+      setMyRequests([]);
     }
-  }, [selectedStoreId, loadOverview, loadLogs, loadTransfers, loadStocktakes]);
+  }, [selectedStoreId, loadOverview, loadLogs, loadTransfers, loadStocktakes, loadMyRequests]);
 
   const handleImport = async () => {
-    if (!selectedStoreId || !selectedImportVariant || importQty <= 0) return;
+    if (!selectedStoreId || !selectedImportVariant) return;
     setSubmitting(true);
     setError(null);
     try {
       await staffInventoryService.importStock(
         selectedStoreId,
         selectedImportVariant.variantId,
-        importQty,
+        importQty || 1,
         importReason || undefined,
       );
       setImportQty(0);
@@ -220,14 +240,14 @@ export default function StaffInventory() {
   };
 
   const handleAdjust = async () => {
-    if (!selectedStoreId || !selectedVariant || adjustDelta === 0) return;
+    if (!selectedStoreId || !selectedVariant) return;
     setSubmitting(true);
     setError(null);
     try {
       await staffInventoryService.adjustStock(
         selectedStoreId,
         selectedVariant,
-        adjustDelta,
+        adjustDelta || 1,
         adjustReason || "Adjustment",
       );
       setAdjustDelta(0);
@@ -520,6 +540,22 @@ export default function StaffInventory() {
                   </span>
                 )}
               </button>
+              <button
+                onClick={() => setActiveMainTab("requests")}
+                className={cn(
+                  "relative px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border",
+                  activeMainTab === "requests"
+                    ? "bg-gold text-white border-gold shadow-lg"
+                    : "bg-white/5 border-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                Phiếu yêu cầu
+                {myRequests.filter(r => r.status === 'PENDING').length > 0 && (
+                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center border-4 border-background animate-bounce">
+                    {myRequests.filter(r => r.status === 'PENDING').length}
+                  </span>
+                )}
+              </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -621,6 +657,101 @@ export default function StaffInventory() {
                                 </div>
                               );
                           })}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : activeMainTab === "requests" ? (
+                  <>
+                    <div className="p-6 border-b border-border space-y-4">
+                      <h2 className="font-heading text-lg uppercase tracking-widest gold-gradient">
+                        Theo Dõi Phiếu Yêu Cầu
+                      </h2>
+                      <div className="flex flex-col sm:flex-row items-center gap-3">
+                         <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+                            {(["ALL", "PENDING", "APPROVED", "REJECTED"] as const).map((f) => (
+                               <button
+                                 key={f}
+                                 onClick={() => setRequestStatusFilter(f)}
+                                 className={cn(
+                                   "px-4 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all",
+                                   requestStatusFilter === f ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-white/5"
+                                 )}
+                               >
+                                 {f === "ALL" ? "Tất cả" : f === "PENDING" ? "Đang chờ" : f === "APPROVED" ? "Đã duyệt" : "Bị từ chối"}
+                               </button>
+                            ))}
+                         </div>
+                         <div className="relative w-full sm:w-auto">
+                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                           <input
+                             type="text"
+                             value={requestSearch}
+                             onChange={(e) => setRequestSearch(e.target.value)}
+                             placeholder="Tìm sản phẩm..."
+                             className="w-full sm:w-48 text-[10px] rounded-full border border-border bg-background pl-8 pr-4 py-2 outline-none focus:border-gold/60"
+                           />
+                         </div>
+                      </div>
+                    </div>
+                    <div className="p-6 max-h-[480px] overflow-y-auto custom-scrollbar">
+                      {loadingRequests ? (
+                        <div className="flex items-center justify-center py-10 text-muted-foreground text-sm italic opacity-40">
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t("loading")}
+                        </div>
+                      ) : myRequests.length === 0 ? (
+                        <div className="text-center py-20 space-y-4">
+                          <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto border border-white/5">
+                            <Send className="w-8 h-8 text-muted-foreground/20" />
+                          </div>
+                          <p className="text-muted-foreground italic text-sm">Bạn chưa có yêu cầu nào.</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {myRequests.filter(r => {
+                            const matchSearch = r.product.toLowerCase().includes(requestSearch.toLowerCase());
+                            const matchStatus = requestStatusFilter === "ALL" || r.status === requestStatusFilter;
+                            return matchSearch && matchStatus;
+                          }).map((r) => (
+                            <div
+                              key={r.id}
+                              className="p-6 rounded-[2rem] border border-white/5 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-6 hover:border-gold/30 transition-all group"
+                            >
+                              <div className="flex-1 space-y-3">
+                                <div className="flex items-center gap-3">
+                                  <span className={cn(
+                                    "px-3 py-1 rounded-full border text-[8px] font-black uppercase tracking-widest",
+                                    r.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' : 
+                                    r.status === 'APPROVED' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 
+                                    'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                                  )}>
+                                    {r.status === 'PENDING' ? 'CHỜ DUYỆT' : r.status === 'APPROVED' ? 'ĐÃ DUYỆT' : 'BỊ TỪ CHỐI'}
+                                  </span>
+                                  <span className="text-[10px] font-black opacity-30">#{r.id}</span>
+                                </div>
+                                <h4 className="font-heading text-sm uppercase tracking-wider">
+                                  {r.product} ({r.variantName})
+                                </h4>
+                                <div className="flex gap-4 text-[10px] text-muted-foreground">
+                                  <span>Loại: <span className="text-foreground uppercase">{r.type}</span></span>
+                                </div>
+                                {r.reason && (
+                                  <p className="text-[11px] text-muted-foreground italic bg-white/5 p-2 rounded-lg">
+                                    Lý do: {r.reason}
+                                  </p>
+                                )}
+                                {r.reviewNote && (
+                                  <div className="text-[11px] text-rose-400 bg-rose-400/5 p-3 rounded-2xl border border-rose-400/20 flex gap-2">
+                                     <X className="w-3 h-3 shrink-0 mt-0.5" />
+                                     <span>Phản hồi: {r.reviewNote}</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-right text-[10px] text-muted-foreground whitespace-nowrap">
+                                {new Date(r.createdAt).toLocaleString("vi-VN")}
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -895,19 +1026,6 @@ export default function StaffInventory() {
                   </div>
 
                   <div className="space-y-2 mt-2">
-                    <label className="block text-[10px] uppercase tracking-widest text-muted-foreground">
-                      {t("operations.adjust_delta")}
-                    </label>
-                    <input
-                      type="number"
-                      value={adjustDelta || ""}
-                      onChange={(e) =>
-                        setAdjustDelta(Number(e.target.value) || 0)
-                      }
-                      onFocus={(e) => e.target.select()}
-                      className="w-full text-xs rounded-xl border border-border bg-background px-3 py-2 outline-none focus:border-gold/60"
-                      placeholder="e.g. -2 or 5"
-                    />
                     <input
                       type="text"
                       value={adjustReason}
@@ -919,7 +1037,7 @@ export default function StaffInventory() {
                       type="button"
                       onClick={handleAdjust}
                       disabled={
-                        !selectedVariant || adjustDelta === 0 || submitting
+                        !selectedVariant || submitting
                       }
                       className="w-full mt-1 py-2.5 rounded-full bg-secondary text-foreground text-[10px] font-heading uppercase tracking-widest disabled:opacity-50"
                     >
@@ -1058,24 +1176,8 @@ export default function StaffInventory() {
                       </button>
                     </div>
 
-                    {/* Qty + Reason */}
+                    {/* Reason Only (Qty defaulted to 1 per user request) */}
                     <div className="space-y-3">
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-                          {t("operations.import_qty")}
-                        </label>
-                        <input
-                          type="number"
-                          value={importQty || ""}
-                          onChange={(e) =>
-                            setImportQty(Number(e.target.value) || 0)
-                          }
-                          onFocus={(e) => e.target.select()}
-                          className="w-full text-sm rounded-xl border border-border bg-background px-4 py-2.5 outline-none focus:border-gold/60"
-                          placeholder="e.g. 10"
-                          min={1}
-                        />
-                      </div>
                       <div>
                         <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
                           {t("operations.import_reason")}
@@ -1146,7 +1248,7 @@ export default function StaffInventory() {
                   <button
                     type="button"
                     onClick={handleImport}
-                    disabled={importQty <= 0 || submitting}
+                    disabled={submitting}
                     className="w-full py-3 rounded-full bg-gold text-primary-foreground font-heading text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-gold/90 transition-colors"
                   >
                     {submitting ? t("processing") : t("operations.import_btn")}

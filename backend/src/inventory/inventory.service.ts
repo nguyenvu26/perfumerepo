@@ -246,4 +246,64 @@ export class InventoryService {
       where: { type: 'CENTRAL' },
     });
   }
+
+  /**
+   * Xử lý hủy lô hàng (hết hạn, hỏng hóc, ...)
+   * Zeroes out batch quantity and adjusts aggregate inventory.
+   */
+  async disposeBatch(batchId: string, tx?: Prisma.TransactionClient) {
+    const execute = async (pTx: Prisma.TransactionClient) => {
+      // 1. Fetch batch and inventory
+      const batch = await pTx.inventoryBatch.findUnique({
+        where: { id: batchId },
+        include: { inventory: true },
+      });
+
+      if (!batch) {
+        throw new BadRequestException('Không tìm thấy mã lô hàng.');
+      }
+
+      if (batch.currentQuantity <= 0) {
+        throw new BadRequestException('Lô hàng này đã hết hoặc đã được xử lý.');
+      }
+
+      const quantityToDispose = batch.currentQuantity;
+
+      // 2. Perform disposal
+      // Zero out the specific batch
+      await pTx.inventoryBatch.update({
+        where: { id: batchId },
+        data: { currentQuantity: 0 },
+      });
+
+      // Update aggregate inventory (onHand and available)
+      await pTx.inventory.update({
+        where: { id: batch.inventoryId },
+        data: {
+          onHand: { decrement: quantityToDispose },
+          available: { decrement: quantityToDispose },
+        },
+      });
+
+      // Create Adjustment Log
+      await pTx.inventoryLog.create({
+        data: {
+          variantId: batch.inventory.variantId,
+          storeId: batch.inventory.warehouseId,
+          type: 'ADJUST',
+          quantity: -quantityToDispose,
+          purchasePrice: batch.purchasePrice,
+          reason: `Xuất hủy hàng hết hạn (Mã lô: ${batch.batchCode || 'N/A'})`,
+        },
+      });
+
+      return { success: true, disposedQuantity: quantityToDispose };
+    };
+
+    if (tx) {
+      return execute(tx);
+    } else {
+      return this.prisma.$transaction(execute);
+    }
+  }
 }

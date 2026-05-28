@@ -43,7 +43,9 @@ import {
   Zap,
   Barcode,
   Calendar,
+  PackagePlus,
 } from "lucide-react";
+import { toast } from "sonner";
 import { inventoryTransferService } from "@/services/inventory-transfer.service";
 import { BarcodePrintModal } from "@/components/staff/barcode-print-modal";
 import { useLocale } from "next-intl";
@@ -77,9 +79,10 @@ type BatchItem = {
   expiryDate?: string;
   sku?: string;
   selectedBatches?: SelectedBatch[];
+  requestId?: number; // Linked staff request ID
 };
 
-type TabType = "overview" | "batch-import" | "transfer" | "requests" | "history" | "ai-toolbox";
+type TabType = "overview" | "batch-import" | "transfer" | "requests" | "history" | "health" | "heatmap" | "expiry";
 
 export default function AdminStockRedesignPage() {
   const t = useTranslations("dashboard.admin.stock");
@@ -117,6 +120,11 @@ export default function AdminStockRedesignPage() {
   const [requests, setRequests] = useState<InventoryRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [requestFilter, setRequestFilter] = useState<string>("PENDING");
+  const [requestSearch, setRequestSearch] = useState("");
+  const [requestPage, setRequestPage] = useState(1);
+  const [requestTotal, setRequestTotal] = useState(0);
+  const requestLimit = 20;
+  const [expandedRequestId, setExpandedRequestId] = useState<number | null>(null);
   const [reviewingId, setReviewingId] = useState<number | null>(null);
   const [rejectNote, setRejectNote] = useState("");
   const [showRejectModal, setShowRejectModal] = useState<number | null>(null);
@@ -131,6 +139,7 @@ export default function AdminStockRedesignPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historySkip, setHistorySkip] = useState(0);
   const [historyFilterType, setHistoryFilterType] = useState<string>("");
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
   const historyTake = 20;
 
   // AI Toolbox State
@@ -327,9 +336,10 @@ export default function AdminStockRedesignPage() {
     }
   }, [fetchData, searchParams]);
 
-  // Handle auto-adding variant from URL (e.g. from Products page)
+  // Handle auto-adding variant from URL (e.g. from Products page or Inventory Health widget)
   useEffect(() => {
     const variantId = searchParams.get('variantId');
+    const storeId = searchParams.get('storeId');
     if (variantId && products.length > 0 && activeTab === 'batch-import') {
       const v = allVariants.find(av => av.id === variantId);
       if (v && !importItems.find(i => i.variantId === v.id)) {
@@ -341,6 +351,8 @@ export default function AdminStockRedesignPage() {
           quantity: 1,
           costPrice: v.purchasePrice || 0
         }]);
+        if (storeId) setImportStoreId(storeId);
+        toast.success(`Đã thêm ${v.productName} vào danh sách nhập kho`);
       }
     }
   }, [searchParams, products, activeTab, allVariants, importItems]);
@@ -350,14 +362,18 @@ export default function AdminStockRedesignPage() {
     try {
       const data = await adminInventoryRequestService.list({
         status: requestFilter || undefined,
+        q: requestSearch || undefined,
+        skip: (requestPage - 1) * requestLimit,
+        take: requestLimit,
       });
-      setRequests(data);
+      setRequests(data.items);
+      setRequestTotal(data.total);
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setRequestsLoading(false);
     }
-  }, [requestFilter]);
+  }, [requestFilter, requestSearch, requestPage, requestLimit]);
 
   useEffect(() => {
     if (activeTab === "requests") {
@@ -450,6 +466,7 @@ export default function AdminStockRedesignPage() {
           mfgDate: item.mfgDate,
           expiryDate: item.expiryDate,
         })),
+        requestIds: importItems.map(item => item.requestId).filter(Boolean) as number[],
         reason: importReason || t("import.default_reason"),
       });
       setSuccess(t("import.success", { count: importItems.length }));
@@ -630,20 +647,22 @@ export default function AdminStockRedesignPage() {
           
           {/* Row 2: Navigation Tabs & Utilities */}
           <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
-            <nav className="flex items-center gap-1.5 bg-black/40 p-2 rounded-full border border-white/10 backdrop-blur-2xl shadow-3xl overflow-x-auto no-scrollbar max-w-full">
+            <nav className="flex-1 flex items-center gap-2 bg-black/40 p-2 rounded-full border border-white/10 backdrop-blur-2xl shadow-3xl overflow-hidden">
               {[
                 { id: "overview", icon: LayoutGrid, label: t('tabs.overview') },
-                { id: "batch-import", icon: FileInput, label: t('tabs.import') },
+                { id: "batch-import", icon: FileInput, label: "Nhập kho" },
                 { id: "transfer", icon: ArrowRightLeft, label: t('tabs.transfer') },
-                { id: "requests", icon: ClipboardCheck, label: t('tabs.requests') },
-                { id: "history", icon: History, label: tInv('history_title') },
-                { id: "ai-toolbox", icon: Zap, label: "AI Matrix" },
+                { id: "requests", icon: ClipboardCheck, label: "Phê duyệt" },
+                { id: "history", icon: History, label: "Lịch sử" },
+                { id: "health", icon: BarChart3, label: "Sức khỏe" },
+                { id: "heatmap", icon: Globe, label: "Heatmap" },
+                { id: "expiry", icon: Calendar, label: "Lô & HSD" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={cn(
-                    "relative flex items-center gap-3 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-700 whitespace-nowrap",
+                    "relative flex-1 flex items-center justify-center gap-2.5 px-5 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-700 whitespace-nowrap",
                     activeTab === tab.id 
                       ? "text-primary z-10" 
                       : "text-muted-foreground hover:text-foreground"
@@ -652,12 +671,12 @@ export default function AdminStockRedesignPage() {
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-gold rounded-full -z-10 shadow-[0_10px_30px_rgba(212,175,55,0.4)]"
+                      className="absolute inset-0 bg-gold rounded-full -z-10 shadow-[0_10px_40px_rgba(212,175,55,0.4)]"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
                   <tab.icon className={cn("w-4 h-4 shrink-0", activeTab === tab.id ? "text-primary" : "text-gold/60")} /> 
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="inline">{tab.label}</span>
                 </button>
               ))}
             </nav>
@@ -1738,23 +1757,50 @@ export default function AdminStockRedesignPage() {
           {activeTab === "requests" && (
             <div className="flex flex-col gap-8">
               {/* Filter Bar */}
-              <div className="glass p-8 rounded-[3rem] border-border flex items-center gap-6">
-                <ClipboardCheck className="w-6 h-6 text-gold" />
-                <h3 className="font-heading text-sm uppercase tracking-widest mr-auto">
-                  {t('requests.title')}
-                </h3>
-                <div className="flex gap-2 bg-secondary/20 p-1 rounded-xl border border-border">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4 mb-4">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-heading gold-gradient uppercase tracking-tighter">
+                    {t('requests.title')}
+                  </h2>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em]">
+                    Quản lý và phê duyệt yêu cầu nhập kho từ nhân viên
+                  </p>
+                </div>
+                <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl">
                   {(["PENDING", "APPROVED", "REJECTED", ""] as const).map(
                     (s) => (
                       <button
                         key={s || "ALL"}
-                        onClick={() => setRequestFilter(s)}
-                        className={`px-5 py-2 rounded-lg text-[9px] font-heading uppercase tracking-widest transition-all ${requestFilter === s ? "bg-background shadow-lg text-gold" : "text-muted-foreground hover:text-foreground"}`}
+                        onClick={() => {
+                          setRequestFilter(s);
+                          setRequestPage(1);
+                        }}
+                        className={cn(
+                          "px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                          requestFilter === s 
+                            ? "bg-gold text-white shadow-2xl" 
+                            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                        )}
                       >
                         {t('status.' + (s.toLowerCase() || "all"))}
                       </button>
                     ),
                   )}
+                </div>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-gold transition-colors">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Tìm sản phẩm, nhân viên, lý do..."
+                    value={requestSearch}
+                    onChange={(e) => {
+                      setRequestSearch(e.target.value);
+                      setRequestPage(1);
+                    }}
+                    className="bg-white/5 border border-white/10 rounded-[1.5rem] py-3 pl-12 pr-6 text-xs focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all w-[300px] backdrop-blur-md"
+                  />
                 </div>
               </div>
 
@@ -1779,33 +1825,30 @@ export default function AdminStockRedesignPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                  <div className="overflow-x-auto custom-scrollbar shadow-2xl">
+                    <table className="w-full min-w-[1200px] text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-border/50 text-muted-foreground">
-                          <th className="pl-10 pr-4 py-5 text-[10px] uppercase tracking-widest font-heading w-16"></th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
+                        <tr className="border-b border-white/5 text-muted-foreground/60">
+                          <th className="pl-10 pr-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black w-24"></th>
+                          <th className="px-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black min-w-[200px]">
                             {t('table.product_variant')}
                           </th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
+                          <th className="px-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black min-w-[150px]">
                             {t('table.store')}
                           </th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
+                          <th className="px-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black text-center min-w-[80px]">
                             {t('table.type')}
                           </th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
-                            {t('table.quantity')}
-                          </th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
+                          <th className="px-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black min-w-[250px]">
                             {t('table.reason')}
                           </th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading">
+                          <th className="px-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black min-w-[180px]">
                             {t('table.staff')}
                           </th>
-                          <th className="px-4 py-5 text-[10px] uppercase tracking-widest font-heading text-center">
+                          <th className="px-4 py-4 text-[9px] uppercase tracking-[0.2em] font-black text-center min-w-[140px]">
                             {t('table.status')}
                           </th>
-                          <th className="px-10 py-5 text-[10px] uppercase tracking-widest font-heading text-right">
+                          <th className="px-10 py-4 text-[9px] uppercase tracking-[0.2em] font-black text-right min-w-[150px]">
                             {t('table.actions')}
                           </th>
                         </tr>
@@ -1814,36 +1857,49 @@ export default function AdminStockRedesignPage() {
                         {requests.map((r) => (
                           <tr
                             key={r.id}
-                            className="group hover:bg-gold/5 transition-all"
+                            className="group hover:bg-gold/[0.03] transition-all border-b border-border/5"
                           >
-                            <td className="pl-10 pr-4 py-4">
+                            <td className="pl-10 pr-4 py-4 shrink-0">
                               {r.imageUrl ? (
                                 <img
                                   src={r.imageUrl}
                                   alt={r.product ?? ""}
-                                  className="w-11 h-11 rounded-xl object-cover border border-border"
+                                  className="w-12 h-12 rounded-xl object-cover border border-border flex-shrink-0 shadow-sm"
                                 />
                               ) : (
-                                <div className="w-11 h-11 rounded-xl bg-secondary/50 border border-border flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-xl bg-secondary/50 border border-border flex items-center justify-center shrink-0">
                                   <PackageSearch className="w-4 h-4 text-muted-foreground/30" />
                                 </div>
                               )}
                             </td>
                             <td className="px-4 py-4">
-                              <p className="font-heading text-sm uppercase tracking-tight">
+                              <p className="text-[11px] font-heading text-foreground group-hover:text-gold transition-colors line-clamp-1 uppercase tracking-tight">
                                 {r.product}
                               </p>
-                              <p className="text-[10px] text-muted-foreground mt-0.5">
-                                {r.variantName} · {r.brand}
-                              </p>
+                              <div className="flex items-center gap-2 mt-0.5 opacity-60">
+                                <span className="text-[8px] text-muted-foreground uppercase tracking-widest font-medium">
+                                  {r.variantName}
+                                </span>
+                                <span className="w-1 h-1 rounded-full bg-white/10" />
+                                <span className="text-[8px] text-gold/60 uppercase tracking-tighter">
+                                  {r.brand}
+                                </span>
+                              </div>
                             </td>
                             <td className="px-4 py-4">
-                              <p className="text-xs font-heading uppercase tracking-tight">
-                                {r.store.name}
-                              </p>
-                              <p className="text-[9px] text-muted-foreground">
-                                {r.store.code || "SYS"}
-                              </p>
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                                  <Building2 className="w-3 h-3 text-muted-foreground/30" />
+                                </div>
+                                <div className="space-y-0">
+                                  <p className="text-[10px] font-heading uppercase tracking-tight text-foreground/70 leading-none">
+                                    {r.store.name}
+                                  </p>
+                                  <p className="text-[8px] text-muted-foreground/40 mt-1 uppercase tracking-widest leading-none">
+                                    {r.store.code || "SYS"}
+                                  </p>
+                                </div>
+                              </div>
                             </td>
                             <td className="px-4 py-4 text-center">
                               <span
@@ -1854,97 +1910,143 @@ export default function AdminStockRedesignPage() {
                                   : t('requests.adjust_type')}
                               </span>
                             </td>
-                            <td className="px-4 py-4 text-center">
-                              <span
-                                className={`font-heading text-lg ${r.quantity > 0 ? "text-emerald-600" : "text-destructive"}`}
+                            <td className="px-4 py-4 max-w-[250px]">
+                              <div 
+                                className={cn(
+                                  "relative cursor-pointer transition-all duration-300 group/reason",
+                                  expandedRequestId === r.id ? "max-h-[500px]" : "max-h-[32px] overflow-hidden"
+                                )}
+                                onClick={() => setExpandedRequestId(expandedRequestId === r.id ? null : r.id)}
                               >
-                                {r.quantity > 0 ? "+" : ""}
-                                {r.quantity}
-                              </span>
+                                <p className={cn(
+                                  "text-[10px] text-muted-foreground/80 leading-relaxed italic",
+                                  expandedRequestId !== r.id && "line-clamp-2"
+                                )}>
+                                  {r.reason || "—"}
+                                </p>
+                                {r.reason && r.reason.length > 50 && expandedRequestId !== r.id && (
+                                  <div className="absolute bottom-0 right-0 bg-gradient-to-l from-background via-background/80 to-transparent pl-4 opacity-0 group-hover/reason:opacity-100">
+                                    <span className="text-[8px] text-gold font-bold uppercase tracking-tighter cursor-pointer">... Xem thêm</span>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                             <td className="px-4 py-4">
-                              <p className="text-xs text-muted-foreground max-w-[200px] truncate">
-                                {r.reason || "—"}
-                              </p>
-                            </td>
-                            <td className="px-4 py-4">
-                              <p className="text-xs">
-                                {r.staff?.name || r.staff?.email}
-                              </p>
-                              <p className="text-[9px] text-muted-foreground">
-                                {format.dateTime(new Date(r.createdAt), {
-                                  dateStyle: "medium",
-                                  timeStyle: "short",
-                                })}
-                              </p>
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                                  <User className="w-3 h-3 text-gold/30" />
+                                </div>
+                                <div className="space-y-0.5">
+                                  <p className="text-[11px] text-foreground/80 font-bold truncate max-w-[150px]">
+                                    {r.staff?.name || r.staff?.email}
+                                  </p>
+                                  <p className="text-[8px] text-muted-foreground/30 uppercase tracking-tighter">
+                                    {format.dateTime(new Date(r.createdAt), {
+                                      dateStyle: "medium",
+                                      timeStyle: "short",
+                                    })}
+                                  </p>
+                                </div>
+                              </div>
                             </td>
                             <td className="px-4 py-4 text-center">
-                              {r.status === "PENDING" && (
-                                <span className="text-[9px] px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 font-heading uppercase tracking-widest animate-pulse">
-                                  {t('status.pending')}
-                                </span>
-                              )}
-                              {r.status === "APPROVED" && (
-                                <div>
-                                  <span className="text-[9px] px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 font-heading uppercase tracking-widest">
-                                    {t('status.approved')}
+                              <div className="flex flex-col items-center gap-1.5">
+                                {r.status === "PENDING" && (
+                                  <span className="flex items-center gap-2 text-[10px] px-4 py-1.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 font-black uppercase tracking-widest animate-pulse shadow-[0_0_20px_rgba(245,158,11,0.15)] backdrop-blur-md">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]" />
+                                    {t('status.pending')}
                                   </span>
-                                  {r.reviewer && (
-                                    <p className="text-[8px] text-muted-foreground mt-1">
-                                      {t("requests.reviewer_by")} {r.reviewer.name || r.reviewer.email}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                              {r.status === "REJECTED" && (
-                                <div>
-                                  <span className="text-[9px] px-3 py-1 rounded-full bg-destructive/10 text-destructive font-heading uppercase tracking-widest">
-                                    {t('status.rejected')}
-                                  </span>
-                                  {r.reviewNote && (
-                                    <p
-                                      className="text-[8px] text-destructive/70 mt-1 max-w-[120px] truncate"
-                                      title={r.reviewNote}
-                                    >
-                                      {r.reviewNote}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
+                                )}
+                                {r.status === "APPROVED" && (
+                                  <>
+                                    <span className="flex items-center gap-2 text-[10px] px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 font-black uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.15)] backdrop-blur-md">
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      {t('status.approved')}
+                                    </span>
+                                  </>
+                                )}
+                                {r.status === "REJECTED" && (
+                                  <>
+                                    <span className="flex items-center gap-2 text-[10px] px-4 py-1.5 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 font-black uppercase tracking-widest shadow-[0_0_20px_rgba(244,63,94,0.15)] backdrop-blur-md">
+                                      <X className="w-3 h-3" />
+                                      {t('status.rejected')}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
                             </td>
-                            <td className="px-10 py-4 text-right">
-                              {r.status === "PENDING" && (
-                                <div className="flex items-center justify-end gap-2">
-                                  <button
-                                    onClick={() => handleApprove(r.id)}
-                                    disabled={reviewingId === r.id}
-                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white text-[9px] font-heading uppercase tracking-widest transition-all disabled:opacity-50"
-                                  >
-                                    {reviewingId === r.id ? (
-                                      <Loader2 className="w-3 h-3 animate-spin" />
-                                    ) : (
-                                      <Check className="w-3 h-3" />
-                                    )}
-                                    {t('requests.approve')}
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setShowRejectModal(r.id);
-                                      setRejectNote("");
-                                    }}
-                                    disabled={reviewingId === r.id}
-                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-destructive/10 text-destructive hover:bg-destructive hover:text-white text-[9px] font-heading uppercase tracking-widest transition-all disabled:opacity-50"
-                                  >
-                                    <X className="w-3 h-3" />
-                                    {t('requests.reject')}
-                                  </button>
-                                </div>
-                              )}
+                            <td className="px-10 py-3 text-right">
+                              <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {r.status === "PENDING" ? (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setImportItems([{
+                                          variantId: r.variantId,
+                                          productName: r.product || "",
+                                          variantName: r.variantName || "",
+                                          brandName: r.brand || "",
+                                          quantity: r.quantity,
+                                          costPrice: 0,
+                                          requestId: r.id
+                                        }]);
+                                        setActiveTab("batch-import");
+                                        setImportStoreId(r.store.id);
+                                        setImportReason(`${r.reason || ""}`);
+                                      }}
+                                      className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-gold/10 hover:bg-gold text-gold hover:text-white border border-gold/10 hover:border-gold transition-all text-[8px] font-black uppercase tracking-[0.1em] shadow-xl active:scale-95"
+                                    >
+                                      <PackagePlus className="w-3 h-3" />
+                                      Xử lý
+                                    </button>
+                                    <button
+                                      onClick={() => setShowRejectModal(r.id)}
+                                      className="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-muted-foreground hover:text-rose-500 border border-white/5 hover:border-rose-500/20 transition-all active:scale-95"
+                                    >
+                                      <X className="w-2.5 h-2.5" />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <div className="flex items-center gap-1.5 text-muted-foreground/20 px-3 py-1 rounded-lg border border-white/5 bg-white/[0.01]">
+                                    <Check className="w-2.5 h-2.5" />
+                                    <span className="text-[7px] font-black uppercase tracking-widest italic opacity-40">DONE</span>
+                                  </div>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+                
+                {requestTotal > requestLimit && (
+                  <div className="flex items-center justify-between px-10 py-6 glass rounded-[2.5rem] border border-white/5 mt-4 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/[0.02] to-gold/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                    <div className="flex items-center gap-3 relative z-10">
+                      <div className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse shadow-[0_0_8px_rgba(212,175,55,0.8)]" />
+                      <p className="text-[8px] text-muted-foreground uppercase tracking-[0.2em] font-black">
+                        Page <span className="text-foreground">{requestPage}</span> <span className="mx-1 opacity-20">/</span> {Math.ceil(requestTotal / requestLimit)}
+                        <span className="ml-4 opacity-40 font-medium tracking-normal text-[8px] normal-case">Showing {requests.length} of {requestTotal} entries</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1.5 relative z-10">
+                      <button
+                        onClick={() => setRequestPage(p => Math.max(1, p - 1))}
+                        disabled={requestPage === 1}
+                        className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:text-white hover:border-gold disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-inherit transition-all duration-300"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => setRequestPage(p => Math.min(Math.ceil(requestTotal / requestLimit), p + 1))}
+                        disabled={requestPage >= Math.ceil(requestTotal / requestLimit)}
+                        className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:text-white hover:border-gold disabled:opacity-20 disabled:hover:bg-transparent disabled:hover:text-inherit transition-all duration-300"
+                      >
+                        <ArrowRightLeft className="w-4 h-4 rotate-180" />
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2152,9 +2254,25 @@ export default function AdminStockRedesignPage() {
                               </div>
                             </td>
                             <td className="pl-8 pr-12 py-6">
-                               <p className="text-[11px] text-muted-foreground leading-relaxed italic opacity-60 line-clamp-2 max-w-[300px]">
-                                 {log.reason || '---'}
-                               </p>
+                               <div 
+                                 className={cn(
+                                   "relative cursor-pointer transition-all duration-500 group/history-reason",
+                                   expandedLogId === log.id ? "max-h-[800px]" : "max-h-[48px] overflow-hidden"
+                                 )}
+                                 onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                               >
+                                 <p className={cn(
+                                   "text-[11px] text-muted-foreground leading-relaxed italic opacity-70 transition-all",
+                                   expandedLogId !== log.id && "line-clamp-2"
+                                 )}>
+                                   {log.reason || '---'}
+                                 </p>
+                                 {log.reason && log.reason.length > 60 && expandedLogId !== log.id && (
+                                   <div className="absolute bottom-0 right-0 bg-gradient-to-l from-zinc-950 via-zinc-950 to-transparent pl-8 opacity-0 group-hover/history-reason:opacity-100 transition-opacity">
+                                      <span className="text-[8px] text-gold font-black uppercase tracking-tighter italic">... Xem thêm</span>
+                                   </div>
+                                 )}
+                               </div>
                             </td>
                           </tr>
                         ))
@@ -2188,78 +2306,19 @@ export default function AdminStockRedesignPage() {
               )}
             </div>
           )}
-          {activeTab === "ai-toolbox" && (
-            <div className="animate-in fade-in duration-1000 space-y-8">
-              {/* Refined AI Matrix Shell */}
-              <div className="glass rounded-[3.5rem] border border-white/10 dark:bg-black/40 backdrop-blur-3xl overflow-hidden shadow-3xl">
-                {/* Minimalist AI Header & Sub-Nav */}
-                <div className="px-10 py-8 border-b border-white/5 flex flex-col lg:flex-row items-center justify-between gap-8 relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-gold/5 via-transparent to-transparent pointer-events-none" />
-                  
-                  <div className="flex items-center gap-6 relative z-10">
-                    <div className="w-14 h-14 rounded-2xl bg-gold/10 border border-gold/20 text-gold flex items-center justify-center shadow-gold/10 shadow-lg shrink-0">
-                      <Zap className="w-6 h-6 fill-gold/20" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-heading gold-gradient uppercase tracking-widest italic leading-none mb-2">
-                        Hộp Công Cụ Điều Vận
-                      </h2>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest opacity-60">
-                          Hệ thống AI đang giám sát chuỗi cung ứng
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Integrated Navigation Pills */}
-                  <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-black/40 border border-white/10 backdrop-blur-md relative z-10">
-                    {[
-                      { id: "health", icon: BarChart3, label: "Sức Khỏe & Dự Báo" },
-                      { id: "heatmap", icon: Globe, label: "Luồng Hàng Heatmap" },
-                      { id: "expiry", icon: Calendar, label: "Lô & Hạn Sử Dụng" },
-                    ].map((tool) => (
-                      <button
-                        key={tool.id}
-                        onClick={() => setActiveAiTool(tool.id as any)}
-                        className={cn(
-                          "relative flex items-center gap-3 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-500 whitespace-nowrap",
-                          activeAiTool === tool.id 
-                            ? "text-primary z-10" 
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        {activeAiTool === tool.id && (
-                          <motion.div
-                            layoutId="activeAiTool"
-                            className="absolute inset-0 bg-gold rounded-full -z-10 shadow-gold/20 shadow-lg"
-                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                          />
-                        )}
-                        <tool.icon className={cn("w-3.5 h-3.5", activeAiTool === tool.id ? "text-primary" : "text-gold/60")} />
-                        {tool.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="p-10 bg-gradient-to-b from-transparent to-black/20">
-                  <AnimatePresence mode="wait">
-                    <motion.div 
-                      key={activeAiTool}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      {activeAiTool === "health" && <InventoryHealthWidget isExpanded={true} />}
-                      {activeAiTool === "heatmap" && <StockHeatmapWidget isExpanded={true} />}
-                      {activeAiTool === "expiry" && <ExpiryAlertWidget />}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-              </div>
+          {activeTab === "health" && (
+            <div className="animate-in fade-in duration-700">
+               <InventoryHealthWidget isExpanded={true} />
+            </div>
+          )}
+          {activeTab === "heatmap" && (
+            <div className="animate-in fade-in duration-700">
+               <StockHeatmapWidget isExpanded={true} />
+            </div>
+          )}
+          {activeTab === "expiry" && (
+            <div className="animate-in fade-in duration-700">
+               <ExpiryAlertWidget />
             </div>
           )}
 

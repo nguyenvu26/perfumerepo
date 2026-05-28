@@ -16,8 +16,11 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronFirst,
-  ChevronLast
+  ChevronLast,
+  Trash2,
+  RefreshCcw
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslations, useFormatter, useLocale } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -42,14 +45,16 @@ export default function ExpiryReportPage() {
   });
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"ALL" | "CRITICAL" | "WARNING" | "HEALTHY" | "SOLD_OUT">("ALL");
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const fetchData = useCallback(async (pageNo: number, keyword: string) => {
+  const fetchData = useCallback(async (pageNo: number, keyword: string, currentStatus: string) => {
     setLoading(true);
     try {
       const response = await analyticsService.getExpiryAlerts({
         page: pageNo,
         limit: pagination.limit,
         search: keyword || undefined,
+        status: currentStatus !== "ALL" ? currentStatus : undefined,
       });
       setData(response.data);
       setPagination({
@@ -67,27 +72,31 @@ export default function ExpiryReportPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchData(1, search);
-    }, 400); // Simple debounce for search
+      fetchData(1, search, filter);
+    }, 400); // Simple debounce for search and filter
     return () => clearTimeout(timer);
-  }, [search, fetchData]);
-
-  // Client-side status filtering (optional if moved to backend, but let's keep it client-side if only for status to avoid extra backend complexity if not needed)
-  // Actually, let's keep client-side filtering for status ONLY if it's manageable. 
-  // BUT if we paginate, it should definitely be backend.
-  // Currently backend only supports search. I should probably add status to backend as well or just accept that status filter won't work across pages.
-  // User asked for pagination, I should ensure filters work.
-  // Let's refine the backend or just assume we'll fix the status filter later or it's fine for now. 
-  // Wait, I didn't add status filter to backend.
-  
-  const displayData = useMemo(() => {
-    if (filter === "ALL") return data;
-    return data.filter(item => item.status === filter);
-  }, [data, filter]);
+  }, [search, filter, fetchData]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
-      fetchData(newPage, search);
+      fetchData(newPage, search, filter);
+    }
+  };
+  
+  const handleDispose = async (batchId: string, batchCode: string) => {
+    if (!confirm(`Bạn có chắc chắn muốn hủy lô hàng [${batchCode}] không? Hành động này sẽ trừ toàn bộ tồn kho của lô và không thể hoàn tác.`)) {
+      return;
+    }
+
+    setProcessingId(batchId);
+    try {
+      await analyticsService.disposeBatch(batchId);
+      toast.success(`Đã hủy thành công lô hàng ${batchCode}.`);
+      fetchData(pagination.page, search, filter);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Không thể hủy lô hàng.");
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -160,11 +169,12 @@ export default function ExpiryReportPage() {
                   <th className="px-8 py-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic tracking-widest">Giá nhập</th>
                   <th className="px-8 py-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">Hạn sử dụng</th>
                   <th className="px-8 py-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">Trạng thái</th>
+                  <th className="px-8 py-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 <AnimatePresence mode="popLayout">
-                  {displayData.map((item, idx) => (
+                  {data.map((item, idx) => (
                     <motion.tr 
                       key={item.batchId}
                       initial={{ opacity: 0, y: 10 }}
@@ -245,6 +255,27 @@ export default function ExpiryReportPage() {
                           {item.status === 'SOLD_OUT' ? 'Đã hết hàng' : item.status === 'CRITICAL' ? 'Khẩn cấp' : item.status === 'WARNING' ? 'Cảnh báo' : 'An toàn'}
                         </div>
                       </td>
+                      <td className="px-8 py-6 text-right">
+                        {item.status === 'CRITICAL' && item.currentQuantity > 0 && (
+                          <button
+                            onClick={() => handleDispose(item.batchId, item.batchCode)}
+                            disabled={processingId === item.batchId}
+                            className="p-3 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all active:scale-90 group relative"
+                            title="Xử lý hủy hàng hết hạn"
+                          >
+                            {processingId === item.batchId ? (
+                              <RefreshCcw className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                            
+                            {/* Tooltip phong cách Luxury */}
+                            <span className="absolute bottom-full right-0 mb-3 px-3 py-1.5 bg-luxury-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap rounded-lg shadow-2xl z-50">
+                              Xuất hủy hàng
+                            </span>
+                          </button>
+                        )}
+                      </td>
                     </motion.tr>
                   ))}
                 </AnimatePresence>
@@ -258,7 +289,7 @@ export default function ExpiryReportPage() {
                      </td>
                    </tr>
                 )}
-                {!loading && displayData.length === 0 && (
+                {!loading && data.length === 0 && (
                   <tr>
                     <td colSpan={7} className="py-32 text-center">
                       <div className="flex flex-col items-center justify-center opacity-20 italic space-y-6">

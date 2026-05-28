@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRoleEnum, InventoryLogType, WarehouseType } from '@prisma/client';
+import { UserRoleEnum, InventoryLogType, WarehouseType, InventoryRequestStatus } from '@prisma/client';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { BatchImportDto } from './dto/batch-import.dto';
@@ -599,6 +599,16 @@ export class StoresService {
             data: { purchasePrice: wac },
           });
         }
+      }
+
+      // 5. Close linked requests if any
+      if (dto.requestIds && dto.requestIds.length > 0) {
+        await tx.inventoryRequest.updateMany({
+          where: { id: { in: dto.requestIds } },
+          data: {
+            status: InventoryRequestStatus.APPROVED,
+          },
+        });
       }
     });
 

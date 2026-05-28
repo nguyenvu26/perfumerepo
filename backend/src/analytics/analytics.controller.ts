@@ -1,13 +1,17 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AnalyticsService } from './analytics.service';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Controller('analytics')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    private readonly analyticsService: AnalyticsService,
+    private readonly inventoryService: InventoryService,
+  ) {}
 
   /** Dashboard overview stats (revenue, orders, customers, AI consultations) */
   @Get('overview')
@@ -129,6 +133,7 @@ export class AnalyticsController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
+    @Query('status') status?: string,
   ) {
     const p = Number(page ?? 1);
     const l = Number(limit ?? 20);
@@ -137,6 +142,13 @@ export class AnalyticsController {
       Number.isFinite(p) ? p : 1,
       Number.isFinite(l) ? l : 20,
       search,
+      status,
     );
+  }
+
+  @Post('batch/:batchId/dispose')
+  @Roles('ADMIN')
+  async disposeBatch(@Param('batchId') batchId: string) {
+    return this.inventoryService.disposeBatch(batchId);
   }
 }

@@ -25,6 +25,7 @@ interface LatestQuizResult {
 export default function CustomerDashboard() {
     const t = useTranslations('dashboard.customer.home');
     const locale = useLocale();
+    const isVi = locale === 'vi';
     const format = useFormatter();
 
     const [points, setPoints] = useState<number | null>(null);
@@ -70,22 +71,22 @@ export default function CustomerDashboard() {
     return (
         <AuthGuard allowedRoles={['customer']}>
             <main className="mx-auto max-w-7xl p-4 sm:p-8">
-                <header className="mb-8 flex flex-col items-start justify-between gap-4 md:mb-12 md:flex-row md:items-end">
-                    <div>
-                        <h1 className="mb-2 text-3xl font-heading uppercase tracking-tighter gold-gradient md:text-4xl">{t('title')}</h1>
-                        <p className="font-body text-[10px] uppercase tracking-widest text-muted-foreground md:text-sm">{t('subtitle')}</p>
+                <header className="mb-6 md:mb-12 flex flex-col items-start justify-between gap-5 md:flex-row md:items-end">
+                    <div className="w-full text-center md:text-left">
+                        <h1 className="mb-2 text-4xl sm:text-5xl font-heading uppercase tracking-tighter gold-gradient md:text-4xl">{t('title')}</h1>
+                        <p className="font-body text-[10px] sm:text-xs uppercase tracking-widest text-muted-foreground md:text-sm">{t('subtitle')}</p>
                     </div>
 
-                    <div className="flex w-full gap-4 md:w-auto">
-                        <div className="glass flex flex-1 items-center gap-2 rounded-2xl border-gold/10 px-4 py-2 md:flex-none md:gap-3 md:px-6 md:py-3">
+                    <div className="flex w-full md:w-auto justify-center md:justify-end">
+                        <div className="glass flex items-center justify-center gap-3 rounded-full border border-gold/20 px-6 py-2.5 md:gap-3 md:px-6 md:py-3 shadow-lg shadow-gold/5">
                             {loading ? (
-                                <Loader2 size={14} className="animate-spin text-gold" />
+                                <Loader2 size={16} className="animate-spin text-gold" />
                             ) : (
-                                <Coins size={14} className="text-gold" />
+                                <Coins size={16} className="text-gold" />
                             )}
                             <div className="text-left">
-                                <p className="text-[7px] font-bold uppercase tracking-widest text-muted-foreground md:text-[8px]">{t('credits_label')}</p>
-                                <p className="font-heading text-[10px] text-foreground md:text-xs">
+                                <p className="text-[8px] font-black uppercase tracking-widest text-gold/60 md:text-[8px]">{t('credits_label')}</p>
+                                <p className="font-heading text-sm text-foreground md:text-sm leading-none mt-0.5">
                                     {loading ? '---' : format.number(points ?? 0)} {t('credits_suffix')}
                                 </p>
                             </div>
@@ -95,8 +96,8 @@ export default function CustomerDashboard() {
 
                 <div className="mb-12 grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
                     <div className="glass rounded-[2.5rem] bg-gradient-to-br from-gold/20 via-transparent to-gold/5 p-1 md:rounded-[3rem] lg:col-span-2">
-                        <div className="flex h-full flex-col gap-6 rounded-[2.4rem] bg-background/40 p-6 backdrop-blur-3xl md:rounded-[2.9rem] md:flex-row md:gap-10 md:p-10">
-                            <div className="glass relative flex min-h-[200px] w-full items-center justify-center overflow-hidden rounded-[2rem] border-gold/10 aspect-square md:w-1/2 md:aspect-auto md:rounded-[2.5rem]">
+                        <div className="flex h-full flex-col gap-6 md:gap-10 rounded-[2.4rem] md:rounded-[2.9rem] bg-background/40 p-5 sm:p-6 md:p-10 backdrop-blur-3xl md:flex-row">
+                            <div className="glass relative flex w-full aspect-square md:aspect-auto md:w-1/2 items-center justify-center overflow-hidden rounded-[2rem] border-gold/10 md:rounded-[2.5rem] shadow-inner">
                                 {quizLoading ? (
                                     <>
                                         <div className="absolute inset-0 bg-[url('/hero-bottle.png')] bg-cover bg-center opacity-10" />
@@ -134,29 +135,29 @@ export default function CustomerDashboard() {
                             <div className="flex flex-1 flex-col justify-center text-center md:text-left">
                                 {featuredRecommendation ? (
                                     <>
-                                        <p className="mb-2 font-heading text-[8px] uppercase tracking-[0.4em] text-gold md:text-[10px]">
-                                            {locale === 'vi' ? 'Đã cập nhật' : 'Updated'}
+                                        <p className="mb-1 md:mb-2 font-black text-[9px] uppercase tracking-[0.4em] text-gold/70 md:text-[10px]">
+                                            {locale === 'vi' ? 'Gợi ý AI' : 'AI Pick'}
                                         </p>
-                                        <h2 className="mb-3 text-xl font-heading uppercase leading-tight tracking-widest text-foreground md:mb-4 md:text-2xl">
+                                        <h2 className="mb-3 md:mb-4 text-2xl sm:text-3xl md:text-4xl font-heading italic leading-tight tracking-tight text-foreground line-clamp-2">
                                             {featuredRecommendation.name}
                                         </h2>
-                                        <div className="mb-4 flex flex-wrap justify-center gap-2 md:mb-6 md:justify-start">
-                                            <span className="rounded-full bg-gold/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-gold">
+                                        <div className="mb-4 md:mb-6 flex flex-wrap justify-center gap-2 md:justify-start">
+                                            <span className="rounded-full bg-gold/10 border border-gold/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-gold shadow-sm">
                                                 {latestRecommendations.length} {locale === 'vi' ? 'Gợi ý' : 'Recommendations'}
                                             </span>
                                             {latestQuiz?.preferredFamily ? (
-                                                <span className="rounded-full bg-secondary px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                                                <span className="rounded-full bg-secondary/50 border border-black/5 dark:border-white/5 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-muted-foreground shadow-sm">
                                                     {latestQuiz.preferredFamily}
                                                 </span>
                                             ) : null}
                                         </div>
-                                        <p className="mb-6 line-clamp-3 font-body text-[11px] leading-relaxed text-muted-foreground md:mb-8 md:text-sm">
+                                        <p className="mb-6 md:mb-8 line-clamp-3 font-body text-xs sm:text-sm italic leading-relaxed text-muted-foreground opacity-80">
                                             {featuredRecommendation.reason || latestQuiz?.analysis || t('evolving_desc')}
                                         </p>
-                                        <div className="flex justify-center md:justify-start">
+                                        <div className="flex justify-center md:justify-start mt-auto">
                                             <Link
                                                 href="/quiz"
-                                                className="rounded-full border border-border px-8 py-3.5 text-center font-heading text-[10px] font-bold uppercase tracking-widest text-foreground transition-all hover:border-gold/30 hover:text-gold"
+                                                className="rounded-full border border-border bg-background/50 px-8 py-3.5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-foreground transition-all hover:border-gold/30 hover:text-gold hover:shadow-lg hover:bg-gold/5"
                                             >
                                                 {locale === 'vi' ? 'Xem kết quả' : 'View Results'}
                                             </Link>
@@ -180,36 +181,36 @@ export default function CustomerDashboard() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:gap-6 xs:grid-cols-2 lg:grid-cols-1">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:grid-cols-1">
                         <Link href="/dashboard/customer/loyalty">
-                            <div className="glass group flex h-full flex-col justify-between rounded-[2rem] border-gold/10 p-6 transition-all hover:border-gold/30 md:rounded-[2.5rem] md:p-8">
+                            <div className="glass group flex h-full flex-col justify-between rounded-[1.5rem] border-gold/10 p-4 sm:p-5 transition-all hover:border-gold/30 md:rounded-[2.5rem] md:p-8">
                                 <div className="mb-4 flex items-start justify-between">
-                                    <h3 className="font-heading text-[8px] uppercase tracking-[0.4em] text-gold md:text-[10px]">{t('credits_label')}</h3>
-                                    <ArrowUpRight size={12} className="text-muted-foreground transition-colors group-hover:text-gold" />
-                                </div>
-                                <div className="flex items-center gap-3 md:gap-4">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/10 text-gold md:h-12 md:w-12 md:rounded-2xl">
-                                        <Coins className="h-5 w-5 md:h-6 md:w-6" />
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/10 text-gold md:h-12 md:w-12 md:rounded-2xl">
+                                        <Coins className="h-4 w-4 md:h-5 md:w-5" />
                                     </div>
-                                    <p className="font-heading text-lg uppercase text-foreground md:text-2xl">
-                                        {loading ? '---' : format.number(points ?? 0)} <span className="font-body text-[8px] text-muted-foreground md:text-sm">{t('credits_suffix')}</span>
+                                    <ArrowUpRight size={14} className="text-muted-foreground transition-colors group-hover:text-gold hidden sm:block" />
+                                </div>
+                                <div className="mt-auto">
+                                    <h3 className="mb-1 font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] text-gold/70 md:text-[10px] line-clamp-1">{t('credits_label')}</h3>
+                                    <p className="font-heading italic text-xl sm:text-2xl text-foreground md:text-3xl leading-none">
+                                        {loading ? '---' : format.number(points ?? 0)}
                                     </p>
                                 </div>
                             </div>
                         </Link>
 
                         <Link href="/dashboard/customer/promotions">
-                            <div className="glass group flex h-full flex-col justify-between rounded-[2rem] border-gold/10 bg-gradient-to-br from-transparent to-gold/5 p-6 transition-all hover:border-gold/30 md:rounded-[2.5rem] md:p-8">
+                            <div className="glass group flex h-full flex-col justify-between rounded-[1.5rem] border-gold/10 bg-gradient-to-br from-transparent to-gold/5 p-4 sm:p-5 transition-all hover:border-gold/30 md:rounded-[2.5rem] md:p-8">
                                 <div className="mb-4 flex items-start justify-between">
-                                    <div className="rounded-xl bg-gold/10 p-2 text-gold transition-transform group-hover:scale-110 md:rounded-2xl md:p-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/10 text-gold md:h-12 md:w-12 md:rounded-2xl transition-transform group-hover:scale-110">
                                         <Tag className="h-4 w-4 md:h-5 md:w-5" />
                                     </div>
-                                    <span className="animate-pulse rounded-full bg-gold/20 px-2 py-1 text-[7px] font-bold uppercase tracking-widest text-gold md:text-[8px]">{t('offers_new')}</span>
+                                    <span className="animate-pulse rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-widest text-gold md:text-[9px] whitespace-nowrap">{t('offers_new')}</span>
                                 </div>
-                                <div>
-                                    <h3 className="text-base font-heading uppercase leading-tight tracking-widest text-foreground md:text-lg">{t('offers_title')}</h3>
-                                    <p className="mt-1 text-[8px] uppercase text-muted-foreground md:text-[10px]">
-                                        {offersLoading ? '...' : t('offers_desc', { count: offersCount })}
+                                <div className="mt-auto">
+                                    <h3 className="mb-1 font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] text-gold/70 md:text-[10px] line-clamp-1">{t('offers_title')}</h3>
+                                    <p className="font-heading italic text-xl sm:text-2xl text-foreground md:text-3xl leading-none">
+                                        {offersLoading ? '...' : offersCount} <span className="font-body text-xs text-muted-foreground ml-1">{isVi ? 'Ưu đãi' : 'Offers'}</span>
                                     </p>
                                 </div>
                             </div>
@@ -217,7 +218,7 @@ export default function CustomerDashboard() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 md:gap-6 sm:grid-cols-3 xl:grid-cols-6">
                     {[
                         { key: 'profile', icon: User, href: '/dashboard/profile', color: 'text-purple-400' },
                         { key: 'addresses', icon: MapPinned, href: '/dashboard/customer/addresses', color: 'text-green-400' },
@@ -227,13 +228,13 @@ export default function CustomerDashboard() {
                         { key: 'quiz', icon: Sparkles, href: '/quiz', color: 'text-gold' },
                     ].map((item, i) => (
                         <Link key={i} href={item.href}>
-                            <div className="glass group flex items-center gap-4 rounded-2xl border-border px-5 py-4 transition-all hover:border-gold/30 md:rounded-3xl md:px-6 md:py-5">
-                                <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/50 transition-transform group-hover:scale-110 md:h-12 md:w-12 md:rounded-2xl ${item.color}`}>
-                                    <item.icon className="h-[18px] w-[18px] md:h-5 md:w-5" />
+                            <div className="glass group flex flex-col md:flex-row items-center justify-center md:justify-start gap-3 md:gap-4 rounded-[1.5rem] md:rounded-[2rem] border-border p-4 sm:p-5 transition-all hover:border-gold/30 hover:bg-white/5 text-center md:text-left h-full shadow-sm">
+                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-secondary/50 transition-transform group-hover:scale-110 md:h-12 md:w-12 md:rounded-2xl shadow-inner ${item.color}`}>
+                                    <item.icon className="h-5 w-5 md:h-5 md:w-5" />
                                 </div>
-                                <div>
-                                    <h4 className="text-[9px] font-bold uppercase tracking-widest text-foreground md:text-[10px]">{t(`modules.${item.key}`)}</h4>
-                                    <p className="mt-0.5 text-[7px] uppercase tracking-tighter text-muted-foreground md:text-[8px]">{t('modules.explore')}</p>
+                                <div className="flex flex-col items-center md:items-start justify-center min-w-0">
+                                    <h4 className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-foreground line-clamp-1 w-full text-center md:text-left">{t(`modules.${item.key}`)}</h4>
+                                    <p className="mt-1 text-[7px] md:text-[8px] uppercase tracking-widest text-muted-foreground opacity-60 hidden md:block">{t('modules.explore')}</p>
                                 </div>
                             </div>
                         </Link>

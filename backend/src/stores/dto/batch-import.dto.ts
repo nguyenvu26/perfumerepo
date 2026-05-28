@@ -49,5 +49,9 @@ export class BatchImportDto {
   @ValidateNested({ each: true })
   @Type(() => BatchImportItemDto)
   items: BatchImportItemDto[];
+
+  @IsOptional()
+  @IsArray()
+  requestIds?: number[];
 }
 

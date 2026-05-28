@@ -104,12 +104,12 @@ export function AddressManager({ className }: AddressManagerProps) {
 
   return (
     <div className={className}>
-      <div className="flex items-start justify-between gap-6 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 mb-8">
         <div>
           <h4 className="font-heading text-[10px] uppercase tracking-widest text-muted-foreground">
             {t('title')}
           </h4>
-          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/70 mt-1">
+          <p className="text-[10px] uppercase tracking-widest text-muted-foreground/70 mt-1 line-clamp-2">
             {t('subtitle')}
           </p>
         </div>
@@ -124,7 +124,7 @@ export function AddressManager({ className }: AddressManagerProps) {
           <DialogTrigger asChild>
             <Button
               onClick={() => setSelectedAddress(null)}
-              className="rounded-full bg-primary text-primary-foreground hover:scale-105 transition-transform shadow-lg shadow-gold/10"
+              className="w-full sm:w-auto shrink-0 whitespace-nowrap rounded-full bg-primary text-primary-foreground hover:scale-[1.02] active:scale-95 transition-transform shadow-lg shadow-gold/10"
             >
               <Plus className="mr-2 h-4 w-4" /> {t('add_new')}
             </Button>
