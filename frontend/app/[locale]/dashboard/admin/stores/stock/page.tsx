@@ -627,27 +627,27 @@ export default function AdminStockRedesignPage() {
 
   return (
     <AuthGuard allowedRoles={["admin"]}>
-      <main className="p-8 max-w-[1800px] mx-auto space-y-12">
-        <header className="flex flex-col gap-10">
+      <main className="px-0 py-4 sm:px-6 sm:py-8 xl:p-8 max-w-[1800px] mx-auto space-y-6 sm:space-y-10 xl:space-y-12">
+        <header className="flex flex-col gap-5 sm:gap-8 xl:gap-10">
           {/* Row 1: Identity */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-            <div className="flex items-center gap-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-5 sm:gap-8">
+            <div className="flex items-center gap-4 sm:gap-8 min-w-0">
               <button
                 onClick={() => router.push(`/${locale}/dashboard/admin/stores`)}
-                className="group flex items-center justify-center w-14 h-14 rounded-full border border-white/10 hover:border-gold/50 hover:bg-gold/5 transition-all shadow-xl"
+                className="group flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 rounded-full border border-white/10 hover:border-gold/50 hover:bg-gold/5 transition-all shadow-xl shrink-0"
                 title="Quay lại hệ thống cửa hàng"
               >
                 <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
               </button>
-              <h1 className="text-6xl sm:text-7xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+              <h1 className="text-3xl sm:text-5xl xl:text-7xl font-heading gold-gradient italic leading-tight sm:leading-none">
                 {t('title')}
               </h1>
             </div>
           </div>
           
           {/* Row 2: Navigation Tabs & Utilities */}
-          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
-            <nav className="flex-1 flex items-center gap-2 bg-black/40 p-2 rounded-full border border-white/10 backdrop-blur-2xl shadow-3xl overflow-hidden">
+          <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 sm:gap-6">
+            <nav className="w-full xl:flex-1 flex items-center gap-2 bg-white/70 dark:bg-zinc-900/70 p-1.5 sm:p-2 rounded-[1.75rem] sm:rounded-full border border-gold/15 backdrop-blur-2xl shadow-[0_18px_45px_-30px_rgba(15,23,42,0.6)] overflow-x-auto custom-scrollbar">
               {[
                 { id: "overview", icon: LayoutGrid, label: t('tabs.overview') },
                 { id: "batch-import", icon: FileInput, label: "Nhập kho" },
@@ -662,30 +662,30 @@ export default function AdminStockRedesignPage() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={cn(
-                    "relative flex-1 flex items-center justify-center gap-2.5 px-5 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-700 whitespace-nowrap",
+                    "relative flex-none xl:flex-1 flex items-center justify-center gap-2 px-4 sm:px-5 py-3 sm:py-4 rounded-full [font-size:0.78rem] font-black transition-all duration-700 whitespace-nowrap",
                     activeTab === tab.id 
-                      ? "text-primary z-10" 
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-luxury-black z-10" 
+                      : "text-stone-500 hover:text-foreground dark:text-stone-400 dark:hover:text-white"
                   )}
                 >
                   {activeTab === tab.id && (
                     <motion.div
                       layoutId="activeTab"
-                      className="absolute inset-0 bg-gold rounded-full -z-10 shadow-[0_10px_40px_rgba(212,175,55,0.4)]"
+                      className="absolute inset-0 bg-gradient-to-r from-[#d7b96d] via-gold to-[#b58f44] rounded-full -z-10 shadow-[0_10px_34px_rgba(197,160,89,0.32)]"
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <tab.icon className={cn("w-4 h-4 shrink-0", activeTab === tab.id ? "text-primary" : "text-gold/60")} /> 
+                  <tab.icon className={cn("w-4 h-4 shrink-0", activeTab === tab.id ? "text-luxury-black" : "text-gold/70")} /> 
                   <span className="inline">{tab.label}</span>
                 </button>
               ))}
             </nav>
 
-            <div ref={utilityRef} className="relative shrink-0">
+            <div ref={utilityRef} className="relative w-full xl:w-auto xl:shrink-0">
               <button 
                 onClick={() => setShowUtilityMenu(!showUtilityMenu)}
                 className={cn(
-                  "flex items-center gap-3 bg-white/5 border border-white/10 px-8 py-4 rounded-full text-[10px] uppercase font-black tracking-widest hover:border-gold/30 hover:bg-gold/5 transition-all shadow-lg",
+                  "flex w-full xl:w-auto items-center justify-center gap-3 bg-white/70 dark:bg-zinc-900/70 border border-gold/15 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full [font-size:0.82rem] font-black text-foreground hover:border-gold/40 hover:bg-gold/10 transition-all shadow-[0_18px_45px_-32px_rgba(15,23,42,0.65)]",
                   showUtilityMenu && "border-gold bg-gold/5"
                 )}
               >
@@ -704,7 +704,7 @@ export default function AdminStockRedesignPage() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="absolute top-full right-0 mt-4 w-72 glass bg-zinc-950/90 border border-gold/20 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] overflow-hidden"
+                    className="absolute top-full left-0 right-0 xl:left-auto mt-3 sm:mt-4 xl:w-72 glass bg-zinc-950/90 border border-gold/20 rounded-3xl xl:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[100] overflow-hidden"
                   >
                     <div className="p-4 space-y-1">
                       {[
@@ -719,7 +719,7 @@ export default function AdminStockRedesignPage() {
                             router.push(item.href);
                             setShowUtilityMenu(false);
                           }}
-                          className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl hover:bg-gold text-[10px] uppercase font-black tracking-widest text-muted-foreground hover:text-primary transition-all text-left"
+                          className="w-full flex items-center gap-4 px-5 sm:px-6 py-3.5 sm:py-4 rounded-2xl hover:bg-gold [font-size:0.78rem] font-black text-muted-foreground hover:text-primary transition-all text-left"
                         >
                           <item.icon className="w-4 h-4" />
                           {item.label}
@@ -740,7 +740,7 @@ export default function AdminStockRedesignPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="mb-8 p-5 rounded-3xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-4"
+              className="mb-5 sm:mb-8 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center gap-3 sm:gap-4"
             >
               <AlertCircle className="w-5 h-5" /> {error}
             </motion.div>
@@ -750,17 +750,17 @@ export default function AdminStockRedesignPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
-              className="mb-8 p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm flex items-center gap-4"
+              className="mb-5 sm:mb-8 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm flex items-center gap-3 sm:gap-4"
             >
               <CheckCircle2 className="w-5 h-5" /> {success}
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className="min-h-[700px]">
+        <div className="min-h-[520px] sm:min-h-[700px]">
           {/* --- TAB 1: OVERVIEW & MATRIX --- */}
           {activeTab === "overview" && (
-            <div className="space-y-8 animate-in fade-in duration-1000">
+            <div className="space-y-5 sm:space-y-8 animate-in fade-in duration-1000">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-40 gap-6">
                   <Loader2 className="w-12 h-12 animate-spin text-gold/40" />
@@ -771,7 +771,7 @@ export default function AdminStockRedesignPage() {
               ) : (
                 <>
                   {/* Summary Stats Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 xl:gap-8">
                     {[
                       { label: "Mã hàng đang quản lý", value: stats.totalSku, icon: Layers, color: "text-blue-500", bg: "from-blue-500/10", unit: "SKU" },
                       { label: "Tổng sản phẩm tồn kho", value: stats.globalUnits, icon: Globe, color: "text-emerald-500", bg: "from-emerald-500/10", unit: "Sản phẩm" },
@@ -784,18 +784,18 @@ export default function AdminStockRedesignPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.1 }}
                         className={cn(
-                          "relative overflow-hidden glass p-10 rounded-[3.5rem] border-white/5 group hover:border-gold/30 transition-all duration-700 bg-zinc-900/20"
+                          "relative overflow-hidden glass p-6 sm:p-8 xl:p-10 rounded-3xl sm:rounded-[2.5rem] xl:rounded-[3.5rem] border-white/5 group hover:border-gold/30 transition-all duration-700 bg-zinc-900/20"
                         )}
                       >
                         <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700", stat.bg)} />
                         
-                        <div className="relative z-10 flex flex-col gap-10">
+                        <div className="relative z-10 flex flex-col gap-6 sm:gap-8 xl:gap-10">
                           <div className="flex items-center justify-between">
                             <div className={cn(
-                              "w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 shadow-2xl",
+                              "w-12 h-12 sm:w-14 sm:h-14 xl:w-16 xl:h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-700 shadow-2xl",
                               stat.color
                             )}>
-                              <stat.icon className="w-8 h-8" />
+                              <stat.icon className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8" />
                             </div>
                             {stat.highlight && (
                               <div className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
@@ -805,15 +805,15 @@ export default function AdminStockRedesignPage() {
                           </div>
                           
                           <div className="space-y-2">
-                            <p className="text-[10px] uppercase tracking-[.4em] font-black text-muted-foreground opacity-50 group-hover:text-gold transition-colors">{stat.label}</p>
+                            <p className="[font-size:0.78rem] font-black text-muted-foreground opacity-60 group-hover:text-gold transition-colors">{stat.label}</p>
                             <div className="flex items-end gap-3">
                               <span className={cn(
-                                "font-heading text-6xl italic tracking-tighter leading-none",
+                                "font-heading text-4xl sm:text-5xl xl:text-6xl italic leading-none",
                                 stat.highlight ? "text-amber-500" : "text-foreground group-hover:text-white transition-colors"
                               )}>
                                 {stat.value.toLocaleString()}
                               </span>
-                              <span className="text-[10px] font-bold opacity-20 uppercase tracking-widest mb-2 italic">{stat.unit}</span>
+                              <span className="[font-size:0.75rem] font-bold opacity-30 mb-1 sm:mb-2 italic">{stat.unit}</span>
                             </div>
                           </div>
                         </div>
@@ -822,8 +822,8 @@ export default function AdminStockRedesignPage() {
                   </div>
 
                   {/* Matrix Controls Row */}
-                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-10">
-                    <div className="flex items-center gap-2 bg-black/40 p-1.5 rounded-[2rem] border border-white/10 shadow-3xl">
+                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 sm:gap-6 lg:gap-10">
+                    <div className="flex items-center gap-2 bg-white/70 dark:bg-zinc-900/70 p-1.5 rounded-[1.75rem] sm:rounded-[2rem] border border-gold/15 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.65)] overflow-x-auto custom-scrollbar">
                       {[
                         { id: "matrix", icon: Layers, label: "Ma trận so sánh" },
                         { id: "store", icon: Building2, label: "Xem theo kho" },
@@ -832,10 +832,10 @@ export default function AdminStockRedesignPage() {
                           key={mode.id}
                           onClick={() => setViewMode(mode.id as any)}
                           className={cn(
-                            "flex items-center gap-4 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all duration-700",
+                            "flex flex-none items-center gap-2 sm:gap-4 px-4 sm:px-8 py-3 sm:py-4 rounded-full [font-size:0.78rem] font-black transition-all duration-700 whitespace-nowrap",
                             viewMode === mode.id 
-                              ? "bg-gold text-white shadow-xl shadow-gold/20 scale-[1.02]" 
-                              : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                              ? "bg-gradient-to-r from-[#d7b96d] via-gold to-[#b58f44] text-luxury-black shadow-xl shadow-gold/20 scale-[1.02]" 
+                              : "text-stone-500 hover:text-foreground hover:bg-gold/10 dark:text-stone-400 dark:hover:text-white"
                           )}
                         >
                           <mode.icon className="w-4 h-4" />
@@ -844,7 +844,7 @@ export default function AdminStockRedesignPage() {
                       ))}
                     </div>
 
-                    <div className="flex-1 flex flex-col md:flex-row items-center gap-8">
+                    <div className="flex-1 flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-5 md:gap-8">
                       <div className="relative flex-1 group w-full">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gold opacity-40 group-focus-within:opacity-100 transition-opacity" />
                         <input
@@ -852,7 +852,7 @@ export default function AdminStockRedesignPage() {
                           value={matrixSearch}
                           onChange={(e) => setMatrixSearch(e.target.value)}
                           placeholder="Tìm mã SKU, tên nước hoa hoặc thương hiệu..."
-                          className="w-full bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-5 text-sm font-bold tracking-wider outline-none focus:border-gold/50 focus:bg-white/10 transition-all placeholder:opacity-20 shadow-inner"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl sm:rounded-[2rem] pl-12 sm:pl-16 pr-4 sm:pr-8 py-3.5 sm:py-5 text-sm font-bold outline-none focus:border-gold/50 focus:bg-white/10 transition-all placeholder:opacity-30 shadow-inner"
                         />
                       </div>
                       
@@ -860,7 +860,7 @@ export default function AdminStockRedesignPage() {
                          <select
                             value={selectedStoreId || ""}
                             onChange={(e) => setSelectedStoreId(e.target.value || null)}
-                            className="bg-white/5 border border-white/10 rounded-[2rem] px-8 py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold min-w-[280px] hover:bg-white/10 transition-all cursor-pointer shadow-3xl"
+                            className="w-full md:w-auto bg-white/5 border border-white/10 rounded-2xl sm:rounded-[2rem] px-4 sm:px-8 py-3.5 sm:py-5 text-sm font-bold outline-none focus:border-gold md:min-w-[280px] hover:bg-white/10 transition-all cursor-pointer shadow-3xl"
                           >
                             <option value="">Tất cả kho bãi</option>
                             {warehouses.map(w => (
@@ -873,16 +873,141 @@ export default function AdminStockRedesignPage() {
 
                   {viewMode === "matrix" ? (
                     /* --- MATRIX VIEW --- */
-                    <section className="glass rounded-[4rem] border-white/10 overflow-hidden shadow-3xl bg-zinc-900/10">
-                      <div className="overflow-x-auto custom-scrollbar">
-                        <table className="w-full text-left border-collapse">
+                    <section className="glass rounded-3xl sm:rounded-[4rem] border-white/10 overflow-hidden shadow-3xl bg-zinc-900/10">
+                      <div className="lg:hidden p-4 sm:p-6">
+                        {stockMatrix.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground/40">
+                            <PackageSearch className="w-14 h-14 mb-4" />
+                            <p className="text-lg font-heading italic">Không tìm thấy tài sản nào</p>
+                            <p className="mt-1 text-sm">Hãy điều chỉnh bộ lọc tìm kiếm hoặc kiểm tra đồng bộ kho.</p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 gap-4">
+                            {stockMatrix.map((v, idx) => {
+                              const lowStores = warehouses.filter((w) => {
+                                const qty = v.stocks[w.id] || 0;
+                                return qty > 0 && qty <= lowStockThreshold;
+                              });
+
+                              return (
+                                <motion.div
+                                  key={v.id}
+                                  initial={{ opacity: 0, y: 12 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: Math.min(idx * 0.035, 0.45) }}
+                                  className="rounded-3xl border border-gold/10 bg-white/75 p-4 shadow-[0_18px_45px_-36px_rgba(15,23,42,0.75)] backdrop-blur-xl dark:bg-white/[0.04]"
+                                >
+                                  <div className="flex items-start gap-4">
+                                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-gold/10 bg-white/70 shadow-lg dark:bg-white/5">
+                                      {v.imageUrl ? (
+                                        <Image src={v.imageUrl} alt="" fill sizes="64px" className="object-cover" />
+                                      ) : (
+                                        <div className="flex h-full w-full items-center justify-center">
+                                          <PackageSearch className="h-6 w-6 text-muted-foreground/30" />
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                      <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                                        <span className="rounded-full border border-gold/20 bg-gold/10 px-2.5 py-1 [font-size:0.75rem] font-black text-gold">
+                                          {v.variantName}
+                                        </span>
+                                        {v.sku && (
+                                          <span className="rounded-full bg-stone-100 px-2.5 py-1 font-mono [font-size:0.72rem] text-stone-500 dark:bg-white/5 dark:text-white/45">
+                                            {v.sku}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <h3 className="text-base font-semibold leading-snug text-foreground">
+                                        {v.productName}
+                                      </h3>
+                                      <p className="mt-0.5 [font-size:0.78rem] font-bold text-muted-foreground">
+                                        {v.brandName}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-4 grid grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-gold/10 bg-gold/[0.06] p-3">
+                                    <div>
+                                      <p className="[font-size:0.72rem] font-bold text-muted-foreground">Tồn hệ thống</p>
+                                      <p className={cn("mt-1 text-3xl font-heading italic leading-none", v.total === 0 ? "text-muted-foreground/35" : "gold-gradient")}>
+                                        {v.total}
+                                      </p>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        setActiveTab("transfer");
+                                        addTransferItem(v);
+                                        if (!transferFromId) {
+                                          const sourceEntry = Object.entries(v.stocks as Record<string, number>).find(
+                                            ([_, qty]) => qty > 0
+                                          );
+                                          if (sourceEntry) setTransferFromId(sourceEntry[0]);
+                                        }
+                                      }}
+                                      className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/20 bg-white text-gold shadow-sm transition-all hover:bg-gold hover:text-luxury-black dark:bg-white/5"
+                                      aria-label="Điều vận sản phẩm"
+                                    >
+                                      <ArrowRightLeft className="h-5 w-5" />
+                                    </button>
+                                  </div>
+
+                                  <div className="mt-4 grid grid-cols-2 gap-2">
+                                    {warehouses.map((w) => {
+                                      const qty = v.stocks[w.id] || 0;
+                                      const isLow = qty > 0 && qty <= lowStockThreshold;
+                                      return (
+                                        <div
+                                          key={w.id}
+                                          className={cn(
+                                            "rounded-2xl border p-3",
+                                            qty === 0
+                                              ? "border-stone-200 bg-stone-50 text-muted-foreground dark:border-white/5 dark:bg-white/[0.02]"
+                                              : isLow
+                                                ? "border-amber-400/25 bg-amber-400/10"
+                                                : "border-emerald-500/15 bg-emerald-500/10"
+                                          )}
+                                        >
+                                          <p className="truncate [font-size:0.72rem] font-bold text-muted-foreground">
+                                            {w.name}
+                                          </p>
+                                          <div className="mt-1 flex items-end justify-between gap-2">
+                                            <span className={cn("text-xl font-semibold leading-none", qty === 0 ? "text-muted-foreground/40" : isLow ? "text-amber-600" : "text-emerald-600")}>
+                                              {qty}
+                                            </span>
+                                            {isLow && (
+                                              <span className="[font-size:0.68rem] font-black text-amber-600">
+                                                Sắp hết
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {lowStores.length > 0 && (
+                                    <div className="mt-3 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-3 py-2 [font-size:0.76rem] font-semibold text-amber-700 dark:text-amber-400">
+                                      Cảnh báo thấp: {lowStores.map((w) => w.name).join(", ")}
+                                    </div>
+                                  )}
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="hidden lg:block overflow-x-auto custom-scrollbar">
+                        <table className="w-full min-w-[980px] text-left border-collapse">
                           <thead>
                             <tr className="bg-white/[0.05] border-b border-white/5">
-                              <th className="pl-12 pr-4 py-12 text-[10px] uppercase tracking-[.4em] font-black text-gold/60 min-w-[380px]">
+                              <th className="pl-6 sm:pl-12 pr-4 py-6 sm:py-12 text-[10px] uppercase tracking-[.4em] font-black text-gold/60 min-w-[320px] sm:min-w-[380px]">
                                 Danh mục tài sản / Sản phẩm
                               </th>
                               {warehouses.map((w) => (
-                                <th key={w.id} className="px-6 py-12 text-[10px] uppercase tracking-[.4em] font-black opacity-30 text-center min-w-[150px] border-l border-white/5">
+                                <th key={w.id} className="px-4 sm:px-6 py-6 sm:py-12 text-[10px] uppercase tracking-[.4em] font-black opacity-30 text-center min-w-[130px] sm:min-w-[150px] border-l border-white/5">
                                   <div className="flex flex-col items-center gap-1.5">
                                     {w.type === 'CENTRAL' && <Globe className="w-4 h-4 text-gold shadow-glow-sm" strokeWidth={2.5} />}
                                     <span className={cn(w.type === 'CENTRAL' ? "text-gold opacity-100" : "")}>{w.name}</span>
@@ -890,10 +1015,10 @@ export default function AdminStockRedesignPage() {
                                   </div>
                                 </th>
                               ))}
-                              <th className="px-12 py-12 text-[11px] uppercase tracking-[.5em] font-black text-gold text-right min-w-[200px] border-l border-white/10 bg-gold/5 italic">
+                              <th className="px-6 sm:px-12 py-6 sm:py-12 text-[11px] uppercase tracking-[.5em] font-black text-gold text-right min-w-[170px] sm:min-w-[200px] border-l border-white/10 bg-gold/5 italic">
                                 Tồn hệ thống
                               </th>
-                              <th className="px-8 py-12 text-[10px] uppercase tracking-[.4em] font-black opacity-30 text-center min-w-[100px]">
+                              <th className="px-5 sm:px-8 py-6 sm:py-12 text-[10px] uppercase tracking-[.4em] font-black opacity-30 text-center min-w-[100px]">
                                 Điều vận
                               </th>
                             </tr>
@@ -1010,7 +1135,7 @@ export default function AdminStockRedesignPage() {
                     </section>
                   ) : (
                     /* --- STORE DETAIL LIST (Original View) --- */
-                    <div className="grid grid-cols-1 gap-8 mt-12">
+                    <div className="grid grid-cols-1 gap-5 sm:gap-8 mt-5 sm:mt-8 lg:mt-12">
 
                        {overview?.stores
                         .filter(s => !selectedStoreId || s.store.id === selectedStoreId)
@@ -1018,7 +1143,7 @@ export default function AdminStockRedesignPage() {
                         <motion.section
                           layout
                           key={storeData.store.id}
-                          className="glass group/store rounded-[3.5rem] border border-white/5 overflow-hidden shadow-2xl bg-white/[0.01]"
+                          className="glass group/store rounded-3xl lg:rounded-[3.5rem] border border-white/5 overflow-hidden shadow-2xl bg-white/[0.01]"
                         >
                           <div className="px-10 py-10 bg-gradient-to-r from-white/[0.03] to-transparent border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
                             <div className="flex items-center gap-6">
@@ -1043,14 +1168,86 @@ export default function AdminStockRedesignPage() {
                                   setTransferFromId(storeData.store.id);
                                   setActiveTab("transfer");
                                 }}
-                                className="w-16 h-16 rounded-[1.5rem] bg-white/5 hover:bg-gold text-white transition-all duration-500 border border-white/10 hover:border-gold/30 flex items-center justify-center shadow-xl"
+                                className="w-16 h-16 rounded-[1.5rem] bg-white/70 dark:bg-white/5 hover:bg-gold text-gold hover:text-luxury-black transition-all duration-500 border border-gold/15 hover:border-gold/30 flex items-center justify-center shadow-xl"
                               >
                                 <ArrowRightLeft className="w-6 h-6" />
                               </button>
                             </div>
                           </div>
                           
-                          <div className="overflow-x-auto">
+                          <div className="lg:hidden p-4">
+                            {storeData.variants.length === 0 ? (
+                              <div className="py-16 text-center text-muted-foreground/40">
+                                <PackageSearch className="mx-auto mb-4 h-12 w-12" />
+                                <p className="font-heading text-xl italic">{t('status.empty_boutique')}</p>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 gap-3">
+                                {storeData.variants
+                                  .filter(v => !matrixSearch || v.productName.toLowerCase().includes(matrixSearch.toLowerCase()))
+                                  .map((v) => {
+                                    const isLow = v.available > 0 && v.available <= 5;
+                                    return (
+                                      <div
+                                        key={v.variantId}
+                                        className="rounded-3xl border border-gold/10 bg-white/80 p-4 shadow-[0_16px_40px_-34px_rgba(15,23,42,0.8)] dark:bg-white/[0.04]"
+                                      >
+                                        <div className="flex items-start gap-3">
+                                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-border bg-secondary/40">
+                                            {v.imageUrl ? (
+                                              <Image src={v.imageUrl} alt="" fill sizes="56px" className="object-cover" />
+                                            ) : (
+                                              <div className="flex h-full w-full items-center justify-center">
+                                                <PackageSearch className="h-5 w-5 text-muted-foreground/30" />
+                                              </div>
+                                            )}
+                                          </div>
+
+                                          <div className="min-w-0 flex-1">
+                                            <p className="[font-size:0.76rem] font-bold text-gold">{v.brandName || "Không rõ thương hiệu"}</p>
+                                            <h4 className="mt-1 text-base font-semibold leading-snug text-foreground">{v.productName}</h4>
+                                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                                              <span className="rounded-full border border-border bg-background px-3 py-1 [font-size:0.78rem] font-semibold text-foreground">
+                                                {v.variantName}
+                                              </span>
+                                              {v.sku && (
+                                                <span className="rounded-full bg-stone-100 px-3 py-1 font-mono [font-size:0.72rem] text-stone-500 dark:bg-white/5 dark:text-white/45">
+                                                  {v.sku}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        <div className="mt-4 grid grid-cols-[1fr_auto] items-center gap-3 rounded-2xl border border-gold/10 bg-gold/[0.06] p-3">
+                                          <div>
+                                            <p className="[font-size:0.72rem] font-bold text-muted-foreground">Tồn tại kho</p>
+                                            <p className={cn("mt-1 text-3xl font-heading italic leading-none", isLow ? "text-amber-600" : "gold-gradient")}>
+                                              {v.available}
+                                            </p>
+                                            {isLow && (
+                                              <p className="[font-size:0.72rem] font-bold text-amber-600">Sắp hết</p>
+                                            )}
+                                          </div>
+                                          <button
+                                            onClick={() => {
+                                              setTransferFromId(storeData.store.id);
+                                              setActiveTab("transfer");
+                                            }}
+                                            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-gold/20 bg-white text-gold shadow-sm transition-all hover:bg-gold hover:text-luxury-black dark:bg-white/5"
+                                            aria-label="Điều chuyển từ kho này"
+                                          >
+                                            <ArrowRightLeft className="h-5 w-5" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full text-left">
                               <thead>
                                 <tr className="text-muted-foreground bg-white/[0.02]">
@@ -1126,17 +1323,17 @@ export default function AdminStockRedesignPage() {
 
           {/* --- TAB 2: BATCH IMPORT --- */}
           {activeTab === "batch-import" && (
-            <div className="flex flex-col gap-8 sm:gap-12 animate-in fade-in duration-700">
+            <div className="flex flex-col gap-5 sm:gap-8 xl:gap-12 animate-in fade-in duration-700">
               {/* Configuration Header */}
-              <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3.5rem] border-stone-200 dark:border-white/10 flex flex-col 2xl:flex-row gap-8 sm:gap-12 items-stretch 2xl:items-center shadow-xl">
+              <div className="glass p-5 sm:p-8 xl:p-12 rounded-3xl sm:rounded-[2.5rem] xl:rounded-[3.5rem] border-stone-200 dark:border-white/10 flex flex-col 2xl:flex-row gap-5 sm:gap-8 xl:gap-12 items-stretch 2xl:items-center shadow-xl">
                 <div className="flex-1">
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
+                  <label className="[font-size:0.78rem] text-muted-foreground block mb-2 sm:mb-4 font-black opacity-60 ml-1 sm:ml-2">
                     {t('import.destination')}
                   </label>
                   <select
                     value={importStoreId}
                     onChange={(e) => setImportStoreId(e.target.value)}
-                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer hover:bg-gold/[0.03]"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-4 sm:px-6 py-3.5 sm:py-5 text-sm font-bold outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer hover:bg-gold/[0.03]"
                   >
                     <option value="">{t('import.choose_target')}</option>
                     {storeList.map((s) => (
@@ -1147,7 +1344,7 @@ export default function AdminStockRedesignPage() {
                   </select>
                 </div>
                 <div className="flex-[2]">
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block mb-4 font-black opacity-50 ml-2">
+                  <label className="[font-size:0.78rem] text-muted-foreground block mb-2 sm:mb-4 font-black opacity-60 ml-1 sm:ml-2">
                     {t('import.metadata_label')}
                   </label>
                   <input
@@ -1155,16 +1352,16 @@ export default function AdminStockRedesignPage() {
                     value={importReason}
                     onChange={(e) => setImportReason(e.target.value)}
                     placeholder={t('import.reason_placeholder')}
-                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-8 py-4 sm:py-5 text-sm font-serif italic outline-none focus:border-gold transition-all shadow-sm"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-4 sm:px-8 py-3.5 sm:py-5 text-sm outline-none focus:border-gold transition-all shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 2xl:grid-cols-5 gap-8 sm:gap-12 items-start">
+              <div className="grid grid-cols-1 2xl:grid-cols-5 gap-5 sm:gap-8 xl:gap-12 items-start">
                 {/* Product Selector */}
-                <div className="2xl:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
-                  <div className="p-8 border-b border-border bg-secondary/10">
-                    <div className="flex items-center gap-3 mb-6">
+                <div className="2xl:col-span-2 glass rounded-3xl xl:rounded-[3rem] border-border overflow-hidden flex flex-col h-[520px] sm:h-[650px] 2xl:h-[800px]">
+                  <div className="p-5 sm:p-8 border-b border-border bg-secondary/10">
+                    <div className="flex items-center gap-3 mb-4 sm:mb-6">
                       <PackageSearch className="w-5 h-5 text-gold" />
                       <h3 className="font-heading text-sm uppercase tracking-widest">
                         {t('import.catalog_title')}
@@ -1177,11 +1374,11 @@ export default function AdminStockRedesignPage() {
                         value={importSearch}
                         onChange={(e) => setImportSearch(e.target.value)}
                         placeholder={t('import.filter_placeholder')}
-                        className="w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm outline-none focus:border-gold transition-all"
+                          className="w-full bg-background border border-border rounded-2xl pl-12 sm:pl-14 pr-4 sm:pr-6 py-3.5 sm:py-4 text-sm outline-none focus:border-gold transition-all"
                       />
                     </div>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
                     <div className="grid grid-cols-1 gap-3">
                       {filteredVariantsImport.map((v) => {
                         const stockInfo = variantStockMapping.get(v.id) || { globalTotal: 0, storeStocks: {} };
@@ -1192,7 +1389,7 @@ export default function AdminStockRedesignPage() {
                           <button
                             key={v.id}
                             onClick={() => addImportItem(v)}
-                            className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 hover:bg-gold/10 border border-border hover:border-gold/30 transition-all text-left group"
+                            className="flex items-start sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-secondary/20 hover:bg-gold/10 border border-border hover:border-gold/30 transition-all text-left group"
                           >
                             <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
                               {v.imageUrl ? (
@@ -1251,7 +1448,7 @@ export default function AdminStockRedesignPage() {
                                 </div>
                               </div>
                             </div>
-                            <div className="p-3 bg-background rounded-xl border border-border group-hover:bg-gold group-hover:text-primary-foreground transition-all">
+                            <div className="p-2.5 sm:p-3 bg-background rounded-xl border border-border group-hover:bg-gold group-hover:text-primary-foreground transition-all shrink-0">
                               <Plus className="w-4 h-4" />
                             </div>
                           </button>
@@ -1262,9 +1459,9 @@ export default function AdminStockRedesignPage() {
                 </div>
 
                 {/* Processing List */}
-                <div className="2xl:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
-                  <div className="p-8 border-b border-border flex justify-between items-center bg-secondary/10">
-                    <h3 className="font-heading text-sm uppercase tracking-widest">
+                <div className="2xl:col-span-3 glass rounded-3xl xl:rounded-[3rem] border-border overflow-hidden flex flex-col max-h-[calc(100vh-9rem)] min-h-[420px] sm:h-[700px] 2xl:h-[800px]">
+                  <div className="p-4 sm:p-8 border-b border-border flex items-center justify-between gap-3 bg-secondary/10">
+                    <h3 className="font-heading text-base sm:text-sm leading-snug">
                       {t('import.staging_manifest', { count: importItems.length })}
                     </h3>
                     <button
@@ -1274,7 +1471,7 @@ export default function AdminStockRedesignPage() {
                       {t('import.flush_session')}
                     </button>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
                     {importItems.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30 gap-6">
                         <FileInput className="w-20 h-20 stroke-[0.5px]" />
@@ -1291,9 +1488,9 @@ export default function AdminStockRedesignPage() {
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, scale: 0.95 }}
                               key={item.variantId}
-                              className="flex flex-col p-5 rounded-2xl bg-secondary/20 border border-border hover:border-gold/30 transition-all text-left group"
+                              className="flex flex-col p-4 sm:p-5 rounded-2xl bg-secondary/20 border border-border hover:border-gold/30 transition-all text-left group"
                             >
-                              <div className="flex items-center justify-between">
+                              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                                 <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
                                   {(() => {
                                     const variant = allVariants.find(
@@ -1326,7 +1523,7 @@ export default function AdminStockRedesignPage() {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-6">
+                                <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 sm:gap-6">
                                   <div className="flex flex-col items-end">
                                     <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
                                       Giá nhập (VNĐ)
@@ -1380,14 +1577,14 @@ export default function AdminStockRedesignPage() {
                                         prev.filter((_, i) => i !== idx),
                                       )
                                     }
-                                    className="p-3 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all"
+                                    className="min-h-10 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all flex items-center justify-center sm:p-3"
                                   >
                                     <Trash2 className="w-4 h-4" />
                                   </button>
                                 </div>
                               </div>
 
-                              <div className="grid grid-cols-3 gap-6 mt-5 pt-5 border-t border-border/10">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 mt-5 pt-5 border-t border-border/10">
                                 <div>
                                   <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1 block">
                                     Mã lô (Batch Code)
@@ -1450,7 +1647,7 @@ export default function AdminStockRedesignPage() {
                       </div>
                     )}
                   </div>
-                  <div className="p-10 border-t border-border bg-secondary/5 flex flex-col gap-4">
+                  <div className="p-5 sm:p-8 xl:p-10 border-t border-border bg-secondary/5 flex flex-col gap-3 sm:gap-4">
                     <button
                       onClick={() => {
                         const variantIds = importItems.map(i => i.variantId);
@@ -1462,7 +1659,7 @@ export default function AdminStockRedesignPage() {
                         setShowBarcodeModal(true);
                       }}
                       disabled={importItems.length === 0}
-                      className="w-full py-4 glass text-foreground border border-gold/30 hover:border-gold/60 font-heading font-bold uppercase tracking-[0.2em] text-[10px] rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-[1.01] transition-all disabled:opacity-50"
+                      className="w-full py-3.5 sm:py-4 glass text-foreground border border-gold/30 hover:border-gold/60 font-bold [font-size:0.78rem] rounded-full shadow-lg flex items-center justify-center gap-3 hover:scale-[1.01] transition-all disabled:opacity-50"
                     >
                       <Barcode className="w-5 h-5" />
                       In {importItems.length} mã vạch thuộc lô nhập này
@@ -1472,7 +1669,7 @@ export default function AdminStockRedesignPage() {
                       disabled={
                         saving || importItems.length === 0 || !importStoreId
                       }
-                      className="w-full py-6 bg-gold text-primary font-heading font-bold uppercase tracking-[0.4em] text-[11px] rounded-full shadow-2xl flex items-center justify-center gap-4 hover:scale-[1.02] transition-all disabled:opacity-50"
+                      className="w-full py-4 sm:py-6 bg-gold text-primary font-bold [font-size:0.82rem] rounded-full shadow-2xl flex items-center justify-center gap-4 hover:scale-[1.02] transition-all disabled:opacity-50"
                     >
                       {saving ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -1489,17 +1686,17 @@ export default function AdminStockRedesignPage() {
 
           {/* --- TAB 3: TRANSFER --- */}
           {activeTab === "transfer" && (
-            <div className="flex flex-col gap-8 sm:gap-12 animate-in fade-in duration-700">
+            <div className="flex flex-col gap-5 sm:gap-8 xl:gap-12 animate-in fade-in duration-700">
               {/* Transfer Matrix Header */}
-              <div className="glass p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[4rem] border-stone-200 dark:border-white/10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 sm:gap-12 items-center shadow-xl">
+              <div className="glass p-5 sm:p-8 xl:p-12 rounded-3xl sm:rounded-[2.5rem] xl:rounded-[4rem] border-stone-200 dark:border-white/10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-5 sm:gap-8 xl:gap-12 items-center shadow-xl">
                 <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block font-black opacity-50 ml-2 leading-none">
+                  <label className="[font-size:0.78rem] text-muted-foreground block font-black opacity-60 ml-1 sm:ml-2 leading-none">
                     {t('transfer.source')}
                   </label>
                   <select
                     value={transferFromId}
                     onChange={(e) => setTransferFromId(e.target.value)}
-                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-4 sm:px-6 py-3.5 sm:py-5 text-sm font-bold outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
                   >
                     <option value="">{t('transfer.choose_origin')}</option>
                     {storeList.map((s) => (
@@ -1510,20 +1707,20 @@ export default function AdminStockRedesignPage() {
                   </select>
                 </div>
                 <div className="flex justify-center relative py-4 md:py-0">
-                  <div className="p-5 bg-background dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-full shadow-2xl text-gold z-10 rotate-90 md:rotate-0">
-                    <ArrowRightLeft className="w-6 h-6" />
+                  <div className="p-4 sm:p-5 bg-background dark:bg-zinc-900 border border-stone-200 dark:border-white/10 rounded-full shadow-2xl text-gold z-10 rotate-90 md:rotate-0">
+                    <ArrowRightLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="absolute top-1/2 left-0 w-full h-[1px] bg-border/20 -z-0 hidden md:block"></div>
                   <div className="absolute top-0 left-1/2 w-[1px] h-full bg-border/20 -z-0 md:hidden"></div>
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground block font-black opacity-50 ml-2 leading-none">
+                  <label className="[font-size:0.78rem] text-muted-foreground block font-black opacity-60 ml-1 sm:ml-2 leading-none">
                     {t('transfer.target')}
                   </label>
                   <select
                     value={transferToId}
                     onChange={(e) => setTransferToId(e.target.value)}
-                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-6 py-4 sm:py-5 text-[11px] font-black uppercase tracking-widest outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
+                    className="w-full bg-secondary/10 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 rounded-2xl px-4 sm:px-6 py-3.5 sm:py-5 text-sm font-bold outline-none focus:border-gold transition-all shadow-sm appearance-none cursor-pointer"
                   >
                     <option value="">{t('transfer.choose_dest')}</option>
                     {storeList.map((s) => (
@@ -1535,11 +1732,11 @@ export default function AdminStockRedesignPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 2xl:grid-cols-5 gap-8 sm:gap-12 items-start">
+              <div className="grid grid-cols-1 2xl:grid-cols-5 gap-5 sm:gap-8 xl:gap-12 items-start">
                 {/* Asset Finder */}
-                <div className="2xl:col-span-2 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
-                  <div className="p-8 border-b border-border bg-secondary/10">
-                    <div className="flex items-center gap-3 mb-6">
+                <div className="2xl:col-span-2 glass rounded-3xl xl:rounded-[3rem] border-border overflow-hidden flex flex-col h-[520px] sm:h-[650px] 2xl:h-[800px]">
+                  <div className="p-5 sm:p-8 border-b border-border bg-secondary/10">
+                    <div className="flex items-center gap-3 mb-4 sm:mb-6">
                       <Search className="w-5 h-5 text-gold" />
                       <h3 className="font-heading text-sm uppercase tracking-widest">
                         {t('transfer.asset_finder')}
@@ -1557,11 +1754,11 @@ export default function AdminStockRedesignPage() {
                             : t('transfer.select_source_first')
                         }
                         disabled={!transferFromId}
-                        className="w-full bg-background border border-border rounded-2xl pl-14 pr-6 py-4 text-sm outline-none focus:border-gold disabled:opacity-50 transition-all"
+                        className="w-full bg-background border border-border rounded-2xl pl-12 sm:pl-14 pr-4 sm:pr-6 py-3.5 sm:py-4 text-sm outline-none focus:border-gold disabled:opacity-50 transition-all"
                       />
                     </div>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
                     {!transferFromId ? (
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30">
                         <ArrowRightLeft className="w-12 h-12 mb-4 opacity-20" />
@@ -1582,7 +1779,7 @@ export default function AdminStockRedesignPage() {
                           <button
                             key={v.id}
                             onClick={() => addTransferItem(v)}
-                            className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 hover:bg-luxury-black hover:text-white border border-border transition-all text-left group"
+                            className="flex items-start sm:items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl bg-secondary/20 hover:bg-luxury-black hover:text-white border border-border transition-all text-left group"
                           >
                             <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
                               {(() => {
@@ -1630,19 +1827,20 @@ export default function AdminStockRedesignPage() {
                 </div>
 
                 {/* Manifest List */}
-                <div className="2xl:col-span-3 glass rounded-[3rem] border-border overflow-hidden flex flex-col h-[800px]">
-                  <div className="p-8 border-b border-border flex justify-between items-center bg-secondary/10">
+                <div className="2xl:col-span-3 glass rounded-3xl xl:rounded-[3rem] border-border overflow-hidden flex flex-col h-[560px] sm:h-[700px] 2xl:h-[800px]">
+                  <div className="p-5 sm:p-8 border-b border-border flex flex-col sm:flex-row justify-between sm:items-center gap-3 bg-secondary/10">
                     <h3 className="font-heading text-sm uppercase tracking-widest">
                       {t('transfer.relocation_manifest', { count: transferItems.length })}
                     </h3>
                     <button
                       onClick={() => setTransferItems([])}
-                      className="text-[9px] uppercase tracking-widest font-heading text-muted-foreground hover:text-destructive transition-colors"
+                      className="shrink-0 rounded-full px-3 py-1.5 [font-size:0.76rem] font-semibold text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-30"
+                      disabled={transferItems.length === 0}
                     >
                       {t('transfer.clear_all')}
                     </button>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                  <div className="flex-1 overflow-y-auto p-3 sm:p-6 custom-scrollbar">
                     {transferItems.length === 0 ? (
                       <div className="h-full flex flex-col items-center justify-center text-muted-foreground/30 gap-6 opacity-50">
                         <ArrowRightLeft className="w-20 h-20 stroke-[0.5px]" />
@@ -1651,15 +1849,16 @@ export default function AdminStockRedesignPage() {
                         </p>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-3 sm:space-y-4">
                         {transferItems.map((item, idx) => (
                           <motion.div
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             key={item.variantId}
-                            className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 border border-border hover:border-luxury-black/30 transition-all text-left group"
+                            className="rounded-3xl bg-white/80 dark:bg-white/[0.04] border border-gold/10 hover:border-gold/30 transition-all text-left group shadow-[0_16px_40px_-34px_rgba(15,23,42,0.8)] overflow-hidden"
                           >
-                            <div className="flex items-center gap-4 flex-1 min-w-0 mr-4">
+                            <div className="p-4 sm:p-5">
+                            <div className="flex items-start gap-3 sm:gap-4">
                               {(() => {
                                 const storeVariant = overview?.stores
                                   .find((s) => s.store.id === transferFromId)
@@ -1671,37 +1870,58 @@ export default function AdminStockRedesignPage() {
                                   <img
                                     src={imgUrl}
                                     alt={item.productName}
-                                    className="w-10 h-10 rounded-lg object-cover border border-border shrink-0"
+                                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover border border-border shrink-0"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-lg bg-secondary/50 border border-border flex items-center justify-center shrink-0">
-                                    <PackageSearch className="w-4 h-4 text-muted-foreground/30" />
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-secondary/50 border border-border flex items-center justify-center shrink-0">
+                                    <PackageSearch className="w-5 h-5 text-muted-foreground/30" />
                                   </div>
                                 );
                               })()}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[9px] font-heading uppercase text-gold mb-1">
+                              <div className="min-w-0 flex-1">
+                                <p className="[font-size:0.76rem] font-bold text-gold mb-1">
                                   {item.brandName}
                                 </p>
-                                <p className="text-xs font-bold uppercase tracking-tight leading-tight">
+                                <p className="text-sm sm:text-base font-semibold leading-snug text-foreground">
                                   {item.productName}
                                 </p>
-                                <div className="flex items-center gap-3 mt-2">
-                                  <span className="text-[9px] px-3 py-0.5 bg-background border border-border rounded-full font-heading text-foreground uppercase tracking-widest">
+                                <div className="flex flex-wrap items-center gap-2 mt-2">
+                                  <span className="[font-size:0.78rem] px-3 py-1 bg-background border border-border rounded-full font-semibold text-foreground">
                                     {item.variantName}
                                   </span>
+                                  {item.selectedBatches && item.selectedBatches.length > 0 && (
+                                    <span className="[font-size:0.74rem] px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold">
+                                      {item.quantity} SP / {item.selectedBatches.length} lô
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <div className="flex flex-col items-end">
-                                <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">
+                            <div className="mt-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 sm:items-end">
+                              <div>
+                                <label className="[font-size:0.76rem] text-muted-foreground font-semibold mb-1.5 block">
                                   Lô hàng & Số lượng
                                 </label>
+                                <div className="mb-3 flex flex-wrap gap-2">
+                                  {item.selectedBatches && item.selectedBatches.length > 0 ? (
+                                    item.selectedBatches.map((batch) => (
+                                      <span
+                                        key={batch.batchId}
+                                        className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 [font-size:0.74rem] font-semibold text-emerald-600"
+                                      >
+                                        {batch.batchCode || "Lô"} x{batch.quantity}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="[font-size:0.78rem] text-muted-foreground">
+                                      Chưa chọn lô xuất kho
+                                    </span>
+                                  )}
+                                </div>
                                 <button
                                   onClick={() => openBatchSelection(idx)}
                                   className={cn(
-                                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border",
+                                    "w-full sm:w-auto px-4 py-3 rounded-2xl [font-size:0.82rem] font-black transition-all border",
                                     item.selectedBatches && item.selectedBatches.length > 0
                                       ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/20"
                                       : "bg-gold/10 text-gold border-gold/20 hover:bg-gold/20"
@@ -1713,23 +1933,25 @@ export default function AdminStockRedesignPage() {
                                   }
                                 </button>
                               </div>
-                              <button
-                                onClick={() =>
-                                  setTransferItems((prev) =>
-                                    prev.filter((_, i) => i !== idx),
-                                  )
-                                }
-                                className="p-3 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
                             </div>
+                            </div>
+                            <button
+                              onClick={() =>
+                                setTransferItems((prev) =>
+                                  prev.filter((_, i) => i !== idx),
+                                )
+                              }
+                              className="flex min-h-11 w-full items-center justify-center border-t border-rose-500/10 bg-rose-500/8 text-rose-500 transition-all hover:bg-rose-500 hover:text-white"
+                              aria-label="Xóa khỏi danh sách điều chuyển"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </motion.div>
                         ))}
                       </div>
                     )}
                   </div>
-                  <div className="p-10 border-t border-border">
+                  <div className="p-4 sm:p-8 xl:p-10 border-t border-border bg-background/50">
                     <button
                       onClick={handleBatchTransfer}
                       disabled={
@@ -1738,7 +1960,7 @@ export default function AdminStockRedesignPage() {
                         !transferFromId ||
                         !transferToId
                       }
-                      className="w-full py-6 bg-luxury-black text-white dark:bg-gold dark:text-primary font-heading font-bold uppercase tracking-[0.4em] text-[11px] rounded-full shadow-2xl flex items-center justify-center gap-4 hover:scale-[1.02] transition-all disabled:opacity-50"
+                      className="w-full min-h-12 py-3.5 sm:py-6 bg-luxury-black text-white dark:bg-gold dark:text-primary font-bold [font-size:0.82rem] rounded-full shadow-2xl flex items-center justify-center gap-3 sm:gap-4 hover:scale-[1.02] transition-all disabled:opacity-50"
                     >
                       {saving ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -1755,18 +1977,18 @@ export default function AdminStockRedesignPage() {
 
           {/* --- TAB 4: APPROVAL QUEUE --- */}
           {activeTab === "requests" && (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-5 sm:gap-8">
               {/* Filter Bar */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4 mb-4">
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-6 px-0 sm:px-4 mb-2 sm:mb-4">
                 <div className="space-y-1">
                   <h2 className="text-2xl font-heading gold-gradient uppercase tracking-tighter">
                     {t('requests.title')}
                   </h2>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em]">
+                  <p className="[font-size:0.78rem] text-muted-foreground">
                     Quản lý và phê duyệt yêu cầu nhập kho từ nhân viên
                   </p>
                 </div>
-                <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl">
+                <div className="grid grid-cols-2 sm:flex bg-white/80 dark:bg-white/5 p-1 rounded-2xl border border-gold/10 dark:border-white/5 backdrop-blur-sm shadow-xl gap-1 sm:gap-0">
                   {(["PENDING", "APPROVED", "REJECTED", ""] as const).map(
                     (s) => (
                       <button
@@ -1776,10 +1998,10 @@ export default function AdminStockRedesignPage() {
                           setRequestPage(1);
                         }}
                         className={cn(
-                          "px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                          "flex items-center justify-center px-3 sm:px-6 py-2.5 rounded-xl [font-size:0.72rem] sm:[font-size:0.75rem] font-black transition-all whitespace-nowrap",
                           requestFilter === s 
                             ? "bg-gold text-white shadow-2xl" 
-                            : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                            : "text-muted-foreground hover:bg-gold/5 hover:text-foreground"
                         )}
                       >
                         {t('status.' + (s.toLowerCase() || "all"))}
@@ -1787,7 +2009,7 @@ export default function AdminStockRedesignPage() {
                     ),
                   )}
                 </div>
-                <div className="relative group">
+                <div className="relative group w-full xl:w-auto">
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted-foreground group-focus-within:text-gold transition-colors">
                     <Search className="w-4 h-4" />
                   </div>
@@ -1799,13 +2021,13 @@ export default function AdminStockRedesignPage() {
                       setRequestSearch(e.target.value);
                       setRequestPage(1);
                     }}
-                    className="bg-white/5 border border-white/10 rounded-[1.5rem] py-3 pl-12 pr-6 text-xs focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all w-[300px] backdrop-blur-md"
+                    className="w-full xl:w-[300px] bg-white/80 dark:bg-white/5 border border-gold/10 dark:border-white/10 rounded-2xl sm:rounded-[1.5rem] py-3 pl-12 pr-4 sm:pr-6 text-sm focus:ring-2 focus:ring-gold/50 focus:border-gold outline-none transition-all backdrop-blur-md"
                   />
                 </div>
               </div>
 
               {/* Request List */}
-              <div className="glass rounded-[3rem] border-border overflow-hidden">
+              <div className="glass bg-white/75 dark:bg-background/40 rounded-3xl xl:rounded-[3rem] border border-gold/10 dark:border-border overflow-hidden">
                 {requestsLoading ? (
                   <div className="flex flex-col items-center justify-center py-32 gap-6">
                     <Loader2 className="w-12 h-12 animate-spin text-gold/50" />
@@ -1825,7 +2047,130 @@ export default function AdminStockRedesignPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto custom-scrollbar shadow-2xl">
+                  <>
+                  <div className="xl:hidden p-3 sm:p-4 space-y-3">
+                    {requests.map((r) => (
+                      <article
+                        key={r.id}
+                        className="rounded-[1.5rem] border border-gold/10 bg-white/90 dark:bg-white/[0.03] p-4 shadow-[0_14px_35px_-28px_rgba(15,23,42,0.7)]"
+                      >
+                        <div className="flex items-start gap-3">
+                          {r.imageUrl ? (
+                            <img
+                              src={r.imageUrl}
+                              alt={r.product ?? ""}
+                              className="w-14 h-14 rounded-2xl object-cover border border-border flex-shrink-0 shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-14 h-14 rounded-2xl bg-secondary/50 border border-border flex items-center justify-center shrink-0">
+                              <PackageSearch className="w-5 h-5 text-muted-foreground/35" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-heading text-foreground leading-snug line-clamp-2">
+                                  {r.product}
+                                </p>
+                                <p className="mt-1 text-[11px] text-muted-foreground font-bold uppercase tracking-wide">
+                                  {r.variantName || "N/A"} <span className="mx-1 opacity-30">/</span> {r.brand || "N/A"}
+                                </p>
+                              </div>
+                              <span
+                                className={cn(
+                                  "shrink-0 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wide",
+                                  r.type === "IMPORT" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+                                )}
+                              >
+                                {r.type === "IMPORT" ? t('requests.import_type') : t('requests.adjust_type')}
+                              </span>
+                            </div>
+
+                            <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                              <div className="rounded-2xl bg-stone-50/90 dark:bg-white/[0.04] border border-border/50 p-3">
+                                <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">Cửa hàng</p>
+                                <p className="mt-1 font-heading text-foreground leading-snug">{r.store.name}</p>
+                                <p className="mt-0.5 text-[9px] text-muted-foreground uppercase tracking-widest">{r.store.code || "SYS"}</p>
+                              </div>
+                              <div className="rounded-2xl bg-stone-50/90 dark:bg-white/[0.04] border border-border/50 p-3">
+                                <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">Nhân viên</p>
+                                <p className="mt-1 font-bold text-foreground truncate">{r.staff?.name || r.staff?.email || "N/A"}</p>
+                                <p className="mt-0.5 text-[9px] text-muted-foreground">
+                                  {format.dateTime(new Date(r.createdAt), { dateStyle: "short", timeStyle: "short" })}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-3 rounded-2xl bg-stone-50/90 dark:bg-white/[0.04] border border-border/50 p-3">
+                              <p className="text-[9px] uppercase tracking-widest text-muted-foreground font-black">Lý do</p>
+                              <p className="mt-1 text-[12px] text-foreground/75 leading-relaxed italic line-clamp-3">
+                                {r.reason || "—"}
+                              </p>
+                            </div>
+
+                            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                              {r.status === "PENDING" && (
+                                <span className="flex items-center gap-2 text-[10px] px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 font-black uppercase tracking-wide">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                  {t('status.pending')}
+                                </span>
+                              )}
+                              {r.status === "APPROVED" && (
+                                <span className="flex items-center gap-2 text-[10px] px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-black uppercase tracking-wide">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  {t('status.approved')}
+                                </span>
+                              )}
+                              {r.status === "REJECTED" && (
+                                <span className="flex items-center gap-2 text-[10px] px-3 py-1.5 rounded-full bg-rose-500/10 text-rose-600 border border-rose-500/20 font-black uppercase tracking-wide">
+                                  <X className="w-3 h-3" />
+                                  {t('status.rejected')}
+                                </span>
+                              )}
+
+                              {r.status === "PENDING" ? (
+                                <div className="flex items-center gap-2 ml-auto">
+                                  <button
+                                    onClick={() => {
+                                      setImportItems([{
+                                        variantId: r.variantId,
+                                        productName: r.product || "",
+                                        variantName: r.variantName || "",
+                                        brandName: r.brand || "",
+                                        quantity: r.quantity,
+                                        costPrice: 0,
+                                        requestId: r.id
+                                      }]);
+                                      setActiveTab("batch-import");
+                                      setImportStoreId(r.store.id);
+                                      setImportReason(`${r.reason || ""}`);
+                                    }}
+                                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-gold text-white border border-gold transition-all text-[10px] font-black uppercase tracking-wide shadow-lg active:scale-95"
+                                  >
+                                    <PackagePlus className="w-3.5 h-3.5" />
+                                    Xử lý
+                                  </button>
+                                  <button
+                                    onClick={() => setShowRejectModal(r.id)}
+                                    className="w-9 h-9 rounded-full bg-rose-500/10 text-rose-600 border border-rose-500/20 flex items-center justify-center active:scale-95"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="ml-auto flex items-center gap-1.5 text-muted-foreground/50 px-3 py-1.5 rounded-full border border-border bg-white/60 dark:bg-white/[0.03]">
+                                  <Check className="w-3 h-3" />
+                                  <span className="text-[8px] font-black uppercase tracking-widest">DONE</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div className="hidden xl:block overflow-x-auto custom-scrollbar shadow-2xl">
                     <table className="w-full min-w-[1200px] text-left border-collapse">
                       <thead>
                         <tr className="border-b border-white/5 text-muted-foreground/60">
@@ -2019,6 +2364,7 @@ export default function AdminStockRedesignPage() {
                       </tbody>
                     </table>
                   </div>
+                  </>
                 )}
                 
                 {requestTotal > requestLimit && (
@@ -2114,15 +2460,15 @@ export default function AdminStockRedesignPage() {
 
           {/* --- TAB 5: HISTORY --- */}
           {activeTab === "history" && (
-            <div className="space-y-10 animate-in fade-in duration-700">
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-white/5 p-1.5 rounded-[2rem] border border-border dark:border-white/10 backdrop-blur-xl">
+            <div className="space-y-5 sm:space-y-10 animate-in fade-in duration-700">
+              <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 sm:gap-8">
+                <div className="flex items-center gap-2 sm:gap-3 bg-white/75 dark:bg-zinc-900/70 p-1.5 rounded-[1.75rem] sm:rounded-[2rem] border border-gold/15 backdrop-blur-xl overflow-x-auto custom-scrollbar shadow-[0_18px_45px_-34px_rgba(15,23,42,0.65)]">
                    <button
                      onClick={() => setHistoryFilterType('')}
                      className={cn(
-                       "px-8 py-3 rounded-full text-[10px] uppercase tracking-widest font-black transition-all",
-                       historyFilterType === '' ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-secondary/40 dark:hover:bg-white/5"
-                     )}
+                        "flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-full [font-size:0.78rem] font-black transition-all whitespace-nowrap",
+                        historyFilterType === '' ? "bg-gradient-to-r from-[#d7b96d] via-gold to-[#b58f44] text-luxury-black shadow-lg" : "text-stone-500 hover:bg-gold/10 hover:text-foreground dark:text-stone-400 dark:hover:text-white"
+                      )}
                    >
                      Tất cả
                    </button>
@@ -2130,17 +2476,17 @@ export default function AdminStockRedesignPage() {
                      <button
                        key={type}
                        onClick={() => setHistoryFilterType(type)}
-                       className={cn(
-                         "px-8 py-3 rounded-full text-[10px] uppercase tracking-widest font-black transition-all",
-                         historyFilterType === type ? "bg-gold text-white shadow-lg" : "text-muted-foreground hover:bg-secondary/40 dark:hover:bg-white/5"
-                       )}
-                     >
+                        className={cn(
+                          "flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-full [font-size:0.78rem] font-black transition-all whitespace-nowrap",
+                          historyFilterType === type ? "bg-gradient-to-r from-[#d7b96d] via-gold to-[#b58f44] text-luxury-black shadow-lg" : "text-stone-500 hover:bg-gold/10 hover:text-foreground dark:text-stone-400 dark:hover:text-white"
+                        )}
+                      >
                        {getTypeText(type)}
                      </button>
                    ))}
                 </div>
 
-                <div className="glass px-8 py-4 rounded-[2rem] flex items-center gap-4">
+                 <div className="glass px-5 sm:px-8 py-4 rounded-2xl sm:rounded-[2rem] flex items-center gap-4">
                    <div className="w-10 h-10 rounded-2xl bg-gold/10 flex items-center justify-center text-gold border border-gold/20">
                       <History className="w-5 h-5" />
                    </div>
@@ -2151,9 +2497,118 @@ export default function AdminStockRedesignPage() {
                 </div>
               </div>
 
-              <section className="glass bg-secondary/10 dark:bg-white/[0.01] rounded-[3.5rem] border-border overflow-hidden shadow-2xl">
-                <div className="overflow-x-auto custom-scrollbar">
-                  <table className="w-full text-left border-collapse">
+              <section className="glass bg-secondary/10 dark:bg-white/[0.01] rounded-3xl sm:rounded-[3.5rem] border-border overflow-hidden shadow-2xl">
+                <div className="lg:hidden p-4">
+                  {historyLoading ? (
+                    <div className="space-y-3">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-40 animate-pulse rounded-3xl bg-secondary/30 dark:bg-white/5" />
+                      ))}
+                    </div>
+                  ) : historyLogs.length === 0 ? (
+                    <div className="px-4 py-20 text-center text-muted-foreground/40">
+                      <History className="mx-auto mb-4 h-12 w-12" />
+                      <p className="font-heading text-xl italic">{tInv('empty_history')}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {historyLogs.map((log) => {
+                        const isPositive = log.quantity > 0;
+                        return (
+                          <div
+                            key={log.id}
+                            className="rounded-3xl border border-gold/10 bg-white/80 p-4 shadow-[0_16px_40px_-34px_rgba(15,23,42,0.8)] dark:bg-white/[0.04]"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-border bg-secondary/40 shadow-lg">
+                                {log.variant?.product?.images?.[0] ? (
+                                  <Image
+                                    src={log.variant.product.images[0].url}
+                                    alt=""
+                                    fill
+                                    sizes="56px"
+                                    className="object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center">
+                                    <PackageSearch className="h-5 w-5 text-muted-foreground/30" />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  <span className={cn(
+                                    "rounded-full border px-2.5 py-1 [font-size:0.72rem] font-black",
+                                    getTypeColor(log.type)
+                                  )}>
+                                    {getTypeText(log.type)}
+                                  </span>
+                                  <span className={cn(
+                                    "rounded-full px-2.5 py-1 [font-size:0.76rem] font-black",
+                                    isPositive ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"
+                                  )}>
+                                    {isPositive ? `+${log.quantity}` : log.quantity}
+                                  </span>
+                                </div>
+                                <h3 className="text-base font-semibold leading-snug text-foreground">
+                                  {log.variant?.product?.name || "---"}
+                                </h3>
+                                <p className="mt-1 [font-size:0.8rem] font-bold text-muted-foreground">
+                                  {log.variant?.name || "---"}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-4 grid grid-cols-2 gap-3">
+                              <div className="rounded-2xl border border-gold/10 bg-gold/[0.06] p-3">
+                                <p className="[font-size:0.72rem] font-bold text-muted-foreground">Cửa hàng / Kho</p>
+                                <p className="mt-1 text-sm font-bold text-gold">{log.store?.name || "---"}</p>
+                                <p className="[font-size:0.72rem] font-semibold text-muted-foreground">{log.store?.type || "WAREHOUSE"}</p>
+                              </div>
+                              <div className="rounded-2xl border border-border/60 bg-background/60 p-3">
+                                <p className="[font-size:0.72rem] font-bold text-muted-foreground">Ngày thực hiện</p>
+                                <p className="mt-1 text-sm font-semibold">
+                                  {format.dateTime(new Date(log.createdAt), {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                  })}
+                                </p>
+                                <p className="[font-size:0.72rem] font-mono text-muted-foreground">
+                                  {format.dateTime(new Date(log.createdAt), {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="mt-3 rounded-2xl border border-border/60 bg-background/50 p-3">
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-gold/60" />
+                                <p className="truncate text-sm font-semibold">
+                                  {log.staff?.fullName || 'System'}
+                                </p>
+                              </div>
+                              <p className="mt-1 truncate [font-size:0.76rem] text-muted-foreground">
+                                {log.staff?.email || 'automated.process'}
+                              </p>
+                              {log.reason && (
+                                <p className="mt-3 border-t border-border/50 pt-3 text-sm italic leading-relaxed text-muted-foreground">
+                                  {log.reason}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                <div className="hidden lg:block overflow-x-auto custom-scrollbar">
+                  <table className="w-full min-w-[1100px] text-left border-collapse">
                     <thead>
                       <tr className="bg-secondary/20 dark:bg-white/[0.03] backdrop-blur-md">
                         <th className="pl-12 pr-4 py-8 text-[10px] uppercase tracking-[.3em] font-black opacity-40">Sản phẩm</th>
@@ -2284,21 +2739,21 @@ export default function AdminStockRedesignPage() {
 
               {/* Pagination */}
               {historyTotal > historyTake && (
-                <div className="flex items-center justify-center gap-4 pb-10">
+                <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pb-6 sm:pb-10">
                    <button
                      disabled={historySkip === 0}
                      onClick={() => setHistorySkip(Math.max(0, historySkip - historyTake))}
-                     className="px-10 py-4 rounded-full border border-border dark:border-white/10 font-heading text-[10px] uppercase tracking-[0.3em] font-black hover:bg-gold hover:text-white transition-all disabled:opacity-30 bg-secondary/30 dark:bg-white/[0.02]"
+                     className="px-5 sm:px-10 py-3 sm:py-4 rounded-full border border-border dark:border-white/10 [font-size:0.78rem] font-black hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-30 bg-secondary/30 dark:bg-white/[0.02]"
                    >
                      Previous
                    </button>
-                   <div className="px-8 py-4 rounded-full bg-secondary/30 dark:bg-white/5 border border-border dark:border-white/10 font-heading text-[10px] tracking-widest italic gold-gradient">
+                    <div className="px-5 sm:px-8 py-3 sm:py-4 rounded-full bg-secondary/30 dark:bg-white/5 border border-border dark:border-white/10 [font-size:0.78rem] font-bold italic gold-gradient">
                       {Math.floor(historySkip / historyTake) + 1} <span className="mx-2 opacity-30">/</span> {Math.ceil(historyTotal / historyTake)}
                    </div>
                    <button
                      disabled={historySkip + historyTake >= historyTotal}
                      onClick={() => setHistorySkip(historySkip + historyTake)}
-                     className="px-10 py-4 rounded-full border border-border dark:border-white/10 font-heading text-[10px] uppercase tracking-[0.3em] font-black hover:bg-gold hover:text-white transition-all disabled:opacity-30 bg-secondary/30 dark:bg-white/[0.02]"
+                     className="px-5 sm:px-10 py-3 sm:py-4 rounded-full border border-border dark:border-white/10 [font-size:0.78rem] font-black hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-30 bg-secondary/30 dark:bg-white/[0.02]"
                    >
                      Next
                    </button>
@@ -2334,22 +2789,22 @@ export default function AdminStockRedesignPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowTransferBatchModal(false)}
-              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-md"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              className="relative w-full max-w-2xl bg-zinc-900 border border-white/10 rounded-[2.5rem] shadow-3xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-white/10 rounded-[1.5rem] sm:rounded-[2.5rem] shadow-3xl overflow-hidden text-zinc-900 dark:text-zinc-100"
             >
-              <div className="p-10 border-b border-white/10 bg-gradient-to-br from-gold/10 to-transparent">
+              <div className="p-6 sm:p-10 border-b border-zinc-100 dark:border-white/10 bg-gradient-to-br from-gold/5 dark:from-gold/10 to-transparent">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-gold/10 rounded-2xl text-gold">
                       <Layers className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-heading text-white uppercase tracking-widest leading-none">
+                      <h3 className="text-lg sm:text-xl font-heading text-zinc-950 dark:text-white uppercase tracking-widest leading-none">
                         Chọn Lô Hàng Xuất Kho
                       </h3>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-2 italic">
@@ -2359,14 +2814,14 @@ export default function AdminStockRedesignPage() {
                   </div>
                   <button
                     onClick={() => setShowTransferBatchModal(false)}
-                    className="p-3 rounded-full hover:bg-white/5 transition-colors"
+                    className="p-3 rounded-full hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors"
                   >
                     <X className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </div>
               </div>
 
-              <div className="p-10 max-h-[500px] overflow-y-auto custom-scrollbar">
+              <div className="p-6 sm:p-10 max-h-[400px] sm:max-h-[500px] overflow-y-auto custom-scrollbar">
                 {loadingBatches ? (
                   <div className="py-20 flex flex-col items-center justify-center text-gold/30">
                     <Loader2 className="w-12 h-12 animate-spin mb-4" />
@@ -2386,29 +2841,29 @@ export default function AdminStockRedesignPage() {
                           "p-6 rounded-3xl border transition-all flex items-center justify-between",
                           batch.selectedQuantity > 0 
                             ? "bg-gold/5 border-gold/30 shadow-[0_0_20px_rgba(212,175,55,0.05)]" 
-                            : "bg-white/5 border-white/5"
+                            : "bg-zinc-50 dark:bg-white/5 border-zinc-100 dark:border-white/5"
                         )}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-3">
-                            <span className="text-xs font-black text-white uppercase tracking-widest">{batch.batchCode || 'Lô không mã'}</span>
+                            <span className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-widest">{batch.batchCode || 'Lô không mã'}</span>
                             {batch.expiryDate && (
-                              <span className="text-[9px] px-2 py-0.5 rounded-md bg-white/5 text-muted-foreground font-heading">
+                              <span className="text-[9px] px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-white/5 text-muted-foreground font-heading">
                                 HSD: {format.dateTime(new Date(batch.expiryDate), { year: 'numeric', month: '2-digit', day: '2-digit' })}
                               </span>
                             )}
                           </div>
                           <p className="text-[10px] text-muted-foreground font-heading">
-                            Tồn thực tế: <span className="text-white">{batch.currentQuantity}</span> | Giá vốn: <span className="text-gold">{format.number(batch.purchasePrice)}đ</span>
+                            Tồn thực tế: <span className="text-zinc-900 dark:text-white">{batch.currentQuantity}</span> | Giá vốn: <span className="text-gold">{format.number(batch.purchasePrice)}đ</span>
                           </p>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="flex flex-col items-end">
                             <label className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">Xuất từ lô này</label>
-                            <div className="flex items-center bg-black/40 border border-white/10 rounded-xl overflow-hidden">
+                            <div className="flex items-center bg-zinc-100 dark:bg-black/40 border border-zinc-200 dark:border-white/10 rounded-xl overflow-hidden">
                               <button 
                                 onClick={() => updateBatchSelectionQuantity(batch.id, Math.max(0, batch.selectedQuantity - 1))}
-                                className="px-3 py-2 hover:bg-white/5 text-muted-foreground transition-colors"
+                                className="px-3 py-2 hover:bg-zinc-200 dark:hover:bg-white/5 text-muted-foreground transition-colors"
                               >
                                 -
                               </button>
@@ -2425,7 +2880,7 @@ export default function AdminStockRedesignPage() {
                               />
                               <button 
                                 onClick={() => updateBatchSelectionQuantity(batch.id, Math.min(batch.currentQuantity, batch.selectedQuantity + 1))}
-                                className="px-3 py-2 hover:bg-white/5 text-muted-foreground transition-colors"
+                                className="px-3 py-2 hover:bg-zinc-200 dark:hover:bg-white/5 text-muted-foreground transition-colors"
                               >
                                 +
                               </button>
@@ -2438,24 +2893,24 @@ export default function AdminStockRedesignPage() {
                 )}
               </div>
 
-              <div className="p-10 border-t border-white/10 bg-secondary/5 flex items-center justify-between">
+              <div className="p-6 sm:p-10 border-t border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-secondary/5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-6">
                 <div>
                   <p className="text-[8px] uppercase tracking-widest text-muted-foreground font-heading mb-1">Tổng cộng chọn</p>
-                  <p className="text-2xl font-heading text-white">
+                  <p className="text-2xl font-heading text-zinc-900 dark:text-white">
                     {availableBatches.reduce((s, b) => s + (b.selectedQuantity || 0), 0)} <span className="text-xs opacity-30">sản phẩm</span>
                   </p>
                 </div>
                 <div className="flex gap-4">
                    <button
                     onClick={() => setShowTransferBatchModal(false)}
-                    className="px-8 py-4 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
+                    className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-full border border-zinc-200 dark:border-white/10 text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-400 transition-all text-center"
                   >
                     Hủy bỏ
                   </button>
                   <button
                     onClick={saveBatchSelection}
                     disabled={availableBatches.reduce((s, b) => s + (b.selectedQuantity || 0), 0) === 0}
-                    className="px-10 py-4 rounded-full bg-gold text-primary font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-50"
+                    className="px-8 sm:px-10 py-3.5 sm:py-4 rounded-full bg-gold text-white font-black text-[9px] sm:text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl disabled:opacity-50 text-center"
                   >
                     Xác nhận chọn lô
                   </button>

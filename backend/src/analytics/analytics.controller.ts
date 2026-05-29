@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Query, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AnalyticsService } from './analytics.service';
 import { RolesGuard } from '../auth/roles.guard';
@@ -150,5 +150,18 @@ export class AnalyticsController {
   @Roles('ADMIN')
   async disposeBatch(@Param('batchId') batchId: string) {
     return this.inventoryService.disposeBatch(batchId);
+  }
+
+  @Patch('batch/:batchId')
+  @Roles('ADMIN')
+  async updateBatch(
+    @Param('batchId') batchId: string,
+    @Body() data: { batchCode?: string; mfgDate?: string; expiryDate?: string; purchasePrice?: number },
+  ) {
+    return this.inventoryService.updateBatch(batchId, {
+      ...data,
+      mfgDate: data.mfgDate ? new Date(data.mfgDate) : undefined,
+      expiryDate: data.expiryDate ? new Date(data.expiryDate) : undefined,
+    });
   }
 }

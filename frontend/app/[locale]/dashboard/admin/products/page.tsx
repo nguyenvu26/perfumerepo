@@ -557,7 +557,19 @@ export default function AdminProducts() {
             { label: 'Sắp Hết Hàng', value: stats?.lowStockVariants ?? 0, icon: AlertTriangle, color: 'text-amber-500' },
             { label: 'Đã Hết Hàng', value: stats?.outOfStockVariants ?? 0, icon: XCircle, color: 'text-red-500' },
           ].map((stat, i) => (
-            <div key={i} className="glass group/stat p-5 rounded-[2rem] border border-white/10 flex flex-col gap-3 relative overflow-hidden transition-all duration-500 hover:border-gold/20">
+            <button
+              key={i}
+              type="button"
+              onClick={stat.icon === AlertTriangle ? () => router.push(`/${locale}/dashboard/admin/stores/stock?tab=overview`) : undefined}
+              disabled={stat.icon !== AlertTriangle}
+              aria-label={stat.icon === AlertTriangle ? 'Mở trang quản lý tồn kho' : stat.label}
+              className={cn(
+                "glass group/stat p-5 rounded-[2rem] border border-white/10 flex flex-col gap-3 relative overflow-hidden transition-all duration-500 hover:border-gold/20 text-left",
+                stat.icon === AlertTriangle
+                  ? "cursor-pointer active:scale-[0.98] hover:-translate-y-0.5"
+                  : "cursor-default disabled:opacity-100"
+              )}
+            >
               <div className="absolute -right-4 -top-4 w-24 h-24 bg-gold/5 rounded-full blur-2xl group-hover/stat:bg-gold/10 transition-all duration-700" />
               
               <div className="flex items-center justify-between relative z-10">
@@ -570,12 +582,13 @@ export default function AdminProducts() {
                 <p className="text-[9px] uppercase tracking-widest font-bold text-muted-foreground opacity-60">{stat.label}</p>
                 <h4 className="text-2xl font-heading tracking-tighter italic gold-gradient">{stat.value.toLocaleString()}</h4>
               </div>
-            </div>
+            </button>
           ))}
         </section>
 
-        <div className="flex flex-col md:flex-row gap-4 mb-10 bg-secondary/5 dark:bg-white/[0.02] p-4 rounded-[2rem] border border-border/50 backdrop-blur-sm">
-          <div className="flex-1 relative group">
+        <div className="flex flex-col gap-4 mb-10 bg-secondary/5 dark:bg-white/[0.02] p-4 rounded-[2rem] border border-border/50 backdrop-blur-sm">
+          {/* Search Row */}
+          <div className="relative group">
             <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-gold transition-colors" />
             <input
               type="text"
@@ -585,11 +598,12 @@ export default function AdminProducts() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* Filter Row */}
+          <div className="flex flex-wrap gap-3">
             <select
               value={brandFilter}
               onChange={(e) => setBrandFilter(e.target.value === '' ? '' : Number(e.target.value))}
-              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px] text-foreground"
+              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer flex-1 sm:flex-none min-w-[140px] text-foreground"
             >
               <option value="" className="bg-background">{t('form.brand')} - ALL</option>
               {brands.map((b) => (
@@ -599,7 +613,7 @@ export default function AdminProducts() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value === '' ? '' : Number(e.target.value))}
-              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-6 py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer min-w-[160px] text-foreground"
+              className="bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-[10px] uppercase tracking-widest font-bold outline-none focus:border-gold/50 transition-all appearance-none cursor-pointer flex-1 sm:flex-none min-w-[140px] text-foreground"
             >
               <option value="" className="bg-background">{t('form.category')} - ALL</option>
               {categories.map((c) => (
@@ -609,33 +623,33 @@ export default function AdminProducts() {
             <button
               onClick={() => setLowStockFilter(!lowStockFilter)}
               className={cn(
-                "px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 border",
+                "px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 border flex-1 sm:flex-none justify-center",
                 lowStockFilter 
                   ? "bg-amber-500/10 border-amber-500/50 text-amber-500" 
                   : "bg-white dark:bg-zinc-950/50 border-border/50 text-muted-foreground hover:border-gold/50"
               )}
             >
-              <AlertTriangle className={cn("w-3.5 h-3.5", lowStockFilter ? "animate-pulse" : "opacity-60")} />
-              Sắp Hết Hàng
+              <AlertTriangle className={cn("w-3.5 h-3.5 shrink-0", lowStockFilter ? "animate-pulse" : "opacity-60")} />
+              <span className="whitespace-nowrap">Sắp Hết Hàng</span>
             </button>
 
             <button
               onClick={() => setBestsellerFilter(!bestsellerFilter)}
               className={cn(
-                "px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 border",
+                "px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 border flex-1 sm:flex-none justify-center",
                 bestsellerFilter 
                   ? "bg-rose-500/10 border-rose-500/50 text-rose-500 shadow-lg shadow-rose-500/10" 
                   : "bg-white dark:bg-zinc-950/50 border-border/50 text-muted-foreground hover:border-gold/50"
               )}
             >
-              <Award className={cn("w-3.5 h-3.5", bestsellerFilter ? "text-rose-500" : "opacity-60")} />
-              Bán Chạy
+              <Award className={cn("w-3.5 h-3.5 shrink-0", bestsellerFilter ? "text-rose-500" : "opacity-60")} />
+              <span className="whitespace-nowrap">Bán Chạy</span>
             </button>
 
             {isFiltered && (
               <button
                 onClick={clearFilters}
-                className="bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-muted-foreground px-6 py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 group border border-transparent"
+                className="bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 text-muted-foreground px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-2 group border border-transparent"
               >
                 <X className="w-3 h-3 group-hover:rotate-90 transition-transform" />
                 Reset
@@ -977,9 +991,9 @@ export default function AdminProducts() {
                 </button>
               </div>
 
-              <div className="flex-1 flex overflow-hidden">
+              <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
                 {/* Sidebar Navigation */}
-                <aside className="w-64 border-r border-white/10 bg-white/80 dark:bg-zinc-900/60 overflow-y-auto hidden md:block">
+                <aside className="w-64 border-r border-white/10 bg-white/80 dark:bg-zinc-900/60 overflow-y-auto hidden md:block shrink-0">
                   <nav className="p-8 space-y-2">
                     {[
                       { id: 'identity', icon: Package, label: 'Thông Tin Chính' },
@@ -990,7 +1004,8 @@ export default function AdminProducts() {
                     ].map((tab) => (
                       <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
+                        type="button"
+                        onClick={() => setActiveTab(tab.id as any)}
                         className={cn(
                           "w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold uppercase tracking-widest text-[10px]",
                           activeTab === tab.id
@@ -1005,8 +1020,36 @@ export default function AdminProducts() {
                   </nav>
                 </aside>
 
+                {/* Mobile Navigation */}
+                <div className="md:hidden border-b border-border bg-background/50 backdrop-blur-md overflow-x-auto custom-scrollbar shrink-0">
+                  <div className="flex p-4 gap-2">
+                    {[
+                      { id: 'identity', icon: Package, label: 'Thông Tin' },
+                      { id: 'essence', icon: FlaskConical, label: 'Hương' },
+                      { id: 'composition', icon: Flower2, label: 'Cấu Trúc' },
+                      { id: 'inventory', icon: Database, label: 'Biến Thể' },
+                      { id: 'gallery', icon: ImagePlus, label: 'Ảnh' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all font-bold uppercase tracking-widest text-[9px] whitespace-nowrap border",
+                          activeTab === tab.id
+                            ? "bg-gold text-white border-gold shadow-md shadow-gold/20"
+                            : "bg-white/5 text-muted-foreground border-white/5 hover:bg-white/10"
+                        )}
+                      >
+                        <tab.icon className="w-3 h-3" />
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 md:p-12 pb-32 sm:pb-12">
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12 pb-32 sm:pb-12">
                   {loadingProduct ? (
                     <div className="h-full flex flex-col items-center justify-center gap-6">
                       <div className="w-16 h-16 border-4 border-gold/10 border-t-gold rounded-full animate-spin" />

@@ -11,6 +11,7 @@ export interface ExpiryAlert {
   currentQuantity: number;
   initialQuantity: number;
   purchasePrice: number;
+  mfgDate: string | null;
   expiryDate: string;
   daysUntilExpiry: number;
   status: "CRITICAL" | "WARNING" | "HEALTHY" | "SOLD_OUT";
@@ -42,6 +43,15 @@ export const analyticsService = {
   disposeBatch(batchId: string): Promise<{ success: boolean; disposedQuantity: number }> {
     return api
       .post(`/analytics/batch/${batchId}/dispose`)
+      .then((r) => r.data);
+  },
+
+  updateBatch(
+    batchId: string,
+    data: { batchCode?: string; mfgDate?: string; expiryDate?: string; purchasePrice?: number }
+  ): Promise<any> {
+    return api
+      .patch(`/analytics/batch/${batchId}`, data)
       .then((r) => r.data);
   },
 };

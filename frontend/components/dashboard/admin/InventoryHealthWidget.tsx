@@ -111,53 +111,53 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
         )} onClick={!isExpanded ? onToggle : undefined}>
             
             {/* Action Header */}
-            <div className="px-10 py-6 border-b border-border/50 bg-secondary/30 flex items-center justify-between">
-                <div className="flex items-center gap-5">
+            <div className="px-6 sm:px-10 py-5 sm:py-6 border-b border-border/50 bg-secondary/30 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 xl:gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 w-full">
                     <div className={cn(
                         "p-3.5 rounded-2xl border transition-all duration-500 shadow-lg",
                         criticalCount > 0 ? "bg-red-500/10 text-red-500 border-red-500/20 animate-pulse" : "bg-gold/10 text-gold border-gold/20"
                     )}>
                         <Activity className="w-5 h-5" />
                     </div>
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-black uppercase tracking-[.3em] gold-gradient">
+                    <div className="flex flex-col flex-1">
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                            <h3 className="text-xs sm:text-sm font-black uppercase tracking-[.2em] sm:tracking-[.3em] gold-gradient leading-tight">
                                 Sức Khỏe Kho & Dự Báo Thông Minh
                             </h3>
                             <button 
                                 onClick={(e) => { e.stopPropagation(); setShowAlgorithm(true); }}
-                                className="p-1 rounded-full hover:bg-gold/10 text-muted-foreground hover:text-gold transition-colors"
+                                className="p-1 rounded-full hover:bg-gold/10 text-muted-foreground hover:text-gold transition-colors shrink-0"
                             >
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </button>
                         </div>
                         {!isExpanded ? (
-                            <div className="flex items-center gap-4 mt-1.5">
-                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2">
+                                <p className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
                                     <span className={cn("w-1.5 h-1.5 rounded-full", criticalCount > 0 ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]")} />
                                     {criticalCount > 0 ? `${criticalCount} mặt hàng cần nhập gấp` : "Nguồn cung ổn định"}
                                 </p>
                                 {warningCount > 0 && (
-                                    <p className="text-[10px] text-amber-500/80 font-bold uppercase tracking-widest">
+                                    <p className="text-[9px] sm:text-[10px] text-amber-500/80 font-bold uppercase tracking-widest">
                                         • {warningCount} hàng sắp hết
                                     </p>
                                 )}
                             </div>
                         ) : (
-                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1.5 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                Tự động tối ưu sản lượng nhập kho theo vận tốc bán
+                            <p className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-2 flex items-start sm:items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mt-1 sm:mt-0 shrink-0" />
+                                <span className="leading-relaxed">Tự động tối ưu sản lượng nhập kho theo vận tốc bán</span>
                             </p>
                         )}
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full xl:w-auto">
                     {/* Custom Store Selector */}
-                    <div className="relative" ref={storeMenuRef}>
+                    <div className="relative w-full sm:w-auto shrink-0" ref={storeMenuRef}>
                       <button 
                         onClick={(e) => { e.stopPropagation(); setIsStoreMenuOpen(!isStoreMenuOpen); }}
                         className={cn(
-                          "flex items-center gap-3 px-5 py-2.5 rounded-2xl border transition-all duration-500 min-w-[200px] group/btn",
+                          "flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-2xl border transition-all duration-500 w-full sm:min-w-[200px] group/btn",
                           isStoreMenuOpen 
                             ? "bg-gold/10 border-gold/40 shadow-gold/10 shadow-lg" 
                             : "bg-white/5 border-white/10 hover:border-gold/20"
@@ -212,14 +212,14 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                       </AnimatePresence>
                     </div>
 
-                    <Link href="/dashboard/admin/stores/stock">
-                        <button className="px-6 py-2.5 rounded-xl bg-secondary/30 hover:bg-gold/10 border border-border transition-all text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold">
+                    <Link href="/dashboard/admin/stores/stock" className="flex-1 sm:flex-none">
+                        <button className="w-full px-4 sm:px-6 py-2.5 rounded-xl bg-secondary/30 hover:bg-gold/10 border border-border transition-all text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-gold shrink-0">
                             Kho tổng
                         </button>
                     </Link>
                     <button 
                         onClick={(e) => { e.stopPropagation(); onToggle?.(); }}
-                        className="px-6 py-2.5 rounded-xl bg-gold/10 hover:bg-gold/20 border border-gold/20 transition-all text-[10px] font-black uppercase tracking-widest text-gold shadow-lg"
+                        className="flex-1 sm:flex-none w-full sm:w-auto px-4 sm:px-6 py-2.5 rounded-xl bg-gold/10 hover:bg-gold/20 border border-gold/20 transition-all text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gold shadow-lg shrink-0"
                     >
                         {isExpanded ? 'Thu gọn' : 'Phóng to'}
                     </button>
@@ -232,24 +232,24 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
                     animate={{ height: 'auto', opacity: 1 }}
                     className="overflow-hidden"
                 >
-                    <div className="p-10 space-y-12">
+                    <div className="p-6 sm:p-10 space-y-8 sm:space-y-12">
                         {/* 1. Critical Section */}
                         {criticalCount > 0 && (
-                            <section className="space-y-6">
-                                <div className="flex items-center justify-between">
+                            <section className="space-y-4 sm:space-y-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-red-500 text-white shadow-lg shadow-red-500/20">
                                             <AlertCircle className="w-4 h-4" />
                                         </div>
-                                        <h4 className="text-xs font-black uppercase tracking-[.25em] text-red-500">
+                                        <h4 className="text-[11px] sm:text-xs font-black uppercase tracking-[.2em] sm:tracking-[.25em] text-red-500">
                                             Lệnh Nhập Hàng Khẩn Cấp (<span className="text-foreground">{criticalCount}</span>)
                                         </h4>
                                     </div>
-                                    <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-500 transition-colors">
+                                    <button className="flex w-fit items-center gap-2 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-red-500 transition-colors bg-red-500/10 sm:bg-transparent px-4 py-2 sm:p-0 rounded-xl sm:rounded-none">
                                         Tạo đơn nhập hàng loạt <ArrowRight className="w-3 h-3" />
                                     </button>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                                     {groupedData.critical.map((item, i) => (
                                         <HealthCard key={item.variantId} item={item} index={i} onReorder={() => handleReorder(item)} />
                                     ))}
@@ -259,16 +259,16 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
 
                         {/* 2. Warning Section */}
                         {warningCount > 0 && (
-                            <section className="space-y-6">
+                            <section className="space-y-4 sm:space-y-6">
                                 <div className="flex items-center gap-3">
                                     <div className="p-2 rounded-lg bg-amber-500/20 text-amber-500 border border-amber-500/20">
                                         <AlertCircle className="w-4 h-4" />
                                     </div>
-                                    <h4 className="text-xs font-black uppercase tracking-[.25em] text-amber-500">
+                                    <h4 className="text-[11px] sm:text-xs font-black uppercase tracking-[.2em] sm:tracking-[.25em] text-amber-500">
                                         Cảnh Báo Sắp Hết Hàng ({warningCount})
                                     </h4>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5">
                                     {groupedData.warning.map((item, i) => (
                                         <HealthCard 
                                             key={item.variantId} 
@@ -284,14 +284,14 @@ export function InventoryHealthWidget({ isExpanded = false, onToggle }: Inventor
 
                         {/* Empty State for Action Cockpit */}
                         {(criticalCount === 0 && warningCount === 0) && (
-                            <div className="h-56 flex flex-col items-center justify-center text-muted-foreground/40 gap-4 border border-dashed border-border/30 rounded-[3rem] bg-secondary/5 relative overflow-hidden p-8 text-center">
+                            <div className="py-12 sm:h-64 flex flex-col items-center justify-center text-muted-foreground/40 gap-4 sm:gap-6 border border-dashed border-border/30 rounded-[2.5rem] sm:rounded-[3rem] bg-secondary/5 relative overflow-hidden px-6 sm:px-8 text-center mt-4">
                                 <div className="absolute -inset-x-20 -inset-y-20 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)] animate-pulse" />
-                                <div className="p-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)] relative z-10 animate-bounce">
+                                <div className="p-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)] relative z-10 animate-bounce mt-4 sm:mt-0">
                                     <Activity className="w-6 h-6" />
                                 </div>
-                                <div className="space-y-1 relative z-10">
+                                <div className="space-y-2 relative z-10">
                                     <h5 className="text-[11px] font-black uppercase tracking-[0.3em] text-emerald-400">Logistics Vận Hành Hoàn Hảo</h5>
-                                    <p className="text-[9px] text-muted-foreground/60 font-bold uppercase tracking-widest max-w-md mx-auto">
+                                    <p className="text-[9px] text-muted-foreground/60 font-bold uppercase tracking-widest max-w-md mx-auto leading-relaxed">
                                         Hệ thống không ghi nhận bất kỳ cảnh báo cạn kiệt hay tồn kho an toàn nào. Tất cả sản phẩm đều đang ở trạng thái lý tưởng!
                                     </p>
                                 </div>

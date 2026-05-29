@@ -103,39 +103,37 @@ export default function CostSetupPage() {
 
   return (
     <AuthGuard allowedRoles={["admin"]}>
-      <main className="p-8 max-w-[1400px] mx-auto space-y-12">
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <div className="space-y-6">
-          <div className="space-y-6">
+      <main className="px-0 py-4 sm:px-6 sm:py-8 max-w-[1400px] mx-auto space-y-6 sm:space-y-10 lg:space-y-12">
+        <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 sm:gap-8">
+          <div className="space-y-5 sm:space-y-6">
             <button
               onClick={() => router.back()}
-              className="p-4 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:bg-gold hover:text-white transition-all active:scale-95 shadow-xl w-fit group"
+              className="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-white/65 dark:bg-white/5 border border-gold/10 text-muted-foreground hover:bg-gold hover:text-luxury-black transition-all active:scale-95 shadow-xl group"
             >
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             </button>
             <div className="space-y-2">
-              <h1 className="text-5xl font-heading gold-gradient uppercase tracking-tighter italic leading-tight">
+              <h1 className="text-3xl sm:text-5xl font-heading gold-gradient italic leading-tight">
                 Thiết lập Giá Vốn
               </h1>
             </div>
           </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative group">
+          <div className="flex w-full lg:w-auto flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+            <div className="relative group w-full sm:flex-1 lg:w-80 lg:flex-none">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-gold transition-colors" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Tìm sản phẩm..."
-                className="bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-sm outline-none focus:border-gold/50 transition-all w-80 shadow-inner"
+                className="w-full bg-white/65 dark:bg-white/5 border border-gold/10 rounded-2xl pl-12 pr-4 sm:pr-6 py-3.5 sm:py-4 text-sm outline-none focus:border-gold/50 transition-all shadow-inner"
               />
             </div>
             <button
               onClick={handleSave}
               disabled={saving || loading}
-              className="flex items-center gap-3 bg-gold text-white px-8 py-4 rounded-2xl text-[10px] uppercase font-black tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-gold/20 disabled:opacity-50"
+              className="flex min-h-12 items-center justify-center gap-3 bg-gradient-to-r from-[#d7b96d] via-gold to-[#b58f44] text-luxury-black px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl [font-size:0.82rem] font-black hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-gold/20 disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Lưu thay đổi
@@ -156,9 +154,91 @@ export default function CostSetupPage() {
           )}
         </AnimatePresence>
 
-        <div className="glass rounded-[3rem] border-white/5 overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+        <div className="glass rounded-3xl lg:rounded-[3rem] border-white/5 overflow-hidden shadow-2xl">
+          <div className="lg:hidden p-4">
+            {loading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-48 animate-pulse rounded-3xl bg-secondary/30 dark:bg-white/5" />
+                ))}
+              </div>
+            ) : filteredVariants.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground/40">
+                <PackageSearch className="w-14 h-14 mb-4" />
+                <p className="text-xl font-heading italic">Không tìm thấy sản phẩm</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredVariants.map((v) => (
+                  <div
+                    key={v.id}
+                    className="rounded-3xl border border-gold/10 bg-white/80 p-4 shadow-[0_16px_40px_-34px_rgba(15,23,42,0.8)] dark:bg-white/[0.04]"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-border bg-secondary/40">
+                        {v.imageUrl ? (
+                          <img src={v.imageUrl} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <PackageSearch className="w-5 h-5 text-muted-foreground/30" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="[font-size:0.76rem] font-bold text-gold">{v.brandName || "Không rõ thương hiệu"}</p>
+                        <h3 className="mt-1 text-base font-semibold leading-snug text-foreground">{v.productName}</h3>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-border bg-background px-3 py-1 [font-size:0.78rem] font-semibold text-foreground">
+                            {v.name}
+                          </span>
+                          <span className="rounded-full bg-stone-100 px-3 py-1 font-mono [font-size:0.72rem] text-stone-500 dark:bg-white/5 dark:text-white/45">
+                            {v.sku || "N/A"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl border border-border/60 bg-background/60 p-3">
+                        <p className="[font-size:0.72rem] font-bold text-muted-foreground">Tồn hiện tại</p>
+                        <p className={cn("mt-1 text-2xl font-heading italic leading-none", v.stock === 0 ? "text-rose-500/60" : "text-foreground")}>
+                          {v.stock}
+                        </p>
+                        <p className="[font-size:0.68rem] font-semibold text-muted-foreground/60">đơn vị</p>
+                      </div>
+                      <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/10 p-3">
+                        <p className="[font-size:0.72rem] font-bold text-muted-foreground">Giá bán</p>
+                        <p className="mt-1 text-sm font-bold text-emerald-600">
+                          {v.price.toLocaleString()}đ
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="mb-1.5 block [font-size:0.76rem] font-semibold text-muted-foreground">
+                        Giá vốn mặc định
+                      </label>
+                      <div className="relative group/input">
+                        <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within/input:text-emerald-500 transition-colors" />
+                        <input
+                          type="number"
+                          value={modifiedPrices[v.id] || ""}
+                          onChange={(e) => updatePrice(v.id, e.target.value)}
+                          placeholder="Nhập giá vốn..."
+                          className="w-full bg-background/70 border border-border rounded-2xl pl-11 pr-10 py-3.5 text-right font-semibold text-sm focus:border-emerald-500/50 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 [font-size:0.78rem] font-black opacity-35 group-focus-within/input:opacity-100 transition-opacity">đ</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full min-w-[980px] text-left border-collapse">
               <thead>
                 <tr className="bg-white/[0.02] border-b border-white/5">
                   <th className="pl-10 pr-4 py-6 text-[10px] uppercase tracking-widest font-black opacity-40">Sản phẩm</th>

@@ -9,15 +9,17 @@ import { useUIStore } from '@/store/ui.store';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
  
 export default function UsersAdmin() {
   const t = useTranslations('dashboard.admin.users');
+  const searchParams = useSearchParams();
   const { isSidebarCollapsed: isCollapsed, setModalOpen } = useUIStore();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [stores, setStores] = useState<{ id: string; name: string; code?: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [roleFilter, setRoleFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>(() => searchParams.get('role') || '');
   const [editForm, setEditForm] = useState({ role: '', isActive: true });
   const [saving, setSaving] = useState(false);
   const [editModal, setEditModal] = useState<AdminUser | null>(null);
@@ -72,6 +74,13 @@ export default function UsersAdmin() {
   useEffect(() => {
     setSkip(0);
   }, [roleFilter, search]);
+
+  useEffect(() => {
+    const role = searchParams.get('role') || '';
+    if (role && role !== roleFilter) {
+      setRoleFilter(role);
+    }
+  }, [searchParams, roleFilter]);
  
   useEffect(() => {
     if (storeModal) fetchStores();
@@ -138,12 +147,12 @@ export default function UsersAdmin() {
           </div>
         )}
  
-        <div className="mb-8 flex flex-col xl:flex-row xl:items-center gap-4 xl:gap-6 bg-secondary/10 dark:bg-black/20 p-4 sm:p-6 rounded-[2rem] border border-stone-200 dark:border-white/5 shadow-sm">
+        <div className="mb-8 flex flex-col xl:flex-row xl:items-center gap-4 xl:gap-6 bg-white/95 dark:bg-zinc-950/70 p-4 sm:p-6 rounded-[2rem] border border-stone-200/80 dark:border-white/10 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.65)] backdrop-blur-xl">
            <div className="flex-1 relative group">
               <input
                 type="text"
                 placeholder={t('search_placeholder') || 'Tìm theo tên hoặc email...'}
-                className="w-full bg-white dark:bg-zinc-950/50 border border-border/50 rounded-2xl py-4 pl-14 pr-4 text-sm outline-none focus:border-gold/50 transition-all font-bold uppercase tracking-widest placeholder:text-muted-foreground/30"
+                className="w-full bg-stone-50/90 dark:bg-zinc-950/80 border border-stone-200/80 dark:border-white/10 rounded-2xl py-4 pl-14 pr-4 text-sm text-foreground outline-none focus:border-gold/50 transition-all font-bold uppercase tracking-widest placeholder:text-stone-400 dark:placeholder:text-white/30"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -158,7 +167,7 @@ export default function UsersAdmin() {
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value)}
-                  className="w-full sm:w-auto min-w-[200px] rounded-xl border border-stone-200 dark:border-white/10 bg-background dark:bg-zinc-900 px-6 py-3 md:py-3 text-[16px] sm:text-[10px] font-bold uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer appearance-none shadow-sm"
+                  className="w-full sm:w-auto min-w-[200px] rounded-xl border border-stone-200 dark:border-white/10 bg-stone-50 dark:bg-zinc-900 px-6 py-3 md:py-3 text-[16px] sm:text-[10px] text-foreground font-bold uppercase tracking-widest outline-none focus:border-gold transition-all cursor-pointer appearance-none shadow-sm"
                 >
                   <option value="">{t('roles.all')}</option>
                   <option value="ADMIN">{t('roles.admin')}</option>
@@ -172,9 +181,9 @@ export default function UsersAdmin() {
            </div>
          </div>
  
-        <div className="hidden lg:block glass rounded-[3rem] border border-stone-200 dark:border-white/10 overflow-hidden shadow-2xl bg-background/30">
+        <div className="hidden lg:block rounded-[2rem] border border-stone-200/80 dark:border-white/10 overflow-hidden shadow-[0_28px_80px_-55px_rgba(15,23,42,0.85)] bg-white/95 dark:bg-zinc-950/85 backdrop-blur-xl">
           <table className="w-full text-left font-body text-sm border-collapse">
-            <thead className="bg-secondary/10 text-muted-foreground border-b border-stone-100 dark:border-white/5">
+            <thead className="bg-stone-100/80 dark:bg-white/[0.04] text-stone-600 dark:text-white/50 border-b border-stone-200/80 dark:border-white/10">
               <tr>
                 <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.user')}</th>
                 <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading">{t('table.role')}</th>
@@ -183,7 +192,7 @@ export default function UsersAdmin() {
                 <th className="px-10 py-8 text-[10px] uppercase tracking-widest font-heading text-right">{t('table.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody className="divide-y divide-stone-200/70 dark:divide-white/10">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="px-10 py-24 text-center">
@@ -204,17 +213,17 @@ export default function UsersAdmin() {
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u.id} className="hover:bg-white/[0.05] transition-all group border-b border-border/10 last:border-0">
+                  <tr key={u.id} className="transition-all group border-b border-stone-100 dark:border-white/5 last:border-0 odd:bg-white even:bg-stone-50/55 hover:bg-gold/[0.06] dark:odd:bg-white/[0.025] dark:even:bg-white/[0.04] dark:hover:bg-gold/[0.08]">
                     <td className="px-10 py-10">
                       <div className="flex flex-col">
-                        <span className="font-heading uppercase text-xs sm:text-sm tracking-widest text-foreground group-hover:text-gold transition-colors leading-relaxed">
+                        <span className="font-heading uppercase text-xs sm:text-sm tracking-widest text-stone-950 dark:text-white group-hover:text-gold transition-colors leading-relaxed">
                           {u.fullName || u.email.split('@')[0]}
                         </span>
-                        <span className="text-[9px] text-muted-foreground font-mono mt-0.5 opacity-60 italic">{u.email}</span>
+                        <span className="text-[10px] text-stone-500 dark:text-white/45 font-mono mt-0.5 italic">{u.email}</span>
                       </div>
                     </td>
                     <td className="px-10 py-10">
-                      <span className="text-[9px] font-bold uppercase tracking-[.2em] text-gold/80 px-4 py-2 rounded-full border border-gold/10 bg-gold/5 shadow-sm">
+                      <span className="text-[9px] font-bold uppercase tracking-[.2em] text-gold px-4 py-2 rounded-full border border-gold/25 bg-gold/10 shadow-sm">
                         {t(`roles.${u.role.toLowerCase()}`)}
                       </span>
                     </td>
@@ -224,7 +233,7 @@ export default function UsersAdmin() {
                           {userStores(u).map((s) => (
                             <span
                               key={s.store.id}
-                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary/10 dark:bg-white/5 border border-stone-200 dark:border-white/5 text-[9px] font-bold uppercase tracking-tight group/store transition-all hover:bg-red-500/5"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-[9px] font-bold uppercase tracking-tight group/store transition-all hover:bg-red-500/5"
                             >
                               <span className="opacity-70">{s.store.name}</span>
                               <button
@@ -253,8 +262,8 @@ export default function UsersAdmin() {
                       <span
                         className={`px-5 py-2 rounded-full text-[8px] uppercase tracking-[.2em] font-extrabold border transition-all ${
                           u.isActive
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
-                            : 'bg-stone-500/10 text-stone-400 border-stone-200'
+                            ? 'bg-emerald-500/12 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.1)]'
+                            : 'bg-stone-500/10 text-stone-500 dark:text-stone-400 border-stone-200'
                         }`}
                       >
                         {u.isActive ? t('status.active') : t('status.inactive')}
@@ -264,7 +273,7 @@ export default function UsersAdmin() {
                       <button
                         type="button"
                         onClick={() => openEdit(u)}
-                        className="inline-flex items-center gap-3 text-[9px] uppercase font-extrabold tracking-[.2em] text-muted-foreground hover:text-gold transition-all opacity-0 group-hover:opacity-100 p-4 min-w-[44px] min-h-[44px] hover:bg-gold/5 rounded-2xl active:scale-90 flex justify-center"
+                        className="inline-flex items-center justify-center gap-3 text-[9px] uppercase font-extrabold tracking-[.2em] text-stone-600 dark:text-white/50 hover:text-gold transition-all opacity-100 p-4 min-w-[44px] min-h-[44px] hover:bg-gold/10 rounded-2xl active:scale-90"
                       >
                         <Pencil className="w-3.5 h-3.5" /> {t('actions.edit')}
                       </button>
@@ -519,7 +528,7 @@ export default function UsersAdmin() {
         <AnimatePresence>
           {storeModal && isStaff(storeModal) && (
             <div className={cn(
-                "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/40 dark:bg-zinc-950/80 backdrop-blur-2xl",
+                "fixed top-0 bottom-0 right-0 z-[150] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/40 dark:bg-zinc-950/80 backdrop-blur-2xl overflow-x-hidden",
                 "left-0 md:left-20",
                 !isCollapsed && "lg:left-72"
             )} onClick={() => handleSetStoreModal(null)}>
@@ -527,46 +536,46 @@ export default function UsersAdmin() {
                 initial={{ opacity: 0, scale: 0.95, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                className="relative w-full max-w-[800px] h-full sm:h-auto sm:max-h-[70vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass"
+                className="relative w-full max-w-[800px] h-full sm:h-auto sm:max-h-[70vh] bg-background border-t sm:border border-white/20 rounded-t-[3rem] sm:rounded-[3rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col glass min-w-0"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
-                <div className="shrink-0 p-8 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-center bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
-                    <div className="flex items-center gap-6">
+                <div className="shrink-0 p-5 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-start gap-4 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                    <div className="min-w-0 flex-1 pr-2">
                         <div className="space-y-1">
                             <div className="flex items-center gap-2 mb-1">
-                                <div className="w-6 h-px bg-gold" />
-                                <span className="text-[9px] uppercase tracking-[.4em] font-black text-gold/80">Quản Trị Điều Phối</span>
+                                <div className="w-6 h-px bg-gold shrink-0" />
+                                <span className="text-[9px] uppercase tracking-[.25em] sm:tracking-[.4em] font-black text-gold/80">Quản Trị Điều Phối</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+                            <h2 className="text-lg sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-snug sm:leading-none break-words">
                               {t('modals.assign_title', { name: storeModal.fullName || storeModal.email.split('@')[0] })}
                             </h2>
                         </div>
                     </div>
                     <button
                         onClick={() => setStoreModal(null)}
-                        className="w-12 h-12 rounded-full bg-secondary/10 border border-white/10 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                        className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full bg-secondary/10 border border-white/10 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
                     >
                         <X size={22} />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 sm:p-14 pb-32 sm:pb-14">
-                    <div className="space-y-6">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar p-4 sm:p-14 pb-28 sm:pb-14">
+                    <div className="space-y-4 sm:space-y-6 min-w-0">
                       {stores
                         .filter((s) => !userStores(storeModal).some((us) => us.store.id === s.id))
                         .map((s) => (
                           <div
                             key={s.id}
-                            className="flex items-center justify-between p-6 sm:p-8 rounded-[2.5rem] border border-white/5 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-gold/5 hover:border-gold/30 transition-all group shadow-sm active:scale-[0.99] duration-500"
+                            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-white/5 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-gold/5 hover:border-gold/30 transition-all group shadow-sm active:scale-[0.99] duration-500 min-w-0"
                           >
-                            <div className="flex items-center gap-6">
-                              <div className="w-14 h-14 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center group-hover:bg-gold group-hover:text-primary transition-all duration-500 shadow-xl">
-                                <Store size={22} />
+                            <div className="flex items-center gap-3 sm:gap-6 min-w-0 flex-1">
+                              <div className="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center group-hover:bg-gold group-hover:text-primary transition-all duration-500 shadow-xl">
+                                <Store size={20} className="sm:w-[22px] sm:h-[22px]" />
                               </div>
-                              <div>
-                                <h4 className="text-base font-heading uppercase tracking-widest leading-none mb-1 group-hover:text-gold transition-colors">{s.name}</h4>
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black opacity-40">{s.code || 'NO-CODE'}</p>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="text-sm sm:text-base font-heading uppercase tracking-wide sm:tracking-widest leading-tight mb-1 group-hover:text-gold transition-colors truncate">{s.name}</h4>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wide sm:tracking-widest font-black opacity-40 truncate">{s.code || 'NO-CODE'}</p>
                               </div>
                             </div>
                             
@@ -574,7 +583,7 @@ export default function UsersAdmin() {
                               type="button"
                               onClick={() => handleAssignStore(s.id, storeModal.id)}
                               disabled={saving}
-                              className="h-14 px-8 rounded-full bg-gold text-primary font-black uppercase tracking-widest text-[9px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center gap-2 group/btn"
+                              className="w-full sm:w-auto shrink-0 h-11 sm:h-14 px-6 sm:px-8 rounded-full bg-gold text-primary font-black uppercase tracking-widest text-[9px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center justify-center gap-2 group/btn"
                             >
                                 <UserPlus size={16} />
                                 {t('actions.assign_store')}
@@ -594,11 +603,11 @@ export default function UsersAdmin() {
                 </div>
 
                 {/* Footer */}
-                <div className="shrink-0 h-28 border-t border-white/10 px-12 flex items-center justify-end bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                <div className="shrink-0 h-auto min-h-24 sm:min-h-28 border-t border-white/10 p-6 sm:px-12 flex items-center justify-stretch sm:justify-end bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
                     <button
                         type="button"
                         onClick={() => setStoreModal(null)}
-                        className="px-14 py-5 rounded-full bg-secondary/10 border border-white/10 font-heading text-[11px] uppercase tracking-[.3em] font-black hover:bg-white/5 transition-all active:scale-95"
+                        className="w-full sm:w-auto px-14 py-4 sm:py-5 rounded-full bg-secondary/10 border border-white/10 font-heading text-[11px] uppercase tracking-[.3em] font-black hover:bg-white/5 transition-all active:scale-95 text-center"
                     >
                         {t('modals.close') || 'HOÀN TẤT'}
                     </button>

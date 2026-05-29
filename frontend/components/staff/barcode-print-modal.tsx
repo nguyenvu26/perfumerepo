@@ -68,12 +68,8 @@ function buildBarcodePrintHtml(
     .map(
       (label) => `
       <div class="barcode-label">
-        <div class="brand">${escapeHtml(label.brandName)}</div>
-        <div class="product-name">${escapeHtml(label.productName)}</div>
-        <div class="variant-name">${escapeHtml(label.variantName)}</div>
         <img class="barcode-img" src="${label.barcodeDataUrl}" alt="barcode" />
         <div class="barcode-text">${escapeHtml(label.barcode)}</div>
-        <div class="price">${formatVND(label.price)}</div>
         ${label.sku ? `<div class="sku">SKU: ${escapeHtml(label.sku)}</div>` : ''}
       </div>`,
     )
@@ -113,50 +109,27 @@ function buildBarcodePrintHtml(
 .barcode-label:last-child {
   page-break-after: auto;
 }
-.barcode-label .brand {
-  font-size: ${h <= 25 ? 5 : 6}pt;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.1;
-}
-.barcode-label .product-name {
-  font-size: ${h <= 25 ? 5.5 : 6.5}pt;
-  font-weight: 600;
-  line-height: 1.1;
-  max-width: ${w - 4}mm;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-.barcode-label .variant-name {
-  font-size: ${h <= 25 ? 5 : 5.5}pt;
-  color: #555;
-  line-height: 1.1;
-  margin-bottom: 0.5mm;
-}
+
+
 .barcode-label .barcode-img {
   width: ${w - 4}mm;
-  height: ${h <= 25 ? 6 : h <= 30 ? 7 : 9}mm;
+  height: ${h <= 25 ? 12 : h <= 30 ? 16 : 22}mm;
   object-fit: contain;
   flex-shrink: 0;
 }
 .barcode-label .barcode-text {
-  font-size: ${h <= 25 ? 5 : 6}pt;
+  font-size: ${h <= 25 ? 8 : 10}pt;
+  font-weight: bold;
   font-family: 'Courier New', monospace;
   letter-spacing: 1.5px;
   line-height: 1;
   margin-bottom: 0.5mm;
-  margin-top: -0.2mm;
-}
-.barcode-label .price {
-  font-size: ${h <= 25 ? 6 : 7}pt;
-  font-weight: bold;
-  line-height: 1.1;
+  margin-top: 0.5mm;
 }
 .barcode-label .sku {
-  font-size: ${h <= 25 ? 4 : 5}pt;
-  color: #888;
+  font-size: ${h <= 25 ? 7 : 9}pt;
+  font-weight: 600;
+  color: #000;
   line-height: 1;
 }
 </style>

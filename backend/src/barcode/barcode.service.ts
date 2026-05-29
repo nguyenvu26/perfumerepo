@@ -48,8 +48,8 @@ export class BarcodeService {
    */
   async generateBarcodeImage(barcodeText: string): Promise<string> {
     const png = await this.safeGenerateBuffer(barcodeText, {
-      scale: 3,
-      height: 12,
+      scale: 5,
+      height: 15,
       includetext: false,
       textxalign: 'center',
       textsize: 10,

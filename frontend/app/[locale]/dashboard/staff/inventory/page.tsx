@@ -485,7 +485,7 @@ export default function StaffInventory() {
         ) : (
           <div className="space-y-6">
             {/* Main Tabs */}
-            <div className="flex gap-4">
+            <div className="flex gap-2 sm:gap-4 overflow-x-auto custom-scrollbar pb-2">
               <button
                 onClick={() => setActiveMainTab("inventory")}
                 className={cn(

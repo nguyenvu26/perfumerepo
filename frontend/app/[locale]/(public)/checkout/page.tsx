@@ -533,6 +533,14 @@ export default function CheckoutPage() {
             <main className="container-responsive pt-28 pb-12 lg:pt-36 lg:pb-16">
                 <div className="mx-auto max-w-[1440px]">
 
+                    <button
+                        onClick={() => router.back()}
+                        className="mb-8 inline-flex items-center gap-3 text-base font-semibold text-muted-foreground hover:text-gold transition-colors group"
+                    >
+                        <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                        {locale === 'vi' ? 'Quay lại giỏ hàng' : 'Back to Cart'}
+                    </button>
+
                     <div className="grid gap-10 xl:gap-14 lg:grid-cols-[minmax(0,1fr)_420px]">
 
                         {/* Left Column */}

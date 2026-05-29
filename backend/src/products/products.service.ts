@@ -1017,8 +1017,8 @@ export class ProductsService {
     });
   }
 
-  async getInventoryLogs(query: { variantId?: string; type?: any; skip?: number; take?: number }) {
-    const { variantId, type, skip = 0, take = 20 } = query;
+  async getInventoryLogs(query: { variantId?: string; type?: any; skip?: number; take?: number; startDate?: string; endDate?: string }) {
+    const { variantId, type, skip = 0, take = 20, startDate, endDate } = query;
     const where: any = {};
     if (variantId) where.variantId = variantId;
     if (type) {
@@ -1029,6 +1029,22 @@ export class ProductsService {
       }
     } else {
       where.type = { not: 'SALE_POS' };
+    }
+
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) {
+        where.createdAt.gte = new Date(startDate);
+      }
+      if (endDate) {
+        if (endDate.includes('T')) {
+          where.createdAt.lte = new Date(endDate);
+        } else {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          where.createdAt.lte = end;
+        }
+      }
     }
 
     const [items, total] = await Promise.all([

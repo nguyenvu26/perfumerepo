@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateAiPreferencesDto } from './dto/update-ai-preferences.dto';
 
@@ -6,44 +6,67 @@ import { UpdateAiPreferencesDto } from './dto/update-ai-preferences.dto';
 export class AiPreferencesService {
   constructor(private readonly prisma: PrismaService) { }
 
+  private readonly defaultPreferences = {
+    riskLevel: 0.3,
+    preferredNotes: [] as string[],
+    avoidedNotes: [] as string[],
+  };
+
+  private async ensureUserExists(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Phiên đăng nhập không hợp lệ hoặc tài khoản không còn tồn tại');
+    }
+  }
+
   async findByUser(userId: string) {
-    let prefs = await this.prisma.userAiPreference.findUnique({
+    const prefs = await this.prisma.userAiPreference.findUnique({
       where: { userId },
     });
 
-    if (!prefs) {
-      // Create default if not exists
-      prefs = await this.prisma.userAiPreference.create({
-        data: {
-          userId,
-          riskLevel: 0.3,
-          preferredNotes: [],
-          avoidedNotes: [],
-        },
-      });
+    if (prefs) {
+      return prefs;
     }
 
-    return prefs;
+    await this.ensureUserExists(userId);
+
+    return this.prisma.userAiPreference.upsert({
+      where: { userId },
+      update: {},
+      create: {
+        userId,
+        ...this.defaultPreferences,
+      },
+    });
   }
 
   async update(userId: string, dto: UpdateAiPreferencesDto) {
+    await this.ensureUserExists(userId);
+
     return this.prisma.userAiPreference.upsert({
       where: { userId },
       update: dto,
       create: {
         userId,
+        ...this.defaultPreferences,
         ...dto,
       },
     });
   }
 
   async reset(userId: string) {
-    return this.prisma.userAiPreference.update({
+    await this.ensureUserExists(userId);
+
+    return this.prisma.userAiPreference.upsert({
       where: { userId },
-      data: {
-        riskLevel: 0.3,
-        preferredNotes: [],
-        avoidedNotes: [],
+      update: this.defaultPreferences,
+      create: {
+        userId,
+        ...this.defaultPreferences,
       },
     });
   }

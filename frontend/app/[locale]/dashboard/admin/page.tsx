@@ -16,7 +16,7 @@ import { AiConversionWidget } from '@/components/dashboard/admin/AiConversionWid
 import { RecentOrdersFeed, RecentOrderDto } from '@/components/dashboard/admin/RecentOrdersFeed';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
-import { Link, useRouter } from '@/lib/i18n';
+import { useRouter } from '@/lib/i18n';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface OverviewData {
@@ -49,7 +49,7 @@ function ChangeChip({ value }: { value: number }) {
     const positive = value >= 0;
     return (
         <span className={cn(
-            'flex items-center gap-0.5 text-[9px] font-bold px-2 py-1 rounded-full border uppercase tracking-widest',
+            'flex items-center gap-0.5 [font-size:0.72rem] font-bold px-2 py-1 rounded-full border',
             positive
                 ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/10'
                 : 'text-red-500 border-red-500/20 bg-red-500/10',
@@ -302,7 +302,7 @@ export default function AdminDashboard() {
                 change: null,
                 icon: Users,
                 color: 'bg-blue-500/10 text-blue-400',
-                href: '/dashboard/admin/customers',
+                href: { pathname: '/dashboard/admin/users', query: { role: 'CUSTOMER' } },
             },
             {
                 label: t('home.stats.inventory_value'),
@@ -348,10 +348,10 @@ export default function AdminDashboard() {
             <div className="flex flex-col gap-6 md:gap-7 py-6 md:py-8 px-4 sm:px-6 md:px-8 max-w-[1600px] mx-auto">
 
                 {/* ── Header & Consolidanted Filters ─────────────────────────────── */}
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8">
+                <div className="flex flex-col gap-6 md:gap-8">
+                    <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 xl:gap-8">
                         <header className="space-y-3">
-                            <h1 className="text-7xl sm:text-8xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-[0.8]">
+                            <h1 className="text-4xl sm:text-6xl md:text-7xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-[0.85]">
                                 {t('home.title')}
                             </h1>
                             <p className="text-sm text-muted-foreground font-medium opacity-50 italic max-w-xl leading-relaxed">
@@ -362,22 +362,22 @@ export default function AdminDashboard() {
                             </p>
                         </header>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                             {/* Filter Toggle Button */}
                             <button
                                 onClick={() => setIsFilterExpanded(!isFilterExpanded)}
                                 className={cn(
-                                    "group flex items-center gap-4 px-8 py-4 rounded-full border transition-all duration-500 active:scale-95",
+                                    "group flex items-center gap-3 sm:gap-4 px-5 sm:px-7 py-3 rounded-full border transition-all duration-500 active:scale-95 flex-1 sm:flex-none justify-center sm:justify-start",
                                     isFilterExpanded 
                                         ? "bg-gold text-white border-gold shadow-[0_0_30px_rgba(212,175,55,0.3)]"
-                                        : "bg-white/5 border-white/10 text-foreground hover:border-gold/50"
+                                        : "bg-white/75 dark:bg-white/5 border-gold/10 dark:border-white/10 text-foreground hover:border-gold/50"
                                 )}
                             >
-                                <Filter className={cn("w-4 h-4 transition-transform duration-500", isFilterExpanded && "rotate-180")} />
+                                <Filter className={cn("w-4 h-4 transition-transform duration-500 shrink-0", isFilterExpanded && "rotate-180")} />
                                 <div className="flex flex-col items-start leading-none gap-1">
                                     <span className="text-[10px] font-black uppercase tracking-widest">Cấu hình báo cáo</span>
                                     {!isFilterExpanded && (
-                                        <span className="text-[8px] font-bold opacity-50 uppercase tracking-widest">
+                                        <span className="text-[8px] font-bold opacity-50 uppercase tracking-widest hidden sm:block">
                                             {period === 'custom' ? 'Tùy chọn' : (
                                                 period === 'today' ? 'Hôm nay' : 
                                                 period === 'week' ? '7 Ngày' :
@@ -387,13 +387,13 @@ export default function AdminDashboard() {
                                         </span>
                                     )}
                                 </div>
-                                <ChevronDown className={cn("w-4 h-4 opacity-30 transition-transform duration-500", isFilterExpanded && "rotate-180")} />
+                                <ChevronDown className={cn("w-4 h-4 opacity-30 transition-transform duration-500 shrink-0", isFilterExpanded && "rotate-180")} />
                             </button>
 
                             <button
                                 onClick={refreshAll}
                                 disabled={overviewLoading}
-                                className="p-4 rounded-full bg-white/5 border border-white/10 text-foreground/50 hover:text-gold hover:border-gold/30 transition-all active:scale-95 group"
+                                className="p-3 rounded-full bg-white/75 dark:bg-white/5 border border-gold/10 dark:border-white/10 text-foreground/50 hover:text-gold hover:border-gold/30 transition-all active:scale-95 group shrink-0"
                                 title={t('home.stats.refresh')}
                             >
                                 <RefreshCw className={cn("w-5 h-5 transition-transform duration-700", overviewLoading && "animate-spin")} />
@@ -410,21 +410,21 @@ export default function AdminDashboard() {
                                 transition={{ type: 'spring', damping: 25, stiffness: 120 }}
                                 className="overflow-hidden z-20 relative"
                             >
-                                <div className="glass bg-zinc-900/40 border border-white/10 rounded-[3rem] p-10 sm:p-12 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] backdrop-blur-2xl mt-4">
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
+                                <div className="glass bg-white/88 dark:bg-zinc-950/55 border border-gold/10 dark:border-white/10 rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 lg:p-7 shadow-[0_18px_45px_-24px_rgba(17,24,39,0.45)] backdrop-blur-2xl mt-3">
+                                    <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr_1fr] gap-4 lg:gap-5">
                                         
                                         {/* 1. Time Presets */}
-                                        <div className="space-y-8">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2.5 rounded-xl bg-gold/10 border border-gold/20">
+                                        <div className="rounded-[1.5rem] border border-gold/10 bg-white/55 dark:bg-white/[0.03] p-4 sm:p-5 space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 rounded-2xl bg-gold/10 border border-gold/20 shrink-0">
                                                     <Calendar className="w-4 h-4 text-gold" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Khoảng thời gian</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-foreground">Khoảng thời gian</span>
                                                     <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Chọn nhanh tiến độ</span>
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-2">
                                                 {[
                                                     { id: 'today', label: 'Hôm nay' },
                                                     { id: 'week', label: '7 Ngày qua' },
@@ -437,10 +437,10 @@ export default function AdminDashboard() {
                                                         key={p.id}
                                                         onClick={() => setPeriod(p.id as any)}
                                                         className={cn(
-                                                            "px-4 py-3 rounded-2xl text-[10px] font-black tracking-widest transition-all duration-500 uppercase border text-center",
+                                                            "min-h-11 px-3 py-2.5 rounded-2xl text-[10px] font-black tracking-wide transition-all duration-300 uppercase border text-center leading-tight",
                                                             period === p.id 
-                                                                ? "bg-gold text-white border-gold shadow-[0_0_20px_rgba(212,175,55,0.2)]" 
-                                                                : "bg-white/5 border-white/5 text-muted-foreground hover:text-white hover:bg-white/10 hover:border-white/20"
+                                                                ? "bg-gold text-white border-gold shadow-[0_10px_24px_-14px_rgba(184,134,11,0.85)]" 
+                                                                : "bg-white/80 dark:bg-white/5 border-gold/10 dark:border-white/10 text-foreground/70 hover:text-foreground hover:border-gold/30"
                                                         )}
                                                     >
                                                         {p.label}
@@ -450,13 +450,13 @@ export default function AdminDashboard() {
                                         </div>
 
                                         {/* 2. Custom Date Range or Status Information */}
-                                        <div className="space-y-8 min-h-[160px]">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                                        <div className="rounded-[1.5rem] border border-blue-500/10 bg-white/55 dark:bg-white/[0.03] p-4 sm:p-5 space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 shrink-0">
                                                     <Filter className="w-4 h-4 text-blue-400" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Chi tiết tùy chỉnh</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-foreground">Chi tiết tùy chỉnh</span>
                                                     <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Thời gian & Trạng thái</span>
                                                 </div>
                                             </div>
@@ -468,13 +468,13 @@ export default function AdminDashboard() {
                                                         initial={{ opacity: 0, x: -10 }}
                                                         animate={{ opacity: 1, x: 0 }}
                                                         exit={{ opacity: 0, x: 10 }}
-                                                        className="flex flex-col gap-4 p-6 bg-white/5 rounded-3xl border border-white/10"
+                                                        className="flex flex-col gap-3 p-4 bg-white/80 dark:bg-white/5 rounded-3xl border border-blue-500/10 dark:border-white/10"
                                                     >
                                                         <div className="flex flex-col gap-2">
                                                             <label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Từ ngày</label>
                                                             <input 
                                                                 type="date" 
-                                                                className="bg-black/40 text-gold font-heading text-xs outline-none cursor-pointer p-3 rounded-xl border border-white/5 focus:border-gold/50 transition-all w-full"
+                                                                className="bg-white dark:bg-black/40 text-gold font-heading text-xs outline-none cursor-pointer p-3 rounded-xl border border-border focus:border-gold/50 transition-all w-full"
                                                                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
                                                             />
                                                         </div>
@@ -482,7 +482,7 @@ export default function AdminDashboard() {
                                                             <label className="text-[8px] font-black uppercase tracking-widest text-muted-foreground ml-1">Đến ngày</label>
                                                             <input 
                                                                 type="date" 
-                                                                className="bg-black/40 text-gold font-heading text-xs outline-none cursor-pointer p-3 rounded-xl border border-white/5 focus:border-gold/50 transition-all w-full"
+                                                                className="bg-white dark:bg-black/40 text-gold font-heading text-xs outline-none cursor-pointer p-3 rounded-xl border border-border focus:border-gold/50 transition-all w-full"
                                                                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
                                                             />
                                                         </div>
@@ -493,9 +493,9 @@ export default function AdminDashboard() {
                                                         initial={{ opacity: 0, x: -10 }}
                                                         animate={{ opacity: 1, x: 0 }}
                                                         exit={{ opacity: 0, x: 10 }}
-                                                        className="flex items-center justify-center h-full p-8 rounded-3xl border-2 border-dashed border-white/5"
+                                                        className="flex items-center justify-center min-h-[108px] p-4 rounded-3xl border border-dashed border-gold/20 bg-white/45 dark:bg-white/[0.02]"
                                                     >
-                                                        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold text-center leading-relaxed">
+                                                        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.16em] font-bold text-center leading-relaxed">
                                                             Đang áp dụng bộ lọc<br/>
                                                             <span className="text-gold font-black mt-2 inline-block">
                                                                 {period === 'today' ? 'Hôm nay' : 
@@ -510,19 +510,19 @@ export default function AdminDashboard() {
                                         </div>
 
                                         {/* 3. Distribution & Apply */}
-                                        <div className="space-y-8">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                                        <div className="rounded-[1.5rem] border border-purple-500/10 bg-white/55 dark:bg-white/[0.03] p-4 sm:p-5 space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 shrink-0">
                                                     <Globe className="w-4 h-4 text-purple-400" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Phạm vi dữ liệu</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-foreground">Phạm vi dữ liệu</span>
                                                     <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Khu vực & Kênh</span>
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-5">
-                                                <div className="flex p-1.5 bg-black/40 rounded-2xl border border-white/10">
+                                            <div className="space-y-4">
+                                                <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-stone-100/90 dark:bg-black/40 rounded-2xl border border-gold/10 dark:border-white/10">
                                                     {[
                                                         { id: 'all', label: 'Hệ thống' },
                                                         { id: 'ONLINE', label: 'Online' },
@@ -532,10 +532,10 @@ export default function AdminDashboard() {
                                                             key={chan.id}
                                                             onClick={() => setSelectedChannel(chan.id as any)}
                                                             className={cn(
-                                                                "flex-1 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                                                                "min-h-11 px-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all duration-300 leading-tight",
                                                                 selectedChannel === chan.id 
-                                                                    ? "bg-white/10 text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] ring-1 ring-white/10" 
-                                                                    : "text-muted-foreground hover:text-white"
+                                                                    ? "bg-white text-foreground shadow-[0_8px_18px_-12px_rgba(0,0,0,0.45)] ring-1 ring-gold/15 dark:bg-white/10 dark:text-white dark:ring-white/10" 
+                                                                    : "text-muted-foreground hover:text-foreground dark:hover:text-white"
                                                             )}
                                                         >
                                                             {chan.label}
@@ -557,7 +557,7 @@ export default function AdminDashboard() {
                                                                 <select 
                                                                     value={selectedChartStoreId}
                                                                     onChange={(e) => setSelectedChartStoreId(e.target.value)}
-                                                                    className="w-full bg-black/40 border border-white/10 rounded-2xl pl-11 pr-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-gold focus:outline-none focus:border-gold/50 cursor-pointer appearance-none hover:bg-black/60 transition-all shadow-inner"
+                                                                    className="w-full bg-white dark:bg-black/40 border border-border dark:border-white/10 rounded-2xl pl-11 pr-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-gold focus:outline-none focus:border-gold/50 cursor-pointer appearance-none hover:bg-white/90 dark:hover:bg-black/60 transition-all shadow-inner"
                                                                 >
                                                                     <option value="all" className="bg-zinc-950 text-white">Tất cả chi nhánh</option>
                                                                     {stores.filter(s => s.type !== 'CENTRAL').map(s => (
@@ -572,7 +572,7 @@ export default function AdminDashboard() {
 
                                                 <button 
                                                     onClick={() => setIsFilterExpanded(false)}
-                                                    className="w-full mt-6 px-10 py-5 rounded-2xl bg-gold text-white text-[10px] font-black uppercase tracking-[0.3em] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 group"
+                                                    className="w-full px-6 py-3.5 rounded-2xl bg-gold text-white text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-[0_10px_30px_rgba(212,175,55,0.28)] hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-3 group"
                                                 >
                                                     Áp dụng bộ lọc
                                                     <ArrowUpRight className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
@@ -587,10 +587,10 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* ── KPI Stats ──────────────────────────────────────────── */}
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-4">
+                <section className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
                     {overviewLoading
                         ? Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="glass bg-background/40 rounded-[2rem] border border-border p-8 animate-pulse h-40" />
+                            <div key={i} className="glass bg-background/40 rounded-3xl sm:rounded-[2rem] border border-border p-4 sm:p-8 animate-pulse h-40" />
                         ))
                         : statCards.map((card: any, i) => {
                             // Helper to split value and unit for better alignment
@@ -607,6 +607,11 @@ export default function AdminDashboard() {
                             };
 
                             const { number, unit } = splitValue(card.value);
+                            const navigateToCard = () => {
+                                if (card.href) {
+                                    router.push(card.href as any);
+                                }
+                            };
 
                             const CardContent = (
                                 <motion.div
@@ -614,31 +619,43 @@ export default function AdminDashboard() {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: i * 0.1 }}
-                                    className="glass bg-background/40 rounded-[2rem] border border-border hover:border-gold/20 hover:shadow-2xl hover:shadow-gold/5 transition-all group flex flex-col h-full overflow-hidden"
+                                    onClick={navigateToCard}
+                                    onKeyDown={(e) => {
+                                        if (card.href && (e.key === 'Enter' || e.key === ' ')) {
+                                            e.preventDefault();
+                                            navigateToCard();
+                                        }
+                                    }}
+                                    role={card.href ? "button" : undefined}
+                                    tabIndex={card.href ? 0 : undefined}
+                                    className={cn(
+                                        "glass bg-background/40 rounded-3xl sm:rounded-[2rem] border border-border hover:border-gold/20 hover:shadow-2xl hover:shadow-gold/5 transition-all group flex flex-col h-full min-h-[168px] sm:min-h-[190px] overflow-hidden",
+                                        card.href && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.99]"
+                                    )}
                                 >
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div className={`p-3 rounded-xl ${card.color} group-hover:scale-110 transition-all duration-500 shadow-xl shadow-black/10 flex items-center justify-center relative`}>
+                                    <div className="p-4 sm:p-6 flex-1 flex flex-col">
+                                        <div className="flex justify-between items-start gap-2 mb-5 sm:mb-6">
+                                            <div className={`p-2.5 sm:p-3 rounded-xl ${card.color} group-hover:scale-110 transition-all duration-500 shadow-xl shadow-black/10 flex items-center justify-center relative shrink-0`}>
                                                 <div className="absolute inset-0 rounded-2xl bg-current opacity-0 group-hover:opacity-10 blur-md transition-opacity" />
-                                                <card.icon className="w-5 h-5 relative z-10" />
+                                                <card.icon className="w-4 h-4 sm:w-5 sm:h-5 relative z-10" />
                                             </div>
                                             {card.change !== null && card.change !== undefined && (
-                                                <div className="pt-1">
+                                                <div className="pt-0.5">
                                                     <ChangeChip value={card.change} />
                                                 </div>
                                             )}
                                         </div>
                                         
                                         <div className="mt-auto">
-                                            <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] mb-3 group-hover:text-muted-foreground/60 transition-colors">
+                                            <p className="[font-size:0.86rem] sm:text-sm font-black text-muted-foreground mb-2 sm:mb-3 leading-snug group-hover:text-foreground transition-colors break-words">
                                                 {card.label}
                                             </p>
-                                            <div className="flex items-baseline gap-1">
-                                                <h4 className="text-3xl sm:text-3xl font-heading text-foreground tracking-tighter leading-none group-hover:text-gold transition-colors duration-500">
+                                            <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5">
+                                                <h4 className="text-2xl sm:text-3xl font-heading text-foreground tracking-tight leading-none group-hover:text-gold transition-colors duration-500 break-all">
                                                     {number}
                                                 </h4>
                                                 {unit && (
-                                                    <span className="text-xs font-heading text-muted-foreground/40 uppercase tracking-widest group-hover:text-gold/50 transition-colors">
+                                                    <span className="[font-size:0.78rem] sm:text-xs font-heading text-muted-foreground group-hover:text-gold/70 transition-colors">
                                                         {unit}
                                                     </span>
                                                 )}
@@ -647,7 +664,7 @@ export default function AdminDashboard() {
                                     </div>
 
                                     {/* Footer area with fixed height for alignment */}
-                                    <div className="px-6 pb-5 pt-3 flex items-center border-t border-white/[0.03]">
+                                    <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-3 flex items-center border-t border-border/30 min-h-[44px]">
                                         {card.subtext ? (
                                             <button 
                                                 onClick={(e) => {
@@ -658,24 +675,16 @@ export default function AdminDashboard() {
                                                     }
                                                 }}
                                                 className={cn(
-                                                    "text-[9px] text-muted-foreground uppercase tracking-[0.15em] font-black opacity-30 transition-all text-left",
-                                                    card.subtextHref && "hover:text-gold hover:opacity-100 cursor-pointer"
+                                                    "[font-size:0.74rem] sm:text-[0.78rem] text-muted-foreground font-bold transition-all text-left leading-snug break-words",
+                                                    card.subtextHref && "hover:text-gold cursor-pointer"
                                                 )}
                                             >
                                                 {card.subtext}
                                             </button>
                                         ) : (
-                                            <div className="h-0.5 w-6 bg-white/5 rounded-full" />
+                                            <div className="h-0.5 w-6 bg-border rounded-full" />
                                         )}
                                     </div>
-
-                                    {card.href && (
-                                        <Link
-                                            href={(card.href as any)}
-                                            className="absolute inset-0 z-0"
-                                            aria-label={card.label}
-                                        />
-                                    )}
                                 </motion.div>
                             );
 

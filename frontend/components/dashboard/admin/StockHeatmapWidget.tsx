@@ -133,7 +133,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
 
     return (
         <div className={cn(
-            "glass dark:bg-background/40 rounded-[3rem] border border-border/60 overflow-hidden flex flex-col w-full group/widget hover:border-gold/30 transition-all duration-700 shadow-2xl relative",
+            "glass dark:bg-background/40 rounded-[1.5rem] sm:rounded-[3rem] border border-border/60 overflow-hidden flex flex-col w-full group/widget hover:border-gold/30 transition-all duration-700 shadow-2xl relative",
             !isExpanded && "hover:bg-secondary/10 cursor-pointer"
         )} onClick={!isExpanded ? onToggle : undefined}>
 
@@ -141,8 +141,8 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
             <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] rounded-full pointer-events-none" />
 
             {/* Redesigned Header */}
-            <div className="px-10 py-6 border-b border-border/50 bg-secondary/30 flex items-center justify-between gap-6">
-                <div className="flex items-center gap-5">
+            <div className="px-4 sm:px-10 py-4 sm:py-6 border-b border-border/50 bg-secondary/30 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 xl:gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 w-full">
                     <div className="relative">
                         <div className="p-3.5 rounded-2xl bg-gold/10 text-gold border border-gold/20 shadow-inner">
                             <Zap className="w-5 h-5 fill-gold/20" />
@@ -153,29 +153,29 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                             </span>
                         )}
                     </div>
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-black uppercase tracking-[.3em] gold-gradient">
+                    <div className="flex flex-col flex-1">
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                            <h3 className="text-xs sm:text-sm font-black uppercase tracking-[.2em] sm:tracking-[.3em] gold-gradient leading-tight">
                                 Bản Đồ Nhiệt Luồng Hàng
                             </h3>
                             <button
                                 onClick={(e) => { e.stopPropagation(); setShowAlgorithm(true); }}
-                                className="p-1 rounded-full hover:bg-gold/10 text-muted-foreground hover:text-gold transition-colors"
+                                className="p-1 rounded-full hover:bg-gold/10 text-muted-foreground hover:text-gold transition-colors shrink-0"
                             >
                                 <HelpCircle className="w-3.5 h-3.5" />
                             </button>
                         </div>
-                        <div className="flex items-center gap-4 mt-1.5">
-                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
+                            <p className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                                 Tỉ lệ phủ kho hệ thống: <span className="text-foreground">98.4%</span>
                             </p>
                             {isExpanded && (
-                                <div className="h-3 w-[1px] bg-border" />
+                                <div className="hidden sm:block h-3 w-[1px] bg-border" />
                             )}
                             {isExpanded && (
-                                <p className="text-[10px] text-amber-500 font-bold uppercase tracking-widest flex items-center gap-2">
-                                    <AlertTriangle className="w-3 h-3" />
+                                <p className="text-[9px] sm:text-[10px] text-amber-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                                    <AlertTriangle className="w-3 h-3 shrink-0" />
                                     {data.recommendations.length} Điểm nóng cần xử lý
                                 </p>
                             )}
@@ -183,9 +183,9 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4 w-full xl:w-auto">
                     {isExpanded && (
-                        <div className="flex items-center gap-3 mr-4">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto sm:mr-4">
                             {/* Premium Mini-Search Input */}
                             <div className="relative flex items-center">
                                 <Search className="absolute left-3 w-3.5 h-3.5 text-gold/60" />
@@ -194,14 +194,14 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                     placeholder="Tìm kiếm sản phẩm..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-9 pr-4 py-2 w-44 rounded-xl bg-secondary/20 border border-border/80 focus:border-gold/40 focus:ring-1 focus:ring-gold/20 outline-none text-[10px] font-black uppercase tracking-widest text-foreground placeholder:text-muted-foreground/30 transition-all shadow-inner"
+                                    className="pl-9 pr-4 py-2 w-full sm:w-44 rounded-xl bg-secondary/20 border border-border/80 focus:border-gold/40 focus:ring-1 focus:ring-gold/20 outline-none text-[10px] font-black uppercase tracking-widest text-foreground placeholder:text-muted-foreground/30 transition-all shadow-inner"
                                 />
                             </div>
 
                             <button
                                 onClick={() => setIsFocusMode(!isFocusMode)}
                                 className={cn(
-                                    "px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border",
+                                    "px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border w-full sm:w-auto shrink-0",
                                     isFocusMode
                                         ? "bg-red-500/10 border-red-500/40 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                                         : "bg-secondary/20 border-border text-muted-foreground hover:text-foreground"
@@ -214,11 +214,11 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                     )}
 
                     {isExpanded && (
-                        <div className="flex bg-secondary/50 dark:bg-secondary/30 p-1.5 rounded-2xl border border-border shadow-inner">
+                        <div className="flex bg-secondary/50 dark:bg-secondary/30 p-1.5 rounded-2xl border border-border shadow-inner w-full sm:w-auto">
                             <button
                                 onClick={() => setActiveTab('matrix')}
                                 className={cn(
-                                    "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                    "flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all",
                                     activeTab === 'matrix' ? "bg-gold text-black shadow-lg" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
@@ -227,7 +227,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                             <button
                                 onClick={() => setActiveTab('recommendations')}
                                 className={cn(
-                                    "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                                    "flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2",
                                     activeTab === 'recommendations' ? "bg-gold text-black shadow-lg" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
@@ -239,14 +239,18 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
 
                     <button
                         onClick={(e) => { e.stopPropagation(); onToggle?.(); }}
-                        className="p-3.5 rounded-2xl bg-secondary/10 hover:bg-gold/10 border border-border group-hover/widget:border-gold/30 transition-all"
+                        className="px-5 py-3.5 rounded-2xl bg-secondary/10 hover:bg-gold/10 border border-border group-hover/widget:border-gold/30 transition-all w-full sm:w-auto flex items-center justify-center gap-2"
                     >
                         {isExpanded ? (
-                            <div className="w-5 h-5 flex flex-col justify-center gap-1 items-center">
-                                <div className="w-4 h-0.5 bg-current rounded-full" />
-                            </div>
+                            <>
+                                <span className="text-[10px] font-black uppercase tracking-widest sm:hidden text-muted-foreground">Thu gọn bản đồ</span>
+                                <div className="w-4 h-0.5 bg-current rounded-full shrink-0" />
+                            </>
                         ) : (
-                            <MousePointer2 className="w-5 h-5 text-gold/60" />
+                            <>
+                                <span className="text-[10px] font-black uppercase tracking-widest sm:hidden text-gold">Mở rộng bản đồ</span>
+                                <MousePointer2 className="w-4 h-4 text-gold/60 shrink-0" />
+                            </>
                         )}
                     </button>
                 </div>
@@ -258,7 +262,7 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                     animate={{ height: 'auto', opacity: 1 }}
                     className="flex-1 flex flex-col overflow-hidden"
                 >
-                    <div className="p-10">
+                    <div className="p-2 sm:p-10">
                         <AnimatePresence mode="wait">
                             {activeTab === 'matrix' ? (
                                 <motion.div
@@ -266,93 +270,92 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
-                                    className="w-full max-h-[700px] overflow-y-auto overflow-x-auto pr-2 custom-scrollbar-horizontal pb-4"
+                                    className="w-full"
                                 >
-                                    <table className="w-full border-separate border-spacing-x-3 border-spacing-y-4 relative">
-                                        <thead>
-                                            <tr>
-                                                <th className="sticky top-0 bg-secondary/10 backdrop-blur-3xl z-20 text-left text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 pb-5 pr-6 border-b border-white/5">
-                                                    Sản phẩm / Biến thể
-                                                </th>
-                                                {data.stores.map(store => (
-                                                    <th key={store.id} className="sticky top-0 bg-secondary/10 backdrop-blur-3xl z-20 pb-5 px-3 border-b border-white/5 min-w-[200px]">
-                                                        <div className="flex flex-col items-center group/head transition-all">
-                                                            <div className="w-9 h-9 rounded-[1rem] bg-gold/5 flex items-center justify-center mb-2 border border-gold/10 group-hover/head:bg-gold/20 group-hover/head:border-gold/30 transition-all">
-                                                                <Store className="w-4 h-4 text-gold" />
-                                                            </div>
-                                                            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-foreground/80 group-hover/head:text-gold transition-colors whitespace-nowrap">{store.name}</span>
-                                                            <span className="text-[8px] font-bold text-muted-foreground/30 uppercase tracking-[0.25em] mt-0.5">{store.city}</span>
-                                                        </div>
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {filteredMatrix.length === 0 ? (
+                                    <div className="w-full max-h-[700px] overflow-y-auto overflow-x-auto custom-scrollbar pb-4 relative">
+                                        <table className="w-full min-w-max border-separate border-spacing-x-0 border-spacing-y-3 sm:border-spacing-y-4">
+                                            <thead>
                                                 <tr>
-                                                    <td colSpan={data.stores.length + 1} className="py-16 text-center">
-                                                        <div className="flex flex-col items-center gap-3">
-                                                            <Search className="w-8 h-8 text-muted-foreground/30 animate-pulse" />
-                                                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Không tìm thấy sản phẩm phù hợp</p>
-                                                        </div>
-                                                    </td>
+                                                    <th className="sticky left-0 top-0 bg-background z-40 text-left text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 pb-4 sm:pb-5 pl-4 sm:pl-4 pr-4 sm:pr-6 border-b border-border w-[150px] sm:w-[240px] min-w-[150px] sm:min-w-[240px] shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_8px_-4px_rgba(0,0,0,0.3)]">
+                                                        Sản phẩm / Biến thể
+                                                    </th>
+                                                    {data.stores.map(store => (
+                                                        <th key={store.id} className="sticky top-0 bg-background z-30 pb-4 sm:pb-5 px-1 sm:px-1.5 border-b border-border w-[160px] sm:w-[200px] min-w-[160px] sm:min-w-[200px]">
+                                                            <div className="flex flex-col items-center group/head transition-all">
+                                                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-[0.8rem] sm:rounded-[1rem] bg-gold/5 flex items-center justify-center mb-1.5 sm:mb-2 border border-gold/10 group-hover/head:bg-gold/20 group-hover/head:border-gold/30 transition-all">
+                                                                    <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gold" />
+                                                                </div>
+                                                                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.1em] sm:tracking-[0.15em] text-foreground/80 group-hover/head:text-gold transition-colors whitespace-nowrap">{store.name}</span>
+                                                                <span className="text-[7px] sm:text-[8px] font-bold text-muted-foreground/30 uppercase tracking-[0.2em] sm:tracking-[0.25em] mt-0.5">{store.city}</span>
+                                                            </div>
+                                                        </th>
+                                                    ))}
                                                 </tr>
-                                            ) : (
-                                                filteredMatrix.map((row, i) => (
-                                                    <motion.tr
-                                                        key={row.variantId}
-                                                        className="group/row"
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: Math.min(i * 0.03, 0.4) }}
-                                                    >
-                                                        <td className="py-2 pr-10">
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[12px] font-bold text-foreground/90 group-hover/row:text-gold transition-colors truncate max-w-[240px]">
-                                                                    {row.variantName}
-                                                                </span>
+                                            </thead>
+                                            <tbody>
+                                                {filteredMatrix.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={data.stores.length + 1} className="py-16 text-center">
+                                                            <div className="flex flex-col items-center gap-3">
+                                                                <Search className="w-8 h-8 text-muted-foreground/30 animate-pulse" />
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Không tìm thấy sản phẩm phù hợp</p>
                                                             </div>
                                                         </td>
-                                                        {row.stores.map(cell => {
-                                                            const status = getCellStatus(cell.daysRemaining, cell.velocity, cell.stock);
-                                                            const isFaded = isFocusMode && !((cell.daysRemaining < 15 && cell.velocity > 0) || (cell.stock > 0 && cell.stock < 15 && cell.velocity === 0) || (cell.stock === 0 && cell.velocity > 0));
+                                                    </tr>
+                                                ) : (
+                                                    filteredMatrix.map((row, i) => (
+                                                        <tr
+                                                            key={row.variantId}
+                                                            className="group/row"
+                                                        >
+                                                            <td className="py-2 pr-4 sm:pr-6 sticky left-0 bg-background z-20 border-r border-border/40 pl-4 sm:pl-4 w-[150px] sm:w-[240px] min-w-[150px] sm:min-w-[240px] align-middle shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_8px_-4px_rgba(0,0,0,0.3)]">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[11px] sm:text-[12px] font-bold text-foreground/90 group-hover/row:text-gold transition-colors line-clamp-2">
+                                                                        {row.variantName}
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+                                                            {row.stores.map(cell => {
+                                                                const status = getCellStatus(cell.daysRemaining, cell.velocity, cell.stock);
+                                                                const isFaded = isFocusMode && !((cell.daysRemaining < 15 && cell.velocity > 0) || (cell.stock > 0 && cell.stock < 15 && cell.velocity === 0) || (cell.stock === 0 && cell.velocity > 0));
 
-                                                            return (
-                                                                <td key={cell.storeId} className="p-0 align-middle">
-                                                                    <div className={cn(
-                                                                        "flex flex-col gap-3 p-4 rounded-[1.2rem] border transition-all relative overflow-hidden",
-                                                                        status.color,
-                                                                        isFaded && "opacity-20 grayscale scale-95 blur-[0.5px]"
-                                                                    )}>
-                                                                        <div className="flex items-center justify-between gap-4 relative z-10">
-                                                                            <div className="flex flex-col">
-                                                                                <span className="text-[9px] uppercase font-black tracking-widest opacity-60 mb-0.5">Tồn kho</span>
-                                                                                <span className="text-2xl font-heading font-black leading-none">{cell.stock}</span>
+                                                                return (
+                                                                    <td key={cell.storeId} className="px-1 sm:px-1.5 align-middle w-[160px] sm:w-[200px] min-w-[160px] sm:min-w-[200px] relative z-0">
+                                                                        <div className={cn(
+                                                                            "flex flex-col justify-between gap-2 sm:gap-3 p-3 sm:p-4 rounded-[1rem] sm:rounded-[1.2rem] border transition-all overflow-hidden h-full min-h-[90px] sm:min-h-[110px]",
+                                                                            status.color,
+                                                                            isFaded && "opacity-20 grayscale scale-95 blur-[0.5px]"
+                                                                        )}>
+                                                                            <div className="flex items-center justify-between gap-2 sm:gap-4">
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="text-[8px] sm:text-[9px] uppercase font-black tracking-widest opacity-60 mb-0.5 whitespace-nowrap">Tồn kho</span>
+                                                                                    <span className="text-xl sm:text-2xl font-heading font-black leading-none">{cell.stock}</span>
+                                                                                </div>
+                                                                                <div className="flex flex-col items-end text-right">
+                                                                                    <span className="text-[8px] sm:text-[9px] uppercase font-black tracking-widest opacity-60 mb-0.5 whitespace-nowrap">Tốc độ bán</span>
+                                                                                    <span className="text-xs sm:text-sm font-bold bg-background/80 dark:bg-background/50 px-1.5 sm:px-2 py-0.5 rounded-md border border-current/10 whitespace-nowrap">
+                                                                                        {cell.velocity}/ngày
+                                                                                    </span>
+                                                                                </div>
                                                                             </div>
-                                                                            <div className="flex flex-col items-end text-right">
-                                                                                <span className="text-[9px] uppercase font-black tracking-widest opacity-60 mb-0.5">Tốc độ bán</span>
-                                                                                <span className="text-sm font-bold bg-background/80 dark:bg-background/50 px-2 py-0.5 rounded-md border border-current/10">
-                                                                                    {cell.velocity}/ngày
+                                                                            <div className="mt-auto pt-2 border-t border-current/20 flex items-center justify-between">
+                                                                                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
+                                                                                    {status.label}
                                                                                 </span>
+                                                                                {(status.label.includes('Cháy') || status.label.includes('hết')) && (
+                                                                                    <AlertTriangle className="w-2.5 h-2.5 sm:w-3 sm:h-3 animate-pulse shrink-0" />
+                                                                                )}
                                                                             </div>
                                                                         </div>
-                                                                        <div className="mt-1 pt-2 border-t border-current/20 flex items-center justify-between relative z-10">
-                                                                            <span className="text-[10px] font-black uppercase tracking-widest">
-                                                                                {status.label}
-                                                                            </span>
-                                                                            {(status.label.includes('Cháy') || status.label.includes('hết')) && (
-                                                                                <AlertTriangle className="w-3 h-3 animate-pulse" />
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                            );
-                                                        })}
-                                                    </motion.tr>
-                                                ))
-                                            )}
-                                        </tbody>
-                                    </table>
+                                                                    </td>
+                                                                );
+                                                            })}
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </motion.div>
                             ) : (
                                 <motion.div
@@ -480,29 +483,29 @@ export function StockHeatmapWidget({ isExpanded = false, onToggle }: StockHeatma
                     </div>
 
                     {/* Legend Footer */}
-                    <div className="px-10 py-6 bg-secondary/30 flex items-center gap-8 overflow-x-auto no-scrollbar">
-                        <div className="flex items-center gap-2.5">
+                    <div className="px-6 sm:px-10 py-5 sm:py-6 bg-secondary/30 flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6">
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <div className="w-3.5 h-3.5 rounded-md bg-red-500/20 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Cháy hàng (&lt;5 ngày)</span>
                         </div>
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <div className="w-3.5 h-3.5 rounded-md bg-amber-500/20 border border-amber-500/50" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Sắp hết (&lt;15 ngày)</span>
                         </div>
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <div className="w-3.5 h-3.5 rounded-md bg-blue-500/20 border border-blue-500/50" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Ổn định</span>
                         </div>
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <div className="w-3.5 h-3.5 rounded-md bg-emerald-500/20 border border-emerald-500/50" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Thừa kho (&gt;45 ngày)</span>
                         </div>
-                                                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2.5 shrink-0">
                             <div className="w-3.5 h-3.5 rounded-md bg-purple-500/20 border border-purple-500/50" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Kho trệ (0 bán)</span>
                         </div>
-                        <div className="ml-auto flex items-center gap-2 text-muted-foreground/30 px-6 py-2 bg-secondary/10 rounded-full border border-border/50">
-                            <Info className="w-3.5 h-3.5" />
+                        <div className="ml-auto flex items-center gap-2 text-muted-foreground/30 px-6 py-2 bg-secondary/10 rounded-full border border-border/50 shrink-0 mt-2 sm:mt-0 w-full sm:w-auto justify-center">
+                            <Info className="w-3.5 h-3.5 shrink-0" />
                             <span className="text-[9px] font-black uppercase tracking-widest italic">Tất cả dữ liệu được cập nhật theo thời gian thực</span>
                         </div>
                     </div>

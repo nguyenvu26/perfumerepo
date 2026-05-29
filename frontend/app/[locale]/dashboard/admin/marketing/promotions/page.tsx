@@ -278,7 +278,7 @@ export default function PromotionsAdmin() {
                       <button
                         onClick={() => handleToggleActive(p)}
                         className={cn(
-                          "p-3 rounded-full transition-all opacity-0 group-hover:opacity-100 active:scale-90 border",
+                          "p-3 rounded-full transition-all active:scale-90 border",
                           p.isActive 
                             ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20" 
                             : "text-stone-400 bg-stone-500/10 border-border hover:bg-stone-500/20"
@@ -289,13 +289,13 @@ export default function PromotionsAdmin() {
                       </button>
                       <button
                         onClick={() => handleEdit(p)}
-                        className="p-3 text-muted-foreground hover:text-gold hover:bg-gold/10 rounded-full transition-all opacity-0 group-hover:opacity-100 active:scale-90 border border-transparent hover:border-gold/20"
+                        className="p-3 text-muted-foreground hover:text-gold hover:bg-gold/10 rounded-full transition-all active:scale-90 border border-transparent hover:border-gold/20"
                       >
                         <Edit2 size={14} />
                       </button>
                       <button
                         onClick={() => handleDelete(p.id)}
-                        className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100 active:scale-90 border border-transparent hover:border-red-500/20"
+                        className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all active:scale-90 border border-transparent hover:border-red-500/20"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -328,7 +328,7 @@ export default function PromotionsAdmin() {
                    <div>
                       <span className="font-heading text-xl text-gold group-hover:tracking-wider transition-all">{p.code}</span>
                       <div className="flex gap-2 mt-1">
-                        <span className={`text-[7px] uppercase tracking-widest font-extrabold px-2 py-0.5 rounded border ${p.isPublic ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-gold/10 text-gold border-gold/20'}`}>
+                        <span className={`text-[9px] uppercase tracking-widest font-medium px-2 py-0.5 rounded border ${p.isPublic ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-gold/10 text-gold border-gold/20'}`}>
                           {p.isPublic ? 'Public' : `Private (${p.pointsCost} pts)`}
                         </span>
                         <span className={`text-[9px] font-medium px-2 py-0.5 rounded border ${

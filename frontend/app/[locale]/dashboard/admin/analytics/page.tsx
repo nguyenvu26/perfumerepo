@@ -22,7 +22,7 @@ export default function AnalyticsPage() {
  
     return (
         <AuthGuard allowedRoles= {['admin']}>
-            <main className="p-8 pb-20">
+            <main className="p-4 sm:p-6 md:p-8 pb-20 max-w-[1600px] mx-auto">
                 <header className="mb-12">
                     <div className="space-y-4">
                         <h1 className="text-4xl sm:text-5xl font-heading gold-gradient mb-1 uppercase tracking-tighter italic leading-tight">{t('title')}</h1>

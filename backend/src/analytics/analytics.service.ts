@@ -1273,6 +1273,7 @@ export class AnalyticsService {
         currentQuantity: b.currentQuantity,
         initialQuantity: b.initialQuantity,
         purchasePrice: b.purchasePrice,
+        mfgDate: b.mfgDate,
         expiryDate: b.expiryDate,
         daysUntilExpiry,
         status

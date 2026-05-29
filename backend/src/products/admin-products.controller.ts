@@ -57,12 +57,16 @@ export class AdminProductsController {
     @Query('type') type?: string,
     @Query('skip') skip?: string,
     @Query('take') take?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
     return this.productsService.getInventoryLogs({
       variantId,
       type,
       skip: skip ? parseInt(skip) : 0,
       take: take ? parseInt(take) : 20,
+      startDate,
+      endDate,
     });
   }
 

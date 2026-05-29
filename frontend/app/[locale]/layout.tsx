@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/lib/i18n';
 import { ThemeProvider } from '@/components/common/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { beVietnamPro } from '@/lib/fonts';
 import { Metadata } from 'next';
 import { ScentDNAInitializer } from '@/components/product/scent-dna-initializer';
+import { SetHtmlLang } from '@/components/common/set-html-lang';
 
 export const metadata: Metadata = {
     title: {
@@ -87,31 +87,18 @@ export default async function LocaleLayout({
     const messages = await getMessages();
 
     return (
-        <html
-            lang={locale}
-            suppressHydrationWarning
-            className={beVietnamPro.variable}
-        >
-            <body 
-                className="antialiased bg-white dark:bg-zinc-950 transition-colors duration-500 font-sans"
-                style={{ 
-                    fontFeatureSettings: "'liga' 1, 'calt' 1, 'kern' 1",
-                    fontVariantLigatures: "common-ligatures"
-                }}
+        <NextIntlClientProvider messages={messages}>
+            <SetHtmlLang locale={locale} />
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="dark"
+                enableSystem
+                disableTransitionOnChange
             >
-                <NextIntlClientProvider messages={messages}>
-                    <ThemeProvider
-                        attribute="class"
-                        defaultTheme="dark"
-                        enableSystem
-                        disableTransitionOnChange
-                    >
-                        {children}
-                        <ScentDNAInitializer />
-                        <Toaster />
-                    </ThemeProvider>
-                </NextIntlClientProvider>
-            </body>
-        </html>
+                {children}
+                <ScentDNAInitializer />
+                <Toaster />
+            </ThemeProvider>
+        </NextIntlClientProvider>
     );
 }

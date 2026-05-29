@@ -306,4 +306,48 @@ export class InventoryService {
       return this.prisma.$transaction(execute);
     }
   }
+
+  /**
+   * Cập nhật thông tin lô hàng (metadata)
+   */
+  async updateBatch(
+    batchId: string,
+    data: {
+      batchCode?: string;
+      mfgDate?: Date;
+      expiryDate?: Date;
+      purchasePrice?: number;
+    },
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx || this.prisma;
+    const batch = await client.inventoryBatch.findUnique({
+      where: { id: batchId },
+    });
+
+    if (!batch) {
+      throw new BadRequestException('Không tìm thấy mã lô hàng.');
+    }
+
+    // Nếu muốn cập nhật giá vốn, cần lưu ý nó ảnh hưởng đến WAC
+    const shouldRecalculateWAC =
+      data.purchasePrice !== undefined && data.purchasePrice !== batch.purchasePrice;
+
+    const updated = await client.inventoryBatch.update({
+      where: { id: batchId },
+      data: {
+        batchCode: data.batchCode,
+        mfgDate: data.mfgDate,
+        expiryDate: data.expiryDate,
+        purchasePrice: data.purchasePrice,
+      },
+      include: { inventory: true },
+    });
+
+    if (shouldRecalculateWAC) {
+      await this.recalculateWAC(updated.inventory.variantId, client);
+    }
+
+    return updated;
+  }
 }

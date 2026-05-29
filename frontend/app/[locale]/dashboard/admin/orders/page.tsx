@@ -482,10 +482,16 @@ function AdminOrdersContent() {
                                             <td className="px-4 py-6 whitespace-nowrap">
                                                 <div className="flex flex-col group/insight relative">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-bold text-luxury-black dark:text-white">{order.user?.name || t('print.guest')}</span>
-                                                        {order.customerInsight?.isLoyal && (
-                                                            <span className="px-1.5 py-0.5 rounded bg-gold/10 text-gold text-[8px] font-black tracking-tighter border border-gold/20 animate-pulse">
+                                                        <span className="text-xs font-bold text-luxury-black dark:text-white">
+                                                            {order.customerInsight?.isLoyal ? 'Khách hàng thân thiết' : t('print.guest')}
+                                                        </span>
+                                                        {order.customerInsight?.isLoyal ? (
+                                                            <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border bg-gold/10 text-gold border-gold/20">
                                                                 LOYAL
+                                                            </span>
+                                                        ) : (
+                                                            <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                                                NEW
                                                             </span>
                                                         )}
                                                     </div>
@@ -586,9 +592,22 @@ function AdminOrdersContent() {
                                     </div>
 
                                     <div className="space-y-2 py-3 border-y border-stone-100 dark:border-white/5">
-                                        <div className="flex justify-between items-center text-[11px]">
-                                            <span className="text-stone-400 uppercase font-bold tracking-tight">Khách hàng:</span>
-                                            <span className="text-foreground font-bold">{order.user?.name || t('print.guest')}</span>
+                                        <div className="flex justify-between items-start text-[11px]">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="text-stone-400 uppercase font-bold tracking-tight">Khách:</span>
+                                                <span className="text-foreground font-bold">
+                                                    {order.customerInsight?.isLoyal ? 'Khách hàng thân thiết' : t('print.guest')}
+                                                </span>
+                                                {order.customerInsight?.isLoyal ? (
+                                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border bg-gold/10 text-gold border-gold/20">
+                                                        LOYAL
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                                        NEW
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="flex justify-between items-center text-[11px]">
                                             <span className="text-stone-400 uppercase font-bold tracking-tight">Tổng tiền:</span>
@@ -753,7 +772,20 @@ function AdminOrdersContent() {
                                                 <User size={12} /> {t('modal.identity')}
                                             </h3>
                                             <div className="glass p-6 rounded-3xl border border-stone-100 dark:border-white/5 space-y-2">
-                                                <p className="text-sm font-bold text-luxury-black dark:text-white">{selectedOrder.user?.name || t('print.guest')}</p>
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <p className="text-sm font-bold text-luxury-black dark:text-white">
+                                                        {selectedOrder.customerInsight?.isLoyal ? 'Khách hàng thân thiết' : t('print.guest')}
+                                                    </p>
+                                                    {selectedOrder.customerInsight?.isLoyal ? (
+                                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border bg-gold/10 text-gold border-gold/20">
+                                                            LOYAL
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-1.5 py-0.5 rounded text-[8px] font-black tracking-tighter border bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                                                            NEW
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="text-xs text-stone-500">{selectedOrder.user?.email}</p>
                                                 <div className="flex items-center gap-2 text-xs text-gold font-bold mt-2">
                                                     <Phone size={12} />

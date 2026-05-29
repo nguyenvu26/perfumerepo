@@ -92,7 +92,7 @@ interface IProductService {
   adminUploadImages(productId: string, files: File[]): Promise<Product>;
   adminDeleteImage(productId: string, imageId: number | string): Promise<{ success: boolean }>;
   adminImportWarehouse(dto: { variantId: string; quantity: number; reason?: string }): Promise<ProductVariant>;
-  adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number }): Promise<{ items: any[]; total: number }>;
+  adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number; startDate?: string; endDate?: string }): Promise<{ items: any[]; total: number }>;
   adminStats(): Promise<{
     totalProducts: number;
     activeProducts: number;
@@ -154,7 +154,7 @@ export const productService: IProductService = {
   adminImportWarehouse(dto: { variantId: string; quantity: number; reason?: string }) {
     return api.post<ProductVariant>('/admin/products/import', dto).then((r) => r.data);
   },
-  adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number }) {
+  adminGetInventoryLogs(params: { variantId?: string; type?: string; skip?: number; take?: number; startDate?: string; endDate?: string }) {
     return api.get<{ items: any[]; total: number }>('/admin/products/inventory-logs', { params }).then((r) => r.data);
   },
   adminStats() {

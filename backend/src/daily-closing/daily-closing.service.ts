@@ -21,8 +21,12 @@ export class DailyClosingService {
     if (storeId && storeId !== 'all') where.storeId = storeId;
     if (startDate || endDate) {
       where.createdAt = {};
-      if (startDate) where.createdAt.gte = new Date(startDate);
-      if (endDate) where.createdAt.lte = new Date(endDate);
+      if (startDate) {
+        where.createdAt.gte = getVietnamDayRangeUtc(new Date(startDate)).startUtc;
+      }
+      if (endDate) {
+        where.createdAt.lte = getVietnamDayRangeUtc(new Date(endDate)).endUtc;
+      }
     }
 
     return this.prisma.dailyClosing.findMany({

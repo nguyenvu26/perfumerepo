@@ -179,7 +179,7 @@ export default function AdminStoresPage() {
                 <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-6">
                     {/* Search Bar (Expands) */}
                     <div className="relative flex-1 group">
-                        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gold/40 group-focus-within:text-gold transition-colors">
+                        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-muted-foreground/40 group-focus-within:text-gold transition-colors">
                             <Search className="w-5 h-5" />
                         </div>
                         <input
@@ -187,7 +187,7 @@ export default function AdminStoresPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Tìm kiếm chi nhanh theo tên, mã hiệu hoặc địa chỉ vật lý..."
-                            className="w-full pl-16 pr-8 py-5 rounded-2xl bg-white/[0.03] border border-white/10 text-sm font-medium focus:border-gold/50 focus:bg-white/[0.05] focus:outline-none transition-all placeholder:text-white/20"
+                            className="w-full pl-16 pr-8 py-5 rounded-2xl bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 text-foreground text-sm font-medium focus:border-gold/50 focus:bg-black/10 dark:focus:bg-white/[0.05] focus:outline-none transition-all placeholder:text-muted-foreground/50"
                         />
                     </div>
 
@@ -200,21 +200,21 @@ export default function AdminStoresPage() {
                                 setEditStore(null);
                                 handleSetModal('create');
                             }}
-                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-gold text-primary-foreground h-16 px-8 rounded-2xl font-black uppercase tracking-[.2em] text-[10px] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 whitespace-nowrap"
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 bg-gold text-luxury-black h-16 px-8 rounded-2xl font-black uppercase tracking-[.2em] text-[10px] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-gold/20 whitespace-nowrap"
                         >
                             <Plus className="w-4 h-4 flex-shrink-0" /> {t('add_new')}
                         </button>
                         <button
                             type="button"
                             onClick={openStockManagement}
-                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-16 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-white/10 transition-all active:scale-95 whitespace-nowrap"
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-16 rounded-2xl bg-black/5 dark:bg-white/5 backdrop-blur-md border border-black/10 dark:border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-95 whitespace-nowrap"
                         >
                             <Warehouse className="w-4 h-4 opacity-60 flex-shrink-0" /> {tx('stock_button') || 'Kho hàng'}
                         </button>
                         <button
                             type="button"
                             onClick={() => router.push(`/${locale}/dashboard/admin/daily-closing`)}
-                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-16 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-white/10 transition-all active:scale-95 whitespace-nowrap"
+                            className="flex-1 lg:flex-none flex items-center justify-center gap-3 px-8 h-16 rounded-2xl bg-black/5 dark:bg-white/5 backdrop-blur-md border border-black/10 dark:border-white/10 text-foreground font-black text-[10px] uppercase tracking-[.2em] hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-95 whitespace-nowrap"
                         >
                             <History className="w-4 h-4 opacity-60 flex-shrink-0 text-gold" /> Đối soát
                         </button>
@@ -282,10 +282,10 @@ export default function AdminStoresPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.05, type: 'spring', damping: 25 }}
-                            className="group relative glass bg-[#0e0e0e]/40 rounded-[2.5rem] border border-white/5 overflow-hidden hover:border-gold/30 transition-all duration-700 shadow-2xl flex flex-col min-h-[520px]"
+                            className="group relative glass bg-white/40 dark:bg-[#0e0e0e]/40 rounded-[2.5rem] border border-black/5 dark:border-white/5 overflow-hidden hover:border-gold/30 transition-all duration-700 shadow-2xl flex flex-col min-h-[520px]"
                         >
                             {/* Card Header */}
-                            <div className="p-8 pb-6 border-b border-white/5 bg-white/[0.02]">
+                            <div className="p-8 pb-6 border-b border-black/5 dark:border-white/5 bg-white/50 dark:bg-white/[0.02]">
                                 <div className="flex justify-between items-start mb-6">
                                     <div className="flex items-center gap-3">
                                         <div className={cn(
@@ -297,7 +297,7 @@ export default function AdminStoresPage() {
                                         </span>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => openEdit(s)} className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-gold hover:text-primary transition-all duration-500"><Pencil className="w-3.5 h-3.5" /></button>
+                                        <button onClick={() => openEdit(s)} className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center hover:bg-gold hover:text-luxury-black transition-all duration-500 text-foreground"><Pencil className="w-3.5 h-3.5" /></button>
                                         <button onClick={() => handleDelete(s.id)} className="w-10 h-10 rounded-xl bg-red-500/5 border border-red-500/10 text-red-500/50 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-500"><Trash2 className="w-3.5 h-3.5" /></button>
                                     </div>
                                 </div>
@@ -305,7 +305,7 @@ export default function AdminStoresPage() {
                                     {s.name}
                                 </h3>
                                 <div className="flex flex-wrap gap-2">
-                                    <span className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-widest opacity-40">Mã: {s.code || 'NA'}</span>
+                                    <span className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 px-3 py-1.5 rounded-lg text-[9px] font-mono font-black uppercase tracking-widest text-muted-foreground/60 dark:opacity-40">Mã: {s.code || 'NA'}</span>
                                     {s.totalStockUnits !== undefined && (
                                         <div className="flex items-center gap-2 bg-gold/10 border border-gold/10 text-gold px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
                                             <Warehouse className="w-3 h-3" />
@@ -319,11 +319,11 @@ export default function AdminStoresPage() {
                             <div className="p-8 space-y-8 flex-1">
                                 {/* Address Section */}
                                 <div className="space-y-4">
-                                    <div className="flex items-center gap-2 opacity-20">
+                                    <div className="flex items-center gap-2 opacity-40 dark:opacity-20 text-muted-foreground">
                                         <MapPin className="w-3.5 h-3.5" />
                                         <span className="text-[9px] uppercase tracking-widest font-black italic">Tọa Độ Vật Lý</span>
                                     </div>
-                                    <p className="text-[11px] text-white/50 font-medium leading-relaxed min-h-[44px] line-clamp-2">
+                                    <p className="text-[11px] text-muted-foreground/70 dark:text-white/50 font-medium leading-relaxed min-h-[44px] line-clamp-2">
                                         {s.address || 'Địa chỉ thực thể chưa được đồng bộ hóa trên bản đồ mạng lưới lưu thông toàn cầu...'}
                                     </p>
                                 </div>
@@ -331,29 +331,29 @@ export default function AdminStoresPage() {
                                 {/* Staff Section */}
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2 opacity-20">
+                                        <div className="flex items-center gap-2 opacity-40 dark:opacity-20 text-muted-foreground">
                                             <Users className="w-3.5 h-3.5" />
                                             <span className="text-[9px] uppercase tracking-widest font-black italic">Nhân Sự Bản Địa</span>
                                         </div>
-                                        <button onClick={() => setAssignModal(s)} className="text-[9px] font-black uppercase tracking-widest text-gold hover:text-white transition-all decoration-gold/50 underline-offset-4 hover:underline">+ Điều Phối</button>
+                                        <button onClick={() => setAssignModal(s)} className="text-[9px] font-black uppercase tracking-widest text-gold hover:text-gold/80 dark:hover:text-white transition-all decoration-gold/50 underline-offset-4 hover:underline">+ Điều Phối</button>
                                     </div>
                                     
                                     <div className="flex flex-wrap gap-2 min-h-[90px] content-start">
                                         {(s.users ?? []).length > 0 ? (
                                             (s.users ?? []).map((u) => (
-                                                <div key={u.user.id} className="group/staff relative flex items-center gap-3 bg-white/5 border border-white/5 rounded-xl p-2 pr-4 hover:bg-white/10 hover:border-white/10 transition-all duration-300">
+                                                <div key={u.user.id} className="group/staff relative flex items-center gap-3 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-xl p-2 pr-4 hover:bg-black/10 dark:hover:bg-white/10 hover:border-black/10 dark:hover:border-white/10 transition-all duration-300">
                                                     <div className="w-8 h-8 rounded-lg bg-gold/10 flex items-center justify-center text-gold text-[10px] font-black border border-gold/20">
                                                         {(u.user.fullName?.[0] || u.user.email[0]).toUpperCase()}
                                                     </div>
                                                     <div className="flex flex-col">
-                                                         <span className="text-[9px] font-bold uppercase tracking-widest text-white/80 leading-none mb-1">{u.user.fullName || 'Nhân viên'}</span>
-                                                         <span className="text-[7px] font-bold uppercase opacity-20 tracking-tighter">Verified Staff</span>
+                                                         <span className="text-[9px] font-bold uppercase tracking-widest text-foreground/80 dark:text-white/80 leading-none mb-1">{u.user.fullName || 'Nhân viên'}</span>
+                                                         <span className="text-[7px] font-bold uppercase opacity-40 dark:opacity-20 tracking-tighter text-muted-foreground">Verified Staff</span>
                                                     </div>
                                                     <button onClick={(e) => { e.stopPropagation(); handleUnassign(s.id, u.user.id); }} className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/staff:opacity-100 transition-all scale-0 group-hover/staff:scale-100"><X size={8} strokeWidth={4} /></button>
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="w-full flex flex-col items-center justify-center py-4 rounded-2xl border border-dashed border-white/5 opacity-10">
+                                            <div className="w-full flex flex-col items-center justify-center py-4 rounded-2xl border border-dashed border-black/10 dark:border-white/5 opacity-40 dark:opacity-10 text-muted-foreground">
                                                 <span className="text-[8px] font-black uppercase tracking-wider">Chưa có nhân sự gán trực</span>
                                             </div>
                                         )}
@@ -440,16 +440,16 @@ export default function AdminStoresPage() {
                                 </aside>
 
                                 {/* Content Area */}
-                                <div className="flex-1 overflow-y-auto custom-scrollbar p-8 sm:p-14 pb-32 sm:pb-14">
-                                    <form id="storeForm" onSubmit={modal === 'create' ? handleCreate : handleUpdate} className="max-w-2xl space-y-12">
-                                        <div className="space-y-2 border-l-4 border-gold pl-6 mb-10">
-                                            <h3 className="text-3xl font-heading uppercase tracking-tighter italic">Bản Sắc Thực Thể</h3>
+                                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-14 pb-32 sm:pb-14">
+                                    <form id="storeForm" onSubmit={modal === 'create' ? handleCreate : handleUpdate} className="max-w-2xl space-y-8 sm:space-y-12">
+                                        <div className="space-y-2 border-l-4 border-gold pl-6 mb-8 sm:mb-10">
+                                            <h3 className="text-2xl sm:text-3xl font-heading uppercase tracking-tighter italic">Bản Sắc Thực Thể</h3>
                                             <p className="text-[10px] text-muted-foreground uppercase tracking-[.3em] font-black italic">Xác lập danh tính và mã định danh vật lý.</p>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                            <div className="space-y-4">
-                                                <label className="text-[10px] uppercase tracking-[.4em] text-muted-foreground font-black ml-1 italic">{t('form.name')} *</label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
+                                            <div className="space-y-3 sm:space-y-4">
+                                                <label className="text-[10px] uppercase tracking-[.4em] text-muted-foreground font-black ml-1 italic">{t('form.name')}</label>
                                                 <input
                                                     type="text"
                                                     required
@@ -457,23 +457,23 @@ export default function AdminStoresPage() {
                                                     value={form.name}
                                                     placeholder="Tên điểm bán..."
                                                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                                                    className="w-full h-16 bg-secondary/10 border border-border/50 rounded-2xl px-8 text-sm font-bold outline-none focus:border-gold transition-all placeholder:text-muted-foreground/30"
+                                                    className="w-full h-14 sm:h-16 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-6 sm:px-8 text-sm font-bold outline-none focus:border-gold transition-all placeholder:text-muted-foreground/50 text-foreground"
                                                 />
                                             </div>
-                                            <div className="space-y-4">
+                                            <div className="space-y-3 sm:space-y-4">
                                                 <label className="text-[10px] uppercase tracking-[.4em] text-muted-foreground font-black ml-1 italic">{t('form.code')}</label>
                                                 <input
                                                     type="text"
                                                     value={form.code}
                                                     placeholder="Mã định danh..."
                                                     onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
-                                                    className="w-full h-16 bg-secondary/10 border border-border/50 rounded-2xl px-8 font-mono text-sm font-bold uppercase tracking-widest outline-none focus:border-gold transition-all placeholder:text-muted-foreground/30"
+                                                    className="w-full h-14 sm:h-16 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-6 sm:px-8 font-mono text-sm font-bold uppercase tracking-widest outline-none focus:border-gold transition-all placeholder:text-muted-foreground/50 text-foreground"
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] uppercase tracking-[.4em] text-muted-foreground font-black ml-1 italic">{t('form.address')} *</label>
+                                        <div className="space-y-3 sm:space-y-4">
+                                            <label className="text-[10px] uppercase tracking-[.4em] text-muted-foreground font-black ml-1 italic">{t('form.address')}</label>
                                             <div className="relative group">
                                                 <div className="absolute left-6 top-1/2 -translate-y-1/2 text-gold transition-all group-focus-within:scale-110">
                                                     <MapPin size={22} />
@@ -484,22 +484,22 @@ export default function AdminStoresPage() {
                                                     value={form.address}
                                                     placeholder="Số nhà, Phố, Quận, Thành phố..."
                                                     onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                                                    className="w-full h-16 bg-secondary/10 border border-border/50 rounded-2xl pl-16 pr-8 text-sm font-bold outline-none focus:border-gold transition-all placeholder:text-muted-foreground/30"
+                                                    className="w-full h-14 sm:h-16 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl pl-14 sm:pl-16 pr-6 sm:pr-8 text-sm font-bold outline-none focus:border-gold transition-all placeholder:text-muted-foreground/50 text-foreground"
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="p-10 bg-zinc-50 dark:bg-zinc-900/40 rounded-[3rem] border border-border/50 flex items-center justify-between shadow-inner">
-                                            <div className="flex items-center gap-6">
+                                        <div className="p-6 sm:p-10 bg-black/[0.02] dark:bg-zinc-900/40 rounded-[2rem] sm:rounded-[3rem] border border-black/10 dark:border-white/5 flex items-center justify-between shadow-inner">
+                                            <div className="flex items-center gap-4 sm:gap-6">
                                                 <div className={cn(
-                                                    "w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500",
-                                                    form.isActive ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "bg-zinc-200 dark:bg-white/5 text-muted-foreground"
+                                                    "w-12 h-12 sm:w-14 sm:h-14 rounded-full flex shrink-0 items-center justify-center transition-all duration-500",
+                                                    form.isActive ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "bg-black/10 dark:bg-white/5 text-muted-foreground"
                                                 )}>
-                                                    <Activity size={22} />
+                                                    <Activity size={20} />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <p className="text-[12px] uppercase tracking-[.2em] font-black">{t('form.status')}</p>
-                                                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{form.isActive ? 'Hiện diện vật lý đang kích hoạt' : 'Thực thể đang tạm ngưng phục vụ'}</p>
+                                                    <p className="text-[10px] sm:text-[12px] uppercase tracking-[.2em] font-black text-foreground">{t('form.status')}</p>
+                                                    <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase font-bold tracking-widest leading-snug">{form.isActive ? 'Hiện diện vật lý đang kích hoạt' : 'Thực thể đang tạm ngưng phục vụ'}</p>
                                                 </div>
                                             </div>
                                             <button
@@ -521,11 +521,11 @@ export default function AdminStoresPage() {
                             </div>
 
                             {/* Footer */}
-                            <div className="shrink-0 h-auto min-h-24 sm:min-h-28 border-t border-white/10 p-6 sm:px-12 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-4 sm:gap-6 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                            <div className="shrink-0 h-auto border-t border-black/10 dark:border-white/10 p-6 sm:px-12 grid grid-cols-2 sm:flex sm:flex-row items-center justify-end gap-4 sm:gap-6 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
                                 <button
                                     type="button"
                                     onClick={() => setModal(null)}
-                                    className="px-6 sm:px-10 py-4 rounded-full text-[10px] uppercase tracking-widest font-black text-muted-foreground hover:text-foreground transition-all active:scale-95 font-heading w-full sm:w-auto text-center"
+                                    className="py-4 sm:py-5 px-6 sm:px-10 rounded-full text-[10px] uppercase tracking-widest font-black text-muted-foreground bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-all active:scale-95 font-heading text-center"
                                 >
                                     {t('messages.cancel') || 'HUỶ BỎ'}
                                 </button>
@@ -533,7 +533,7 @@ export default function AdminStoresPage() {
                                     type="submit"
                                     form="storeForm"
                                     disabled={saving}
-                                    className="px-8 sm:px-16 py-4 sm:py-5 rounded-full bg-gold text-primary-foreground font-heading text-[11px] uppercase tracking-[.3em] font-black disabled:opacity-50 shadow-2xl shadow-gold/30 hover:scale-[1.05] active:scale-[0.98] transition-all flex items-center justify-center gap-3 w-full sm:w-auto whitespace-nowrap"
+                                    className="py-4 sm:py-5 px-6 sm:px-16 rounded-full bg-gold text-luxury-black font-heading text-[11px] sm:text-[11px] uppercase tracking-[.3em] font-black disabled:opacity-50 shadow-xl shadow-gold/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 sm:gap-3 whitespace-nowrap"
                                 >
                                     {saving ? (
                                         <>
@@ -557,7 +557,7 @@ export default function AdminStoresPage() {
             <AnimatePresence>
                 {assignModal && (
                     <div className={cn(
-                        "fixed top-0 bottom-0 right-0 z-[100] flex items-center justify-center p-4 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl",
+                        "fixed top-0 bottom-0 right-0 z-[100] flex items-center justify-center p-0 sm:p-6 font-body transition-all duration-500 bg-white/10 dark:bg-zinc-950/80 backdrop-blur-2xl overflow-x-hidden",
                         "left-0 md:left-20",
                         !isCollapsed && "lg:left-72"
                     )} onClick={() => setAssignModal(null)}>
@@ -565,55 +565,55 @@ export default function AdminStoresPage() {
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-[800px] h-full max-h-[70vh] bg-background border border-white/10 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col glass"
+                            className="relative w-full max-w-[800px] h-full sm:h-auto sm:max-h-[70vh] bg-background border-t sm:border border-white/10 rounded-t-[3rem] sm:rounded-[3rem] shadow-2xl overflow-hidden flex flex-col glass min-w-0"
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Header */}
-                            <div className="shrink-0 p-8 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-center bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
-                                <div className="flex items-center gap-6">
+                            <div className="shrink-0 p-5 sm:px-14 sm:py-10 border-b border-white/10 flex justify-between items-start gap-4 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl z-20">
+                                <div className="min-w-0 flex-1 pr-2">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <div className="w-6 h-px bg-gold" />
-                                            <span className="text-[9px] uppercase tracking-[.4em] font-black text-gold/80">Quản Trị Điều Phối</span>
+                                            <div className="w-6 h-px bg-gold shrink-0" />
+                                            <span className="text-[9px] uppercase tracking-[.25em] sm:tracking-[.4em] font-black text-gold/80">Quản Trị Điều Phối</span>
                                         </div>
-                                        <h2 className="text-2xl sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-none">
+                                        <h2 className="text-lg sm:text-3xl font-heading gold-gradient uppercase tracking-tighter italic leading-snug sm:leading-none break-words">
                                             Điều phối nhân sự: {assignModal.name}
                                         </h2>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setAssignModal(null)}
-                                    className="w-12 h-12 rounded-full bg-secondary/10 border border-white/10 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
+                                    className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 rounded-full bg-secondary/10 border border-white/10 flex items-center justify-center hover:bg-red-500/10 hover:text-red-500 transition-all active:scale-90"
                                 >
                                     <X size={22} />
                                 </button>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto custom-scrollbar p-10 sm:p-14">
-                                <div className="space-y-6">
+                            <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar p-4 sm:p-14">
+                                <div className="space-y-4 sm:space-y-6 min-w-0">
                                     {staffUsers
                                         .filter((u) => !assignModal.users?.some((x) => x.user.id === u.id))
                                         .map((u) => (
                                             <div
                                                 key={u.id}
-                                                className="flex items-center justify-between p-6 sm:p-8 rounded-[2.5rem] border border-white/5 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-gold/5 hover:border-gold/30 transition-all group shadow-sm active:scale-[0.99] duration-500"
+                                                className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-8 rounded-2xl sm:rounded-[2.5rem] border border-white/5 bg-zinc-50 dark:bg-zinc-900/40 hover:bg-gold/5 hover:border-gold/30 transition-all group shadow-sm active:scale-[0.99] duration-500 min-w-0"
                                             >
-                                                <div className="flex items-center gap-6">
-                                                    <div className="w-14 h-14 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center group-hover:bg-gold group-hover:text-primary transition-all duration-500 shadow-xl border border-white/5">
-                                                        <Users size={22} />
+                                                <div className="flex items-center gap-3 sm:gap-6 min-w-0 flex-1">
+                                                    <div className="w-11 h-11 sm:w-14 sm:h-14 shrink-0 rounded-full bg-white/5 text-muted-foreground flex items-center justify-center group-hover:bg-gold group-hover:text-primary transition-all duration-500 shadow-xl border border-white/5">
+                                                        <Users size={20} className="sm:w-[22px] sm:h-[22px]" />
                                                     </div>
-                                                    <div>
-                                                        <h4 className="text-base font-heading uppercase tracking-[.4em] leading-none mb-1 group-hover:text-gold transition-colors font-black">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h4 className="text-sm sm:text-base font-heading uppercase tracking-wide sm:tracking-[.4em] leading-tight mb-1 group-hover:text-gold transition-colors font-black truncate">
                                                             {u.fullName || 'Nhân viên chưa đặt tên'}
                                                         </h4>
-                                                        <p className="text-[10px] text-muted-foreground uppercase tracking-[.4em] font-black opacity-40">{u.email}</p>
+                                                        <p className="text-[10px] text-muted-foreground uppercase tracking-wide sm:tracking-[.4em] font-black opacity-40 truncate">{u.email}</p>
                                                     </div>
                                                 </div>
 
                                                 <button
                                                     type="button"
                                                     onClick={() => handleAssign(assignModal.id, u.id)}
-                                                    className="h-14 px-8 rounded-full bg-gold text-primary font-black uppercase tracking-widest text-[9px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center gap-2 group/btn"
+                                                    className="w-full sm:w-auto shrink-0 h-11 sm:h-14 px-6 sm:px-8 rounded-full bg-gold text-primary font-black uppercase tracking-widest text-[9px] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gold/20 flex items-center justify-center gap-2 group/btn"
                                                 >
                                                     <UserPlus size={18} />
                                                     Gán ngay

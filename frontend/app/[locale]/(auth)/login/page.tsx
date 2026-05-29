@@ -43,6 +43,16 @@ export default function LoginPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const mapLoginError = (errMsg: string): string => {
+    if (!errMsg) return t('error_failed');
+    const lower = errMsg.toLowerCase();
+    if (lower.includes('email not found')) return t('error_email_not_found');
+    if (lower.includes('incorrect password')) return t('error_wrong_password');
+    if (lower.includes('account is deactivated')) return t('error_account_deactivated');
+    if (lower.includes('invalid credentials')) return t('error_failed');
+    return errMsg;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -62,7 +72,7 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (err: any) {
-      setError(err.message || t('error_failed'));
+      setError(mapLoginError(err.message));
     } finally {
       setIsLoading(false);
     }

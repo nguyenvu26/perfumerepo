@@ -71,6 +71,31 @@ function formatVND(n: number) {
   }).format(n);
 }
 
+function getMediaUrl(url?: string) {
+  if (!url) return "";
+  return url.startsWith("http")
+    ? url
+    : `${process.env.NEXT_PUBLIC_API_URL || ""}${url}`;
+}
+
+function formatRefundDate(value?: string) {
+  if (!value) return { date: "Chưa có ngày", time: "--:--" };
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return { date: "Chưa có ngày", time: "--:--" };
+
+  return {
+    date: date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
+    time: date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  };
+}
+
 const getStatusColor = (status: ReturnStatus) => {
   switch (status) {
     case "REQUESTED":
@@ -143,6 +168,7 @@ export const AdminReturnManagement = ({
   const [selectedReturn, setSelectedReturn] = useState<ReturnRequest | null>(
     null,
   );
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   // Dialog States
   const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -578,68 +604,68 @@ export const AdminReturnManagement = ({
   }, [data.data]);
 
   return (
-    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass p-8 rounded-[2rem] border border-white/5 bg-gradient-to-br from-blue-500/10 to-transparent relative overflow-hidden group">
+    <div className="space-y-5 sm:space-y-6 animate-in fade-in zoom-in-95 duration-500">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div className="glass p-4 sm:p-6 lg:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-gold/10 dark:border-white/5 bg-white/80 dark:bg-gradient-to-br dark:from-blue-500/10 dark:to-transparent relative overflow-hidden group min-h-[116px]">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-             <RefreshCcw className="w-16 h-16" />
+             <RefreshCcw className="w-14 h-14 sm:w-16 sm:h-16" />
           </div>
-          <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">
+          <p className="text-[10px] uppercase font-black tracking-wide sm:tracking-widest text-muted-foreground mb-1 leading-snug">
             {t("status.REQUESTED")}
           </p>
-          <h3 className="text-4xl font-heading italic text-blue-400">
+          <h3 className="text-2xl sm:text-4xl font-heading italic text-blue-400">
             {overviewStats.newRequests}
           </h3>
         </div>
-        <div className="glass p-8 rounded-[2rem] border border-white/5 bg-gradient-to-br from-purple-500/10 to-transparent relative overflow-hidden group">
+        <div className="glass p-4 sm:p-6 lg:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-gold/10 dark:border-white/5 bg-white/80 dark:bg-gradient-to-br dark:from-purple-500/10 dark:to-transparent relative overflow-hidden group min-h-[116px]">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-             <Eye className="w-16 h-16" />
+             <Eye className="w-14 h-14 sm:w-16 sm:h-16" />
           </div>
-          <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">
+          <p className="text-[10px] uppercase font-black tracking-wide sm:tracking-widest text-muted-foreground mb-1 leading-snug">
             {t("status.REVIEWING")}
           </p>
-          <h3 className="text-4xl font-heading italic text-purple-400">
+          <h3 className="text-2xl sm:text-4xl font-heading italic text-purple-400">
             {overviewStats.inHandling}
           </h3>
         </div>
-        <div className="glass p-8 rounded-[2rem] border border-white/5 bg-gradient-to-br from-gold/10 to-transparent relative overflow-hidden group">
+        <div className="glass p-4 sm:p-6 lg:p-8 rounded-[1.5rem] sm:rounded-[2rem] border border-gold/10 dark:border-white/5 bg-white/80 dark:bg-gradient-to-br dark:from-gold/10 dark:to-transparent relative overflow-hidden group min-h-[116px] col-span-2 lg:col-span-1">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-             <Check className="w-16 h-16" />
+             <Check className="w-14 h-14 sm:w-16 sm:h-16" />
           </div>
-          <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">
+          <p className="text-[10px] uppercase font-black tracking-wide sm:tracking-widest text-muted-foreground mb-1 leading-snug">
             {t("status.COMPLETED")}
           </p>
-          <h3 className="text-4xl font-heading italic gold-gradient">
+          <h3 className="text-2xl sm:text-4xl font-heading italic gold-gradient">
             {overviewStats.resolved}
           </h3>
         </div>
       </div>
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 px-2">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-6 px-0 sm:px-2">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 w-full xl:w-auto">
           {isAdmin && (
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
-              className="w-fit"
+              className="w-full sm:w-fit"
             >
-              <TabsList className="bg-white/5 border border-white/10 p-1 rounded-full h-12 shadow-inner">
+              <TabsList className="grid grid-cols-3 w-full sm:flex bg-white/80 dark:bg-white/5 border border-gold/10 dark:border-white/10 p-1 rounded-2xl sm:rounded-full h-auto sm:h-12 shadow-inner gap-1">
                 <TabsTrigger
                   value="all"
-                  className="rounded-full px-6 h-10 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
+                  className="rounded-xl sm:rounded-full px-2 sm:px-6 h-10 text-[10px] uppercase font-black tracking-wide sm:tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
                 >
                   {t("tabs.all")}
                   <span className="ml-2 opacity-30 text-[10px]">({counts.all})</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="online"
-                  className="rounded-full px-6 h-10 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
+                  className="rounded-xl sm:rounded-full px-2 sm:px-6 h-10 text-[10px] uppercase font-black tracking-wide sm:tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
                 >
                   {t("tabs.online")}
                   <span className="ml-2 opacity-30 text-[10px]">({counts.online})</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="pos"
-                  className="rounded-full px-6 h-10 text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
+                  className="rounded-xl sm:rounded-full px-2 sm:px-6 h-10 text-[10px] uppercase font-black tracking-wide sm:tracking-widest data-[state=active]:bg-gold data-[state=active]:text-white transition-all duration-300"
                 >
                   {t("tabs.pos")}
                   <span className="ml-2 opacity-30 text-[10px]">({counts.pos})</span>
@@ -649,12 +675,12 @@ export const AdminReturnManagement = ({
           )}
 
           {isAdmin && activeTab === "pos" && (
-            <div className="relative group min-w-[200px]">
+            <div className="relative group w-full sm:min-w-[200px]">
               <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/60 pointer-events-none z-10" />
               <select
                 value={selectedStoreId}
                 onChange={(e) => setSelectedStoreId(e.target.value)}
-                className="h-12 w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold outline-none focus:border-gold/50 appearance-none cursor-pointer transition-all shadow-inner hover:bg-white/[0.08]"
+                className="h-12 w-full bg-white/80 dark:bg-white/5 border border-gold/10 dark:border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold outline-none focus:border-gold/50 appearance-none cursor-pointer transition-all shadow-inner hover:bg-white/90 dark:hover:bg-white/[0.08]"
               >
                 <option value="all" className="bg-slate-900">Tất cả cửa hàng</option>
                 {stores.map((s) => (
@@ -666,31 +692,31 @@ export const AdminReturnManagement = ({
             </div>
           )}
 
-          <div className="relative group">
+          <div className="relative group w-full sm:w-auto">
             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/60 pointer-events-none z-10" />
             <input
               type="date"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
-              className="h-12 w-[180px] bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold outline-none focus:border-gold/50 transition-all shadow-inner hover:bg-white/[0.08]"
+              className="h-12 w-full sm:w-[180px] bg-white/80 dark:bg-white/5 border border-gold/10 dark:border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold outline-none focus:border-gold/50 transition-all shadow-inner hover:bg-white/90 dark:hover:bg-white/[0.08]"
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-3 w-full xl:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 w-full xl:w-auto">
           <form onSubmit={handleSearch} className="relative flex-1 xl:w-72 group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/40 group-focus-within:text-gold transition-colors" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm theo mã đơn/yêu cầu..."
-              className="h-12 bg-white/5 border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold focus:border-gold/50 transition-all shadow-inner"
+              className="h-12 bg-white/80 dark:bg-white/5 border-gold/10 dark:border-white/10 rounded-2xl pl-12 pr-4 text-xs font-bold focus:border-gold/50 transition-all shadow-inner"
             />
           </form>
 
           <Button
             variant="outline"
-            className="h-12 w-12 rounded-2xl border-white/10 bg-white/5 hover:bg-gold hover:text-white transition-all active:scale-95 group"
+            className="h-12 w-12 shrink-0 rounded-2xl border-gold/10 dark:border-white/10 bg-white/80 dark:bg-white/5 hover:bg-gold hover:text-white transition-all active:scale-95 group"
             onClick={loadData}
             disabled={loading}
           >
@@ -716,7 +742,7 @@ export const AdminReturnManagement = ({
 
       <div className="w-full">
 
-        <div className="glass rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl">
+        <div className="glass rounded-[2rem] sm:rounded-[3rem] border border-gold/10 dark:border-white/5 overflow-hidden shadow-2xl bg-white/70 dark:bg-transparent">
           {/* Desktop Table View */}
           <div className="hidden lg:block overflow-x-auto">
             <Table>
@@ -952,7 +978,7 @@ export const AdminReturnManagement = ({
           </div>
 
           {/* Mobile Card View */}
-          <div className="lg:hidden p-6 space-y-4">
+          <div className="lg:hidden p-3 sm:p-6 space-y-3 sm:space-y-4">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-24 space-y-4">
                 <Loader2 className="w-10 h-10 animate-spin text-gold opacity-40" />
@@ -971,16 +997,16 @@ export const AdminReturnManagement = ({
               filteredData.map((req) => (
                 <div
                   key={req.id}
-                  className="glass rounded-[2rem] border border-white/5 p-6 space-y-5 relative group hover:border-gold/20 transition-all active:scale-[0.98]"
+                  className="glass rounded-[1.5rem] sm:rounded-[2rem] border border-gold/10 dark:border-white/5 bg-white/85 dark:bg-white/[0.03] p-4 sm:p-6 space-y-4 sm:space-y-5 relative group hover:border-gold/20 transition-all active:scale-[0.98]"
                   onClick={() => {
                     setSelectedReturn(req);
                     setIsReviewOpen(true);
                   }}
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-heading italic gold-gradient uppercase">#{req.id.substring(0, 8).toUpperCase()}</span>
+                  <div className="flex justify-between items-start gap-3">
+                    <div className="space-y-2 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-heading italic gold-gradient uppercase break-all">#{req.id.substring(0, 8).toUpperCase()}</span>
                         {req.origin === "POS" ? (
                           <span className="text-[8px] font-black uppercase tracking-widest text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full">POS</span>
                         ) : (
@@ -993,13 +1019,13 @@ export const AdminReturnManagement = ({
                     </div>
                     <Badge
                       variant="outline"
-                      className={`${getStatusColor(req.status)} text-[9px] px-3 py-1 uppercase font-black rounded-full`}
+                      className={`${getStatusColor(req.status)} shrink-0 max-w-[46%] justify-center whitespace-normal text-center leading-tight text-[9px] px-3 py-1 uppercase font-black rounded-full`}
                     >
                       {getStatusLabel(req.status)}
                     </Badge>
                   </div>
 
-                  <div className="space-y-3 border-y border-white/5 py-4">
+                  <div className="space-y-3 border-y border-border/50 py-4">
                     <div className="flex justify-between text-[11px]">
                       <span className="text-muted-foreground/40 uppercase font-black tracking-widest text-[9px]">Ngày yêu cầu</span>
                       <span className="text-foreground font-bold text-xs">
@@ -1008,18 +1034,18 @@ export const AdminReturnManagement = ({
                     </div>
                     <div className="space-y-2">
                       <span className="text-[9px] text-muted-foreground/40 uppercase font-black tracking-widest block">Lý do</span>
-                      <p className="text-[11px] text-foreground/60 bg-white/5 border border-white/5 p-3 rounded-xl italic">
+                      <p className="text-[11px] text-foreground/70 bg-stone-50/90 dark:bg-white/5 border border-border/60 dark:border-white/5 p-3 rounded-xl italic leading-relaxed">
                         {getReasonLabel(req.reason) || "Không có lý do chi tiết"}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-1 overflow-x-auto custom-scrollbar no-scrollbar">
+                  <div className="grid grid-cols-2 sm:flex sm:items-center sm:justify-end gap-2 pt-1">
                     {!isAdmin && (
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 text-[10px] text-blue-400 font-bold uppercase tracking-tight"
+                        className="h-9 w-full sm:w-auto text-[10px] text-blue-400 font-bold uppercase tracking-tight"
                       >
                         <Search className="w-3 h-3 mr-1" /> Chi tiết
                       </Button>
@@ -1028,7 +1054,7 @@ export const AdminReturnManagement = ({
                     {isAdmin && ["REQUESTED", "REVIEWING", "AWAITING_CUSTOMER"].includes(req.status) && (
                       <Button
                         size="sm"
-                        className="h-8 bg-gold/10 text-gold border border-gold/20 text-[10px] font-bold"
+                        className="h-9 w-full sm:w-auto bg-gold/10 text-gold border border-gold/20 text-[10px] font-bold"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedReturn(req);
@@ -1049,7 +1075,7 @@ export const AdminReturnManagement = ({
                           setNote("");
                           setIsReceiveOpen(true);
                         }}
-                        className="h-8 bg-teal-600 text-white text-[10px] font-bold"
+                        className="h-9 w-full sm:w-auto bg-teal-600 text-white text-[10px] font-bold"
                       >
                         <Box className="w-3 h-3 mr-1" /> {"Nhận kho"}
                       </Button>
@@ -1064,7 +1090,7 @@ export const AdminReturnManagement = ({
                           setNote("");
                           setIsRefundOpen(true);
                         }}
-                        className="h-8 bg-indigo-600 text-white text-[10px] font-bold"
+                        className="h-9 w-full sm:w-auto bg-indigo-600 text-white text-[10px] font-bold"
                       >
                         <CreditCard className="w-3 h-3 mr-1" /> Hoàn tiền
                       </Button>
@@ -1080,7 +1106,7 @@ export const AdminReturnManagement = ({
                             handleCancel(req.id);
                           }
                         }}
-                        className="h-8 text-red-500/80 text-[10px] font-bold"
+                        className="h-9 w-full sm:w-auto text-red-500/80 text-[10px] font-bold"
                       >
                         <X className="w-3 h-3 mr-1" /> Hủy
                       </Button>
@@ -1098,7 +1124,7 @@ export const AdminReturnManagement = ({
                           setShipBackTracking("");
                           setIsShipBackOpen(true);
                         }}
-                        className="h-8 bg-orange-600 text-white text-[10px] font-bold"
+                        className="h-9 w-full sm:w-auto bg-orange-600 text-white text-[10px] font-bold"
                       >
                         <PackageX className="w-3 h-3 mr-1" /> Gửi trả khách
                       </Button>
@@ -1257,12 +1283,19 @@ export const AdminReturnManagement = ({
                                         className="w-full h-full object-cover"
                                       />
                                     ) : (
-                                      // eslint-disable-next-line @next/next/no-img-element
-                                      <img
-                                        src={url}
-                                        alt={item.variant?.product?.name || "Product image"}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => setPreviewImageUrl(getMediaUrl(url))}
+                                        className="h-full w-full cursor-zoom-in"
+                                        aria-label="Xem ảnh bằng chứng"
+                                      >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                          src={getMediaUrl(url)}
+                                          alt={item.variant?.product?.name || "Product image"}
+                                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        />
+                                      </button>
                                     )}
                                   </div>
                                 );
@@ -1276,7 +1309,7 @@ export const AdminReturnManagement = ({
                 </div>
               </div>
 
-            {isAdmin && (
+            {false && (
               <div className="space-y-2 pt-4 border-t border-border/50">
                 <label className="text-xs uppercase tracking-wider font-semibold text-muted-foreground">
                   {t("dialogs.note_label", {
@@ -1295,7 +1328,27 @@ export const AdminReturnManagement = ({
                 />
               </div>
             )}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-0 px-8 py-6 md:px-12 md:py-6 border-t border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 z-20">
+          <div className="flex flex-col gap-4 px-8 py-5 md:px-12 border-t border-white/10 bg-white/90 dark:bg-zinc-900/50 backdrop-blur-xl shrink-0 z-20 sm:flex-row sm:items-end sm:justify-between">
+            {isAdmin && (
+              <div className="w-full sm:max-w-[430px] space-y-1.5">
+                <label className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  {t("dialogs.note_label", {
+                    target: selectedReturn?.origin === "POS" ? "nhân viên" : "khách"
+                  })}
+                </label>
+                <Input
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder={
+                    selectedReturn?.origin === "POS"
+                      ? t("dialogs.note_placeholder_staff")
+                      : t("dialogs.note_placeholder_customer")
+                  }
+                  className="bg-muted/30 border-gold/20 h-10 text-sm focus-visible:ring-gold/30"
+                />
+              </div>
+            )}
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 shrink-0">
             {isAdmin ? (
               <>
                 <Button
@@ -1327,6 +1380,7 @@ export const AdminReturnManagement = ({
             ) : (
               <Button variant="outline" onClick={() => setIsReviewOpen(false)}>{t("dialogs.btn_close")}</Button>
             )}
+            </div>
           </div>
             </motion.div>
           </div>
@@ -1433,57 +1487,68 @@ export const AdminReturnManagement = ({
 
       {/* Refund History Dialog */}
       <Dialog open={isRefundHistoryOpen} onOpenChange={setIsRefundHistoryOpen}>
-        <DialogContent className="glass border-indigo-500/30 w-full sm:max-w-xl shadow-2xl sm:rounded-3xl flex flex-col p-0 overflow-hidden">
-          <DialogHeader className="border-b border-white/10 px-8 pt-8 pb-6 shrink-0 relative overflow-hidden">
+        <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-2xl max-h-[92vh] border border-indigo-500/20 bg-white/95 dark:bg-zinc-950/95 shadow-2xl rounded-[1.75rem] sm:rounded-[2rem] flex flex-col p-0 overflow-hidden backdrop-blur-2xl">
+          <DialogHeader className="border-b border-border px-5 sm:px-8 pt-6 sm:pt-8 pb-5 sm:pb-6 shrink-0 relative overflow-hidden bg-gradient-to-br from-indigo-500/8 via-white to-white dark:from-indigo-500/10 dark:via-zinc-950 dark:to-zinc-950">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl -mr-16 -mt-16" />
-            <DialogTitle className="text-2xl text-indigo-400 font-heading flex items-center gap-3 relative z-10">
-              <div className="p-2 bg-indigo-500/20 rounded-xl">
-                <CreditCard className="w-6 h-6 text-indigo-400" />
+            <DialogTitle className="text-xl sm:text-2xl text-indigo-600 dark:text-indigo-400 font-heading flex items-center gap-3 relative z-10">
+              <div className="p-2.5 bg-indigo-500/10 border border-indigo-500/15 rounded-2xl shrink-0">
+                <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-500" />
               </div>
               Lịch sử hoàn tiền
             </DialogTitle>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-bold mt-2 opacity-60">
+            <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-[0.18em] sm:tracking-[0.3em] font-bold mt-3 opacity-70">
               Chi tiết các giao dịch tài chính liên quan
             </p>
+            <button
+              type="button"
+              onClick={() => setIsRefundHistoryOpen(false)}
+              className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/80 text-muted-foreground transition-all hover:bg-white hover:text-foreground dark:bg-white/5 dark:hover:bg-white/10"
+              aria-label="Đóng lịch sử hoàn tiền"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-8 py-8 custom-scrollbar space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-5 sm:py-8 custom-scrollbar space-y-4 sm:space-y-6">
             {!selectedReturn?.refunds || selectedReturn.refunds.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4 bg-muted/5 rounded-3xl border border-dashed border-border/50">
-                <div className="w-16 h-16 rounded-full bg-muted/10 flex items-center justify-center">
-                  <Banknote className="w-8 h-8 text-muted-foreground/30" />
+              <div className="flex flex-col items-center justify-center py-16 sm:py-20 text-center space-y-4 bg-stone-50 dark:bg-white/[0.03] rounded-3xl border border-dashed border-border">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-indigo-500/10 flex items-center justify-center">
+                  <Banknote className="w-7 h-7 sm:w-8 sm:h-8 text-indigo-400" />
                 </div>
                 <p className="text-sm text-muted-foreground font-medium">Chưa có thông tin hoàn tiền</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {selectedReturn.refunds.map((refund) => (
-                  <div key={refund.id} className="group relative bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-6 transition-all duration-300">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 text-[10px] h-5 font-bold uppercase tracking-wider">
+                  <div key={refund.id} className="group relative bg-white dark:bg-white/[0.04] hover:bg-stone-50 dark:hover:bg-white/[0.07] border border-border rounded-[1.5rem] p-4 sm:p-6 transition-all duration-300 shadow-[0_18px_45px_-35px_rgba(15,23,42,0.8)]">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
+                      <div className="space-y-2 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="outline" className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 text-[10px] h-6 font-bold uppercase tracking-wider">
                             {refund.method}
                           </Badge>
-                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[9px] h-5">
+                          <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[9px] h-6 font-black uppercase tracking-wide">
                             {refund.status}
                           </Badge>
                         </div>
-                        <p className="text-2xl font-bold text-foreground tracking-tighter">
+                        <p className="text-2xl sm:text-3xl font-heading font-bold text-foreground tracking-tighter">
                           {formatVND(refund.amount)}
                         </p>
                       </div>
-                      <div className="text-right">
+                      <div className="sm:text-right rounded-2xl bg-stone-50 dark:bg-black/20 border border-border/60 px-3 py-2 min-w-[150px]">
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Thời gian</p>
-                        <p className="text-xs font-medium text-foreground/80">
-                          {refund.createdAt && new Date(refund.createdAt).toLocaleString("vi-VN")}
+                        <p className="text-xs font-semibold text-foreground mt-1 leading-relaxed">
+                          {formatRefundDate(refund.createdAt).date}
+                        </p>
+                        <p className="text-[11px] font-mono text-muted-foreground mt-0.5">
+                          {formatRefundDate(refund.createdAt).time}
                         </p>
                       </div>
                     </div>
 
                     {refund.note && (
-                      <div className="mb-4 p-3 bg-black/20 rounded-xl border border-white/5">
-                        <p className="text-xs text-muted-foreground italic leading-relaxed">
+                      <div className="mb-4 p-3 bg-stone-50 dark:bg-black/20 rounded-2xl border border-border/60">
+                        <p className="text-xs text-foreground/65 italic leading-relaxed">
                           "{refund.note}"
                         </p>
                       </div>
@@ -1492,24 +1557,23 @@ export const AdminReturnManagement = ({
                     {refund.receiptImage && (
                       <div className="space-y-2">
                         <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest ml-1">Bằng chứng hoàn tiền</span>
-                        <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40 group/img">
+                        <div className="relative aspect-video rounded-2xl overflow-hidden border border-border bg-stone-100 dark:bg-black/40 group/img">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img 
-                            src={refund.receiptImage.startsWith('http') ? refund.receiptImage : `${process.env.NEXT_PUBLIC_API_URL || ''}${refund.receiptImage}`} 
+                            src={getMediaUrl(refund.receiptImage)}
                             alt="Minh chứng" 
                             className="w-full h-full object-contain transition-transform duration-700 group-hover/img:scale-110" 
                           />
-                          <a 
-                            href={refund.receiptImage.startsWith('http') ? refund.receiptImage : `${process.env.NEXT_PUBLIC_API_URL || ''}${refund.receiptImage}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImageUrl(getMediaUrl(refund.receiptImage))}
                             className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover/img:opacity-100 transition-all duration-300 backdrop-blur-sm"
                           >
                             <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2 border border-white/20">
                               <Camera className="w-6 h-6 text-white" />
                             </div>
                             <span className="text-xs font-bold text-white uppercase tracking-widest">Xem ảnh gốc</span>
-                          </a>
+                          </button>
                         </div>
                       </div>
                     )}
@@ -1519,11 +1583,11 @@ export const AdminReturnManagement = ({
             )}
           </div>
 
-          <DialogFooter className="px-8 py-6 border-t border-white/10 bg-black/20">
+          <DialogFooter className="hidden">
             <Button 
               variant="ghost" 
               onClick={() => setIsRefundHistoryOpen(false)}
-              className="w-full sm:w-auto px-8 rounded-xl hover:bg-white/5 text-[11px] font-bold uppercase tracking-[0.2em]"
+              className="w-full sm:w-auto px-8 rounded-xl hover:bg-white dark:hover:bg-white/5 text-[11px] font-bold uppercase tracking-[0.2em]"
             >
               Đóng lại
             </Button>
@@ -2100,6 +2164,37 @@ export const AdminReturnManagement = ({
                   )}
                 </Button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {previewImageUrl && (
+          <div
+            className="fixed inset-0 z-[220] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+            onClick={() => setPreviewImageUrl(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="relative max-h-[92vh] w-full max-w-5xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setPreviewImageUrl(null)}
+                className="absolute -right-2 -top-12 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-all hover:bg-white/20"
+                aria-label="Đóng ảnh"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewImageUrl}
+                alt="Ảnh phóng to"
+                className="mx-auto max-h-[92vh] w-auto max-w-full rounded-2xl border border-white/15 bg-black object-contain shadow-2xl"
+              />
             </motion.div>
           </div>
         )}

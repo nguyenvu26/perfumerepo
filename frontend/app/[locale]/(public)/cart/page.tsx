@@ -358,185 +358,144 @@ export default function CartPage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.5, delay: index * 0.05 }}
-                        className="group relative flex flex-col md:grid md:grid-cols-[auto_180px_1fr_auto] gap-5 md:gap-10 p-5 sm:p-8 md:p-10 md:items-center bg-white/50 dark:bg-black/20 md:bg-transparent rounded-3xl md:rounded-none"
+                        className="group relative flex flex-col md:flex-row gap-4 md:gap-8 p-5 md:p-6 items-start md:items-center bg-white/40 hover:bg-white/60 dark:bg-white/5 dark:hover:bg-white/10 transition-colors rounded-[2rem] border border-black/5 dark:border-white/5 shadow-sm"
                       >
-                        {/* ======================= */}
-                        {/* 1. MOBILE TOP BLOCK     */}
-                        {/* ======================= */}
-                        <div className="flex md:hidden items-start gap-4 w-full">
-                          <button
-                            type="button"
-                            onClick={() => toggleSelect(item.id)}
-                            className="flex shrink-0 items-center justify-center pt-1"
-                          >
-                            <div className={cn(
-                              "flex h-6 w-6 items-center justify-center rounded-lg border shadow-sm transition-all",
-                              selectedIds.includes(item.id) 
-                                ? "border-gold bg-gold text-luxury-black" 
-                                : "border-black/20 bg-transparent dark:border-white/20"
-                            )}>
-                               <Check className={cn("h-3.5 w-3.5 transition-all", selectedIds.includes(item.id) ? "scale-100" : "scale-0")} strokeWidth={3} />
-                            </div>
-                          </button>
+                        {/* Checkbox */}
+                        <button type="button" onClick={() => toggleSelect(item.id)} className="absolute top-4 left-4 md:relative md:top-auto md:left-auto flex shrink-0 items-center justify-center z-10 p-1 md:p-0">
+                           <div className={cn(
+                             "flex h-6 w-6 items-center justify-center rounded-[0.4rem] border transition-all shadow-sm",
+                             selectedIds.includes(item.id) ? "border-gold bg-gold text-luxury-black" : "border-black/20 bg-background dark:border-white/20"
+                           )}>
+                              <Check className={cn("h-3.5 w-3.5 transition-all", selectedIds.includes(item.id) ? "scale-100" : "scale-0")} strokeWidth={3} />
+                           </div>
+                        </button>
 
-                          <div className="relative shrink-0 w-20 h-28 sm:w-24 sm:h-32 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 shadow-inner">
+                        {/* Image & Mobile Text */}
+                        <div className="flex gap-4 w-full md:w-auto">
+                           <div className="relative shrink-0 w-24 h-32 md:w-32 md:h-32 xl:w-40 xl:h-40 overflow-hidden rounded-2xl bg-secondary/30 shadow-inner border border-black/5 dark:border-white/5 ml-8 md:ml-0">
                              {item.variant.product.images?.[0]?.url ? (
                               <img
                                 src={item.variant.product.images[0].url}
                                 alt={item.variant.product.name}
-                                className="h-full w-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
+                                className="h-full w-full object-cover transition-all duration-1000 group-hover:scale-110"
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center text-gold/20">
-                                <ShoppingBag className="h-6 w-6" />
+                                <ShoppingBag className="h-8 w-8 md:h-12 md:w-12" />
                               </div>
                             )}
-                          </div>
-
-                          <div className="flex flex-col flex-1 min-w-0 pt-0.5">
-                             <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.35em] text-gold/70 truncate">{item.variant.product.brand?.name || 'Perfume GPT'}</p>
-                             <Link 
-                               href={`/product/${item.variant.product.slug}`}
-                               className="text-base sm:text-lg font-heading leading-tight italic mt-0.5 line-clamp-2 hover:text-gold transition-colors"
-                             >
-                               {item.variant.product.name}
-                             </Link>
-                             <div className="flex items-center gap-2 mt-2">
-                               <span className="text-[9px] font-black uppercase tracking-widest bg-gold/10 text-gold px-2.5 py-0.5 rounded-full border border-gold/20 shadow-sm whitespace-nowrap">
-                                 {item.variant.name}
-                               </span>
-                             </div>
-                             <div className="mt-1.5 text-[13px] sm:text-sm font-medium italic text-muted-foreground">
-                               {formatCurrency(item.variant.price)}
-                             </div>
-                          </div>
-                        </div>
-
-                        {/* ======================= */}
-                        {/* 2. DESKTOP SELECTOR     */}
-                        {/* ======================= */}
-                        <button
-                          type="button"
-                          onClick={() => toggleSelect(item.id)}
-                          className="hidden md:flex h-10 w-10 shrink-0 items-center justify-center"
-                        >
-                          <div className={cn(
-                            "flex h-7 w-7 items-center justify-center rounded-xl border transition-all duration-500 shadow-sm",
-                            selectedIds.includes(item.id) 
-                              ? "border-gold bg-gold text-luxury-black" 
-                              : "border-black/20 bg-transparent group-hover:border-gold/50 dark:border-white/20"
-                          )}>
-                             <Check className={cn("h-4 w-4 transition-all", selectedIds.includes(item.id) ? "scale-100" : "scale-0")} strokeWidth={3} />
-                          </div>
-                        </button>
-
-                        {/* ======================= */}
-                        {/* 3. DESKTOP IMAGE        */}
-                        {/* ======================= */}
-                        <div className="hidden md:block relative shrink-0 w-full aspect-[4/5] overflow-hidden rounded-[2rem] bg-black/5 shadow-inner dark:bg-white/5">
-                           {item.variant.product.images?.[0]?.url ? (
-                            <img
-                              src={item.variant.product.images[0].url}
-                              alt={item.variant.product.name}
-                              className="h-full w-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-gold/20">
-                              <ShoppingBag className="h-12 w-12" />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* ======================= */}
-                        {/* 4. CONTENT & QUANTITY   */}
-                        {/* ======================= */}
-                        <div className="flex flex-col justify-center w-full min-w-0">
-                           {/* Desktop Title & Info (Hidden on Mobile) */}
-                           <div className="hidden md:block space-y-2 mb-5">
-                              <p className="text-xs font-black uppercase tracking-[0.35em] text-gold/70 truncate">{item.variant.product.brand?.name || 'Perfume GPT'}</p>
+                           </div>
+                           
+                           <div className="flex flex-col flex-1 min-w-0 md:hidden pt-1">
+                              <p className="text-[9px] font-black uppercase tracking-[0.3em] text-gold/80 mb-1 truncate">{item.variant.product.brand?.name || 'Perfume GPT'}</p>
                               <Link 
-                                href={`/product/${item.variant.product.slug}`}
-                                className="text-3xl font-heading leading-tight hover:text-gold transition-colors block italic tracking-tight"
+                                href={`/collection/${item.variant.product.id}`}
+                                className="text-lg font-heading leading-tight italic hover:text-gold transition-colors line-clamp-2"
                               >
                                 {item.variant.product.name}
                               </Link>
-                              <div className="flex flex-wrap items-center gap-4 mt-3">
-                                <span className="text-[11px] font-black uppercase tracking-widest bg-gold/10 text-gold px-4 py-1.5 rounded-full border border-gold/20 shadow-sm whitespace-nowrap">
+                              <div className="flex flex-wrap items-center gap-2 mt-2">
+                                <span className="text-[9px] font-black uppercase tracking-widest bg-gold/10 text-gold px-2 py-0.5 rounded border border-gold/20 shadow-sm whitespace-nowrap">
+                                  {item.variant.name}
+                                </span>
+                              </div>
+                              <div className="mt-2 text-sm font-medium italic text-muted-foreground">
+                                {formatCurrency(item.variant.price)}
+                              </div>
+                           </div>
+                        </div>
+
+                        {/* Desktop Text Info */}
+                        <div className="hidden md:flex flex-col flex-1 min-w-0 justify-center">
+                              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gold/80 mb-1">{item.variant.product.brand?.name || 'Perfume GPT'}</p>
+                              <Link 
+                                href={`/collection/${item.variant.product.id}`}
+                                className="text-2xl xl:text-3xl font-heading leading-tight hover:text-gold transition-colors block italic tracking-tight truncate"
+                              >
+                                {item.variant.product.name}
+                              </Link>
+                              
+                              <div className="flex flex-wrap items-center gap-3 mt-3">
+                                <span className="text-[10px] font-black uppercase tracking-widest bg-gold/10 text-gold px-3 py-1 rounded-md border border-gold/20 shadow-sm whitespace-nowrap">
                                   {item.variant.name}
                                 </span>
                                 <span className="text-sm font-medium text-muted-foreground italic whitespace-nowrap">
                                   {labels.itemPrice}: <span className="text-foreground">{formatCurrency(item.variant.price)}</span>
                                 </span>
                               </div>
+                        </div>
+
+                        {/* Right Section (Subtotal, Qty, Trash) */}
+                        <div className="flex flex-col md:items-end justify-between w-full md:w-auto mt-4 md:mt-0 pt-4 md:pt-0 border-t border-black/5 md:border-t-0 dark:border-white/5 self-stretch gap-4 md:gap-2">
+                           
+                           {/* Subtotal */}
+                           <div className="flex items-center justify-between md:flex-col md:items-end w-full md:w-auto">
+                              <div className="text-left md:text-right">
+                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-0.5 md:mb-1 leading-none">{isVi ? 'Tạm tính' : 'Subtotal'}</p>
+                                 <p className="text-xl md:text-2xl xl:text-3xl font-heading italic gold-gradient tracking-tighter leading-none">
+                                   {formatCurrency(item.variant.price * item.quantity)}
+                                 </p>
+                              </div>
                            </div>
 
-                           {/* Quantity & Stock (Shared Mobile & Desktop) */}
-                           <div className="flex items-center justify-between md:justify-start gap-4 sm:gap-8 w-full">
-                              <div className="flex items-center gap-2 sm:gap-4 bg-black/5 dark:bg-white/5 p-1 md:p-1.5 rounded-full w-fit border border-black/5 dark:border-white/5 shadow-inner">
-                                 <button
-                                    type="button"
-                                    onClick={() => updateQty(item, -1)}
-                                    disabled={item.quantity <= 1}
-                                    className="flex h-8 md:h-10 w-8 md:w-10 items-center justify-center rounded-full hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20 bg-background/50"
-                                  >
-                                    <span className="text-xl md:text-2xl font-light">-</span>
-                                  </button>
-                                  
-                                  <div className="flex flex-col items-center px-1 md:px-2">
-                                    <input
-                                      type="text"
-                                      inputMode="numeric"
-                                      value={inputValues[item.id] !== undefined ? inputValues[item.id] : String(item.quantity)}
-                                      onChange={(e) => handleInputChange(item, e.target.value, item.variant.inventories?.[0]?.available ?? 99)}
-                                      onBlur={() => handleInputBlur(item, item.variant.inventories?.[0]?.available ?? 99)}
-                                      className="w-8 md:w-12 bg-transparent text-center text-sm md:text-base font-black text-foreground focus:outline-none"
-                                    />
+                           {/* Controls */}
+                           <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
+                              {/* Qty and Trash Row */}
+                              <div className="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
+                                  <div className="flex items-center bg-secondary/50 dark:bg-white/5 p-1 rounded-full border border-black/5 dark:border-white/5 shadow-inner w-fit">
+                                      <button
+                                        type="button"
+                                        onClick={() => updateQty(item, -1)}
+                                        disabled={item.quantity <= 1}
+                                        className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-full hover:bg-gold hover:text-luxury-black transition-all disabled:opacity-20 bg-background/50 shadow-sm"
+                                      >
+                                        <span className="text-lg md:text-xl font-light">-</span>
+                                      </button>
+                                      
+                                      <div className="flex flex-col items-center px-1">
+                                        <input
+                                          type="text"
+                                          inputMode="numeric"
+                                          value={inputValues[item.id] !== undefined ? inputValues[item.id] : String(item.quantity)}
+                                          onChange={(e) => handleInputChange(item, e.target.value, item.variant.inventories?.[0]?.available ?? 99)}
+                                          onBlur={() => handleInputBlur(item, item.variant.inventories?.[0]?.available ?? 99)}
+                                          className="w-8 md:w-10 bg-transparent text-center text-sm md:text-base font-black text-foreground focus:outline-none"
+                                        />
+                                      </div>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => updateQty(item, 1)}
+                                        className="flex h-8 md:h-9 w-8 md:w-9 items-center justify-center rounded-full hover:bg-gold hover:text-luxury-black transition-all bg-background/50 shadow-sm"
+                                      >
+                                        <span className="text-lg md:text-xl font-light">+</span>
+                                      </button>
                                   </div>
 
                                   <button
-                                    type="button"
-                                    onClick={() => updateQty(item, 1)}
-                                    className="flex h-8 md:h-10 w-8 md:w-10 items-center justify-center rounded-full hover:bg-gold hover:text-luxury-black transition-all bg-background/50 shadow-sm"
-                                  >
-                                    <span className="text-xl md:text-2xl font-light">+</span>
+                                      type="button"
+                                      onClick={() => remove(item.id)}
+                                      className="group/trash flex h-10 w-10 md:h-11 md:w-11 shrink-0 items-center justify-center rounded-full bg-destructive/5 hover:bg-destructive text-destructive hover:text-white transition-all shadow-sm"
+                                    >
+                                      <Trash2 className="h-4 w-4 md:h-4 md:w-4 transition-transform group-hover/trash:scale-110" strokeWidth={2} />
                                   </button>
                               </div>
 
                               {(() => {
                                 const totalAvailable = item.variant.inventories?.reduce((sum, inv) => sum + inv.available, 0) ?? 0;
                                 return totalAvailable > 0 && (
-                                  <div className="flex items-center gap-2 py-1 px-3 md:gap-2.5 md:py-1.5 md:px-4 rounded-full bg-emerald-500/5 border border-emerald-500/10 whitespace-nowrap min-w-fit">
+                                  <div className="flex items-center gap-1.5 py-0.5 px-2 rounded-full bg-emerald-500/5 border border-emerald-500/10 w-fit">
                                     <div className={cn(
                                       "h-1.5 w-1.5 rounded-full animate-pulse",
-                                      totalAvailable < 5 ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                                      totalAvailable < 5 ? "bg-amber-500" : "bg-emerald-500"
                                     )} />
-                                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider text-muted-foreground/80">
-                                      {isVi ? `Sẵn sàng: ${totalAvailable}` : `In Stock: ${totalAvailable}`}
+                                    <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/80">
+                                      {isVi ? `Sẵn sàng: ${totalAvailable}` : `Stock: ${totalAvailable}`}
                                     </span>
                                   </div>
                                 )
                               })()}
                            </div>
-                        </div>
-
-                        {/* ======================= */}
-                        {/* 5. SUBTOTAL & TRASH     */}
-                        {/* ======================= */}
-                        <div className="flex items-center justify-between md:flex-col md:items-end gap-4 md:gap-6 w-full md:w-auto mt-2 md:mt-0 pt-4 md:pt-0 border-t border-black/5 md:border-t-0 dark:border-white/5">
-                           <div className="text-left md:text-right">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-0.5 md:mb-1 leading-none">{isVi ? 'Tạm tính' : 'Subtotal'}</p>
-                              <p className="text-xl sm:text-2xl md:text-4xl font-heading italic gold-gradient tracking-tighter leading-none">
-                                {formatCurrency(item.variant.price * item.quantity)}
-                              </p>
-                           </div>
-                           
-                           <button
-                              type="button"
-                              onClick={() => remove(item.id)}
-                              className="group/trash flex h-10 w-10 md:h-12 md:w-12 shrink-0 items-center justify-center rounded-xl md:rounded-2xl bg-black/5 dark:bg-white/5 border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all text-muted-foreground hover:text-red-500 shadow-sm"
-                            >
-                              <Trash2 className="h-4 md:h-5 w-4 md:w-5 transition-transform group-hover/trash:scale-110" strokeWidth={1.5} />
-                            </button>
                         </div>
                       </motion.article>
                     ))}
@@ -569,8 +528,8 @@ export default function CartPage() {
                             <p className="text-base sm:text-lg font-heading italic text-muted-foreground opacity-40">{isVi ? 'Tất cả' : 'Total'}</p>
                          </div>
                          <div className="text-right">
-                            <p className="text-4xl sm:text-5xl md:text-7xl font-heading italic gold-gradient tracking-tighter leading-none mb-3 md:mb-4 truncate">
-                              {formatCurrency(subtotal)}
+                            <p className="text-3xl sm:text-4xl font-heading italic gold-gradient tracking-tighter leading-none mb-3 md:mb-4 whitespace-nowrap">
+                               {formatCurrency(subtotal)}
                             </p>
                             <div className="flex items-center justify-end gap-2 text-gold/60">
                                <ShieldCheck className="w-3.5 h-3.5" />
@@ -603,18 +562,10 @@ export default function CartPage() {
                       </div>
 
                       <div className="pt-10 text-center border-t border-black/5 dark:border-white/5">
-                         <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground opacity-40 mb-5">
+                         <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground opacity-40 mb-2">
                            {t('secure_checkout')}
                          </p>
-                         <div className="flex items-center justify-center gap-3">
-                            {[1, 2, 3, 4].map((i) => (
-                              <div key={i} className="h-8 w-12 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center group/pay relative overflow-hidden transition-all hover:border-gold/30">
-                                 <div className="absolute inset-0 bg-gold/5 scale-0 group-hover/pay:scale-100 transition-transform duration-500 rounded-lg" />
-                                 <div className="h-3 w-7 bg-muted-foreground/10 rounded-sm relative z-10" />
-                              </div>
-                            ))}
-                         </div>
-                         <p className="mt-4 text-[8px] font-black uppercase tracking-[0.2em] text-gold/30 italic">Perfume GPT Security</p>
+                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gold/50 italic">Perfume GPT Security</p>
                       </div>
                    </div>
                 </div>
