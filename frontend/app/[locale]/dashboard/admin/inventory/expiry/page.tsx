@@ -149,8 +149,9 @@ export default function ExpiryReportPage() {
   };
 
   return (
-    <AuthGuard allowedRoles={['admin']}>
-      <main className="p-4 sm:p-8 md:p-10 max-w-[1600px] mx-auto min-h-screen">
+    <>
+      <AuthGuard allowedRoles={['admin']}>
+        <main className="p-4 sm:p-8 md:p-10 max-w-[1600px] mx-auto min-h-screen">
         <header className="mb-8 sm:mb-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8">
           <div className="space-y-6">
             <button 
@@ -210,14 +211,13 @@ export default function ExpiryReportPage() {
             <table className="w-full min-w-[1260px] text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/5 bg-secondary/10">
-                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic whitespace-nowrap min-w-[330px]">Sản phẩm</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic whitespace-nowrap min-w-[125px]">Mã Lô</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic text-center whitespace-nowrap min-w-[105px]">Nhập lúc đầu</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic text-center whitespace-nowrap min-w-[105px]">Tồn hiện tại</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic whitespace-nowrap min-w-[140px]">Giá nhập</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic whitespace-nowrap min-w-[175px]">Hạn sử dụng</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic whitespace-nowrap min-w-[135px]">Trạng thái</th>
-                  <th className="px-4 py-5 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic text-right whitespace-nowrap min-w-[85px]">Thao tác</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic whitespace-nowrap min-w-[350px]">Thông tin sản phẩm</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic text-center whitespace-nowrap min-w-[140px]">Mã Lô</th>
+                  <th className="px-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic text-center whitespace-nowrap min-w-[120px]">Số lượng</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic text-center whitespace-nowrap min-w-[150px]">Đơn giá vốn</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic text-center whitespace-nowrap min-w-[180px]">Hạn sử dụng</th>
+                  <th className="px-6 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic text-center whitespace-nowrap min-w-[140px]">Trạng thái</th>
+                  <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 italic text-right whitespace-nowrap min-w-[130px]">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -225,14 +225,14 @@ export default function ExpiryReportPage() {
                   {data.map((item, idx) => (
                     <motion.tr 
                       key={item.batchId}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.03 }}
-                      className="group bg-secondary/5 hover:bg-white/[0.05] transition-all rounded-2xl"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.02 }}
+                      className="group bg-transparent hover:bg-white/[0.03] transition-all border-b border-white/[0.02] last:border-0"
                     >
-                      <td className="px-6 py-5 min-w-[330px]">
+                      <td className="px-8 py-6">
                         <div className="flex items-center gap-6">
-                          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-secondary border border-white/5 relative group-hover:scale-105 transition-transform duration-500 shrink-0">
+                          <div className="w-16 h-16 rounded-2xl overflow-hidden bg-secondary border border-white/5 relative group-hover:scale-110 transition-transform duration-500 shrink-0 shadow-lg">
                             {item.imageUrl ? (
                               <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
                             ) : (
@@ -244,81 +244,106 @@ export default function ExpiryReportPage() {
                           <div className="min-w-0">
                             <p className="font-heading italic uppercase text-lg leading-tight mb-1 truncate group-hover:text-gold transition-colors">{item.productName}</p>
                             <div className="flex items-center gap-2">
-                               <span className="text-[10px] font-black uppercase tracking-widest opacity-40">{item.variantName}</span>
+                               <span className="text-[10px] font-black uppercase tracking-widest text-gold/60">{item.variantName}</span>
                                <span className="w-1 h-1 rounded-full bg-white/10" />
-                               <span className="text-[8px] font-black uppercase tracking-widest opacity-30 italic">{item.warehouseName}</span>
+                               <span className="text-[9px] font-medium text-muted-foreground/40 italic">{item.warehouseName}</span>
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-5">
-                        <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-lg bg-luxury-black text-gold/80 border border-gold/10">
+                      <td className="px-6 py-6 text-center">
+                        <span className="text-xs font-mono font-bold px-4 py-2 rounded-xl bg-luxury-black text-gold border border-gold/10 shadow-inner">
                           {item.batchCode}
                         </span>
                       </td>
-                      <td className="px-4 py-5 text-center">
-                        <span className="text-2xl font-heading italic text-foreground/45">{item.initialQuantity}</span>
-                        <span className="block text-[8px] uppercase font-black opacity-30 mt-1">Sản phẩm</span>
+                      <td className="px-4 py-6">
+                        <div className="flex items-baseline gap-1 justify-center">
+                          <span className={cn(
+                            "text-2xl font-heading italic",
+                            item.currentQuantity === 0 ? "text-red-500/50" : "text-foreground"
+                          )}>{item.currentQuantity}</span>
+                          <span className="text-xs text-muted-foreground/30 font-medium italic">/ {item.initialQuantity}</span>
+                        </div>
                       </td>
-                      <td className="px-4 py-5 text-center">
-                        <span className={cn(
-                          "text-2xl font-heading italic",
-                          item.currentQuantity === 0 ? "text-red-500/50" : "text-foreground/80"
-                        )}>{item.currentQuantity}</span>
-                        <span className="block text-[8px] uppercase font-black opacity-30 mt-1">Sản phẩm</span>
-                      </td>
-                      <td className="px-4 py-5">
-                        <div className="flex flex-col">
-                           <span className="text-xl font-heading italic text-gold">
+                      <td className="px-6 py-6 text-center">
+                        <div className="inline-flex flex-col items-center">
+                           <span className="text-xl font-heading italic text-gold tabular-nums">
                              {format.number(item.purchasePrice, { style: 'currency', currency: 'VND' })}
                            </span>
                         </div>
                       </td>
-                      <td className="px-4 py-5">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-xs font-bold whitespace-nowrap">
-                            <Calendar className="w-4 h-4 text-muted-foreground/50" />
-                            {new Date(item.expiryDate).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+                      <td className="px-6 py-6">
+                        <div className="flex flex-col items-center justify-center space-y-1.5">
+                          <div className="flex flex-col items-center gap-0.5">
+                             <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground/40 italic">
+                                <span>NSX:</span>
+                                <span>{item.mfgDate ? new Date(item.mfgDate).toLocaleDateString(locale, { year: 'numeric', month: 'numeric', day: 'numeric' }) : '---'}</span>
+                             </div>
+                             <div className="flex items-center gap-2 text-xs font-bold text-foreground/80">
+                               <Calendar className="w-4 h-4 text-gold/40" />
+                               <span className="opacity-40 font-medium text-[10px] mr-1">HSD:</span>
+                               {new Date(item.expiryDate).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}
+                             </div>
                           </div>
-                          <p className={cn(
-                            "text-[10px] font-black uppercase tracking-widest italic",
-                            item.status === 'CRITICAL' ? "text-red-500" : item.status === 'WARNING' ? "text-amber-500" : "text-emerald-500"
+                          <div className={cn(
+                            "px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest italic border",
+                            item.status === 'CRITICAL' ? "text-red-500 border-red-500/10 bg-red-500/5" : 
+                            item.status === 'WARNING' ? "text-amber-500 border-amber-500/10 bg-amber-500/5" : 
+                            "text-emerald-500 border-emerald-500/10 bg-emerald-500/5"
                           )}>
                             Còn {item.daysUntilExpiry} ngày
-                          </p>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-5">
-                        <div className={cn(
-                          "w-fit px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-xl flex items-center gap-2",
-                          item.status === 'SOLD_OUT' ? "bg-zinc-500/10 text-zinc-500 border-zinc-500/20" :
-                          item.status === 'CRITICAL' ? "bg-red-500/10 text-red-500 border-red-500/20" :
-                          item.status === 'WARNING' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
-                          "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        )}>
-                          {item.status === 'SOLD_OUT' ? 'Đã hết' : item.status === 'CRITICAL' ? 'Khẩn cấp' : item.status === 'WARNING' ? 'Cảnh báo' : 'An toàn'}
+                      <td className="px-6 py-6">
+                        <div className="flex justify-center">
+                          <div className={cn(
+                            "px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-xl flex items-center gap-2.5",
+                            item.status === 'SOLD_OUT' ? "bg-zinc-500/10 text-zinc-400 border-zinc-500/10" :
+                            item.status === 'CRITICAL' ? "bg-red-500/10 text-red-500 border-red-500/10" :
+                            item.status === 'WARNING' ? "bg-amber-500/10 text-amber-500 border-amber-500/10" :
+                            "bg-emerald-500/10 text-emerald-400 border-emerald-500/10"
+                          )}>
+                            <div className={cn(
+                              "w-1.5 h-1.5 rounded-full animate-pulse",
+                              item.status === 'SOLD_OUT' ? "bg-zinc-500" :
+                              item.status === 'CRITICAL' ? "bg-red-500" :
+                              item.status === 'WARNING' ? "bg-amber-500" :
+                              "bg-emerald-500"
+                            )} />
+                            {item.status === 'SOLD_OUT' ? 'Đã hết hàng' : item.status === 'CRITICAL' ? 'Hết hạn ngay' : item.status === 'WARNING' ? 'Cần chú ý' : 'An toàn tuyệt đối'}
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-5 text-right">
-                        {item.status === 'CRITICAL' && item.currentQuantity > 0 && (
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          <button
+                            onClick={() => openEdit(item)}
+                            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-gold/5 text-gold border border-gold/10 hover:bg-gold hover:text-white transition-all active:scale-90 group/btn relative"
+                            title="Sửa thông tin"
+                          >
+                            <Pencil className="w-4 h-4" />
+                            <span className="absolute bottom-full right-0 mb-3 px-3 py-1.5 bg-luxury-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-white opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none whitespace-nowrap rounded-lg shadow-2xl z-50">
+                              Cập nhật dữ liệu
+                            </span>
+                          </button>
+
                           <button
                             onClick={() => handleDispose(item.batchId, item.batchCode)}
                             disabled={processingId === item.batchId}
-                            className="p-3 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all active:scale-90 group relative"
-                            title="Xử lý hủy hàng hết hạn"
+                            className="w-11 h-11 flex items-center justify-center rounded-2xl bg-red-500/5 text-red-500 border border-red-500/10 hover:bg-red-500 hover:text-white transition-all active:scale-90 group/btn relative"
+                            title="Xóa / Hủy"
                           >
                             {processingId === item.batchId ? (
                               <RefreshCcw className="w-4 h-4 animate-spin" />
                             ) : (
                               <Trash2 className="w-4 h-4" />
                             )}
-                            
-                            {/* Tooltip phong cách Luxury */}
-                            <span className="absolute bottom-full right-0 mb-3 px-3 py-1.5 bg-luxury-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap rounded-lg shadow-2xl z-50">
-                              Xuất hủy hàng
+                            <span className="absolute bottom-full right-0 mb-3 px-3 py-1.5 bg-luxury-black border border-white/10 text-[8px] font-black uppercase tracking-widest text-white opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none whitespace-nowrap rounded-lg shadow-2xl z-50">
+                              Xuất hủy lô hàng
                             </span>
                           </button>
-                        )}
+                        </div>
                       </td>
                     </motion.tr>
                   ))}
@@ -470,20 +495,26 @@ export default function ExpiryReportPage() {
                     {item.status === 'SOLD_OUT' ? 'Đã hết' : item.status === 'CRITICAL' ? 'Khẩn cấp' : item.status === 'WARNING' ? 'Cảnh báo' : 'An toàn'}
                   </div>
 
-                  {item.status === 'CRITICAL' && item.currentQuantity > 0 && (
-                    <button
-                      onClick={() => handleDispose(item.batchId, item.batchCode)}
-                      disabled={processingId === item.batchId}
-                      className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all active:scale-90"
-                      title="Xuất hủy hàng"
-                    >
-                      {processingId === item.batchId ? (
-                        <RefreshCcw className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => openEdit(item)}
+                    className="p-2.5 rounded-xl bg-gold/10 text-gold border border-gold/20 hover:bg-gold hover:text-white transition-all active:scale-90"
+                    title="Sửa thông tin"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDispose(item.batchId, item.batchCode)}
+                    disabled={processingId === item.batchId}
+                    className="p-2.5 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white transition-all active:scale-90"
+                    title="Xuất hủy hàng"
+                  >
+                    {processingId === item.batchId ? (
+                      <RefreshCcw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5" />
+                    )}
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -640,6 +671,7 @@ export default function ExpiryReportPage() {
           </DialogContent>
         </Dialog>
       </main>
-    </AuthGuard>
+      </AuthGuard>
+    </>
   );
 }
